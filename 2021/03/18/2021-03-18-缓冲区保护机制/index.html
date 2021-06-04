@@ -1,0 +1,412 @@
+
+
+<!DOCTYPE html>
+<html lang="en" color-mode=light>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>缓冲区保护机制 - ShouCheng</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="google" content="notranslate" />
+  
+  <meta name="description" content="为了更好地对缓冲区进行利用，十分有必要了解一下chec...">
+  <meta name="author" content="ShouCheng">
+  <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/images/icons/apple-touch-icon.png" sizes="180x180">
+  <meta rel="mask-icon" href="/images/icons/stun-logo.svg" color="#333333">
+  
+    <meta rel="msapplication-TileImage" content="/images/icons/favicon-144x144.png">
+    <meta rel="msapplication-TileColor" content="#000000">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+    
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1445822_r673sha78lq.css">
+
+  
+
+  
+    
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css">
+
+  
+
+  
+    
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/xcode.min.css" name="highlight-style" mode="light">
+
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/solarized-dark.min.css" name="highlight-style" mode="dark">
+
+      
+  
+
+  <script>
+    var CONFIG = window.CONFIG || {};
+    var ZHAOO = window.ZHAOO || {};
+    CONFIG = {
+      isHome: false,
+      fancybox: true,
+      pjax: false,
+      lazyload: {
+        enable: true,
+        only_post: 'false',
+        loading: '[object Object]'
+      },
+      donate: {
+        enable: true,
+        alipay: 'https://pic.izhaoo.com/alipay.jpg',
+        wechat: 'https://pic.izhaoo.com/wechat.jpg'
+      },
+      galleries: {
+        enable: true
+      },
+      fab: {
+        enable: true,
+        always_show: false
+      },
+      carrier: {
+        enable: true
+      },
+      daovoice: {
+        enable: false
+      },
+      preview: {
+        background: {
+          default: '',
+          api: ''
+        },
+        motto: {
+          default: '我在开了灯的床头下，想问问自己的心啊。',
+          typing: true,
+          api: 'https://v2.jinrishici.com/one.json',
+          data_contents: '["data","content"]'
+        },
+      },
+      qrcode: {
+        enable: true,
+        type: 'url',
+        image: 'https://pic.izhaoo.com/weapp-code.jpg',
+      },
+      toc: {
+        enable: true
+      },
+      scrollbar: {
+        type: 'default'
+      },
+      notification: {
+        enable: false,
+        delay: 4500,
+        list: '',
+        page_white_list: '',
+        page_black_list: ''
+      },
+      search: {
+        enable: false,
+        path: ''
+      }
+    }
+  </script>
+
+  
+
+  
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="lock-screen">
+  <div class="loading"></div>
+  
+    
+
+
+  <nav class="navbar">
+    <div class="left">
+      
+        <i class="iconfont iconhome j-navbar-back-home"></i>
+      
+      
+        <i class="iconfont iconqrcode j-navbar-qrcode"></i>
+      
+      
+        <i class="iconfont iconmoono" id="color-toggle" color-toggle="light"></i>
+      
+      
+    </div>
+    <div class="center">缓冲区保护机制</div>
+    <div class="right">
+      <i class="iconfont iconmenu j-navbar-menu"></i>
+    </div>
+    
+      <div id="qrcode-navbar"></div>
+    
+  </nav>
+
+  
+  
+
+<nav class="menu">
+  <div class="menu-container">
+    <div class="menu-close">
+      <i class="iconfont iconbaseline-close-px"></i>
+    </div>
+    <ul class="menu-content"><li class="menu-item">
+        <a href="/ " class="underline "> 首页</a>
+      </li><li class="menu-item">
+        <a href="/galleries/ " class="underline "> 摄影</a>
+      </li><li class="menu-item">
+        <a href="/archives/ " class="underline "> 归档</a>
+      </li><li class="menu-item">
+        <a href="/tags/ " class="underline "> 标签</a>
+      </li><li class="menu-item">
+        <a href="/categories/ " class="underline "> 分类</a>
+      </li><li class="menu-item">
+        <a href="/about/ " class="underline "> 关于</a>
+      </li></ul>
+    
+      <div class="menu-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+    
+  </div>
+</nav>
+  <main id="main">
+  <div class="article-wrap">
+    <div class="row container">
+      <div class="col-xl-3"></div>
+      <div class="col-xl-6"><article class="article">
+  <div class="wrap">
+    <section class="head">
+  <img   class="lazyload" data-original="/images/theme/post-image.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
+  <div class="head-mask">
+    <h1 class="head-title">缓冲区保护机制</h1>
+    <div class="head-info">
+      <span class="post-info-item"><i class="iconfont iconcalendar"></i>March 18, 2021</span>
+      
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>2676</span>
+    </div>
+  </div>
+</section>
+    <section class="main">
+      <section class="content">
+        <p>为了更好地对缓冲区进行利用，十分有必要了解一下checksec所检查出的漏洞缓解措施都意味着什么</p>
+<p><img   class="lazyload" data-original="2021-03-18-%E7%BC%93%E5%86%B2%E5%8C%BA%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6.assets/QQ%E5%9B%BE%E7%89%8720210319191658.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p>如图上所示，RELRO、Stack、NX、PIE四种保护机制，下方介绍时，括号里的是在Windows系统中的名称</p>
+<p>以下主要来源于《从0到1CTFer成长之路》</p>
+<h3 id="一、NX-DEP"><a href="#一、NX-DEP" class="headerlink" title="一、NX(DEP)"></a>一、NX(DEP)</h3><p>NX即是No-execute，不可执行。原理是通过现代操作系统的内存保护单元机制（MPU）对程序内存按页的粒度进行权限设置，其基本规则为<strong>可写权限与可执行权限互斥</strong>。因此开启了NX的程序代表着堆栈上写入的代码数据将不可被执行，也就无法直接通过溢出写入shellcode而执行任意代码。</p>
+<p>所有可以被修改写入的数据的内存都不可执行，所有可执行的代码数据都是不可修改的。这就是可执行权限与可写权限互斥</p>
+<p>GCC编写程序默认开启NX，关闭方法是在编译是加入**-z execstack参数**</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">gcc -z execstack -o test test.c<br></code></pre></td></tr></table></figure>
+
+<h3 id="二、Stack-Canary"><a href="#二、Stack-Canary" class="headerlink" title="二、Stack Canary"></a>二、Stack Canary</h3><p>Stack Canary保护一种针对栈溢出攻击而设计的保护机制。当函数存在缓冲区溢出攻击漏洞时，攻击者可以覆盖栈上的返回地址来让shellcode能够得到执行，因此Stack Canary会在函数开始执行前，在返回地址前写入一个字长的随机数据（可以称这个数据为canary，在Windows下是cookie），之后可以在函数返回前进行检验随机数据是否被更改，如果发生更改将直接终止程序进行保护。</p>
+<p>GCC编写程序默认开启Stack Canary，关闭方法是在编译时加入**-fno-stack-protector参数**</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">gcc -fno-stack-protector -o test test.c<br></code></pre></td></tr></table></figure>
+
+<h3 id="三、PIE"><a href="#三、PIE" class="headerlink" title="三、PIE"></a>三、PIE</h3><p>在介绍PIE前，要先介绍ASLR即Address Space Layout Randomization，地址空间分布随机化。ASLR是系统等级的保护机制，只有在开启了ASLR后PIE才能生效。而ASLR的目的是将程序的堆栈地址和动态链接库（或称为共享库）的加载基址进行一定的随机化，这些地址之间是不可读写执行的未映射内存。</p>
+<p>关闭ASLR关闭方式是修改**/proc/sys/kernel/randomize_va_space**文件为0</p>
+<p>PIE的目的则是让可执行程序ELF文件的基址进行随机化加载（负责代码段和数据段的随机化），从而使得攻击者难以知道程序的内存结构，与ASLR相互配合。</p>
+<p>GCC编写程序开启方法是加入**-fpic -pie参数<strong>。较新版本的GCC默认开启PIE，可以设置</strong>-no-pie**关闭</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">gcc -fpic -pie -o test test.c<br></code></pre></td></tr></table></figure>
+
+<h3 id="四、Full-Relro"><a href="#四、Full-Relro" class="headerlink" title="四、Full Relro"></a>四、Full Relro</h3><p>Full Relro 保护措施与Linux下的Lazy Binding机制有关，主要作用是设置符号重定向表格为只读或在程序启动时就解析并绑定所有动态符号，禁止.GOT.PLT表和其他一些相关内存的读写，从而阻止攻击者直接进行修改程序所要执行的函数</p>
+<p>当只是开启了Partial RELRO，说明我们对GOT表具有写权限。</p>
+<p>GCC开启Full Relro 的方法是加入**-z relro参数**</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">gcc -z relro -o test test.c<br></code></pre></td></tr></table></figure>
+
+<h3 id="五、Fortify"><a href="#五、Fortify" class="headerlink" title="五、Fortify"></a>五、Fortify</h3><p><img   class="lazyload" data-original="2021-03-18-%E7%BC%93%E5%86%B2%E5%8C%BA%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6.assets/QQ%E5%9B%BE%E7%89%8720210319191855.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p>这部分转载自<a target="_blank" rel="noopener" href="http://yunnigu.dropsec.xyz/2016/10/08/checksec%E5%8F%8A%E5%85%B6%E5%8C%85%E5%90%AB%E7%9A%84%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6/">http://yunnigu.dropsec.xyz/2016/10/08/checksec及其包含的保护机制/</a></p>
+<p>FORTIFY_SOURCE 机制对格式化字符串有两个限制</p>
+<p> （1）包含%n的格式化字符串不能位于程序内存中的可写地址。</p>
+<p>（2）当使用位置参数时，必须使用范围内的所有参数。</p>
+<p>所以如果要使用%7$x，你必须同时使用1,2,3,4,5和6</p>
+<p>当进入到gdb中进行checksec检查文件会发现多了一个保护措施Fortify，这是一种比较少见的保护措施，是为了防止缓冲区溢出攻击</p>
+<p>举个例子可能简单明了一些：<br>一段简单的存在缓冲区溢出的C代码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">fun</span><span class="hljs-params">(<span class="hljs-keyword">char</span> *s)</span> </span>&#123;<br>        <span class="hljs-keyword">char</span> buf[<span class="hljs-number">0x100</span>];<br>        <span class="hljs-built_in">strcpy</span>(buf, s);<br>        <span class="hljs-comment">/* Don&#x27;t allow gcc to optimise away the buf */</span><br>        <span class="hljs-function"><span class="hljs-keyword">asm</span> <span class="hljs-title">volatile</span><span class="hljs-params">(<span class="hljs-string">&quot;&quot;</span> :: <span class="hljs-string">&quot;m&quot;</span> (buf))</span></span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>用包含参数-U_FORTIFY_SOURCE编译</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs assembly">08048450 &lt;fun&gt;:<br>  push   %ebp               ; <br>  mov    %esp,%ebp<br><br>  sub    $0x118,%esp        ; 将0x118存储到栈上<br>  mov    0x8(%ebp),%eax     ; 将目标参数载入eax<br>  mov    %eax,0x4(%esp)     ; 保存目标参数<br>  lea    -0x108(%ebp),%eax  ; 数组buf<br>  mov    %eax,(%esp)        ; 保存<br>  call   8048320 &lt;strcpy@plt&gt;<br><br>  leave                     ; <br>  ret<br></code></pre></td></tr></table></figure>
+
+<p>用包含参数-D_FORTIFY_SOURCE=2编译</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs assembly">08048470 &lt;fun&gt;:<br>  push   %ebp               ; <br>  mov    %esp,%ebp<br><br>  sub    $0x118,%esp        ; <br>  movl   $0x100,0x8(%esp)   ; 把0x100当作目标参数保存<br>  mov    0x8(%ebp),%eax     ; <br>  mov    %eax,0x4(%esp)     ; <br>  lea    -0x108(%ebp),%eax  ; <br>  mov    %eax,(%esp)        ; <br>  call   8048370 &lt;__strcpy_chk@plt&gt;<br><br>  leave                      ; <br>  ret<br></code></pre></td></tr></table></figure>
+
+<p>可以看到gcc生成了一些附加代码，通过对数组大小的判断替换strcpy, memcpy, memset等函数名，达到防止缓冲区溢出的作用。</p>
+
+      </section>
+      <section class="extra">
+        
+          <ul class="copyright">
+  
+    <li><strong>本文作者：</strong>ShouCheng</li>
+    <li><strong>本文链接：</strong><a href="http://example.com/2021/03/18/2021-03-18-%E7%BC%93%E5%86%B2%E5%8C%BA%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6/index.html" title="http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;03&#x2F;18&#x2F;2021-03-18-%E7%BC%93%E5%86%B2%E5%8C%BA%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6&#x2F;index.html">http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;03&#x2F;18&#x2F;2021-03-18-%E7%BC%93%E5%86%B2%E5%8C%BA%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6&#x2F;index.html</a></li>
+    <li><strong>版权声明：</strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" title="BY-NC-SA" target="_blank" rel="noopener">BY-NC-SA</a> 许可协议，转载请注明出处！</li>
+  
+</ul>
+        
+        
+          <section class="donate">
+  <div id="qrcode-donate">
+    <img   class="lazyload" data-original="https://pic.izhaoo.com/alipay.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" >
+  </div>
+  <div class="icon">
+    <a href="javascript:;" id="alipay"><i class="iconfont iconalipay"></i></a>
+    <a href="javascript:;" id="wechat"><i class="iconfont iconwechat-fill"></i></a>
+  </div>
+</section>
+        
+        
+        
+  <nav class="nav">
+    <a href="/2021/03/27/2021-03-27-%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8/"><i class="iconfont iconleft"></i>格式化字符串漏洞利用</a>
+    <a href="/2021/03/16/2021-03-16-%E6%94%BB%E9%98%B2%E4%B8%96%E7%95%8Cpwn%E6%96%B0%E6%89%8B%E9%A2%98wp/">攻防世界pwn新手题wp<i class="iconfont iconright"></i></a>
+  </nav>
+
+      </section>
+      
+    </section>
+  </div>
+</article></div>
+      <div class="col-xl-3">
+        
+          
+  <aside class="toc-wrap">
+    <h3 class="toc-title">文章目录：</h3>
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81NX-DEP"><span class="toc-text">一、NX(DEP)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81Stack-Canary"><span class="toc-text">二、Stack Canary</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81PIE"><span class="toc-text">三、PIE</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81Full-Relro"><span class="toc-text">四、Full Relro</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%94%E3%80%81Fortify"><span class="toc-text">五、Fortify</span></a></li></ol>
+  </aside>
+
+        
+      </div>
+    </div>
+  </div>
+</main>
+  
+
+<footer class="footer">
+  <div class="footer-social"><a 
+        href="tencent://message/?Menu=yes&uin=894519210 "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#12B7F5'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconQQ "></i>
+      </a><a 
+        href="javascript:; "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#09BB07'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconwechat-fill "></i>
+      </a><a 
+        href="https://www.instagram.com/izhaoo/ "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#DA2E76'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconinstagram "></i>
+      </a><a 
+        href="https://github.com/zhaoo "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#9f7be1'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  icongithub-fill "></i>
+      </a><a 
+        href="mailto:izhaoo@163.com "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color=#FF3B00" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconmail"></i>
+      </a></div>
+  
+    <div class="footer-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+  
+</footer>
+  
+      <div class="fab fab-plus">
+    <i class="iconfont iconplus"></i>
+  </div>
+  
+  
+  <div class="fab fab-up">
+    <i class="iconfont iconcaret-up"></i>
+  </div>
+  
+  
+  
+    
+<script src="/js/color-mode.js"></script>
+
+  
+  
+</body>
+
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
+
+
+
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+
+
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+
+
+
+
+<script src="/js/utils.js"></script>
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+  <script>
+    (function () {
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      } else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</html>

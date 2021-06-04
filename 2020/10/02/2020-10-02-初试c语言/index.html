@@ -1,0 +1,462 @@
+
+
+<!DOCTYPE html>
+<html lang="en" color-mode=light>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>初试c语言——笔记 - ShouCheng</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="google" content="notranslate" />
+  
+  <meta name="description" content="一、c语言小记秘诀：多看，多试，多错，多想1、作为警示...">
+  <meta name="author" content="ShouCheng">
+  <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/images/icons/apple-touch-icon.png" sizes="180x180">
+  <meta rel="mask-icon" href="/images/icons/stun-logo.svg" color="#333333">
+  
+    <meta rel="msapplication-TileImage" content="/images/icons/favicon-144x144.png">
+    <meta rel="msapplication-TileColor" content="#000000">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+    
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1445822_r673sha78lq.css">
+
+  
+
+  
+    
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css">
+
+  
+
+  
+    
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/xcode.min.css" name="highlight-style" mode="light">
+
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/solarized-dark.min.css" name="highlight-style" mode="dark">
+
+      
+  
+
+  <script>
+    var CONFIG = window.CONFIG || {};
+    var ZHAOO = window.ZHAOO || {};
+    CONFIG = {
+      isHome: false,
+      fancybox: true,
+      pjax: false,
+      lazyload: {
+        enable: true,
+        only_post: 'false',
+        loading: '[object Object]'
+      },
+      donate: {
+        enable: true,
+        alipay: 'https://pic.izhaoo.com/alipay.jpg',
+        wechat: 'https://pic.izhaoo.com/wechat.jpg'
+      },
+      galleries: {
+        enable: true
+      },
+      fab: {
+        enable: true,
+        always_show: false
+      },
+      carrier: {
+        enable: true
+      },
+      daovoice: {
+        enable: false
+      },
+      preview: {
+        background: {
+          default: '',
+          api: ''
+        },
+        motto: {
+          default: '我在开了灯的床头下，想问问自己的心啊。',
+          typing: true,
+          api: 'https://v2.jinrishici.com/one.json',
+          data_contents: '["data","content"]'
+        },
+      },
+      qrcode: {
+        enable: true,
+        type: 'url',
+        image: 'https://pic.izhaoo.com/weapp-code.jpg',
+      },
+      toc: {
+        enable: true
+      },
+      scrollbar: {
+        type: 'default'
+      },
+      notification: {
+        enable: false,
+        delay: 4500,
+        list: '',
+        page_white_list: '',
+        page_black_list: ''
+      },
+      search: {
+        enable: false,
+        path: ''
+      }
+    }
+  </script>
+
+  
+
+  
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="lock-screen">
+  <div class="loading"></div>
+  
+    
+
+
+  <nav class="navbar">
+    <div class="left">
+      
+        <i class="iconfont iconhome j-navbar-back-home"></i>
+      
+      
+        <i class="iconfont iconqrcode j-navbar-qrcode"></i>
+      
+      
+        <i class="iconfont iconmoono" id="color-toggle" color-toggle="light"></i>
+      
+      
+    </div>
+    <div class="center">初试c语言——笔记</div>
+    <div class="right">
+      <i class="iconfont iconmenu j-navbar-menu"></i>
+    </div>
+    
+      <div id="qrcode-navbar"></div>
+    
+  </nav>
+
+  
+  
+
+<nav class="menu">
+  <div class="menu-container">
+    <div class="menu-close">
+      <i class="iconfont iconbaseline-close-px"></i>
+    </div>
+    <ul class="menu-content"><li class="menu-item">
+        <a href="/ " class="underline "> 首页</a>
+      </li><li class="menu-item">
+        <a href="/galleries/ " class="underline "> 摄影</a>
+      </li><li class="menu-item">
+        <a href="/archives/ " class="underline "> 归档</a>
+      </li><li class="menu-item">
+        <a href="/tags/ " class="underline "> 标签</a>
+      </li><li class="menu-item">
+        <a href="/categories/ " class="underline "> 分类</a>
+      </li><li class="menu-item">
+        <a href="/about/ " class="underline "> 关于</a>
+      </li></ul>
+    
+      <div class="menu-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+    
+  </div>
+</nav>
+  <main id="main">
+  <div class="article-wrap">
+    <div class="row container">
+      <div class="col-xl-3"></div>
+      <div class="col-xl-6"><article class="article">
+  <div class="wrap">
+    <section class="head">
+  <img   class="lazyload" data-original="/images/theme/post-image.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
+  <div class="head-mask">
+    <h1 class="head-title">初试c语言——笔记</h1>
+    <div class="head-info">
+      <span class="post-info-item"><i class="iconfont iconcalendar"></i>October 02, 2020</span>
+      
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>3778</span>
+    </div>
+  </div>
+</section>
+    <section class="main">
+      <section class="content">
+        <h1 id="一、c语言小记"><a href="#一、c语言小记" class="headerlink" title="一、c语言小记"></a>一、c语言小记</h1><h5 id="秘诀：多看，多试，多错，多想"><a href="#秘诀：多看，多试，多错，多想" class="headerlink" title="秘诀：多看，多试，多错，多想"></a>秘诀：多看，多试，多错，多想</h5><p>1、作为警示，c语言中需注意，所输入的符号必须是在<em><strong>半角模式下</strong></em>的，否侧将导致运行错误</p>
+<p>2、在”{}”里面输入的语句大多要以”;”进行分隔，而在”()”里的语句大多使用”,”分隔</p>
+<p>3、添加一些关键字的说明（接下来的学习中都会碰见的）：</p>
+<p><strong>auto//声明自动变量（一般可省略）</strong></p>
+<p> <strong>break//跳出当前循环</strong></p>
+<p><strong>case//开关语句分支</strong></p>
+<p><strong>char//声明字符型变量或者函数返回值类型</strong></p>
+<p><strong>const//定义常量，如果一个变量被const修饰，那么他的值就不能被改变</strong></p>
+<p><strong>continue//结束当前循环，开始下一轮循环</strong></p>
+<p><strong>default//开关语句中的“其他”分支</strong></p>
+<p><strong>do//循环语句的循环体</strong></p>
+<p><strong>double//声明双精度浮点型变量或函数返回值类型</strong></p>
+<p>**else//条件语句否定分支与if连用 **</p>
+<p><strong>enum//声明枚举类型</strong></p>
+<p><strong>extern//声明变量或者函数是在其他文件或者本文件的其他位置定义—–</strong></p>
+<p><strong>float//声明浮点型变量或者函数返回值类型</strong></p>
+<p><strong>for//一种循环语句</strong></p>
+<p><strong>goto//无条件跳转语句</strong></p>
+<p><strong>if//条件语句</strong></p>
+<p><strong>int//声明整数变量或函数</strong></p>
+<p><strong>long//声明长整型变量或者函数返回值类型</strong></p>
+<p><strong>register//声明寄存器变量———</strong></p>
+<p><strong>return//子程序返回语句（可以带参数，也可不带参数）</strong></p>
+<p><strong>short//声明短整数型变量或者函数</strong></p>
+<p><strong>signed//声明有符号类型变量或函数</strong></p>
+<p><strong>sizeof//计算数据类型或者变量长度（即所占字节数）</strong></p>
+<p><strong>static//声明静态变量———</strong></p>
+<p><strong>struct//[声明结构体变量]———</strong></p>
+<p><strong>switch//用于开关语句</strong></p>
+<p><strong>typedef//用于给数据类型取别名</strong></p>
+<p><strong>unsigned//声明无符号类型变量或函数</strong></p>
+<p><strong>union//声明共用体类型———-</strong></p>
+<p> <strong>void//声明函数无返回值或无参数，声明无类型指针——-</strong></p>
+<p><strong>volatile//说明函数无返回值或无参数，声明无类型指针——-</strong></p>
+<p><strong>while//循环语句的循环条件</strong></p>
+<p>4、每输入一个变量时，都需在前对其进行声明，这步才会使变量有意义，否侧将导致错误</p>
+<p>5、进行类型转换的时候，需要注意字节问题，一旦字节不够，将得到错误结果</p>
+<p>6、注意点：无论对哪个变量，还是字符，都得附上对其明确的定义，初学时常忘记</p>
+<p>7、对某一变量声明他的数据类型时一定要一致，例如，定义变量a为整型数（int a），结果计算式中a=3.2+6.4=9.6，但此时a将只会输出9这个整数</p>
+<p>8、extern可以放在变量或者函数前面引用不在同一个文件里面的变量</p>
+<p>9、全局变量的定义声明放在预命令的下一行较为合适，可以使得全部函数都能调用该全局变量（具体还是看习惯）</p>
+<p>10、运算“/”时，如果两边都为整数，则结果为舍去小数的整数部分，如15/4为3，要得到正确答案，要像15.0/4这样，有一个数为浮点数</p>
+<p>11、求余符号“%”要求在符号左右两边都必须是<strong>整数</strong></p>
+<p>12、赋值运算符左边只能是单个变量</p>
+<p>13、运算符优先级别高低：**!&gt;算术运算符&gt;关系运算符&gt;&amp;&amp;&gt;||&gt;赋值运算符&gt;逗号运算符**</p>
+<p>14、逻辑运算符一旦确认了逻辑表达式的值就将停止，如（a=0）&amp;&amp;（b=5），检验到a为0，就会停下，不会去运行b=5（补充：因为在c语言中判断真假依据是：非0为真，0为假）</p>
+<p>15、~按位取反不能理解为是取了一个负号，可以想想有负号“-”就知道不应该有两个相同作用的符号</p>
+<p>16、要运用不同的头文件里的函数的方法就是在预命令中输入你要用的函数所在的头文件</p>
+<p>17、用if-else的嵌套格式应为</p>
+<p><strong>if（表达式1）+语句1；</strong></p>
+<p><strong>else if （表达式2）+语句2······</strong></p>
+<p>18、switch 结构：switch（<strong>整型</strong>表达式）｛</p>
+<p>case <strong>整型</strong>常量: 语句; break；······</p>
+<p>default :语句｝</p>
+<p>注：default可以不出现，其作用是指向除case列举的数值之外的数值执行其后面的语句</p>
+<p>19、while(条件){循环体} 类型的循环语句，在括号内填入循环运行的条件，花括号里面填写要重复计算的式子</p>
+<p>20、do-while类型是 将会<strong>先执行一次循环体</strong>，再判断是否满足条件执行下一次，而while，for是<strong>先判断再执行</strong></p>
+<p>21、for(表达式1；表达式2；表达式3)类型里面的三个表达式都能个别省略，  同时循环体可以放进第三个表达式中，但是<em><strong>“；”不能省略，括号里面一定要有两个“；”</strong></em>并且需要注意的是，如果省略了表达式，那么循环停止的条件一定要在循环体内列出，否则将是无限循环。</p>
+<p>22、当用for类型进行循环嵌套时，第一个for中执行的变量进入第二个for时，第二个for中变量值都会从最开始设置的值开始进行循环</p>
+<p>23、当某结构后面需要执行的语句不止一条时用花括号将所有语句包含</p>
+<p>24、当语句中嵌套多种语句时，一定要注意写清楚，分隔好，不然或许连自己查看都会出现障碍</p>
+<p>25、break只能在<strong>循环语句和switch语句</strong>中使用，在循环语句中用来跳出当前循环（需要与if连用），在switch只能结束单句语句</p>
+<p>26、continue只能用于<strong>循环语句</strong>，与if连用，如果if语句条件满足为真，程序将不会运行至continue之后的语句，而是进入下一次的循环。</p>
+<p>27、scanf中的非法输入要注意，虽然看似可能是一种错误，但有效的将之运用，也能让其为我们创造更多的输入</p>
+<p>28、可用一些标识符（不能是关键词）加“: ”放在语句前，进行注释，注释后可以用<strong>goto 标识符</strong> 执行在其冒号之后的语句（不建议使用，破坏模块化的结构顺序）</p>
+<p>29、对于相同的一个循环问题，可以多想想是否能用不同的循环语句去完成，可以获得更多的思考</p>
+<p>30、对于循环嵌套循环的结构，注意重要一点，也是容易搞错的地方：只有内层的循环结束时，才会再继续执行外层的大循环</p>
+<p>31、当使用while（1）无限循环的语句时，若是在内部有使用多个输入函数进行取值，并且有些取的类型为字符时需要在其后面添加一个getchar（）来盛放你之前输入的回车键这个字符</p>
+<p>32、对于函数定义变量的精度一定要与其使用scanf函数里面的精度一致，否则将出错</p>
+<p>33、什么时候用循环语句？当有多个东西类型相似需要重复做多次的，可以想想循环语句能不能用上，将可以简化代码</p>
+<p>34、什么时候用嵌套循环（一般为双重循环语句）？当涉及两个需要改变的东西的时候，比如两个方位，两个变量等等</p>
+<p>35、if(   )  后面跟的语句可以为空语句，即什么都不输入，表示空语句</p>
+<p>36、c语言中｛｝后面有符号的情况：</p>
+<p>（1）结构体、共用体、枚举类型的花括号后面要加分号</p>
+<p>（2）在二维数组的初始化里面分行进行初始化的花括号后面要加逗号</p>
+<p>37、c语言如果是输出结果要求四舍五入，那么可以在printf函数中的如d、f前加上 .a(a为保留的小数位数)；如果是在途中的变量四舍五入，则需要强制类型转换加0.5的做法</p>
+<p>38、对于/，再次进行详细说明，对于值是整数的变量，没办法像数字那样直接加个小数点，此时可以换一种思路，就是乘或除以1.0（注意运算顺序！）就可以得到浮点型的结果</p>
+<h2 id="二、学习感想"><a href="#二、学习感想" class="headerlink" title="二、学习感想"></a>二、学习感想</h2><p>Date：2020.10.03 </p>
+<p>作为一个确确实实的零基础小白，我先从c语言教材基础这本书开始认真看，那句hello world的程序，加上后面的几个程序，一点一点的理解这些对我来说都是全新的东西，从开头预命令，到函数头，函数名，最后语句，才算是对c有了那么些许理解，而这些竟然就花去了我合计一天左右的时间，感叹自己天资愚钝（落泪）。</p>
+<p>Date：2020.10.08</p>
+<p>感觉这几天有些懈怠，是因为学完了基础教程的第一章，完成了一个小目标而懈怠的吗？我觉得这样不行，今天该重回状态，所以特意早起赶去学习。发现，确实我还有很多很多很多很多（省略n字）不懂，不过这才更有意思，掌握知识的感觉在我看来是十分愉悦的。</p>
+<p>Date：202010.09</p>
+<p>第一个双休前的晚上，我选择在实训室度过，之后的两天也是，哈哈哈，好吧，确实学的东西好多，感觉自己学不会，没什么天赋。来这发发牢骚。加油！然后就是&amp;（取地址），\n这两个符号容易忘记，导致程序运行有误</p>
+<p>Date：2020.10.11</p>
+<p>这次学习，只用了一个半小时就把第二章学完了，比起之前快多了（内容较为简单，多是需要记诵的内容），不过应该没掌握很好，后面跟练习熟悉吧，我想在两三周时间之内把c自行结束了，因为有太多的东西等着我去一一摸索，虽然想起来很累，但我竟然觉得兴奋？可能这就是热爱吧？第一次对某个算是学习的事物这么上心，我期待我之后的表现</p>
+<p>Date：2020.10.15</p>
+<p>今天总算结束了第三章学习，说实话，这章的循环语句与选择语句其实还好，就是需要记住一些格式上的东西，理解还是不难，难点应该在于多种语句的层层嵌套，属实为难人，头发都掉了不少（苦笑），继续努力吧，</p>
+<p>Date：2020.11.9</p>
+<p>今天才算是勉强完成了整本c语言的学习吧，不过资质愚钝的我，也就是懂了一些语法，知道一些东西，其他的方面，仍然是个小白。害，挺累的其实，不过很充实，和以前浑浑噩噩的生活不同，我觉得，大学，我该出发的，也想成为与众不同的人！</p>
+
+      </section>
+      <section class="extra">
+        
+          <ul class="copyright">
+  
+    <li><strong>本文作者：</strong>ShouCheng</li>
+    <li><strong>本文链接：</strong><a href="http://example.com/2020/10/02/2020-10-02-%E5%88%9D%E8%AF%95c%E8%AF%AD%E8%A8%80/index.html" title="http:&#x2F;&#x2F;example.com&#x2F;2020&#x2F;10&#x2F;02&#x2F;2020-10-02-%E5%88%9D%E8%AF%95c%E8%AF%AD%E8%A8%80&#x2F;index.html">http:&#x2F;&#x2F;example.com&#x2F;2020&#x2F;10&#x2F;02&#x2F;2020-10-02-%E5%88%9D%E8%AF%95c%E8%AF%AD%E8%A8%80&#x2F;index.html</a></li>
+    <li><strong>版权声明：</strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" title="BY-NC-SA" target="_blank" rel="noopener">BY-NC-SA</a> 许可协议，转载请注明出处！</li>
+  
+</ul>
+        
+        
+          <section class="donate">
+  <div id="qrcode-donate">
+    <img   class="lazyload" data-original="https://pic.izhaoo.com/alipay.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" >
+  </div>
+  <div class="icon">
+    <a href="javascript:;" id="alipay"><i class="iconfont iconalipay"></i></a>
+    <a href="javascript:;" id="wechat"><i class="iconfont iconwechat-fill"></i></a>
+  </div>
+</section>
+        
+        
+  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0c%E6%97%B6%E7%9A%84%E4%B8%80%E4%BA%9B%E7%AC%94%E8%AE%B0%E4%B8%8E%E5%BF%83%E5%BE%97/" rel="tag">学习c时的一些笔记与心得</a></li></ul> 
+
+        
+  <nav class="nav">
+    <a href="/2020/10/17/2020-10-17-%E5%8B%87%E9%97%AF%E6%B1%87%E7%BC%96%E2%80%94%E2%80%94%E7%AC%94%E8%AE%B0/"><i class="iconfont iconleft"></i>勇闯汇编——随手记</a>
+    <a href="/2020/10/01/2020-10-01-%E5%8D%9A%E5%AE%A2%E9%81%87%E5%88%B0%E7%9A%84%E9%94%99%E8%AF%AF%E2%80%94%E2%80%94%E6%8E%92%E5%9D%91/">搭博客遇到的一些错误——排坑<i class="iconfont iconright"></i></a>
+  </nav>
+
+      </section>
+      
+    </section>
+  </div>
+</article></div>
+      <div class="col-xl-3">
+        
+          
+  <aside class="toc-wrap">
+    <h3 class="toc-title">文章目录：</h3>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81c%E8%AF%AD%E8%A8%80%E5%B0%8F%E8%AE%B0"><span class="toc-text">一、c语言小记</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%AD%A6%E4%B9%A0%E6%84%9F%E6%83%B3"><span class="toc-text">二、学习感想</span></a></li></ol></li></ol>
+  </aside>
+
+        
+      </div>
+    </div>
+  </div>
+</main>
+  
+
+<footer class="footer">
+  <div class="footer-social"><a 
+        href="tencent://message/?Menu=yes&uin=894519210 "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#12B7F5'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconQQ "></i>
+      </a><a 
+        href="javascript:; "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#09BB07'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconwechat-fill "></i>
+      </a><a 
+        href="https://www.instagram.com/izhaoo/ "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#DA2E76'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconinstagram "></i>
+      </a><a 
+        href="https://github.com/zhaoo "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#9f7be1'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  icongithub-fill "></i>
+      </a><a 
+        href="mailto:izhaoo@163.com "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color=#FF3B00" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconmail"></i>
+      </a></div>
+  
+    <div class="footer-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+  
+</footer>
+  
+      <div class="fab fab-plus">
+    <i class="iconfont iconplus"></i>
+  </div>
+  
+  
+  <div class="fab fab-up">
+    <i class="iconfont iconcaret-up"></i>
+  </div>
+  
+  
+  
+    
+<script src="/js/color-mode.js"></script>
+
+  
+  
+</body>
+
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
+
+
+
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+
+
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+
+
+
+
+<script src="/js/utils.js"></script>
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+  <script>
+    (function () {
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      } else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</html>

