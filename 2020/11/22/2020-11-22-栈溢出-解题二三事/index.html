@@ -1,0 +1,468 @@
+
+
+<!DOCTYPE html>
+<html lang="en" color-mode=light>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>栈溢出--解题二三事 - ShouCheng</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="google" content="notranslate" />
+  
+  <meta name="description" content="1、在python中如 \x62，表示一个占一个字节的...">
+  <meta name="author" content="ShouCheng">
+  <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/images/icons/apple-touch-icon.png" sizes="180x180">
+  <meta rel="mask-icon" href="/images/icons/stun-logo.svg" color="#333333">
+  
+    <meta rel="msapplication-TileImage" content="/images/icons/favicon-144x144.png">
+    <meta rel="msapplication-TileColor" content="#000000">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+    
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1445822_r673sha78lq.css">
+
+  
+
+  
+    
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css">
+
+  
+
+  
+    
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/xcode.min.css" name="highlight-style" mode="light">
+
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/solarized-dark.min.css" name="highlight-style" mode="dark">
+
+      
+  
+
+  <script>
+    var CONFIG = window.CONFIG || {};
+    var ZHAOO = window.ZHAOO || {};
+    CONFIG = {
+      isHome: false,
+      fancybox: true,
+      pjax: true,
+      lazyload: {
+        enable: true,
+        only_post: 'false',
+        loading: '[object Object]'
+      },
+      donate: {
+        enable: false,
+        alipay: '',
+        wechat: ''
+      },
+      galleries: {
+        enable: true
+      },
+      fab: {
+        enable: true,
+        always_show: false
+      },
+      carrier: {
+        enable: true
+      },
+      daovoice: {
+        enable: true
+      },
+      preview: {
+        background: {
+          default: '',
+          api: ''
+        },
+        motto: {
+          default: '总之岁月漫长，然而值得等待！',
+          typing: true,
+          api: 'https://v2.jinrishici.com/one.json',
+          data_contents: '["data","content"]'
+        },
+      },
+      qrcode: {
+        enable: true,
+        type: 'url',
+        image: '',
+      },
+      toc: {
+        enable: true
+      },
+      scrollbar: {
+        type: 'default'
+      },
+      notification: {
+        enable: false,
+        delay: 4500,
+        list: '',
+        page_white_list: '',
+        page_black_list: ''
+      },
+      search: {
+        enable: false,
+        path: '/search.xml'
+      }
+    }
+  </script>
+
+  
+
+  
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="lock-screen">
+  <div class="loading"></div>
+  
+    
+
+
+  <nav class="navbar">
+    <div class="left">
+      
+        <i class="iconfont iconhome j-navbar-back-home"></i>
+      
+      
+        <i class="iconfont iconqrcode j-navbar-qrcode"></i>
+      
+      
+        <i class="iconfont iconmoono" id="color-toggle" color-toggle="light"></i>
+      
+      
+    </div>
+    <div class="center">栈溢出--解题二三事</div>
+    <div class="right">
+      <i class="iconfont iconmenu j-navbar-menu"></i>
+    </div>
+    
+      <div id="qrcode-navbar"></div>
+    
+  </nav>
+
+  
+  
+
+<nav class="menu">
+  <div class="menu-container">
+    <div class="menu-close">
+      <i class="iconfont iconbaseline-close-px"></i>
+    </div>
+    <ul class="menu-content"><li class="menu-item">
+        <a href="/ " class="underline "> 首页</a>
+      </li><li class="menu-item">
+        <a href="/galleries/ " class="underline "> 摄影</a>
+      </li><li class="menu-item">
+        <a href="/archives/ " class="underline "> 归档</a>
+      </li><li class="menu-item">
+        <a href="/tags/ " class="underline "> 标签</a>
+      </li><li class="menu-item">
+        <a href="/categories/ " class="underline "> 分类</a>
+      </li><li class="menu-item">
+        <a href="/about/ " class="underline "> 关于</a>
+      </li></ul>
+    
+      <div class="menu-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+    
+  </div>
+</nav>
+  <main id="main">
+  <div class="article-wrap">
+    <div class="row container">
+      <div class="col-xl-3"></div>
+      <div class="col-xl-6"><article class="article">
+  <div class="wrap">
+    <section class="head">
+  <img   class="lazyload" data-original="/images/theme/post-image.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
+  <div class="head-mask">
+    <h1 class="head-title">栈溢出--解题二三事</h1>
+    <div class="head-info">
+      <span class="post-info-item"><i class="iconfont iconcalendar"></i>November 22, 2020</span>
+      
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>3143</span>
+    </div>
+  </div>
+</section>
+    <section class="main">
+      <section class="content">
+        <p>1、在python中如 \x62，表示一个占一个字节的十六进制数</p>
+<p>2、大多数程序是小端顺序，就是说输入一个数据，如果是分开输入时（比如要一个字节，一个字节的按字节分开进行输入十六进制的数，而他们本身合起来是一个具体的数，那么此时输入进去，就需要把小的值放在前面先写，大的值放后面）；而大端顺序则是大的值写前面，与平常一样的顺序写</p>
+<p>因为小端顺序，就是需要从低地址往高地址填充数据，所以先输入的是会放在低地址的数，后输入的才是高地址的数</p>
+<p>在Linux中LSB文件为小端顺序，MSB为大端顺序，</p>
+<p>3、IDA</p>
+<p>（1）F5进行反汇编</p>
+<p>（2）ida 中按下F12+SHIFT，可以查看string windows，查看一些关键字符串信息</p>
+<p>（3）Alt+b可以进行搜索字符串</p>
+<p>（4）在反汇编窗口中，点击函数按下X，可以查看交叉引用</p>
+<p>（5）TAB键可以切换汇编与伪代码</p>
+<p>（6）**;** 键可以为当前指令添加全文交叉引用的注释 </p>
+<p>（7）n可以定义或修改名称，通常用来标注函数名 </p>
+<p>（8）g可以跳转到任意地址 </p>
+<p>（9）Esc可以返回到跳转前的位置 </p>
+<p>（10）D可以分别按字节、字、双字显示数据 </p>
+<p>（11）A可以按 ASCII 显示数据 </p>
+<p>（12）/为伪C代码添加注释</p>
+<p>ida的伪代码含义：</p>
+<p>sub_ 指令和子函数起点</p>
+<p>locret_ 返回指令 </p>
+<p>loc_ 指令</p>
+<p>off_ 数据，包含偏移量</p>
+<p>seg_ 数据，包含段地址值</p>
+<p>asc_ 数据，ASCII字符串</p>
+<p>byte_ 数据，字节（或字节数组）</p>
+<p>word_ 数据，16位数据（或字数组）</p>
+<p>dword_ 数据，32位数据（或双字数组）</p>
+<p>qword_ 数据，64位数据（或4字数组）</p>
+<p>flt_ 浮点数据，32位（或浮点数组）</p>
+<p>dbl_ 浮点数，64位（或双精度数组）</p>
+<p>tbyte_ 浮点数，80位（或扩展精度浮点数）</p>
+<p>stru_ 结构体(或结构体数组)</p>
+<p>algn_ 对齐指示</p>
+<p>unk_ 未处理字节</p>
+<p>4、利用字符串程序输入溢出数据造成栈溢出的时候不要包含\x00（也就是所谓的空字符’\0’），否则向程序传入溢出数据时会造成截断</p>
+<p>5、遇到不确定的地址时而最后地址的末端是我们需要到的shell的起始地址，可以填入\x90，对应的机器码指令是NOP(No Operation)，让CPU什么都不做，跳转到下一条命令，但是这个应用的前提是该处代码具有可执行性</p>
+<p>6、在一起定义的两个全局变量，在内存的中位置是相邻的。如果一个全局变量被破坏了，不妨先查查其前后相关变量的访问代码，看看是否存在越界访问的可能。</p>
+<p>7、有一个有意思的东西：在有的pwn题目中，我可以很正常的使用recvuntil()或者sendlineafter()去接收字符串，然而有的却不行；有的题目可以不用接收字符串直接输入payload（一开始认为是因为程序是在自己运行，刚好溢出点又在第一次输入的地方，所以可以），然而却碰到有些却要我接收信息才可以进行payload的输入</p>
+<p>8、遇到一个对齐的问题：关于使用system函数进行跳转出现报错的原因</p>
+<p>9、劫持栈帧到.bss段上时，要注意一下是否可能会将.got.plt表覆盖，导致程序无法正常执行</p>
+<p>10、承接第4点吧，我们避免输入\x00导致程序截断，同时也要注意程序是否自身有着\x00，导致了截断</p>
+<p>11、遇到strcat、strcpy、strcmp、strlen等函数的阻碍时，由于这些函数遇到’\0’将会停止，那么只要将其中的某个变量的第一个字符设为’\0’即可快速简单的绕过这些函数</p>
+<p>12、当用puts函数泄露got表的地址，使用u64解包时，由于u64解包的条件是需要字符串的长度为8个字节，而地址的长度顶多6个字节那么长（高地址填充0，但是我们并不能接收到），此时就需要使用这样的形式进行接收：<strong>u64(p.recv(6).ljust(8,’\0’))</strong>  （’\0’写成’\x00’也行，毕竟在内存中存储情况是一样的）</p>
+<p>13、一个大多数人应该都有错误的认知：认为溢出只要到如gets函数就能实现溢出了，所以下面的代码就不用看，这是绝对错误的！首先，我们通过栈溢出改变的只是返回地址的内容，想要到达返回地址，整个的函数执行流必须进行完，才会发生退栈，从而利用返回地址，所以下方的代码也要处理</p>
+<p>14、执行strcmp、strncmp、strcasecmp的时候，rdx会被设置为将要被比较的字符串的长度</p>
+<p>15、system的参数不一定是要/bin/sh才可以，只有sh也是可以的。而且sh可以从fflush()这个函数中获取，直接查找ida或者ROPgadget –binary 文件名 –string ‘sh’查询（不一定都能成功）</p>
+<p>16、当远程docker过滤空格和cat时，将无法使用cat flag获取到flag，此时我们可以用<strong>more&lt;flag或者base64&lt;flag</strong>获取flag，其中的&lt;可以代替空格的功能，第一个<strong>more&lt;flag</strong> 与cat一样都是输出文件内容，而base64是把flag的内容转换成base64编码</p>
+<p>17、64位的文件有时候不一定会存在rbp的调用，不存在leave指令，这时候我们只需要去关注rsp的位置即可，因为ret指令代表着pop rip，把栈顶的内容弹出给rip，所以锁定rsp的位置，就可以劫持rip</p>
+<p>18、有时候在我们输入时，无法通过recvuntil去卡到输入的点，可以使用sleep()函数，让线程休眠，让对面的程序跑到我们要到点，再进行输入，方可利用成功（个人猜测）</p>
+<p>19、64位下的linux的系统调用号（使用syscall调用，调用号是保存到rax中）：</p>
+<p><strong>0(0x0) sys_read</strong></p>
+<p><strong>1(0x1) sys_write</strong></p>
+<p><strong>15(0xF) sys_rt_sigreturn</strong></p>
+<p><strong>59(0x3B) sys_execve</strong></p>
+<p>32位下linux系统调用号（使用syscall，调用号保存在eax中），函数其他参数依次存入ebx，ecx，edx中</p>
+<p><strong>3(0x3)sys_read</strong></p>
+<p><strong>4(0x4)sys_write</strong></p>
+<p><strong>5(0x5)sys_open(文件名,0,0)</strong></p>
+<p><strong>11(0xB) sys_execve</strong> </p>
+<p>20、使用<strong>execve</strong>获取shell时，其参数要设置为<code>execve(&quot;/bin/sh&quot;,0,0)</code></p>
+<p>21、劫持rip时，如果觉得在ida中的栈查看覆盖偏移量是对的，却没能获取shell时，去看看汇编代码，可能这时候出题人故意设置了返回代码不是平常的 leave  ret这两个，被修改为其他的代码了，导致退栈时候rsp指向地方的不是在rbp的下面，这时候我们要去gdb里面下断点在返回的指令前，查看rbp具体指向的地方</p>
+<p>22、<strong>gdb 文件名 core</strong>可以调试程序中断而生成的核心转储文件，进行深入查看中断原因 </p>
+<p>23、当题目已给出libc时，可以直接用libc显示出函数在其内的偏移地址，命令格式如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">objdump -T ./libc-2.23.so | grep system #显示system的libc地址<br></code></pre></td></tr></table></figure>
+
+<p><img   class="lazyload" data-original="2020-11-22-%E6%A0%88%E6%BA%A2%E5%87%BA-%E8%A7%A3%E9%A2%98%E4%BA%8C%E4%B8%89%E4%BA%8B.assets/QQ%E5%9B%BE%E7%89%8720210510214657.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p>24、静态链接题目多半考虑ret2syscall，或者看有没有mprotect函数，修改段的执行权限，注入shellcode</p>
+<p>25、libc中environ存储了栈上环境变量的特性，可以利用这个特效来泄露出栈上的地址，写为这样libc.sym[“environ”]</p>
+<p>26、scanf读取过长的输入时会使用malloc_hook分配chunk，也就是可以借此如果能修改__malloc_hook为one_gadget的话，就能getshell</p>
+
+      </section>
+      <section class="extra">
+        
+          <ul class="copyright">
+  
+    <li><strong>本文作者：</strong>ShouCheng</li>
+    <li><strong>本文链接：</strong><a href="http://example.com/2020/11/22/2020-11-22-%E6%A0%88%E6%BA%A2%E5%87%BA-%E8%A7%A3%E9%A2%98%E4%BA%8C%E4%B8%89%E4%BA%8B/index.html" title="http:&#x2F;&#x2F;example.com&#x2F;2020&#x2F;11&#x2F;22&#x2F;2020-11-22-%E6%A0%88%E6%BA%A2%E5%87%BA-%E8%A7%A3%E9%A2%98%E4%BA%8C%E4%B8%89%E4%BA%8B&#x2F;index.html">http:&#x2F;&#x2F;example.com&#x2F;2020&#x2F;11&#x2F;22&#x2F;2020-11-22-%E6%A0%88%E6%BA%A2%E5%87%BA-%E8%A7%A3%E9%A2%98%E4%BA%8C%E4%B8%89%E4%BA%8B&#x2F;index.html</a></li>
+    <li><strong>版权声明：</strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" title="BY-NC-SA" target="_blank" rel="noopener">BY-NC-SA</a> 许可协议，转载请注明出处！</li>
+  
+</ul>
+        
+        
+        
+        
+  <nav class="nav">
+    <a href="/2020/12/01/pwn%E5%B7%A5%E5%85%B7%E7%9A%84%E5%AE%89%E8%A3%85%E5%8F%8A%E4%BD%BF%E7%94%A8%E6%8C%87%E4%BB%A4/"><i class="iconfont iconleft"></i>pwn工具的安装及使用指令</a>
+    <a href="/2020/11/15/2020-11-15-%E5%88%9D%E5%85%A5PWN/">初入PWN<i class="iconfont iconright"></i></a>
+  </nav>
+
+      </section>
+      
+    </section>
+  </div>
+</article></div>
+      <div class="col-xl-3">
+        
+          
+  <aside class="toc-wrap">
+    <h3 class="toc-title">文章目录：</h3>
+    
+  </aside>
+
+        
+      </div>
+    </div>
+  </div>
+</main>
+  
+
+<footer class="footer">
+  <div class="footer-social"><a 
+        href="tencent://message/?Menu=yes&uin=1145020611 "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#12B7F5'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconQQ "></i>
+      </a><a 
+        href="javascript:; "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#09BB07'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconwechat-fill "></i>
+      </a><a 
+        href="https://www.instagram.com/izhaoo/ "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#DA2E76'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconinstagram "></i>
+      </a><a 
+        href="https://shoucheng3.github.io "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#9f7be1'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  icongithub-fill "></i>
+      </a><a 
+        href="mailto:1145020611@qq.com "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color=#FF3B00" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconmail"></i>
+      </a></div>
+  
+    <div class="footer-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+  
+</footer>
+  
+      <div class="fab fab-plus">
+    <i class="iconfont iconplus"></i>
+  </div>
+  
+    <div class="fab fab-daovoice">
+      <i class="iconfont iconcomment"></i>
+    </div>
+  
+  
+    <a href="https://support.qq.com/product/325288# app_id" target="_blank">
+      <div class="fab fab-tencent-chao">
+        <i class="iconfont iconcomment"></i>
+      </div>
+    </a>
+  
+  <div class="fab fab-up">
+    <i class="iconfont iconcaret-up"></i>
+  </div>
+  
+  
+  
+    
+<script src="/js/color-mode.js"></script>
+
+  
+  
+</body>
+
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
+
+
+
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="https://cdn.bootcss.com/jquery.pjax/2.0.1/jquery.pjax.min.js"></script>
+
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+
+
+
+
+<script src="/js/utils.js"></script>
+<script src="/js/script.js"></script>
+
+
+
+
+
+  
+
+<script>
+  (function (i, s, o, g, r, a, m) {
+    i["DaoVoiceObject"] = r;
+    i[r] = i[r] || function () {
+      (i[r].q = i[r].q || []).push(arguments)
+    }, i[r].l = 1 * new Date();
+    a = s.createElement(o), m = s.getElementsByTagName(o)[0];
+    a.async = 1;
+    a.src = g;
+    a.charset = "utf-8";
+    m.parentNode.insertBefore(a, m)
+  })(window, document, "script", "https://widget.daovoice.io/widget/0f81ff2f.js", "daovoice")
+  daovoice('init', {
+    app_id: "3abd194f# app_id"
+  }, {
+    launcher: {
+      disableLauncherIcon: true,
+    },
+  });
+  daovoice('update');
+</script>
+
+
+
+  <script>
+    (function () {
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      } else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</html>

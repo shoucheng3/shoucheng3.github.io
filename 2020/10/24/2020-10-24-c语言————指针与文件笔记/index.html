@@ -1,0 +1,549 @@
+
+
+<!DOCTYPE html>
+<html lang="en" color-mode=light>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>c语言————指针与文件随手记 - ShouCheng</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="google" content="notranslate" />
+  
+  <meta name="description" content="[TOC]
+指针一、指针与指针变量1、变量的指针：变量...">
+  <meta name="author" content="ShouCheng">
+  <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/images/icons/apple-touch-icon.png" sizes="180x180">
+  <meta rel="mask-icon" href="/images/icons/stun-logo.svg" color="#333333">
+  
+    <meta rel="msapplication-TileImage" content="/images/icons/favicon-144x144.png">
+    <meta rel="msapplication-TileColor" content="#000000">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+    
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1445822_r673sha78lq.css">
+
+  
+
+  
+    
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css">
+
+  
+
+  
+    
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/xcode.min.css" name="highlight-style" mode="light">
+
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/solarized-dark.min.css" name="highlight-style" mode="dark">
+
+      
+  
+
+  <script>
+    var CONFIG = window.CONFIG || {};
+    var ZHAOO = window.ZHAOO || {};
+    CONFIG = {
+      isHome: false,
+      fancybox: true,
+      pjax: true,
+      lazyload: {
+        enable: true,
+        only_post: 'false',
+        loading: '[object Object]'
+      },
+      donate: {
+        enable: false,
+        alipay: '',
+        wechat: ''
+      },
+      galleries: {
+        enable: true
+      },
+      fab: {
+        enable: true,
+        always_show: false
+      },
+      carrier: {
+        enable: true
+      },
+      daovoice: {
+        enable: true
+      },
+      preview: {
+        background: {
+          default: '',
+          api: ''
+        },
+        motto: {
+          default: '总之岁月漫长，然而值得等待！',
+          typing: true,
+          api: 'https://v2.jinrishici.com/one.json',
+          data_contents: '["data","content"]'
+        },
+      },
+      qrcode: {
+        enable: true,
+        type: 'url',
+        image: '',
+      },
+      toc: {
+        enable: true
+      },
+      scrollbar: {
+        type: 'default'
+      },
+      notification: {
+        enable: false,
+        delay: 4500,
+        list: '',
+        page_white_list: '',
+        page_black_list: ''
+      },
+      search: {
+        enable: false,
+        path: '/search.xml'
+      }
+    }
+  </script>
+
+  
+
+  
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="lock-screen">
+  <div class="loading"></div>
+  
+    
+
+
+  <nav class="navbar">
+    <div class="left">
+      
+        <i class="iconfont iconhome j-navbar-back-home"></i>
+      
+      
+        <i class="iconfont iconqrcode j-navbar-qrcode"></i>
+      
+      
+        <i class="iconfont iconmoono" id="color-toggle" color-toggle="light"></i>
+      
+      
+    </div>
+    <div class="center">c语言————指针与文件随手记</div>
+    <div class="right">
+      <i class="iconfont iconmenu j-navbar-menu"></i>
+    </div>
+    
+      <div id="qrcode-navbar"></div>
+    
+  </nav>
+
+  
+  
+
+<nav class="menu">
+  <div class="menu-container">
+    <div class="menu-close">
+      <i class="iconfont iconbaseline-close-px"></i>
+    </div>
+    <ul class="menu-content"><li class="menu-item">
+        <a href="/ " class="underline "> 首页</a>
+      </li><li class="menu-item">
+        <a href="/galleries/ " class="underline "> 摄影</a>
+      </li><li class="menu-item">
+        <a href="/archives/ " class="underline "> 归档</a>
+      </li><li class="menu-item">
+        <a href="/tags/ " class="underline "> 标签</a>
+      </li><li class="menu-item">
+        <a href="/categories/ " class="underline "> 分类</a>
+      </li><li class="menu-item">
+        <a href="/about/ " class="underline "> 关于</a>
+      </li></ul>
+    
+      <div class="menu-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+    
+  </div>
+</nav>
+  <main id="main">
+  <div class="article-wrap">
+    <div class="row container">
+      <div class="col-xl-3"></div>
+      <div class="col-xl-6"><article class="article">
+  <div class="wrap">
+    <section class="head">
+  <img   class="lazyload" data-original="/images/theme/post-image.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
+  <div class="head-mask">
+    <h1 class="head-title">c语言————指针与文件随手记</h1>
+    <div class="head-info">
+      <span class="post-info-item"><i class="iconfont iconcalendar"></i>October 24, 2020</span>
+      
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>5481</span>
+    </div>
+  </div>
+</section>
+    <section class="main">
+      <section class="content">
+        <p>[TOC]</p>
+<h1 id="指针"><a href="#指针" class="headerlink" title="指针"></a>指针</h1><h3 id="一、指针与指针变量"><a href="#一、指针与指针变量" class="headerlink" title="一、指针与指针变量"></a>一、指针与指针变量</h3><p>1、变量的指针：变量在内存中分配到的存储单元中的首地址</p>
+<p>2、指针变量：变量所分配到的存储单元用来存放其他变量的地址（指针）</p>
+<p>3、指针变量定义格式：*<em>类型标识符 <em>指针变量名;</em></em>  </p>
+<p><em><em>另：如(int</em>)p这样的写法，表示把一个指针p所指向的类型强制转换为整型</em>*</p>
+<p>4、定义为什么类型的指针变量，则只能指向该类型的变量的地址，否则将出错</p>
+<p>5、指针变量的赋值：</p>
+<p>（1）使用&amp;符号进行赋值：如<strong>ip=&amp;i</strong>（ip为指针变量。i为某变量）</p>
+<p>（2）初始化：<strong>如int g，*ip=&amp;g</strong></p>
+<p>（3）不同指针变量间的赋值：<strong>ip1=ip2</strong>（ip1，ip2为指针变量，<strong>且两者指向的数据类型必须相同</strong>）</p>
+<p>（4）使用NULL赋空值，可以给指向任何数据类型的指针变量赋空值：<strong>p=NULL;</strong></p>
+<p>（5）动态分配存储空间：使用new赋值：格式为：<strong>ip=new 类型名 或 ip=new 类型名[个数]<strong>（个数代表该指针变量可分配到多少个的某类型的存储单元，类型可以是结构体变量名。另</strong>ip首先必须是该类型的指针变量</strong>）</p>
+<p>（6）delete删去new的创建对象释放其所占有的空间，格式为：<strong>delete ip 或 delete [ ]ip</strong> （后者删去拥有不止一块存储单元的指针变量，并且格式就是如此，[]内没有其他的东西）</p>
+<p>6、如果 p=&amp;i ； 那么*p就等价于i ， *&amp;i也等价于i（理解为，p里面存储着变量的地址，而指针符号是指向该地址。所以，如果指针未赋值时， *ip可认为是一个未赋值的变量）</p>
+<p>7、如果使用（*ip）++时，是否有圆括号表达不一样的意思：</p>
+<p>有圆括号时：先*和ip结合，表示的是指针ip指向地址的变量在使用后数值加1</p>
+<p>无圆括号时：ip先与++结合，又++在后边，则在使用完*ip后把ip的值加1，即为ip指向的不再是原本变量，而是地址更高的相邻变量</p>
+<ul>
+<li>指针常量：指向的数据是常量。如 const char* p = “abc”; p指向的内容是常量 ，但p本身不是常量，你可以让p再指向”123”。 </li>
+<li>常量指针：指针本身是常量。如：char* const p = “abc”; p本身就是常量，你不能让p再指向”123”。 </li>
+<li>指针常量 + 常量指针：指针和指针指向的数据都是常量。const char* const p =”abc”; 两者都是常量，不能再修改。</li>
+</ul>
+<h3 id="二、指针与数组"><a href="#二、指针与数组" class="headerlink" title="二、指针与数组"></a>二、指针与数组</h3><p>1、数组名是一个数组的首地址，例如一维数组a中a与&amp;a[0]都表示数组的首地址（一维数组中a[0]只表示元素，二维数组中a[0]表示第0列的首地址）</p>
+<p>2、数组的首地址是<em><strong>常量</strong></em>，不能被改变</p>
+<p>3、c语言中规定：<strong>一维数组中a[i]的地址是a+i，如果ip=a，那么也可写成ip+i（构成了循环条件，如果是指针，还可以直接写成ip++，因为指针变量不是常数）</strong></p>
+<p>4、当指针变量ip取了数组a的地址的时，那么ip[i]与a[i]表示的元素一致，可<strong>看为</strong>一个数组在起作用</p>
+<p>5、指针变量可进行加减整数和两指针相减的算术运算</p>
+<p>（1）移动指针（指针加减整数） 例如ip+1或者ip-1看似是加减1就指向了临近的存储单元，但是实质是加减的数会乘以数据类型所占据的字节数，因为一个字节就是一个存储单元，所以这里的1，我将之理解为一<strong>块</strong>存储单元</p>
+<p>（2）两指针相减：指向同一块连续的存储单元（数组）的两个指针变量可以相减（p-q），值代表两个指针变量之间的相距的元素个数，可以为负数</p>
+<p>6、指向同一块连续的存储单元（数组）的指针间可以进行比较（使用所指向的数组元素的地址大小进行比较）</p>
+<p>7、字符指针定义为：<em><em>char <em>sp；sp=“OK!”</em></em> ，以上把OK!这个字符串的首字符的地址赋值给字符指针，那么就可以用sp这个字符指针存取该字符串，此时与字符串数组相似，sp[1]的值为K，并且与字符串数组一致，同样是</em><em>以空字符结尾</em>*</p>
+<p>8、当想使用scanf输入函数为字符指针变量赋值时，字符指针变量此时一定要能指向某个确定的地址，比如把字符数组的地址赋给字符指针，否则，字符指针将指向任意地址，可能导致程序崩溃</p>
+<p>9、指针一旦指向某个地址时，去改变如*ip的任何值，都是相当于改变其指向的地址所对应的数组、变量等</p>
+<p>10、二维数组中的每行的首地址为其首个元素，例如a[3] [5],第0行的首地址为a[0]（或者为a）,第1行首地址为a[1]（或者为a+1）</p>
+<p>而0行第j列元素的地址为a[0]+j（或者表示为*a+j），第1行j列元素的地址为a[1]+j（或者表示为 *(a+1)+j）</p>
+<p>推广到i行，j列的地址则为a[i]+j；*(a+i)+j；&amp;a[i] [j] 。若是要表示a[i] [j]则在前面的表达式加 *()</p>
+<p>11、使用简单同类型指针变量存取二维数组时，给指针p赋予首地址：p=&amp;a[0] [0]；p=*a；p=a[0]（不可以用数组名进行赋值）</p>
+<p>使用p指向a[i] [j]为*(p+i *列的总数+j) </p>
+<p>12、int (*pi)[5]表示，定义一个整型指针（称为行指针），该指针指向一个含有五个整型元素的数组</p>
+<p>13、如果有一个二维数组列数也为第12点中的5列时，此时可以执行pi=a，则此时用pi存取二维数组的用法与10中一致</p>
+<p>14、定义指针数组：*<em>类型标识符 <em>指针名[元素个数]</em></em> 如果把一个二维数组的每行的首地址都给指针数组相应的指针，那么则存取二维数组的方法与10中一致</p>
+<p>15、使用指针字符数组：*<em>char <em>p[字符串个数]=｛字符串｝</em></em> 会为每个字符串分配相应的空间，不会造成空间的浪费，用法与字符串数组一致</p>
+<p>16、二维字符串数组，每行的首地址输出时就表示一整行的字符串（看成一个一维的字符串数组）</p>
+<h3 id="三、指向指针的指针变量"><a href="#三、指向指针的指针变量" class="headerlink" title="三、指向指针的指针变量"></a>三、指向指针的指针变量</h3><p>1、指向指针的指针变量：通过多次（一般为两次）指向地址，从而指向最终的一个变量值</p>
+<p>格式为：<strong>类型标识符  * * 指针变量名；</strong></p>
+<p>2、可以把一个指针数组的首地址赋值给指向指针的指针变量（很好理解：指针数组里面的指针元素就代表着地址，而指针数组首地址指向这些，类似于指向指针）</p>
+<h3 id="四、指针与结构体、共用体"><a href="#四、指针与结构体、共用体" class="headerlink" title="四、指针与结构体、共用体"></a>四、指针与结构体、共用体</h3><p>注：结构体与共用体较为类似，与指针的用法一致，故以下只提供一种</p>
+<p>1、指向结构体：结构体同样存在连续空间，以及首地址，把这个首地址赋值给一个指针变量，则该指针指向结构体</p>
+<p>格式：**struct 结构体名 *指针变量名**（c++中可省略struct）</p>
+<p>2、若有一个与指针同个结构体类型的结构体变量book，则指针变量<strong>p=&amp;book</strong>，此时，p指向了book；共有三种办法存取结构体中的成员：</p>
+<p>（1）<strong>book.成员名</strong> 学结构体的最基本的取用语法</p>
+<p>（2）<strong>p-&gt;成员名</strong> 指针的取用语法，借用由-和&gt;组合成的指向运算符取用成员（常用）</p>
+<p>（3）**(<em>p).成员名</em>* 圆括号不可省略，因为根据运算符优先级， “ . ”  的优先级高于“*”</p>
+<p>3、如果是结构体数组book[i]，p=book，那么p指向book[0]，(p+1)指向book[1]······</p>
+<p>4、指针变量指向带有位段的结构体变量时，用法与指向结构体一致</p>
+<h3 id="五、指针与枚举型"><a href="#五、指针与枚举型" class="headerlink" title="五、指针与枚举型"></a>五、指针与枚举型</h3><p>1、指向枚举型的指针的定义与结构体、共用体一致，就不再重复说明</p>
+<p>2、指向枚举型的指针，用法就一个：*<strong>p等价于e</strong>（p为指针，e为枚举型变量）</p>
+<p>3、补充前面的枚举型：每个枚举型里面的枚举值，都代表着一个整数，某种意义上来说，就是一个整型的数，所以才会有类型强制类型转化的语法<strong>（enum 枚举类型名）（枚举变量+或-常数）</strong></p>
+<p>所以，*p的表示，可以指向某个枚举值，也可以被转化为该枚举值对应的整型数</p>
+<h3 id="六、指针与函数"><a href="#六、指针与函数" class="headerlink" title="六、指针与函数"></a>六、指针与函数</h3><p>1、指针函数：返回指针类型的函数 格式：**数据类型 *函数名(形参表)*<em>（调用函数时，</em>不用写进去，跟之前的函数调用一致，只写函数名（形参表）即可，当然需要声明的情况也别忘了）</p>
+<p>2、指针函数中的return返回的值是变量的地址、数组元素的首地址、指针变量、结构体、共用体等的首地址</p>
+<p>3、接触到一个新的类型标识符<strong>bool</strong>，定义之后，变量只能被赋值true或者false</p>
+<p>4、<strong>指针变量</strong>作为函数的<strong>形参</strong>时，那么调用函数时，圆括号也应是<strong>某变量的地址</strong>，保持类型一致</p>
+<p>当使用*指针运算符对形参进行运算就可以改变实参的值 </p>
+<p>5、主函数main()的形参：带形参的主函数首部形式为*<em>int main(int argc,char <em>argv[])</em></em></p>
+<p>整型argc代表命令行总的参数个数(包括程序名)，指针数组argv中每个元素指向命令行对应的参数字符串，假设有三个字符串，那么argv[0]代表输入的第一个字符串</p>
+<p>6、函数名是函数的首地址，是一个地址常量，不可被改变</p>
+<p>7、函数指针：指向函数的指针变量，通过指向函数的首地址，从而调用函数</p>
+<p>格式：*<em>数据类型  (<em>函数指针变量名)(形参表)</em></em></p>
+<p>注：函数指针与指针函数差在一个圆括号上，需注意！</p>
+<p>8、定义的函数指针，可以指向<strong>一类</strong>的函数，只要<strong>数据类型和形参表中的形参类型相同（不要求形参变量相同）</strong>。就可用如p=fun给函数指针赋值，此时，p(形参)等价于fun(形参)</p>
+<p>9、<strong>函数指针主要用于函数之间的传递函数，即主调函数中用其他的函数名作为实参，被调函数中函数指针作为形参，这样把函数的入口地址传给形参，从而在被调函数中使用传入的函数</strong></p>
+<h3 id="七、链表（单向链表）"><a href="#七、链表（单向链表）" class="headerlink" title="七、链表（单向链表）"></a>七、链表（单向链表）</h3><p>1、结点：除了存储数据，还存储该数据的后继结构体的地址的结构体</p>
+<p>链表：存储着n个数据的结点通过next指针连接下一个结点而拉成一条类似链子的数据集合</p>
+<p>2、用指针函数进行建立单向链表：使用*<em>struct 结构体变量名 <em>p;p=new 结构体变量名</em></em> 开辟动态存储空间，创建的第一个空间即为头结点。头结点的地址应该存放在两个指针里面，一个用来最后的返回头结点地址，另一个用来进行创建链表，尾结点要用NULL进行置空。</p>
+<p>3、单向链表结点的插入：（1）s-&gt;next=p-&gt;next;   (2)p-&gt;next=s; （s，p均为指向结构体的指针）</p>
+<p>4、单向链表结点的删除：（1）p-&gt;next=q-&gt;next; (2)delete q;   （p，q均为指向结构体的指针）</p>
+<h1 id="文件"><a href="#文件" class="headerlink" title="文件"></a>文件</h1><h3 id="一、文件概念"><a href="#一、文件概念" class="headerlink" title="一、文件概念"></a>一、文件概念</h3><p>1、文件：储存在外部存储介质上的数据集合</p>
+<p>每个文件都有一个名字，称为文件名，对于文件的存取都是按照名字进行的</p>
+<p>2、ASCⅠⅠ文件：由许多的字符组成的</p>
+<p>二进制文件：仅将字节中的二进制按照原样输出</p>
+<h3 id="二、文件指针"><a href="#二、文件指针" class="headerlink" title="二、文件指针"></a>二、文件指针</h3><p>1、缓冲文件系统会为每个文件开辟一片区域，用于存放文件的信息。存储形式采用结构体类型的变量，该变量名字为FILE（注意是<strong>大写</strong>）</p>
+<p>2、所以文件指针定义为*<em>FILE <em>fp;</em></em> </p>
+<h3 id="三、文件的打开和关闭"><a href="#三、文件的打开和关闭" class="headerlink" title="三、文件的打开和关闭"></a>三、文件的打开和关闭</h3><p>1、文件打开函数为<strong>fopen()</strong></p>
+<p>格式为：<strong>fp=fopen(文件名,文件打开方式);</strong> （fp是文件指针，文件名：要打开的文件路径和文件全名（文件名.拓展名））<strong>注：文件名与文件打开方式要在””里面</strong>   (还有，一般还要检验文件是否成功打开，用fp是否等于NULL进行判别)</p>
+<table>
+<thead>
+<tr>
+<th align="left">文件打开方式</th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">r或rt</td>
+<td>以读写的方式打开一个文本文件，此文件必须存在，只能读</td>
+</tr>
+<tr>
+<td align="left">w或wt</td>
+<td>以只写的方式建立并打开一个文本文件。若文件已经存在，则打开时清空原内容，只允许写</td>
+</tr>
+<tr>
+<td align="left">a或at</td>
+<td>以追加的方式打开一个文本文件，并将写入的内容添加到文件的末尾。若文件不存在，则新建一个文本文件。</td>
+</tr>
+<tr>
+<td align="left">rb</td>
+<td>以只读的方式打开一个二进制文件，此文件必须存在，只允许读</td>
+</tr>
+<tr>
+<td align="left">wb</td>
+<td>以只写方式建立并打开一个二进制文件。若文件已经存在，则打开时清空原内容，只允许写</td>
+</tr>
+<tr>
+<td align="left">ab</td>
+<td>以追加方式打开一个二进制文件。若文件不存在，则新建一个二进制文件</td>
+</tr>
+<tr>
+<td align="left">r+或rt+</td>
+<td>以读/写方式打开一个文本文件。此文件必须存在，允许读和写</td>
+</tr>
+<tr>
+<td align="left">w+或wt+</td>
+<td>以读/写方式建立并打开一个文本文件。若文件已经存在，则打开时清空原内容，允许读和写</td>
+</tr>
+<tr>
+<td align="left">a+或at+</td>
+<td>以读/追加写方式打开一个文本文件。若文件不存在，则新建一个文本文件</td>
+</tr>
+<tr>
+<td align="left">rb+</td>
+<td>以读/写方式打开一个二进制文件，此文件必须存在，允许读和写</td>
+</tr>
+<tr>
+<td align="left">wb+</td>
+<td>以读/写方式建立并打开一个二进制文件。若文件已经存在，则打开时清空原内容，允许读和写</td>
+</tr>
+<tr>
+<td align="left">ab+</td>
+<td>以读/追加写方式打开一个二进制文件。若文件不存在，则新建一个文本文件</td>
+</tr>
+</tbody></table>
+<p>2、如果文件打开不成功，将返回一个空指针值NULL，可以据此判断是否成功打开文件。</p>
+<p>3、缓冲文件系统中，文件使用完毕要及时关闭，否则可能导致文件信息丢失，或者被误操作而损坏</p>
+<p>4、文件关闭函数<strong>fclose()</strong></p>
+<p>格式为：<strong>fclose(文件指针)</strong> （正常关闭函数，fclose返回值是一个整数0，否则返回EOF即-1）</p>
+<h3 id="四、文件的读取和写入"><a href="#四、文件的读取和写入" class="headerlink" title="四、文件的读取和写入"></a>四、文件的读取和写入</h3><p>1、<strong>fputc(ch,fp)</strong>; 向一个允许写或者读写方式打开的文件写入一个字符（ch表示一个写入文件的字符，fp表示文件指针）（输出成功返回字符的ASCII值，失败则返回EOF即-1）</p>
+<p>2、<strong>ch=fgetc(fp);</strong> 从一个允许读或者读写方式打开的文件读取一个字符（当读的是文本文件时，读取到末尾时返回EOF，即-1）</p>
+<p>3、<strong>feof(fp);</strong> 判断一个文件是否到文件的末尾，到末尾则返回1，没到末尾则返回0（可用于循环语句的判断条件）</p>
+<p>以上函数虽是一个个的读取，但是可用循环语句（while () 很适合）进行重复读取或写入</p>
+<h3 id="五、文件的定位函数"><a href="#五、文件的定位函数" class="headerlink" title="五、文件的定位函数"></a>五、文件的定位函数</h3>
+      </section>
+      <section class="extra">
+        
+          <ul class="copyright">
+  
+    <li><strong>本文作者：</strong>ShouCheng</li>
+    <li><strong>本文链接：</strong><a href="http://example.com/2020/10/24/2020-10-24-c%E8%AF%AD%E8%A8%80%E2%80%94%E2%80%94%E2%80%94%E2%80%94%E6%8C%87%E9%92%88%E4%B8%8E%E6%96%87%E4%BB%B6%E7%AC%94%E8%AE%B0/index.html" title="http:&#x2F;&#x2F;example.com&#x2F;2020&#x2F;10&#x2F;24&#x2F;2020-10-24-c%E8%AF%AD%E8%A8%80%E2%80%94%E2%80%94%E2%80%94%E2%80%94%E6%8C%87%E9%92%88%E4%B8%8E%E6%96%87%E4%BB%B6%E7%AC%94%E8%AE%B0&#x2F;index.html">http:&#x2F;&#x2F;example.com&#x2F;2020&#x2F;10&#x2F;24&#x2F;2020-10-24-c%E8%AF%AD%E8%A8%80%E2%80%94%E2%80%94%E2%80%94%E2%80%94%E6%8C%87%E9%92%88%E4%B8%8E%E6%96%87%E4%BB%B6%E7%AC%94%E8%AE%B0&#x2F;index.html</a></li>
+    <li><strong>版权声明：</strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" title="BY-NC-SA" target="_blank" rel="noopener">BY-NC-SA</a> 许可协议，转载请注明出处！</li>
+  
+</ul>
+        
+        
+        
+        
+  <nav class="nav">
+    <a href="/2020/11/09/2020-11-09-Python%E7%AC%94%E8%AE%B0/"><i class="iconfont iconleft"></i>Python笔记</a>
+    <a href="/2020/10/22/2020-10-22-c%E8%AF%AD%E8%A8%80%E2%80%94%E2%80%94%E2%80%94%E6%9E%84%E9%80%A0%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E5%87%BD%E6%95%B0%E7%AC%94%E8%AE%B0/">c语言——构造数据类型与函数笔记<i class="iconfont iconright"></i></a>
+  </nav>
+
+      </section>
+      
+    </section>
+  </div>
+</article></div>
+      <div class="col-xl-3">
+        
+          
+  <aside class="toc-wrap">
+    <h3 class="toc-title">文章目录：</h3>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%8C%87%E9%92%88"><span class="toc-text">指针</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%8C%87%E9%92%88%E4%B8%8E%E6%8C%87%E9%92%88%E5%8F%98%E9%87%8F"><span class="toc-text">一、指针与指针变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E6%8C%87%E9%92%88%E4%B8%8E%E6%95%B0%E7%BB%84"><span class="toc-text">二、指针与数组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%8C%87%E5%90%91%E6%8C%87%E9%92%88%E7%9A%84%E6%8C%87%E9%92%88%E5%8F%98%E9%87%8F"><span class="toc-text">三、指向指针的指针变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%8C%87%E9%92%88%E4%B8%8E%E7%BB%93%E6%9E%84%E4%BD%93%E3%80%81%E5%85%B1%E7%94%A8%E4%BD%93"><span class="toc-text">四、指针与结构体、共用体</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%8C%87%E9%92%88%E4%B8%8E%E6%9E%9A%E4%B8%BE%E5%9E%8B"><span class="toc-text">五、指针与枚举型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E6%8C%87%E9%92%88%E4%B8%8E%E5%87%BD%E6%95%B0"><span class="toc-text">六、指针与函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E9%93%BE%E8%A1%A8%EF%BC%88%E5%8D%95%E5%90%91%E9%93%BE%E8%A1%A8%EF%BC%89"><span class="toc-text">七、链表（单向链表）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%96%87%E4%BB%B6"><span class="toc-text">文件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%96%87%E4%BB%B6%E6%A6%82%E5%BF%B5"><span class="toc-text">一、文件概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E6%96%87%E4%BB%B6%E6%8C%87%E9%92%88"><span class="toc-text">二、文件指针</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%96%87%E4%BB%B6%E7%9A%84%E6%89%93%E5%BC%80%E5%92%8C%E5%85%B3%E9%97%AD"><span class="toc-text">三、文件的打开和关闭</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%96%87%E4%BB%B6%E7%9A%84%E8%AF%BB%E5%8F%96%E5%92%8C%E5%86%99%E5%85%A5"><span class="toc-text">四、文件的读取和写入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%96%87%E4%BB%B6%E7%9A%84%E5%AE%9A%E4%BD%8D%E5%87%BD%E6%95%B0"><span class="toc-text">五、文件的定位函数</span></a></li></ol></li></ol></li></ol>
+  </aside>
+
+        
+      </div>
+    </div>
+  </div>
+</main>
+  
+
+<footer class="footer">
+  <div class="footer-social"><a 
+        href="tencent://message/?Menu=yes&uin=1145020611 "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#12B7F5'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconQQ "></i>
+      </a><a 
+        href="javascript:; "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#09BB07'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconwechat-fill "></i>
+      </a><a 
+        href="https://www.instagram.com/izhaoo/ "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#DA2E76'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconinstagram "></i>
+      </a><a 
+        href="https://shoucheng3.github.io "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#9f7be1'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  icongithub-fill "></i>
+      </a><a 
+        href="mailto:1145020611@qq.com "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color=#FF3B00" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconmail"></i>
+      </a></div>
+  
+    <div class="footer-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+  
+</footer>
+  
+      <div class="fab fab-plus">
+    <i class="iconfont iconplus"></i>
+  </div>
+  
+    <div class="fab fab-daovoice">
+      <i class="iconfont iconcomment"></i>
+    </div>
+  
+  
+    <a href="https://support.qq.com/product/325288# app_id" target="_blank">
+      <div class="fab fab-tencent-chao">
+        <i class="iconfont iconcomment"></i>
+      </div>
+    </a>
+  
+  <div class="fab fab-up">
+    <i class="iconfont iconcaret-up"></i>
+  </div>
+  
+  
+  
+    
+<script src="/js/color-mode.js"></script>
+
+  
+  
+</body>
+
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
+
+
+
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+
+
+
+  
+<script src="https://cdn.bootcss.com/jquery.pjax/2.0.1/jquery.pjax.min.js"></script>
+
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+
+
+
+
+<script src="/js/utils.js"></script>
+<script src="/js/script.js"></script>
+
+
+
+
+
+  
+
+<script>
+  (function (i, s, o, g, r, a, m) {
+    i["DaoVoiceObject"] = r;
+    i[r] = i[r] || function () {
+      (i[r].q = i[r].q || []).push(arguments)
+    }, i[r].l = 1 * new Date();
+    a = s.createElement(o), m = s.getElementsByTagName(o)[0];
+    a.async = 1;
+    a.src = g;
+    a.charset = "utf-8";
+    m.parentNode.insertBefore(a, m)
+  })(window, document, "script", "https://widget.daovoice.io/widget/0f81ff2f.js", "daovoice")
+  daovoice('init', {
+    app_id: "3abd194f# app_id"
+  }, {
+    launcher: {
+      disableLauncherIcon: true,
+    },
+  });
+  daovoice('update');
+</script>
+
+
+
+  <script>
+    (function () {
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      } else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</html>
