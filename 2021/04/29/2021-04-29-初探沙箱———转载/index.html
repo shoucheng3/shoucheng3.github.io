@@ -1,0 +1,445 @@
+
+
+<!DOCTYPE html>
+<html lang="en" color-mode=light>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>初探沙箱———转载 - ShouCheng</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="google" content="notranslate" />
+  
+  <meta name="description" content="z转载自Tiegu’s Blog
+沙箱机制初探前言之前...">
+  <meta name="author" content="ShouCheng">
+  <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/images/icons/apple-touch-icon.png" sizes="180x180">
+  <meta rel="mask-icon" href="/images/icons/stun-logo.svg" color="#333333">
+  
+    <meta rel="msapplication-TileImage" content="/images/icons/favicon-144x144.png">
+    <meta rel="msapplication-TileColor" content="#000000">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+    
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1445822_r673sha78lq.css">
+
+  
+
+  
+    
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css">
+
+  
+
+  
+    
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/xcode.min.css" name="highlight-style" mode="light">
+
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/solarized-dark.min.css" name="highlight-style" mode="dark">
+
+      
+  
+
+  <script>
+    var CONFIG = window.CONFIG || {};
+    var ZHAOO = window.ZHAOO || {};
+    CONFIG = {
+      isHome: false,
+      fancybox: true,
+      pjax: false,
+      lazyload: {
+        enable: true,
+        only_post: 'false',
+        loading: '[object Object]'
+      },
+      donate: {
+        enable: true,
+        alipay: 'https://pic.izhaoo.com/alipay.jpg',
+        wechat: 'https://pic.izhaoo.com/wechat.jpg'
+      },
+      galleries: {
+        enable: true
+      },
+      fab: {
+        enable: true,
+        always_show: false
+      },
+      carrier: {
+        enable: true
+      },
+      daovoice: {
+        enable: false
+      },
+      preview: {
+        background: {
+          default: '',
+          api: ''
+        },
+        motto: {
+          default: '我在开了灯的床头下，想问问自己的心啊。',
+          typing: true,
+          api: 'https://v2.jinrishici.com/one.json',
+          data_contents: '["data","content"]'
+        },
+      },
+      qrcode: {
+        enable: true,
+        type: 'url',
+        image: 'https://pic.izhaoo.com/weapp-code.jpg',
+      },
+      toc: {
+        enable: true
+      },
+      scrollbar: {
+        type: 'default'
+      },
+      notification: {
+        enable: false,
+        delay: 4500,
+        list: '',
+        page_white_list: '',
+        page_black_list: ''
+      },
+      search: {
+        enable: false,
+        path: ''
+      }
+    }
+  </script>
+
+  
+
+  
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="lock-screen">
+  <div class="loading"></div>
+  
+    
+
+
+  <nav class="navbar">
+    <div class="left">
+      
+        <i class="iconfont iconhome j-navbar-back-home"></i>
+      
+      
+        <i class="iconfont iconqrcode j-navbar-qrcode"></i>
+      
+      
+        <i class="iconfont iconmoono" id="color-toggle" color-toggle="light"></i>
+      
+      
+    </div>
+    <div class="center">初探沙箱———转载</div>
+    <div class="right">
+      <i class="iconfont iconmenu j-navbar-menu"></i>
+    </div>
+    
+      <div id="qrcode-navbar"></div>
+    
+  </nav>
+
+  
+  
+
+<nav class="menu">
+  <div class="menu-container">
+    <div class="menu-close">
+      <i class="iconfont iconbaseline-close-px"></i>
+    </div>
+    <ul class="menu-content"><li class="menu-item">
+        <a href="/ " class="underline "> 首页</a>
+      </li><li class="menu-item">
+        <a href="/galleries/ " class="underline "> 摄影</a>
+      </li><li class="menu-item">
+        <a href="/archives/ " class="underline "> 归档</a>
+      </li><li class="menu-item">
+        <a href="/tags/ " class="underline "> 标签</a>
+      </li><li class="menu-item">
+        <a href="/categories/ " class="underline "> 分类</a>
+      </li><li class="menu-item">
+        <a href="/about/ " class="underline "> 关于</a>
+      </li></ul>
+    
+      <div class="menu-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+    
+  </div>
+</nav>
+  <main id="main">
+  <div class="article-wrap">
+    <div class="row container">
+      <div class="col-xl-3"></div>
+      <div class="col-xl-6"><article class="article">
+  <div class="wrap">
+    <section class="head">
+  <img   class="lazyload" data-original="/images/theme/post-image.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
+  <div class="head-mask">
+    <h1 class="head-title">初探沙箱———转载</h1>
+    <div class="head-info">
+      <span class="post-info-item"><i class="iconfont iconcalendar"></i>April 29, 2021</span>
+      
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6396</span>
+    </div>
+  </div>
+</section>
+    <section class="main">
+      <section class="content">
+        <p><strong>z转载自<a target="_blank" rel="noopener" href="https://pig-sudo.github.io/2020/08/03/%E6%B2%99%E7%AE%B1%E6%9C%BA%E5%88%B6%E5%88%9D%E6%8E%A2/">Tiegu’s Blog</a></strong></p>
+<h1 id="沙箱机制初探"><a href="#沙箱机制初探" class="headerlink" title="沙箱机制初探"></a>沙箱机制初探</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>之前做题遇到过几次关于沙箱的题目，自己都是靠猜或者是去网上找一些零碎的知识去做的，现在刷buu发现一道关于沙箱机制的题目，加之最近觉得没写博客感觉很多知识点忘得很快，所以打算学习一下沙箱机制，顺便写一篇博客去记录一下。</p>
+<h2 id="what’s-the-沙箱安全机制"><a href="#what’s-the-沙箱安全机制" class="headerlink" title="what’s the 沙箱安全机制"></a>what’s the 沙箱安全机制</h2><p>在计算机安全领域，沙箱(Sandbox)是一种程序的隔离运行机制，其目的是限制不可信进程或不可信代码运行时的访问权限。沙箱技术经常被用于执行未经测试的或不可信的客户程序。为了阻止不可信程序可能破坏系统程序或破坏其它用户程序的运行，沙箱技术通过为不可信客户程序提供虚拟化的内存、文件系统、网络等资源，而这种虚拟化手段对客户程序来说是透明的。由于沙箱里的资源被虚拟化（或被间接化），所以沙箱里的不可信程序的恶意行为可以被限制在沙箱中，或者在沙箱里只允许执行在白名单里规定的有限的API操作。</p>
+<p><strong>看概念感觉沙箱机制是一种安全隔离技术，但是个人感觉目前做pwn题遇到的沙箱机制用到的是对于一些system call的调用的ban，所以以下介绍的不是对这个沙箱机制的深入了解，而是介绍两种常见的沙箱 seccomp 安全机制和 prctl 。</strong></p>
+<h2 id="seccomp的探索"><a href="#seccomp的探索" class="headerlink" title="seccomp的探索"></a><code>seccomp</code>的探索</h2><h3 id="What-is-seccomp"><a href="#What-is-seccomp" class="headerlink" title="What is seccomp"></a>What is seccomp</h3><p>seccomp (short for secure computing mode) is a computer security facility in the Linux kernel. It was merged into the Linux kernel mainline in kernel version 2.6.12, which was released on March 8, 2005. seccomp allows a process to make a one-way transition into a “secure” state where it cannot make any system calls except exit(), sigreturn(), read() and write() to already-open file descriptors. Should it attempt any other system calls, the kernel will terminate the process with SIGKILL or SIGSYS. In this sense, it does not virtualize the system’s resources but isolates the process from them entirely.</p>
+<h3 id="How-to-use"><a href="#How-to-use" class="headerlink" title="How to use"></a>How to use</h3><p>这里主要介绍几个函数以及利用。</p>
+<p><strong><a target="_blank" rel="noopener" href="https://pig-sudo.github.io/2020/08/03/%E6%B2%99%E7%AE%B1%E6%9C%BA%E5%88%B6%E5%88%9D%E6%8E%A2/1.png"><img    class="lazyload" data-original="https://pig-sudo.github.io/2020/08/03/%E6%B2%99%E7%AE%B1%E6%9C%BA%E5%88%B6%E5%88%9D%E6%8E%A2/1.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a></strong></p>
+<p><code>ctx</code>是<code>Filter context/handle</code>,其中<code>typedef void *scmp_filter_ctx;</code><br><code>seccomp_init</code>是初始化的过滤状态,这里用的是<code>SCMP_ACT_ALLOW</code>,表示默认允许所有的syscacll.如果初始化状态为<code>SCMP_ACT_KILL</code>,则表示默认不允许所有的syscall （详见下图）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">/*<br> * seccomp actions<br> */<br><br>/**<br> * Kill the process<br> */<br>#define SCMP_ACT_KILL		0x00000000U<br>/**<br> * Throw a SIGSYS signal<br> */<br>#define SCMP_ACT_TRAP		0x00030000U<br>/**<br> * Return the specified error code<br> */<br>#define SCMP_ACT_ERRNO(x)	(0x00050000U | ((x) &amp; 0x0000ffffU))<br>/**<br> * Notify a tracing process with the specified value<br> */<br>#define SCMP_ACT_TRACE(x)	(0x7ff00000U | ((x) &amp; 0x0000ffffU))<br>/**<br> * Allow the syscall to be executed after the action has been logged<br> */<br>#define SCMP_ACT_LOG		0x7ffc0000U<br>/**<br> * Allow the syscall to be executed<br> */<br>#define SCMP_ACT_ALLOW		0x7fff0000U<br></code></pre></td></tr></table></figure>
+
+<p><code>seccomp_rule_add</code>是添加一条规则,函数原形如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">int seccomp_rule_add(scmp_filter_ctx ctx, uint32_t action, int syscall, unsigned int arg_cnt, ...);<br></code></pre></td></tr></table></figure>
+
+<p><code>seccomp_load</code>是应用过滤,如果不调用<code>seccomp_load</code>则上面所有的过滤都不会生效</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">int seccomp_load(const scmp_filter_ctx ctx);<br></code></pre></td></tr></table></figure>
+
+<p>有一点需要再说一下,我们用的是<code>seccomp_rule_add(ctx, SCMP_ACT_KILL, SCMP_SYS(execve), 0);</code>,<code>arg_cnt</code>为0,表示我们直接限制execve,不管他什么参数.</p>
+<p>如果<code>arg_cnt</code>不为0,那<code>arg_cnt</code>表示后面限制的参数的个数,也就是只有调用execve,且参数满足要求时,才会拦截syscall.（参数详情参见下图）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">/**<br> * Specify an argument comparison struct for use in declaring rules<br> * @param arg the argument number, starting at 0<br> * @param op the comparison operator, e.g. SCMP_CMP_*<br> * @param datum_a dependent on comparison<br> * @param datum_b dependent on comparison, optional<br> */<br>#define SCMP_CMP(...)		((struct scmp_arg_cmp)&#123;__VA_ARGS__&#125;)<br><br>/**<br> * Specify an argument comparison struct for argument 0<br> */<br>#define SCMP_A0(...)		SCMP_CMP(0, __VA_ARGS__)<br><br>/**<br> * Specify an argument comparison struct for argument 1<br> */<br>#define SCMP_A1(...)		SCMP_CMP(1, __VA_ARGS__)<br><br>/**<br> * Specify an argument comparison struct for argument 2<br> */<br>#define SCMP_A2(...)		SCMP_CMP(2, __VA_ARGS__)<br><br>/**<br> * Specify an argument comparison struct for argument 3<br> */<br>#define SCMP_A3(...)		SCMP_CMP(3, __VA_ARGS__)<br><br>/**<br> * Specify an argument comparison struct for argument 4<br> */<br>#define SCMP_A4(...)		SCMP_CMP(4, __VA_ARGS__)<br><br>/**<br> * Specify an argument comparison struct for argument 5<br> */<br>#define SCMP_A5(...)		SCMP_CMP(5, __VA_ARGS__)<br><br><br><br>/**<br> * Comparison operators<br> */<br>enum scmp_compare &#123;<br>	_SCMP_CMP_MIN = 0,<br>	SCMP_CMP_NE = 1,		/**&lt; not equal */<br>	SCMP_CMP_LT = 2,		/**&lt; less than */<br>	SCMP_CMP_LE = 3,		/**&lt; less than or equal */<br>	SCMP_CMP_EQ = 4,		/**&lt; equal */<br>	SCMP_CMP_GE = 5,		/**&lt; greater than or equal */<br>	SCMP_CMP_GT = 6,		/**&lt; greater than */<br>	SCMP_CMP_MASKED_EQ = 7,		/**&lt; masked equality */<br>	_SCMP_CMP_MAX,<br>&#125;;<br><br>/**<br> * Argument datum<br> */<br>typedef uint64_t scmp_datum_t;<br><br>/**<br> * Argument / Value comparison definition<br> */<br>struct scmp_arg_cmp &#123;<br>	unsigned int arg;	/**&lt; argument number, starting at 0 */<br>	enum scmp_compare op;	/**&lt; the comparison op, e.g. SCMP_CMP_* */<br>	scmp_datum_t datum_a;<br>	scmp_datum_t datum_b;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>举个例子：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">#include &lt;unistd.h&gt;<br>#include &lt;seccomp.h&gt;<br>#include &lt;linux/seccomp.h&gt;<br><br>int main(void)&#123;<br>	scmp_filter_ctx ctx;<br>	ctx = seccomp_init(SCMP_ACT_ALLOW);<br>	seccomp_rule_add(ctx, SCMP_ACT_KILL,         SCMP_SYS(write),1,SCMP_A2(SCMP_CMP_EQ,0x10));//第2(从0)个参数等于0x10<br>	seccomp_load(ctx);<br>	write(1,&quot;i will give you a shell\n&quot;,24);//不被拦截<br>	write(1,&quot;1234567812345678&quot;,0x10);//被拦截<br>	return 0;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="prctl-函数"><a href="#prctl-函数" class="headerlink" title="prctl 函数"></a>prctl 函数</h2><p>查看函数原型：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">#include &lt;sys/prctl.h&gt;<br>int prctl(int option, unsigned long arg2, unsigned long arg3,unsigned long arg4,unsigned long arg5);<br></code></pre></td></tr></table></figure>
+
+<p>第一个参数是指定相应的操作，在手册上有特别多的选项，这里打算介绍两个。</p>
+<h3 id="PR-SET-NO-NEW-PRIVS-用38表示"><a href="#PR-SET-NO-NEW-PRIVS-用38表示" class="headerlink" title="PR_SET_NO_NEW_PRIVS(用38表示)"></a>PR_SET_NO_NEW_PRIVS(用38表示)</h3><p>简单的说就是如果 option 设置为 <code>PR_SET_NO_NEW_PRIVS</code> 的话，第二个参数如果设置为 1 的话，<strong>不能够进行 execve 的系统调用，同时这个选项还会继承给子进程</strong>。</p>
+<p>这样的话常规的调用 system 函数、one_gadget 的用不了了，这里的设置点其实和 <strong>pwnable.tw 上 orw 那道题一样，只能进行几个系统调用：open、write、read</strong>。</p>
+<p><strong><a target="_blank" rel="noopener" href="https://pig-sudo.github.io/2020/08/03/%E6%B2%99%E7%AE%B1%E6%9C%BA%E5%88%B6%E5%88%9D%E6%8E%A2/2.png"><img    class="lazyload" data-original="https://pig-sudo.github.io/2020/08/03/%E6%B2%99%E7%AE%B1%E6%9C%BA%E5%88%B6%E5%88%9D%E6%8E%A2/2.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a></strong></p>
+<p>从上图可以看出，当prctl的第一个参数设置为38时，第二个参数设置为1时，变会触发上述效果。</p>
+<h3 id="PR-SET-SECCOMP（用22表示）"><a href="#PR-SET-SECCOMP（用22表示）" class="headerlink" title="PR_SET_SECCOMP（用22表示）"></a>PR_SET_SECCOMP（用22表示）</h3><p>第二个参数，可以参见man手册里面的介绍</p>
+<p><strong><a target="_blank" rel="noopener" href="https://pig-sudo.github.io/2020/08/03/%E6%B2%99%E7%AE%B1%E6%9C%BA%E5%88%B6%E5%88%9D%E6%8E%A2/3.png"><img    class="lazyload" data-original="https://pig-sudo.github.io/2020/08/03/%E6%B2%99%E7%AE%B1%E6%9C%BA%E5%88%B6%E5%88%9D%E6%8E%A2/3.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a></strong></p>
+<p>设置 seccomp ，其实也就是设置沙箱规则，这个 option 有两个子参数：</p>
+<ul>
+<li><p>这里如果设置了 <code>SECCOMP_MODE_STRICT</code> （用1表示）模式的话，系统调用只能使用 read, write,_exit 这三个。</p>
+</li>
+<li><p>如果设置了 <code>SECCOMP_MODE_FILTER</code> （用2表示）的话，系统调用规则就可以被 Berkeley Packet Filter（BPF） 的规则所定义，这玩意就是这里最最重点的东西了。</p>
+<p>首先介绍一下这个BPF是啥吧，度娘上面的解释是：</p>
+<p><strong><a target="_blank" rel="noopener" href="https://pig-sudo.github.io/2020/08/03/%E6%B2%99%E7%AE%B1%E6%9C%BA%E5%88%B6%E5%88%9D%E6%8E%A2/4.png"><img    class="lazyload" data-original="https://pig-sudo.github.io/2020/08/03/%E6%B2%99%E7%AE%B1%E6%9C%BA%E5%88%B6%E5%88%9D%E6%8E%A2/4.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></a></strong></p>
+</li>
+</ul>
+<p>看解释感觉是网络数据包传输过滤的一种规则，但事实上，后面已经被引用为沙箱规则</p>
+<blockquote>
+<p>BPF 定义了一个伪机器。这个伪机器可以执行代码，有一个累加器，寄存器，和赋值、算术、跳转指令。一条指令由一个定义好的结构 struct bpf_insn 表示，与真正的机器代码很相似，若干个这样的结构组成的数组，就成为 BPF 的指令序列。</p>
+</blockquote>
+<p>总结一些点：</p>
+<ol>
+<li><p><strong>结构赋值操作指令为</strong>：BPF_STMT、BPF_JUMP ，两个宏展开都是已经赋值的了struct bpf_insn结构。</p>
+</li>
+<li><p><strong>BPF 的主要指令有</strong> BPF_LD，BPF_ALU，BPF_JMP，BPF_RET 等。BPF_LD 将数据装入累加器，BPF_ALU 对累加器执行算术命令，BPF_JMP 是跳转指令，BPF_RET 是程序返回指令</p>
+</li>
+<li><p><strong>BPF 条件判断跳转指令</strong>：BPF_JMP、BPF_JEQ，BPF_JA,BPF_JGT等，语法跟汇编语言几乎相等，根据后面的几个参数进行判断，然后跳转到相应的地方。</p>
+</li>
+<li><p><strong>返回指令</strong>：BPF_RET、BPF_K，返回后面参数的值</p>
+</li>
+<li><p><strong>一些杂用指令</strong>：BPF_H表示按字传输，BPF_W表示按双字传输，BPF_B表示按单个字节传输；BPF_ABS表示绝对偏移，BPF_IND表示相对偏移， <code>SECCOMP_RET_ALLOW</code> 表示允许， <code>SECCOMP_RET_ERRNO</code> 表示禁止。</p>
+<p>这个其实背后也牵涉到很多内容，参见以下两篇文章的介绍。</p>
+<p><a target="_blank" rel="noopener" href="http://www.360doc.com/content/06/1026/17/13362_241408.shtml">http://www.360doc.com/content/06/1026/17/13362_241408.shtml</a></p>
+</li>
+</ol>
+<p><a target="_blank" rel="noopener" href="http://www.secwk.com/2019/09/20/6564/">http://www.secwk.com/2019/09/20/6564/</a></p>
+<h2 id="seccomp-tools-工具"><a href="#seccomp-tools-工具" class="headerlink" title="seccomp-tools 工具"></a>seccomp-tools 工具</h2><p>以上设置在pwn题中遇到时一般都是禁止了一些系统调用。故可以<strong>seccomp-tools</strong>这个工具去查看禁用的系统调用。</p>
+<ul>
+<li><p>安装：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> sudo apt install gcc ruby-dev</span><br><span class="hljs-meta">$</span><span class="bash"> gem install seccomp-tools</span><br></code></pre></td></tr></table></figure></li>
+<li><p>使用：一般用到dump这个用法，其他详细用法可见上面github。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">seccomp-tools dump ./pwn<br></code></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a target="_blank" rel="noopener" href="http://www.secwk.com/2019/09/20/6564/">http://www.secwk.com/2019/09/20/6564/</a></p>
+<p><a target="_blank" rel="noopener" href="https://veritas501.space/2018/05/05/seccomp%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">https://veritas501.space/2018/05/05/seccomp%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</a></p>
+
+      </section>
+      <section class="extra">
+        
+          <ul class="copyright">
+  
+    <li><strong>本文作者：</strong>ShouCheng</li>
+    <li><strong>本文链接：</strong><a href="http://example.com/2021/04/29/2021-04-29-%E5%88%9D%E6%8E%A2%E6%B2%99%E7%AE%B1%E2%80%94%E2%80%94%E2%80%94%E8%BD%AC%E8%BD%BD/index.html" title="http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;04&#x2F;29&#x2F;2021-04-29-%E5%88%9D%E6%8E%A2%E6%B2%99%E7%AE%B1%E2%80%94%E2%80%94%E2%80%94%E8%BD%AC%E8%BD%BD&#x2F;index.html">http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;04&#x2F;29&#x2F;2021-04-29-%E5%88%9D%E6%8E%A2%E6%B2%99%E7%AE%B1%E2%80%94%E2%80%94%E2%80%94%E8%BD%AC%E8%BD%BD&#x2F;index.html</a></li>
+    <li><strong>版权声明：</strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" title="BY-NC-SA" target="_blank" rel="noopener">BY-NC-SA</a> 许可协议，转载请注明出处！</li>
+  
+</ul>
+        
+        
+          <section class="donate">
+  <div id="qrcode-donate">
+    <img   class="lazyload" data-original="https://pic.izhaoo.com/alipay.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" >
+  </div>
+  <div class="icon">
+    <a href="javascript:;" id="alipay"><i class="iconfont iconalipay"></i></a>
+    <a href="javascript:;" id="wechat"><i class="iconfont iconwechat-fill"></i></a>
+  </div>
+</section>
+        
+        
+  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/sandbox/" rel="tag">sandbox</a></li></ul> 
+
+        
+  <nav class="nav">
+    <a href="/2021/05/05/2021-05-05-buu04/"><i class="iconfont iconleft"></i>buu04</a>
+    <a href="/2021/04/20/2021-04-20-heap-structure/">heap structure<i class="iconfont iconright"></i></a>
+  </nav>
+
+      </section>
+      
+    </section>
+  </div>
+</article></div>
+      <div class="col-xl-3">
+        
+          
+  <aside class="toc-wrap">
+    <h3 class="toc-title">文章目录：</h3>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%B2%99%E7%AE%B1%E6%9C%BA%E5%88%B6%E5%88%9D%E6%8E%A2"><span class="toc-text">沙箱机制初探</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#what%E2%80%99s-the-%E6%B2%99%E7%AE%B1%E5%AE%89%E5%85%A8%E6%9C%BA%E5%88%B6"><span class="toc-text">what’s the 沙箱安全机制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#seccomp%E7%9A%84%E6%8E%A2%E7%B4%A2"><span class="toc-text">seccomp的探索</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#What-is-seccomp"><span class="toc-text">What is seccomp</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#How-to-use"><span class="toc-text">How to use</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#prctl-%E5%87%BD%E6%95%B0"><span class="toc-text">prctl 函数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#PR-SET-NO-NEW-PRIVS-%E7%94%A838%E8%A1%A8%E7%A4%BA"><span class="toc-text">PR_SET_NO_NEW_PRIVS(用38表示)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PR-SET-SECCOMP%EF%BC%88%E7%94%A822%E8%A1%A8%E7%A4%BA%EF%BC%89"><span class="toc-text">PR_SET_SECCOMP（用22表示）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#seccomp-tools-%E5%B7%A5%E5%85%B7"><span class="toc-text">seccomp-tools 工具</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-text">参考文章</span></a></li></ol></li></ol>
+  </aside>
+
+        
+      </div>
+    </div>
+  </div>
+</main>
+  
+
+<footer class="footer">
+  <div class="footer-social"><a 
+        href="tencent://message/?Menu=yes&uin=894519210 "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#12B7F5'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconQQ "></i>
+      </a><a 
+        href="javascript:; "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#09BB07'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconwechat-fill "></i>
+      </a><a 
+        href="https://www.instagram.com/izhaoo/ "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#DA2E76'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconinstagram "></i>
+      </a><a 
+        href="https://github.com/zhaoo "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#9f7be1'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  icongithub-fill "></i>
+      </a><a 
+        href="mailto:izhaoo@163.com "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color=#FF3B00" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconmail"></i>
+      </a></div>
+  
+    <div class="footer-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+  
+</footer>
+  
+      <div class="fab fab-plus">
+    <i class="iconfont iconplus"></i>
+  </div>
+  
+  
+  <div class="fab fab-up">
+    <i class="iconfont iconcaret-up"></i>
+  </div>
+  
+  
+  
+    
+<script src="/js/color-mode.js"></script>
+
+  
+  
+</body>
+
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
+
+
+
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+
+
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+
+
+
+
+<script src="/js/utils.js"></script>
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+  <script>
+    (function () {
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      } else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</html>

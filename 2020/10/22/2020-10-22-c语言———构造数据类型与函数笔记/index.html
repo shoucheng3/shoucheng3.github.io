@@ -1,0 +1,489 @@
+
+
+<!DOCTYPE html>
+<html lang="en" color-mode=light>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>c语言——构造数据类型与函数笔记 - ShouCheng</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="google" content="notranslate" />
+  
+  <meta name="description" content="构造数据类型一、数组1、数组：一批类型性质相同的数据的...">
+  <meta name="author" content="ShouCheng">
+  <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/images/icons/apple-touch-icon.png" sizes="180x180">
+  <meta rel="mask-icon" href="/images/icons/stun-logo.svg" color="#333333">
+  
+    <meta rel="msapplication-TileImage" content="/images/icons/favicon-144x144.png">
+    <meta rel="msapplication-TileColor" content="#000000">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+    
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1445822_r673sha78lq.css">
+
+  
+
+  
+    
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css">
+
+  
+
+  
+    
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/xcode.min.css" name="highlight-style" mode="light">
+
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/solarized-dark.min.css" name="highlight-style" mode="dark">
+
+      
+  
+
+  <script>
+    var CONFIG = window.CONFIG || {};
+    var ZHAOO = window.ZHAOO || {};
+    CONFIG = {
+      isHome: false,
+      fancybox: true,
+      pjax: false,
+      lazyload: {
+        enable: true,
+        only_post: 'false',
+        loading: '[object Object]'
+      },
+      donate: {
+        enable: true,
+        alipay: 'https://pic.izhaoo.com/alipay.jpg',
+        wechat: 'https://pic.izhaoo.com/wechat.jpg'
+      },
+      galleries: {
+        enable: true
+      },
+      fab: {
+        enable: true,
+        always_show: false
+      },
+      carrier: {
+        enable: true
+      },
+      daovoice: {
+        enable: false
+      },
+      preview: {
+        background: {
+          default: '',
+          api: ''
+        },
+        motto: {
+          default: '我在开了灯的床头下，想问问自己的心啊。',
+          typing: true,
+          api: 'https://v2.jinrishici.com/one.json',
+          data_contents: '["data","content"]'
+        },
+      },
+      qrcode: {
+        enable: true,
+        type: 'url',
+        image: 'https://pic.izhaoo.com/weapp-code.jpg',
+      },
+      toc: {
+        enable: true
+      },
+      scrollbar: {
+        type: 'default'
+      },
+      notification: {
+        enable: false,
+        delay: 4500,
+        list: '',
+        page_white_list: '',
+        page_black_list: ''
+      },
+      search: {
+        enable: false,
+        path: ''
+      }
+    }
+  </script>
+
+  
+
+  
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="lock-screen">
+  <div class="loading"></div>
+  
+    
+
+
+  <nav class="navbar">
+    <div class="left">
+      
+        <i class="iconfont iconhome j-navbar-back-home"></i>
+      
+      
+        <i class="iconfont iconqrcode j-navbar-qrcode"></i>
+      
+      
+        <i class="iconfont iconmoono" id="color-toggle" color-toggle="light"></i>
+      
+      
+    </div>
+    <div class="center">c语言——构造数据类型与函数笔记</div>
+    <div class="right">
+      <i class="iconfont iconmenu j-navbar-menu"></i>
+    </div>
+    
+      <div id="qrcode-navbar"></div>
+    
+  </nav>
+
+  
+  
+
+<nav class="menu">
+  <div class="menu-container">
+    <div class="menu-close">
+      <i class="iconfont iconbaseline-close-px"></i>
+    </div>
+    <ul class="menu-content"><li class="menu-item">
+        <a href="/ " class="underline "> 首页</a>
+      </li><li class="menu-item">
+        <a href="/galleries/ " class="underline "> 摄影</a>
+      </li><li class="menu-item">
+        <a href="/archives/ " class="underline "> 归档</a>
+      </li><li class="menu-item">
+        <a href="/tags/ " class="underline "> 标签</a>
+      </li><li class="menu-item">
+        <a href="/categories/ " class="underline "> 分类</a>
+      </li><li class="menu-item">
+        <a href="/about/ " class="underline "> 关于</a>
+      </li></ul>
+    
+      <div class="menu-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+    
+  </div>
+</nav>
+  <main id="main">
+  <div class="article-wrap">
+    <div class="row container">
+      <div class="col-xl-3"></div>
+      <div class="col-xl-6"><article class="article">
+  <div class="wrap">
+    <section class="head">
+  <img   class="lazyload" data-original="/images/theme/post-image.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
+  <div class="head-mask">
+    <h1 class="head-title">c语言——构造数据类型与函数笔记</h1>
+    <div class="head-info">
+      <span class="post-info-item"><i class="iconfont iconcalendar"></i>October 22, 2020</span>
+      
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6859</span>
+    </div>
+  </div>
+</section>
+    <section class="main">
+      <section class="content">
+        <h1 id="构造数据类型"><a href="#构造数据类型" class="headerlink" title="构造数据类型"></a>构造数据类型</h1><h3 id="一、数组"><a href="#一、数组" class="headerlink" title="一、数组"></a>一、数组</h3><p>1、数组：一批类型性质相同的数据的集合</p>
+<p>2、数组定义与之前的变量并无太大差异，只是在其后面多了维数，以及组中的个数。一维则[]中的数字表示为数组元素的总数，若二维则[] []表示几行几列（先行后列）的数据</p>
+<p>3、数组名不与变量名重复，一样也不可以取用关键词作为组名，定义数组元素的个数（称为数组长度或数组大小）不能含有变量，定义为常量的可以（里面进行加减乘除也可，有具体整数值都可）</p>
+<p><strong>注：不能直接引用整个数组，只能使用数组中的某个数据（字符串数组除外）</strong></p>
+<p>4、数组下标从0开始，（一维数组的最后一个数据为数组长度减1，例如Score[10]，第一个元素为Score[0]最后一个元素为Score[9]）</p>
+<p>5、数组的赋值有三种:（1）用循环语句进行有规律的赋值（2）循环语句中利用输入函数进行逐个输入 （3）初始化，在定义数组时，直接用花括号赋指，（按照顺序赋值，如果数据数量不够，则后面的数据直接赋值为0；如果过大，将报错）</p>
+<p>6、数组名代表的是一个内存单元地址，所以若是直接使用数组名进行输入函数取值，就无需使用&amp;（应用在字符数组上）</p>
+<p>7、对于数组排序的冒泡排序和选择排序，重点在于内层循环变量的取值范围变化，是朝着小变化或是朝着大变化，决定了数组排序的是从小到大还是从大到小；而内层循环变量的取值范围应该越来越小，因为已经排序的应该将之排除在外</p>
+<p>8、二维数组：例如a[x] [y] （两个[]不能简写成[x,y]，是错误语法）代表数组a由x行y列组成，一共x*y个元素；表示的最大下标x-1，y-1</p>
+<p>9、二维数组的存放顺序是一行一行的填充，比如先填满第0行，才会开始填第一行</p>
+<p>10、二维数组的赋值：</p>
+<p>（1）直接在后面跟=｛｝，里面可以直接填写数字直到满（不建议，十分不清晰）或是每一行用｛｝括起来，会清晰明了许多，各个｛｝间用“，”隔开（如果一次性写满，则可以省略行里面的数字，列不行</p>
+<p>（2）如果是每行通过｛｝隔开的情况，则可以只填写该行前几列的数据，其他的将会被系统填0</p>
+<p>  11、c语言中没有定义字符串类型的函数，但是可以使用数组来处理字符串，定义方式与之前的数组并无太大区别，只需注意以下几点：</p>
+<p>（1）如果在初始化定义时，用单个字符定义，则每个字符需使用 ‘  ‘ 括起来，但是没有赋值的将被系统填充’\0’；故此，与之前数组一致，如果要将所有数组都变为0；则输入’\0’即可</p>
+<p>（2）初始化时可以直接用字符串赋值，字符串使用”  “括起来，之后系统将会自动补充’\0’（只有结尾是空字符的字符数组可以用%s直接输出），所以如果用字符串赋值，存储的字节数将会是字符串的长度加1（所以需要注意数组长度是否够大）</p>
+<p>（3）使用printf与scanf两个函数时，如果定义为%c时，后面跟的必须是如a[n]这般的某个具体的位置。需使用循环语句进行一个一个字符进行输入/输出，输入时候各个字符不必用空格隔开，因为此时空格也将被认为是一个字符存储在数组里；并且如果数值长度仍够，按下的回车键也同样会被存储在数组中</p>
+<p>​        另：如果为%s，后面跟的变成如a这般的数组名，作为一个整体的地址，有个需注意，在输入函数scanf中使用时，若输入空格将会被认为是已经完成了输入</p>
+<p>（4）上面的方法其实过于复杂，而对于含有字符的数组，在string的头文件中有专门的一些函数可以帮忙处理：</p>
+<p>gets(字符数组名)：输入的字符串赋值给字符数组，并且空格不会被认为是结束的标志，只有回车才是，所以可以输入多个字符串</p>
+<p>puts(字符数组名)：输出字符数组里的内容</p>
+<p>strcat(字符数组1，字符数组2)：把字符数组2的内容直接放入字符数组1中并连接在其后面(前提是字符数组1的长度够大)</p>
+<p>strcpy(字符数组1，字符数组2)：把字符数组2的内容直接复制到字符数组1中，注意是<strong>覆盖式</strong>的（前提是字符数组1的长度比2的大或等）</p>
+<p>strcmp(字符数组1，字符数组2)：把字符数组1和字符数组2的字符按照从左往右的顺序进行ASCII码值的比较，直至出现不同的字符或者遇到末尾的’\0’停止；若是两者相等，则函数返回值为<strong>0</strong>；若是前者大于后者，则函数返回值为<strong>正整数</strong>；若是前者小于后者，则函数返回值为<strong>负整数</strong>（相比的为同位置的字符，一旦比出结果立刻停止比较，返回函数值）</p>
+<p>strlen(字符数组)：计算字符数组中的字符个数。不包括’\0’</p>
+<p>strlwr(字符数组)：把字符数组中的大写字符转换为小写字符</p>
+<p>strupr(字符数组)：把字符数组中的小写字符转换为大写字符</p>
+<p>12、循环结构与数组是黄金搭档，经常配合使用</p>
+<p>13、定义数组时里面的[ ]可以是字母，但必须是某个具有确定的值的字母，总之值一定得是确定的</p>
+<p>14、字符数组直接赋值为字符串时，可以被另一个字符串（长短不一定要一致）直接覆盖。</p>
+<p>15、字符串的一维数组只能存放一个字符串，而二维数组可用来盛放多个字符串（每行存放一个字符串），其列表示每行所能容纳的最大的字符个数（会造成空间浪费，后面有指针数组，才是更好的选择）</p>
+<h3 id="二、结构体"><a href="#二、结构体" class="headerlink" title="二、结构体"></a>二、结构体</h3><p>1、结构体（struct）：把若干个不同类型的变量组合到一起构成的的数据类型</p>
+<p>2、声明格式：**struct 结构体名 {成员}; **  。（定义的内容，定义方式与定义变量、数组方式一致）</p>
+<p>3、结构体中的各个部分称为成员，而成员名可以与结构体之外定义的变量名相同，但不能与关键字同名。</p>
+<p>4、（要先声明，才能有此步骤的定义）使用结构体格式为：**struct 结构体名 变量名 **，若是要初始化，则用{}括起来，里面的数据类型按顺序且与结构体中的成员数据类型相同，如果赋值数据个数不够，则剩余补0；超过则出错</p>
+<p>5、结构体将引入“.”这个符号进行对成员赋值：<strong>变量名.成员名=？</strong>进行赋值，若是出现多层嵌套的结构体，则通过多个  <strong>.</strong>  进行连接，由最外层到最内层逐层的排序</p>
+<p>6、直接使用变量名代表对结构体中第一个的成员进行赋值，若对特定的某个成员赋值，需要用  <strong>.</strong></p>
+<p>7、使用结构体定义的变量，就拥有了结构体中的成员作为该变量的属性，那些成员好似成为变量名头下的一个个标签</p>
+<p>8、结构体数组就是把结构体定义的变量的方式换成了去定义一个数组，在处理一些相同类型的数据上可以简化代码，其余并无差别</p>
+<p>9、位段：在一个结构体中使用指定长度的位（二进制位）作为单位的成员（大多数情况下是用不到的）</p>
+<p>格式与结构体定义几乎一致，唯一差别就是在定义的成员后面加上   <strong>: 位的个数</strong>，如int num :8;</p>
+<p>10、同个结构体名定义下的不同变量可以直接使用赋值语句用于值的交换</p>
+<p>11、结构体变量所占存储空间的大小等于各个成员的存储空间之和</p>
+<p>12、结构体运用在某个变量拥有多种方面的数据类型</p>
+<h3 id="三、共用体"><a href="#三、共用体" class="headerlink" title="三、共用体"></a>三、共用体</h3><p>1、共用体（union）：多个不同类型数据共享空间的构造类型。在其里面的成员<em><strong>共用一个存储空间</strong></em>，都是从相同的物理地址开始</p>
+<p>2、用法与结构体一致，可参考结构体的做法，直接模仿</p>
+<p>3、共用体中允许嵌套。即：里面的成员可以是数组，指针，结构体和共用体（结构体也是如此）</p>
+<p>4、共用体变量所占的空间大小取决于占存储空间最大的那个成员，与结构体要区分开！</p>
+<p>5、在共用体初始化时只能对第一个成员的值进行初始化</p>
+<p>6、共用体中的成员只能有一个成员有值，因为一旦对某个成员赋值，就会覆盖其他成员原来的数据，因此最后一次赋值是共用体起作用的数值</p>
+<p>7、当共用体里面嵌套结构体时，结构体的成员共用共用体里的空间，分配顺序默认为从低地址到高地址</p>
+<p>8、运用在某个数据可能用的类型有多种，而进行选择</p>
+<h3 id="四、枚举类型"><a href="#四、枚举类型" class="headerlink" title="四、枚举类型"></a>四、枚举类型</h3><p>1、枚举：把变量所有可能取值一一罗列出来，增加程序的可读性</p>
+<p>2、声明格式：**enum 枚举名 ｛枚举值｝;**（枚举值可为字符串（不要加双引号），将会被系统作为整型常量处理；不同的枚举值之间用’ , ‘隔开）</p>
+<p>3、枚举值无特定的赋值序号时，则从0开始逐个加1递增给予序号；另外对某一枚举元素赋值序号，而其后无赋值序号，则从该序号开始加1递增</p>
+<p>4、可以通过使用switch（枚举值的序号）｛｝语句来对枚举变量进行输入和输出</p>
+<p>5、枚举类型定义里面的枚举元素，好像一个个存储着的值，是需要经过选择然后再将其赋值给变量，变量才能具有那个枚举值，不能使用枚举值的序号进行赋值，必须输入全名；若是要用序号赋值，需要的格式为：<strong>（enum 枚举名）（某序号）</strong></p>
+<p>6、枚举值的序号可用来比大小，作为判断条件</p>
+<p>7、用某类型的一个枚举变量为另一个该类型枚举变量赋上枚举值：a=(enum) 枚举名 (b+1)（a，b为同类型枚举变量，b+1表示一个标量的序号，加1只是举例，可以进行其他运算）</p>
+<h3 id="五、自定义类型名"><a href="#五、自定义类型名" class="headerlink" title="五、自定义类型名"></a>五、自定义类型名</h3><p>1、自定义类型：使用typedef声明一种新的类型名来代替已有的某类型名</p>
+<p>2、语法格式：<strong>typedef 某类型名 新类型名</strong> （新类型名习惯上用大写字母表示，以便与已有的进行区分）</p>
+<p>3、某类型名可以是float，int这类标准数据类型；也可以是结构体，共用体，枚举；</p>
+<p>4、这个关键字的用法类似一种格式刷的感觉，可以将你“刷”过的类型去把别的变量的类型变得一致</p>
+<h1 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h1><h3 id="一、函数概述、自定义、调用"><a href="#一、函数概述、自定义、调用" class="headerlink" title="一、函数概述、自定义、调用"></a>一、函数概述、自定义、调用</h3><p>1、函数：是对数据进行一系列的操作，而去完成某个特定功能的过程。好似一种公式，把数据套进去一样</p>
+<p>2、函数分为系统库函数与用户自定义函数，前者由编译系统提供，用户输入头文件便可以调用；而后者是程序员自行定义与设计，用来完成某项特定的功能。</p>
+<p>3、自定义函数格式：<strong>类型标识符 函数名 (形式参数表){函数体（即：某种运算过程）}</strong></p>
+<p><strong>注：类型标识符是执行完该函数程序，数据返回的类型定义；函数名不可以与关键字重名，在整个程序中是唯一的；｛｝后面无” ; “    函数定义中不能再定义一个新函数；形参定义格式例如 int a，int b，······</strong></p>
+<p>4、形参类似一个公式里面的x，y，在使用函数时，格式应按照形参的样式进行调用；调用时便把值赋予形参进行运算然后在返回出去需要的值。（两者个数必须相等）</p>
+<p>5、return 表达式或return （表达式）返回函数值，不写时，函数返回类型应该为void；写入时，结束函数体的执行，程序回到调用该函数的地方，并把其后表达式的值按照类型标识符的数据类型返回给主调函数（也就是把值输出）</p>
+<p>6、跟在return后的表达式返回值的数据类型必须跟定义函数时的数据类型一致，不一致时将以定义函数时的数据类型为准，进行强制类型转换</p>
+<p>7、当定义函数时省略返回值的数据类型定义，系统将默认为int型</p>
+<p>8、 当把自定义函数的定义语句写到主调函数的后面时，在使用自定义函数前需要加上自定义函数的声明（格式为： 类型标识符 函数名 （类型 形参1，类型 形参2，）或者（类型，类型···））；若是函数定义写在主调函数之前则不必写声明</p>
+<p>9、函数定义中不能嵌套函数，但是调用函数产生的值却可以再套在函数里面，如：min(min(a,b),min(c,d)) 计算出a,b,c,d四个里面的最小值</p>
+<p>10、函数里面若包含输出语句（printf，puts等），在调用时是会输出里面的语句</p>
+<h3 id="二、函数的参数传递"><a href="#二、函数的参数传递" class="headerlink" title="二、函数的参数传递"></a>二、函数的参数传递</h3><h4 id="值传递"><a href="#值传递" class="headerlink" title="值传递"></a>值传递</h4><p>1、值传递：调用函数时，主调函数把实参的值赋值给形参。</p>
+<p>2、形参的值变化不会影响实参的值，形参一般为变量，实参可以是变量、常量、表达式</p>
+<h4 id="地址传递"><a href="#地址传递" class="headerlink" title="地址传递"></a>地址传递</h4><p>1、地址传递：主调函数把实参的地址传递给形参，作为形参的地址</p>
+<p>2、当进行的为地址传递时，形参和实参共用一个地址，共用一个存储空间，即形参的改变就是实参的改变</p>
+<p>3、表示地址传递的有<strong>数组名、&amp;变量、字符串、指针变量</strong></p>
+<p>4、当实参是二维数组，形参可以是一维数组，此时不能直接将实参数组名填入括号内，类型将不匹配；应填入：数组名 [0] ，在此时作为一个起始地址转变为一维数组的排列方式。二维数组关系如a[i] [j]=b[i*n+j]（i，j为双层循环的循环数，n为二维数组a的列数）</p>
+<h3 id="三、函数的调用"><a href="#三、函数的调用" class="headerlink" title="三、函数的调用"></a>三、函数的调用</h3><p>1、一个函数内不能再定义另一个函数，但是函数体（即在｛｝里的内容）内可以对其他的函数进行调用，也可以调用该函数本身，对其他函数要记得声明函数即可</p>
+<p>2、函数名后的括号里面可以是各种各样的表达式，可以更好调用函数，发挥出我们想要的效果</p>
+<p>3、设计函数的目的在于简化程序，把每一步要做的归成一个相对独立的函数进行完成，然后在一步步的考虑其他细节，最终完成一个复杂的程序</p>
+<p>4、一个函数在自身函数体内调用自己称为直接递归调用；调用其他函数称为间接递归调用；</p>
+<p>5、使用直接递归调用需满足两个条件：（1）递归模式，好似数学中的单个函数自身层层嵌套，有点循环语句的感觉，但却能完成一些循环语句难以完成的程序（2）递归出口，一般到1或0脱离递归</p>
+<p>6、当函数在不同源文件时一样可以调用函数，只需在调用之前进行函数声明即可</p>
+<h3 id="四、变量的作用域和生存期"><a href="#四、变量的作用域和生存期" class="headerlink" title="四、变量的作用域和生存期"></a>四、变量的作用域和生存期</h3><p>1、变量的作用域指变量的有效范围，即可以引用变量的区域；分为全局变量和局部变量。</p>
+<p>局部变量：在定义的代码块内定义且作用</p>
+<p>全局变量：在函数外部定义的变量，作用域从定义开始直到源文件结束，但是如果在某个函数内有同名的局部变量，则局部变量的值生效，全局变量值被隐藏</p>
+<p>2、代码块：在一对花括号里面的代码段，包括函数体以及函数体内的语句块</p>
+<p>3、在每个代码块内定义的变量都只能在其内使用，所以可以在不同的代码块使用相同的变量名，并且不会互相干扰，比如：在一个函数内定义i为10；则在整个函数内i都有一个为10的值；而在此时使用了如if语句，且是使用了｛i=0｝，那么在if的花括号里，i为0，但是不在花括号里的i仍然为10。我理解为优先级别问题，级别高优先展示，却不会覆盖</p>
+<p>4、变量的生存期：变量值在程序运行过程中存在的期限，即从系统为变量分配存储单元开始到将存储单元收回为止。</p>
+<p>5、C语言程序占据的存储空间分为程序区、静态存储区和动态存储区</p>
+<p>程序区：用于存放程序</p>
+<p>静态存储区：程序开始执行时就分配的固定存储单元，如全局变量。其生存期从程序运行开始到程序的结束</p>
+<p>动态存储区：函数调用过程中进行动态分配的存储单元，如函数形参、自动变量、函数调用时的现场保护和返回值地址。其生存期从定义变量开始到函数（或复合语句）运行结束为止</p>
+<p>6、一些说明存储类型的关键字：（1）auto 自动变量（2）static 静态变量 （3）register 寄存器变量 （4）extern （外部变量）（存储类型关键字写在以前定义变量最前面，或者写在类型标识符和变量之间）</p>
+<p>7、（1）未说明存储类型的变量默认为自动变量，所以auto常常省略；</p>
+<p>（2）使用static 静态变量只会初始化一次，之后再次使用，不会再进行赋值，其值应该为上次调用后的值；</p>
+<p>（3）register 寄存器变量：借用寄存器可以使得运算更快，但是寄存器数量有限，不够时，将自动转为自动变量。并且寄存器长度有限，寄存器变量只能是字符型、整型、指针类型的变量；</p>
+<p>（4）外部变量 ：是定义在函数外部的全局变量（存放在静态存储区）。使用extern声明外部变量时，可以把之后定义的外部变量的作用域提前到extern定义的位置，或者在不同的源文件里面使用变量</p>
+<p>（5）如果在定义全局变量时加一个static会构成静态全局变量。那么将无法使用extern进行拓展作用域到其他源文件中，但是可以通过同在一个源文件内的函数进行间接调用</p>
+<h3 id="五、宏定义"><a href="#五、宏定义" class="headerlink" title="五、宏定义"></a>五、宏定义</h3><p>1、宏定义：将一个标识符（宏名）定义为一个字符串。分为无参宏定义与带参宏定义</p>
+<p>2、无参宏定义：定义一个没有参数的宏。语法格式：**#define 宏名 字符串**</p>
+<p>（1）不需要在后面在分号“  ；”</p>
+<p>（2）宏定义使用一个宏名代替一个字符串，仅仅是简单的替换，不分配内存空间</p>
+<p>（3）宏定义可以引用已经定义的宏定义，进行嵌套</p>
+<p>（4）宏定义过的宏名在整个作用域内不能在改变</p>
+<p>（5）宏定义可与常量用法相似，用数字去替换宏名</p>
+<p>（6）程序中如果在为宏名加上了双引号，将表示为一个字符串，而不是一个宏，所以此时不会进行宏替换</p>
+<p>3、带参宏定义：定义一个带形式参数的宏。语法格式：**#define 宏名(形参表) 字符串** 。  </p>
+<p>调用带参宏时格式为：<strong>宏名(实参表)</strong>  [其用法与函数的形参与实参相类似，可进行串记（但不能混为一谈）]</p>
+<p>（1）形参（实参）表是指一至多个的形参，形参间用逗号隔开</p>
+<p>（2）实参可以是常量、变量或表达式</p>
+<p>（3）带参宏中的宏名与其后的左括号 ( 之间不能有空格，否则将会被系统认为是无参宏定义</p>
+<p>（4）带参宏定义一般把形参用圆括号括起来，防止有些出现错误，例如：#define H(x) x*x</p>
+<p>当H(10+1)时，宏展开为10+1 * 10+1 。显然这不是我们想要的结果，应写成#define H(x) (x)*(x)</p>
+<p> （5）宏展开可以得到若干个的结果</p>
+
+      </section>
+      <section class="extra">
+        
+          <ul class="copyright">
+  
+    <li><strong>本文作者：</strong>ShouCheng</li>
+    <li><strong>本文链接：</strong><a href="http://example.com/2020/10/22/2020-10-22-c%E8%AF%AD%E8%A8%80%E2%80%94%E2%80%94%E2%80%94%E6%9E%84%E9%80%A0%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E5%87%BD%E6%95%B0%E7%AC%94%E8%AE%B0/index.html" title="http:&#x2F;&#x2F;example.com&#x2F;2020&#x2F;10&#x2F;22&#x2F;2020-10-22-c%E8%AF%AD%E8%A8%80%E2%80%94%E2%80%94%E2%80%94%E6%9E%84%E9%80%A0%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E5%87%BD%E6%95%B0%E7%AC%94%E8%AE%B0&#x2F;index.html">http:&#x2F;&#x2F;example.com&#x2F;2020&#x2F;10&#x2F;22&#x2F;2020-10-22-c%E8%AF%AD%E8%A8%80%E2%80%94%E2%80%94%E2%80%94%E6%9E%84%E9%80%A0%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E5%87%BD%E6%95%B0%E7%AC%94%E8%AE%B0&#x2F;index.html</a></li>
+    <li><strong>版权声明：</strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" title="BY-NC-SA" target="_blank" rel="noopener">BY-NC-SA</a> 许可协议，转载请注明出处！</li>
+  
+</ul>
+        
+        
+          <section class="donate">
+  <div id="qrcode-donate">
+    <img   class="lazyload" data-original="https://pic.izhaoo.com/alipay.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" >
+  </div>
+  <div class="icon">
+    <a href="javascript:;" id="alipay"><i class="iconfont iconalipay"></i></a>
+    <a href="javascript:;" id="wechat"><i class="iconfont iconwechat-fill"></i></a>
+  </div>
+</section>
+        
+        
+        
+  <nav class="nav">
+    <a href="/2020/10/24/2020-10-24-c%E8%AF%AD%E8%A8%80%E2%80%94%E2%80%94%E2%80%94%E2%80%94%E6%8C%87%E9%92%88%E4%B8%8E%E6%96%87%E4%BB%B6%E7%AC%94%E8%AE%B0/"><i class="iconfont iconleft"></i>c语言————指针与文件随手记</a>
+    <a href="/2020/10/18/2020-10-18-%E5%B0%8F%E8%AF%95Linux%E2%80%94%E2%80%94%E7%AC%94%E8%AE%B0/">小试Linux——笔记<i class="iconfont iconright"></i></a>
+  </nav>
+
+      </section>
+      
+    </section>
+  </div>
+</article></div>
+      <div class="col-xl-3">
+        
+          
+  <aside class="toc-wrap">
+    <h3 class="toc-title">文章目录：</h3>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9E%84%E9%80%A0%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="toc-text">构造数据类型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%95%B0%E7%BB%84"><span class="toc-text">一、数组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%BB%93%E6%9E%84%E4%BD%93"><span class="toc-text">二、结构体</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%85%B1%E7%94%A8%E4%BD%93"><span class="toc-text">三、共用体</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B"><span class="toc-text">四、枚举类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E8%87%AA%E5%AE%9A%E4%B9%89%E7%B1%BB%E5%9E%8B%E5%90%8D"><span class="toc-text">五、自定义类型名</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%87%BD%E6%95%B0"><span class="toc-text">函数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%87%BD%E6%95%B0%E6%A6%82%E8%BF%B0%E3%80%81%E8%87%AA%E5%AE%9A%E4%B9%89%E3%80%81%E8%B0%83%E7%94%A8"><span class="toc-text">一、函数概述、自定义、调用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%87%BD%E6%95%B0%E7%9A%84%E5%8F%82%E6%95%B0%E4%BC%A0%E9%80%92"><span class="toc-text">二、函数的参数传递</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%87%BD%E6%95%B0%E7%9A%84%E8%B0%83%E7%94%A8"><span class="toc-text">三、函数的调用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%8F%98%E9%87%8F%E7%9A%84%E4%BD%9C%E7%94%A8%E5%9F%9F%E5%92%8C%E7%94%9F%E5%AD%98%E6%9C%9F"><span class="toc-text">四、变量的作用域和生存期</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%AE%8F%E5%AE%9A%E4%B9%89"><span class="toc-text">五、宏定义</span></a></li></ol></li></ol></li></ol>
+  </aside>
+
+        
+      </div>
+    </div>
+  </div>
+</main>
+  
+
+<footer class="footer">
+  <div class="footer-social"><a 
+        href="tencent://message/?Menu=yes&uin=894519210 "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#12B7F5'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconQQ "></i>
+      </a><a 
+        href="javascript:; "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#09BB07'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconwechat-fill "></i>
+      </a><a 
+        href="https://www.instagram.com/izhaoo/ "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#DA2E76'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconinstagram "></i>
+      </a><a 
+        href="https://github.com/zhaoo "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#9f7be1'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  icongithub-fill "></i>
+      </a><a 
+        href="mailto:izhaoo@163.com "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color=#FF3B00" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconmail"></i>
+      </a></div>
+  
+    <div class="footer-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+  
+</footer>
+  
+      <div class="fab fab-plus">
+    <i class="iconfont iconplus"></i>
+  </div>
+  
+  
+  <div class="fab fab-up">
+    <i class="iconfont iconcaret-up"></i>
+  </div>
+  
+  
+  
+    
+<script src="/js/color-mode.js"></script>
+
+  
+  
+</body>
+
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
+
+
+
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+
+
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+
+
+
+
+<script src="/js/utils.js"></script>
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+  <script>
+    (function () {
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      } else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</html>

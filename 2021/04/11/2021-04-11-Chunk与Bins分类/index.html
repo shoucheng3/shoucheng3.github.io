@@ -1,0 +1,567 @@
+
+
+<!DOCTYPE html>
+<html lang="en" color-mode=light>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Chunk与Bins分类 - ShouCheng</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="google" content="notranslate" />
+  
+  <meta name="description" content="转载自知乎堆漏洞挖掘——带你了解Chunk分类与Bin...">
+  <meta name="author" content="ShouCheng">
+  <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/images/icons/apple-touch-icon.png" sizes="180x180">
+  <meta rel="mask-icon" href="/images/icons/stun-logo.svg" color="#333333">
+  
+    <meta rel="msapplication-TileImage" content="/images/icons/favicon-144x144.png">
+    <meta rel="msapplication-TileColor" content="#000000">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+    
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1445822_r673sha78lq.css">
+
+  
+
+  
+    
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css">
+
+  
+
+  
+    
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/xcode.min.css" name="highlight-style" mode="light">
+
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/solarized-dark.min.css" name="highlight-style" mode="dark">
+
+      
+  
+
+  <script>
+    var CONFIG = window.CONFIG || {};
+    var ZHAOO = window.ZHAOO || {};
+    CONFIG = {
+      isHome: false,
+      fancybox: true,
+      pjax: false,
+      lazyload: {
+        enable: true,
+        only_post: 'false',
+        loading: '[object Object]'
+      },
+      donate: {
+        enable: true,
+        alipay: 'https://pic.izhaoo.com/alipay.jpg',
+        wechat: 'https://pic.izhaoo.com/wechat.jpg'
+      },
+      galleries: {
+        enable: true
+      },
+      fab: {
+        enable: true,
+        always_show: false
+      },
+      carrier: {
+        enable: true
+      },
+      daovoice: {
+        enable: false
+      },
+      preview: {
+        background: {
+          default: '',
+          api: ''
+        },
+        motto: {
+          default: '我在开了灯的床头下，想问问自己的心啊。',
+          typing: true,
+          api: 'https://v2.jinrishici.com/one.json',
+          data_contents: '["data","content"]'
+        },
+      },
+      qrcode: {
+        enable: true,
+        type: 'url',
+        image: 'https://pic.izhaoo.com/weapp-code.jpg',
+      },
+      toc: {
+        enable: true
+      },
+      scrollbar: {
+        type: 'default'
+      },
+      notification: {
+        enable: false,
+        delay: 4500,
+        list: '',
+        page_white_list: '',
+        page_black_list: ''
+      },
+      search: {
+        enable: false,
+        path: ''
+      }
+    }
+  </script>
+
+  
+
+  
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="lock-screen">
+  <div class="loading"></div>
+  
+    
+
+
+  <nav class="navbar">
+    <div class="left">
+      
+        <i class="iconfont iconhome j-navbar-back-home"></i>
+      
+      
+        <i class="iconfont iconqrcode j-navbar-qrcode"></i>
+      
+      
+        <i class="iconfont iconmoono" id="color-toggle" color-toggle="light"></i>
+      
+      
+    </div>
+    <div class="center">Chunk与Bins分类</div>
+    <div class="right">
+      <i class="iconfont iconmenu j-navbar-menu"></i>
+    </div>
+    
+      <div id="qrcode-navbar"></div>
+    
+  </nav>
+
+  
+  
+
+<nav class="menu">
+  <div class="menu-container">
+    <div class="menu-close">
+      <i class="iconfont iconbaseline-close-px"></i>
+    </div>
+    <ul class="menu-content"><li class="menu-item">
+        <a href="/ " class="underline "> 首页</a>
+      </li><li class="menu-item">
+        <a href="/galleries/ " class="underline "> 摄影</a>
+      </li><li class="menu-item">
+        <a href="/archives/ " class="underline "> 归档</a>
+      </li><li class="menu-item">
+        <a href="/tags/ " class="underline "> 标签</a>
+      </li><li class="menu-item">
+        <a href="/categories/ " class="underline "> 分类</a>
+      </li><li class="menu-item">
+        <a href="/about/ " class="underline "> 关于</a>
+      </li></ul>
+    
+      <div class="menu-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+    
+  </div>
+</nav>
+  <main id="main">
+  <div class="article-wrap">
+    <div class="row container">
+      <div class="col-xl-3"></div>
+      <div class="col-xl-6"><article class="article">
+  <div class="wrap">
+    <section class="head">
+  <img   class="lazyload" data-original="/images/theme/post-image.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
+  <div class="head-mask">
+    <h1 class="head-title">Chunk与Bins分类</h1>
+    <div class="head-info">
+      <span class="post-info-item"><i class="iconfont iconcalendar"></i>April 11, 2021</span>
+      
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>7527</span>
+    </div>
+  </div>
+</section>
+    <section class="main">
+      <section class="content">
+        <p>转载自知乎堆漏洞挖掘——带你了解Chunk分类与Bins分类<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/363099281">https://zhuanlan.zhihu.com/p/363099281</a></p>
+<h2 id="一、Chunk分类"><a href="#一、Chunk分类" class="headerlink" title="一、Chunk分类"></a>一、Chunk分类</h2><p><img    class="lazyload" data-original="2021-04-11-Chunk%E4%B8%8EBins%E5%88%86%E7%B1%BB.assets/v2-9d7ce923746f4cdf8f8b25481767b3f3_720w.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></p>
+<ul>
+<li><p>此图是在上篇文章介绍arena时用到的，我们可以看到：堆块被分为不同的种类，下面我们将来介绍这些。</p>
+</li>
+<li><p>每一类就是一个malloc_chunk结构体，因为这些chunk同属于一个堆块，所以在一块连续的内存中，只是通过区域中特定位置的某些标识符加以区分。</p>
+</li>
+<li><p>glibc给我们申请的堆块主要分为以下几类：</p>
+</li>
+<li><ul>
+<li><strong>allocated chunk。</strong></li>
+<li><strong>free chunk。</strong></li>
+<li><strong>top chunk。</strong></li>
+<li><strong>Last remainder chunk。</strong></li>
+</ul>
+</li>
+<li><p>为了简便，我们将4个种类的chunk划分为2个种类的chunk，这两个种类的chunk才是我们平常口头上所使用到的：</p>
+</li>
+<li><ul>
+<li><strong>allocated chunk：</strong>当前chunk是被应用层用户所使用的。</li>
+<li><strong>free chunk：</strong>当前chunk是空闲的，没有被应用层用户所使用。</li>
+</ul>
+</li>
+</ul>
+<h3 id="Top-Chunk："><a href="#Top-Chunk：" class="headerlink" title="Top Chunk："></a>Top Chunk：</h3><ul>
+<li><strong>概念：</strong>当一个chunk处于一个arena的最顶部(即最高内存地址处)的时候，就称之为top chunk。</li>
+<li><strong>作用：</strong>该chunk并<strong>不属于任何bin</strong>，而是在系统当前的所有free chunk(无论那种bin)都无法满足用户请求的内存大小的时候，将此chunk当做一个应急消防员，分配给用户使用。</li>
+<li><strong>分配的规则：</strong>如果top chunk的大小比用户请求的大小要大的话，就将该top chunk分作两部分：1）用户请求的chunk；2）剩余的部分成为新的top chunk。否则，就需要扩展heap或分配新的heap了——在main arena中通过sbrk扩展heap，而在thread arena中通过mmap分配新的heap。</li>
+</ul>
+<h3 id="Last-Remainder-Chunk："><a href="#Last-Remainder-Chunk：" class="headerlink" title="Last Remainder Chunk："></a>Last Remainder Chunk：</h3><ul>
+<li><strong>它是怎么产生的：</strong>当用户请求的是一个small chunk，且该请求无法被small bin、unsorted bin满足的时候，就通过binmaps遍历bin查找最合适的chunk，如果该chunk有剩余部分的话，就将该剩余部分变成一个新的chunk加入到unsorted bin中，另外，<strong>再将该新的chunk变成新的last remainder chunk。</strong></li>
+<li><strong>它的作用是什么：</strong>此类型的chunk用于提高连续malloc(small chunk)的效率，主要是提高内存分配的局部性。那么具体是怎么提高局部性的呢？举例说明。当用户请求一个small chunk，且该请求无法被small bin满足，那么就转而交由unsorted bin处理。同时，假设当前unsorted bin中只有一个chunk的话——就是last remainder chunk，那么就将该chunk分成两部分：前者分配给用户，剩下的部分放到unsorted bin中，并成为新的last remainder chunk。这样就保证了连续malloc(small chunk)中，各个small chunk在内存分布中是相邻的，即提高了内存分配的局部性。</li>
+<li>详情见文章：<a href="https://link.zhihu.com/?target=https://blog.csdn.net/qq_41453285/article/details/97803141">https://blog.csdn.net/qq_41453285/article/details/97803141</a>。</li>
+<li>我是小董，V公众点击”笔记白嫖”解锁更多【堆漏洞挖掘】资料内容。</li>
+</ul>
+<h2 id="二、bin链的介绍与bin链分类"><a href="#二、bin链的介绍与bin链分类" class="headerlink" title="二、bin链的介绍与bin链分类"></a>二、bin链的介绍与bin链分类</h2><ul>
+<li><p>bin是一个由struct chunk结构体组成的链表。</p>
+</li>
+<li><p>前面介绍过，不同的chunk根据特点不同分为不同的chunk，为了将这些chunk进行分类的管理，glibc采用了bin链这种方式管理不同的chunk。</p>
+</li>
+<li><p>不同的bin链是由arena管理的。</p>
+</li>
+<li><p>bin链中的chunk均为free chunk。</p>
+</li>
+<li><p>根据bin链成员的大小不同，分为以下几类：</p>
+</li>
+<li><ul>
+<li>fast bin是单链表，其他都是双向链表。</li>
+<li><strong>Fast bin。</strong></li>
+<li><strong>Unsorted bin。</strong></li>
+<li><strong>Small bin。</strong></li>
+<li><strong>Large bin。</strong></li>
+</ul>
+</li>
+</ul>
+<h2 id="三、bin链的保存（struct-malloc-state结构体）"><a href="#三、bin链的保存（struct-malloc-state结构体）" class="headerlink" title="三、bin链的保存（struct malloc_state结构体）"></a>三、bin链的保存（struct malloc_state结构体）</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs text">typedef struct malloc_chunk* mchunkptr;<br>typedef struct malloc_chunk *mfastbinptr;<br> <br> <br>struct malloc_state<br>&#123; <br>  ...<br>  /*other member*/<br>  ...<br> <br>  /* Fastbins */<br>  mfastbinptr fastbinsY[NFASTBINS];<br> <br>  /* Normal bins packed as described above */<br>  mchunkptr bins[NBINS * 2 - 2];<br> <br>  ...<br>  /*other member*/<br>  ...<br>&#125;; <br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><p>前面说过，不同的bin链是由arena管理的。因此一个线程中会有很多的bin链，这些bin链都有arena所表示的struct malloc_state结构体的以下成员保存：</p>
+</li>
+<li><ul>
+<li><strong>fastbinY数组：</strong>大小为10。记录的是fast bin链。</li>
+<li><strong>bins数组：</strong>大小为129。记录的是unsorted bin（1）、small bin（2<del>63）、large bin链（64</del>126）。</li>
+</ul>
+</li>
+</ul>
+<p><img    class="lazyload" data-original="2021-04-11-Chunk%E4%B8%8EBins%E5%88%86%E7%B1%BB.assets/v2-1c456be35efc37e943afa83fb29bb29c_720w.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></p>
+<ul>
+<li><strong>数组存储bin链的结构，见文章：</strong><a href="https://link.zhihu.com/?target=https://blog.csdn.net/qq_41453285/article/details/97613588">https://blog.csdn.net/qq_41453285/article/details/97613588</a>。</li>
+</ul>
+<h2 id="四、Fast-Bin"><a href="#四、Fast-Bin" class="headerlink" title="四、Fast Bin"></a>四、Fast Bin</h2><ul>
+<li><strong>概念：</strong>chunk的大小在32字节<del>128字节（0x20</del>0x80）的chunk称为“fast chunk”（大小不是malloc时的大小，而是在内存中struct malloc_chunk的大小，包含前2个成员）。</li>
+<li>fast bin链表的个数为10个。</li>
+<li><strong>不会对free chunk进行合并：</strong>鉴于设计fast bin的初衷就是进行快速的小内存分配和释放，因此系统将属于fast bin的chunk的PREV_INUSE位总是设置为1，这样即使当fast bin中有某个chunk同一个free chunk相邻的时候，系统也不会进行自动合并操作，而是保留两者。虽然这样做可能会造成额外的碎片化问题，但瑕不掩瑜。</li>
+</ul>
+<h3 id="fastbinsY数组存储fastbins的规则"><a href="#fastbinsY数组存储fastbins的规则" class="headerlink" title="fastbinsY数组存储fastbins的规则"></a>fastbinsY数组存储fastbins的规则</h3><ul>
+<li>每个fast bin链表都是单链表（使用fd指针）。因此，fast bin中无论是添加还是移除fast chunk，都是对“链表尾”进行操作，而不会对某个中间的fast chunk进行操作。</li>
+<li>单个fastbin链表中的chunk大小都是相同的，各个fastbin链表中的chunk大小是不同的。</li>
+<li>fastbinY数组中的每个bin链表的排序，是按照链表元素的大小进行排序的。数组的第一个元素的fast bin链表中的每个chunk的大小是32字节的，数组的第二个元素的fast bin链表中的每个chunk的大小是48字节的……每个元素都比前面的fast bin链大16字节，以此类推进行排序。</li>
+</ul>
+<p><img    class="lazyload" data-original="2021-04-11-Chunk%E4%B8%8EBins%E5%88%86%E7%B1%BB.assets/v2-4be067bab2e304c104678811064657df_720w.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></p>
+<h3 id="链表索引宏定义：（fastbin-index）"><a href="#链表索引宏定义：（fastbin-index）" class="headerlink" title="链表索引宏定义：（fastbin_index）"></a>链表索引宏定义：（fastbin_index）</h3><ul>
+<li><strong>功能：</strong>通过此宏能判断某一个fastchunk属于哪一个fastbin链表。</li>
+<li><strong>参数：</strong>某一个chunk的大小。</li>
+</ul>
+<p><img    class="lazyload" data-original="2021-04-11-Chunk%E4%B8%8EBins%E5%88%86%E7%B1%BB.assets/v2-0709536f14aa2206dbe2fd972806b40f_720w.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></p>
+<p><strong>malloc操作与fastbins的初始化：</strong></p>
+<ul>
+<li><p>当应用层通过malloc函数<strong>第一次</strong>申请的chunk属于16字节~80字节之间时，因为初始化的时候fast bin支持的最大内存大小以及所有fast bin链表都是空的，所以它也不会交由fast bin来处理，而是向下传递交由small bin来处理，如果small bin也为空的话就交给unsorted bin处理。</p>
+</li>
+<li><p><strong>那么，fast bin如何进行初始化哪？</strong></p>
+</li>
+<li><ul>
+<li><p>当我们第一次调用malloc(fast bin)的时候，系统执行_int_malloc函数，该函数首先会发现当前fast bin为空，就转交给small bin处理，进而又发现small bin 也为空，就调用malloc_consolidate函数对malloc_state结构体进行初始化。malloc_consolidate函数主要完成以下几个功能：</p>
+</li>
+<li><ul>
+<li>a.首先判断当前malloc_state结构体中的fast bin是否为空，如果为空就说明整个malloc_state都没有完成初始化，需要对malloc_state进行初始化。</li>
+<li>b.malloc_state的初始化操作由函数malloc_init_state(av)完成，该函数先初始化除fast bin之外的所有的bins，再初始化fast bins。</li>
+</ul>
+</li>
+<li><p>那么当再次执行malloc(fast chunk)函数的时候，此时fast bin相关数据不为空了，就可以使用fast bin。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="free操作"><a href="#free操作" class="headerlink" title="free操作"></a>free操作</h3><ul>
+<li>这个操作很简单，主要分为两步：先通过chunksize函数根据传入的地址指针获取该指针对应的chunk的大小；然后根据这个chunk大小获取该chunk所属的fast bin，然后再将此chunk添加到该fast bin的链尾即可。整个操作都是在_int_free函数中完成。</li>
+</ul>
+<h2 id="五、Unsorted-Bin"><a href="#五、Unsorted-Bin" class="headerlink" title="五、Unsorted Bin"></a>五、Unsorted Bin</h2><ul>
+<li><p><strong>何时使用：</strong>当释放较小或较大的chunk的时候，如果系统没有将它们添加到对应的bins中，系统就将这些chunk添加到unsorted bin中。</p>
+</li>
+<li><p><strong>目的：</strong>这主要是为了让“glibc malloc机制”能够有第二次机会重新利用最近释放的chunk(第一次机会就是fast bin机制)。利用unsorted bin，可以加快内存的分配和释放操作，因为整个操作都不再需要花费额外的时间去查找合适的bin了。</p>
+</li>
+<li><p><strong>Unsorted bin的特性如下：</strong></p>
+</li>
+<li><ul>
+<li>unsorted bin的个数： 1个。</li>
+<li>unsorted bin是一个由free chunks组成的循环双链表。</li>
+<li>在unsorted bin中，对chunk的大小并没有限制，任何大小的chunk都可以归属到unsorted bin中。</li>
+<li>unsortedbin采用的遍历顺序是FIFO。</li>
+</ul>
+</li>
+</ul>
+<h2 id="六、Small-Bin"><a href="#六、Small-Bin" class="headerlink" title="六、Small Bin"></a>六、Small Bin</h2><ul>
+<li><strong>概念：</strong>小于1024字节（0x400）的chunk称之为small chunk，small bin就是用于管理small chunk的。</li>
+<li>small bin链表的个数为62个。</li>
+<li>就内存的分配和释放速度而言，small bin比larger bin快，但比fast bin慢。</li>
+<li><strong>合并操作：</strong>相邻的free chunk需要进行合并操作，即合并成一个大的free chunk。具体操作见下文free(small chunk)介绍。</li>
+</ul>
+<h3 id="Small-Bin链表的特性"><a href="#Small-Bin链表的特性" class="headerlink" title="Small Bin链表的特性"></a>Small Bin链表的特性</h3><ul>
+<li>每个smallbin也是一个由对应free chunk组成的循环双链表。</li>
+<li><strong>small bin采用FIFO(先入先出)算法：</strong>内存释放操作就将新释放的chunk添加到链表的front end(前端)，分配操作就从链表的rear end(尾端)中获取chunk。</li>
+<li>单个smallbin链表中的chunk大小都是相同的，各个smallbin链表中的chunk大小是不同的，跟fastbinsY数组存储fastbin链的原理是相同的。</li>
+<li><strong>bins数组存储small bin链时：</strong>第一个small bin链中chunk的大小为32字节，后续每个small bin中chunk的大小依次增加两个机器字长（32位相差8字节，64位相差16字节）…….以此类推，跟fastbinsY数组存储fastbin链的原理是相同的（用下图表示）。</li>
+<li><strong>bin链存储的大小与数组下标的关系：</strong>chun_size=2<em>SIZE_SZ</em>index。</li>
+</ul>
+<p><img    class="lazyload" data-original="2021-04-11-Chunk%E4%B8%8EBins%E5%88%86%E7%B1%BB.assets/v2-f20921b235e39c6e13644572fdc8d0d7_720w.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></p>
+<h3 id="malloc操作与small-bin的初始化"><a href="#malloc操作与small-bin的初始化" class="headerlink" title="malloc操作与small bin的初始化"></a>malloc操作与small bin的初始化</h3><ul>
+<li><p>类似于fast bins，最初所有的small bin都是空的，因此在对这些small bin完成初始化之前，即使用户请求的内存大小属于small chunk也不会交由small bin进行处理，而是交由unsorted bin处理。</p>
+</li>
+<li><p>如果unsorted bin也不能处理的话，glibc malloc就依次遍历后续的所有bins，找出第一个满足要求的bin，如果所有的bin都不满足的话，就转而使用top chunk，如果top chunk大小不够，那么就扩充top chunk，这样就一定能满足需求了。</p>
+</li>
+<li><p>注意遍历后续bins以及之后的操作同样被large bin所使用，因此，将这部分内容放到large bin的malloc操作中加以介绍。</p>
+</li>
+<li><p>那么glibc malloc是如何初始化这些bins的呢？因为这些bin属于malloc_state结构体，所以在初始化malloc_state的时候就会对这些bin进行初始化，代码如下：</p>
+</li>
+<li><ul>
+<li>将bins数组中的第一个成员索引值设置为了1，而不是我们常用的0(在bin_at宏中，自动将i进行了减1处理)。</li>
+<li>从上面代码可以看出在初始化的时候glibc malloc将所有bin的指针都指向了自己——这就代表这些bin都是空的。</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs text">static void<br>malloc_init_state (mstate av)<br>&#123;<br>    int i;<br>    mbinptr bin;<br>    <br>    /* Establish circular links for normal bins */<br>    for (i = 1; i &lt; NBINS; ++i)<br>    &#123;<br>        bin = bin_at (av, i);<br>        bin-&gt;fd = bin-&gt;bk = bin;<br>    &#125;<br> <br>    ......<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>过后，当再次调用malloc(small chunk)的时候，如果该chunk size对应的small bin不为空，就从该small bin链表中取得small chunk给malloc使用。</li>
+</ul>
+<h3 id="free操作-1"><a href="#free操作-1" class="headerlink" title="free操作"></a>free操作</h3><ul>
+<li>small的free比较特殊。当释放small chunk的时候，先检查该chunk相邻的chunk是否为free，如果是的话就进行合并操作：将这些chunks合并成新的chunk，然后将它们从small bin中移除，最后将新的chunk添加到unsorted bin中，之后unsorted bin进行整理再添加到对应的bin链上（后面会有图介绍）。</li>
+</ul>
+<h2 id="七、Large-Bin"><a href="#七、Large-Bin" class="headerlink" title="七、Large Bin"></a>七、Large Bin</h2><ul>
+<li><strong>概念：</strong>大于等于1024字节（0x400）的chunk称之为large chunk，large bin就是用于管理这些largechunk的。</li>
+<li>large bin链表的个数为63个，被分为6组。</li>
+<li>largechunk使用fd_nextsize、bk_nextsize连接起来的。</li>
+<li><strong>合并操作：</strong>类似于small bin。</li>
+</ul>
+<h3 id="Large-Bin链表的特性"><a href="#Large-Bin链表的特性" class="headerlink" title="Large Bin链表的特性"></a>Large Bin链表的特性</h3><ul>
+<li>同一个largebin中每个chunk的大小可以不一样，这些chunk根据一定的范围存储在一个larbin链表中。</li>
+<li>large chunk可以添加、删除在large bin的任何一个位置。</li>
+<li><strong>在这63个largebins中：第一组的32个largebin链</strong>依次以64字节步长为间隔，即第一个largebin链中chunksize为1024-1087字节，第二个large bin中chunk size为1088~1151字节。<strong>第二组的16个largebin链</strong>依次以512字节步长为间隔；<strong>第三组的8个largebin链</strong>以步长4096为间隔；<strong>第四组的4个largebin链</strong>以32768字节为间隔；<strong>第五组的2个largebin链</strong>以262144字节为间隔；<strong>最后一组</strong>的largebin链中的chunk大小无限制。</li>
+</ul>
+<p><img    class="lazyload" data-original="2021-04-11-Chunk%E4%B8%8EBins%E5%88%86%E7%B1%BB.assets/v2-47264da3791b9433f4cde0589001089f_720w.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></p>
+<ul>
+<li><strong>在同一个largebin中：</strong>每个chunk的大小不一定相同，因此为了加快内存分配和释放的速度，就将同一个largebin中的所有chunk按照chunksize进行从大到小的排列：最大的chunk放在一个链表的front end，最小的chunk放在rear end；相同大小的chunk按照最近使用顺序排序。</li>
+</ul>
+<h3 id="链表索引宏定义：（largebin-index）"><a href="#链表索引宏定义：（largebin-index）" class="headerlink" title="链表索引宏定义：（largebin_index）"></a>链表索引宏定义：（largebin_index）</h3><ul>
+<li>参数为链表能存储的chunk大小，宏定义中有简介调用其他宏定义。</li>
+<li>例如：第一个largebin的起始大小为1024，那么1024&gt;&gt;6=16，所以其在bins数组中的下标为48+16=64。</li>
+</ul>
+<p><img    class="lazyload" data-original="2021-04-11-Chunk%E4%B8%8EBins%E5%88%86%E7%B1%BB.assets/v2-37630d6c2b179946ced49927b69d94d9_720w.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></p>
+<h3 id="malloc操作与large-bin的初始化"><a href="#malloc操作与large-bin的初始化" class="headerlink" title="malloc操作与large bin的初始化"></a>malloc操作与large bin的初始化</h3><ul>
+<li><p>初始化完成之前的操作类似于small bin。</p>
+</li>
+<li><p>下面讨论large bins初始化完成之后的操作：</p>
+</li>
+<li><ul>
+<li>首先确定用户请求的大小属于哪一个large bin，然后判断该large bin中最大的chunk的size是否大于用户请求的size(只需要对比链表中front end的size即可)。如果大于，就从rear end开始遍历该large bin，找到第一个size相等或接近的chunk，分配给用户。如果该chunk大于用户请求的size的话，就将该chunk拆分为两个chunk：前者返回给用户，且size等同于用户请求的size；剩余的部分做为一个新的chunk添加到unsorted bin中。</li>
+<li>如果该large bin中最大的chunk的size小于用户请求的size的话，那么就依次查看后续的large bin中是否有满足需求的chunk，不过需要注意的是鉴于bin的个数较多(不同bin中的chunk极有可能在不同的内存页中)，如果按照上一段中介绍的方法进行遍历的话(即遍历每个bin中的chunk)，就可能会发生多次内存页中断操作，进而严重影响检索速度，所以glibc malloc设计了Binmap结构体来帮助提高bin-by-bin检索的速度。Binmap记录了各个bin中是否为空，通过bitmap可以避免检索一些空的bin。如果通过binmap找到了下一个非空的large bin的话，就按照上一段中的方法分配chunk，否则就使用top chunk来分配合适的内存。</li>
+</ul>
+</li>
+</ul>
+<p><strong>free操作</strong></p>
+<ul>
+<li>类似于small chunk。</li>
+</ul>
+<p><img    class="lazyload" data-original="2021-04-11-Chunk%E4%B8%8EBins%E5%88%86%E7%B1%BB.assets/v2-074b7317613db621519df68372bc2373_720w.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></p>
+
+      </section>
+      <section class="extra">
+        
+          <ul class="copyright">
+  
+    <li><strong>本文作者：</strong>ShouCheng</li>
+    <li><strong>本文链接：</strong><a href="http://example.com/2021/04/11/2021-04-11-Chunk%E4%B8%8EBins%E5%88%86%E7%B1%BB/index.html" title="http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;04&#x2F;11&#x2F;2021-04-11-Chunk%E4%B8%8EBins%E5%88%86%E7%B1%BB&#x2F;index.html">http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;04&#x2F;11&#x2F;2021-04-11-Chunk%E4%B8%8EBins%E5%88%86%E7%B1%BB&#x2F;index.html</a></li>
+    <li><strong>版权声明：</strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" title="BY-NC-SA" target="_blank" rel="noopener">BY-NC-SA</a> 许可协议，转载请注明出处！</li>
+  
+</ul>
+        
+        
+          <section class="donate">
+  <div id="qrcode-donate">
+    <img   class="lazyload" data-original="https://pic.izhaoo.com/alipay.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" >
+  </div>
+  <div class="icon">
+    <a href="javascript:;" id="alipay"><i class="iconfont iconalipay"></i></a>
+    <a href="javascript:;" id="wechat"><i class="iconfont iconwechat-fill"></i></a>
+  </div>
+</section>
+        
+        
+        
+  <nav class="nav">
+    <a href="/2021/04/13/2021-04-13-%E5%A0%86%E5%85%A5%E9%97%A8%E9%A2%98/"><i class="iconfont iconleft"></i>堆入门题</a>
+    <a href="/2021/04/10/2021-04-10-%E5%88%9D%E6%8E%A2%E5%A0%86/">初探堆<i class="iconfont iconright"></i></a>
+  </nav>
+
+      </section>
+      
+    </section>
+  </div>
+</article></div>
+      <div class="col-xl-3">
+        
+          
+  <aside class="toc-wrap">
+    <h3 class="toc-title">文章目录：</h3>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81Chunk%E5%88%86%E7%B1%BB"><span class="toc-text">一、Chunk分类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Top-Chunk%EF%BC%9A"><span class="toc-text">Top Chunk：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Last-Remainder-Chunk%EF%BC%9A"><span class="toc-text">Last Remainder Chunk：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81bin%E9%93%BE%E7%9A%84%E4%BB%8B%E7%BB%8D%E4%B8%8Ebin%E9%93%BE%E5%88%86%E7%B1%BB"><span class="toc-text">二、bin链的介绍与bin链分类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81bin%E9%93%BE%E7%9A%84%E4%BF%9D%E5%AD%98%EF%BC%88struct-malloc-state%E7%BB%93%E6%9E%84%E4%BD%93%EF%BC%89"><span class="toc-text">三、bin链的保存（struct malloc_state结构体）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81Fast-Bin"><span class="toc-text">四、Fast Bin</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#fastbinsY%E6%95%B0%E7%BB%84%E5%AD%98%E5%82%A8fastbins%E7%9A%84%E8%A7%84%E5%88%99"><span class="toc-text">fastbinsY数组存储fastbins的规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%93%BE%E8%A1%A8%E7%B4%A2%E5%BC%95%E5%AE%8F%E5%AE%9A%E4%B9%89%EF%BC%9A%EF%BC%88fastbin-index%EF%BC%89"><span class="toc-text">链表索引宏定义：（fastbin_index）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#free%E6%93%8D%E4%BD%9C"><span class="toc-text">free操作</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81Unsorted-Bin"><span class="toc-text">五、Unsorted Bin</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81Small-Bin"><span class="toc-text">六、Small Bin</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Small-Bin%E9%93%BE%E8%A1%A8%E7%9A%84%E7%89%B9%E6%80%A7"><span class="toc-text">Small Bin链表的特性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#malloc%E6%93%8D%E4%BD%9C%E4%B8%8Esmall-bin%E7%9A%84%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-text">malloc操作与small bin的初始化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#free%E6%93%8D%E4%BD%9C-1"><span class="toc-text">free操作</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81Large-Bin"><span class="toc-text">七、Large Bin</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Large-Bin%E9%93%BE%E8%A1%A8%E7%9A%84%E7%89%B9%E6%80%A7"><span class="toc-text">Large Bin链表的特性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%93%BE%E8%A1%A8%E7%B4%A2%E5%BC%95%E5%AE%8F%E5%AE%9A%E4%B9%89%EF%BC%9A%EF%BC%88largebin-index%EF%BC%89"><span class="toc-text">链表索引宏定义：（largebin_index）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#malloc%E6%93%8D%E4%BD%9C%E4%B8%8Elarge-bin%E7%9A%84%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-text">malloc操作与large bin的初始化</span></a></li></ol></li></ol>
+  </aside>
+
+        
+      </div>
+    </div>
+  </div>
+</main>
+  
+
+<footer class="footer">
+  <div class="footer-social"><a 
+        href="tencent://message/?Menu=yes&uin=894519210 "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#12B7F5'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconQQ "></i>
+      </a><a 
+        href="javascript:; "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#09BB07'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconwechat-fill "></i>
+      </a><a 
+        href="https://www.instagram.com/izhaoo/ "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#DA2E76'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconinstagram "></i>
+      </a><a 
+        href="https://github.com/zhaoo "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#9f7be1'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  icongithub-fill "></i>
+      </a><a 
+        href="mailto:izhaoo@163.com "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color=#FF3B00" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconmail"></i>
+      </a></div>
+  
+    <div class="footer-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+  
+</footer>
+  
+      <div class="fab fab-plus">
+    <i class="iconfont iconplus"></i>
+  </div>
+  
+  
+  <div class="fab fab-up">
+    <i class="iconfont iconcaret-up"></i>
+  </div>
+  
+  
+  
+    
+<script src="/js/color-mode.js"></script>
+
+  
+  
+</body>
+
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
+
+
+
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+
+
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+
+
+
+
+<script src="/js/utils.js"></script>
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+  <script>
+    (function () {
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      } else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</html>
