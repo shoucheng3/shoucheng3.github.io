@@ -195,7 +195,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>November 22, 2020</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>3143</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>3447</span>
     </div>
   </div>
 </section>
@@ -253,8 +253,14 @@
 <p>19、64位下的linux的系统调用号（使用syscall调用，调用号是保存到rax中）：</p>
 <p><strong>0(0x0) sys_read</strong></p>
 <p><strong>1(0x1) sys_write</strong></p>
+<p><strong>2(0x2)sys_open</strong></p>
+<p><strong>3(0x3)sys_close</strong></p>
+<p><strong>9(0x9)sys_mmap</strong></p>
+<p><strong>37(0x25)sys_alarm</strong></p>
 <p><strong>15(0xF) sys_rt_sigreturn</strong></p>
 <p><strong>59(0x3B) sys_execve</strong></p>
+<p><strong>60(0x3C)sys_exit</strong></p>
+<p><strong>62(0x3E)sys_kill</strong></p>
 <p>32位下linux系统调用号（使用syscall，调用号保存在eax中），函数其他参数依次存入ebx，ecx，edx中</p>
 <p><strong>3(0x3)sys_read</strong></p>
 <p><strong>4(0x4)sys_write</strong></p>
@@ -266,10 +272,15 @@
 <p>23、当题目已给出libc时，可以直接用libc显示出函数在其内的偏移地址，命令格式如下：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">objdump -T ./libc-2.23.so | grep system #显示system的libc地址<br></code></pre></td></tr></table></figure>
 
-<p><img   class="lazyload" data-original="2020-11-22-%E6%A0%88%E6%BA%A2%E5%87%BA-%E8%A7%A3%E9%A2%98%E4%BA%8C%E4%B8%89%E4%BA%8B.assets/QQ%E5%9B%BE%E7%89%8720210510214657.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2020/11/22/2020-11-22-%E6%A0%88%E6%BA%A2%E5%87%BA-%E8%A7%A3%E9%A2%98%E4%BA%8C%E4%B8%89%E4%BA%8B/QQ%E5%9B%BE%E7%89%8720210510214657.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>24、静态链接题目多半考虑ret2syscall，或者看有没有mprotect函数，修改段的执行权限，注入shellcode</p>
 <p>25、libc中environ存储了栈上环境变量的特性，可以利用这个特效来泄露出栈上的地址，写为这样libc.sym[“environ”]</p>
 <p>26、scanf读取过长的输入时会使用malloc_hook分配chunk，也就是可以借此如果能修改__malloc_hook为one_gadget的话，就能getshell</p>
+<p>27、got表劫持：常见劫持put(buf)、free(buf)、atoi(buf)、atol(buf)</p>
+<p>28、当scanf的参数不是%s时候，是u，d等数字，输入数字是使用str()即可，不用p64()。</p>
+<p>因为输入数字是就是使用数字输入，如果使用了p64()将会变成字符数字</p>
+<p>29、使用execv(“/bin/sh”,0)getshell需要两个参数</p>
+<p>另外：2.29之后的libc直接调用system会出问题</p>
 
       </section>
       <section class="extra">

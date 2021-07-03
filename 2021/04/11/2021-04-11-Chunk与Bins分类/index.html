@@ -195,14 +195,14 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>April 11, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>7527</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>7494</span>
     </div>
   </div>
 </section>
     <section class="main">
       <section class="content">
         <p>转载自知乎堆漏洞挖掘——带你了解Chunk分类与Bins分类<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/363099281">https://zhuanlan.zhihu.com/p/363099281</a></p>
-<h2 id="一、Chunk分类"><a href="#一、Chunk分类" class="headerlink" title="一、Chunk分类"></a>一、Chunk分类</h2><p><img    class="lazyload" data-original="2021-04-11-Chunk%E4%B8%8EBins%E5%88%86%E7%B1%BB.assets/v2-9d7ce923746f4cdf8f8b25481767b3f3_720w.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></p>
+<h2 id="一、Chunk分类"><a href="#一、Chunk分类" class="headerlink" title="一、Chunk分类"></a>一、Chunk分类</h2><p><img   class="lazyload" data-original="/2021/04/11/2021-04-11-Chunk%E4%B8%8EBins%E5%88%86%E7%B1%BB/v2-9d7ce923746f4cdf8f8b25481767b3f3_720w.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">img</span></p>
 <ul>
 <li><p>此图是在上篇文章介绍arena时用到的，我们可以看到：堆块被分为不同的种类，下面我们将来介绍这些。</p>
 </li>
@@ -234,7 +234,6 @@
 <li><strong>它是怎么产生的：</strong>当用户请求的是一个small chunk，且该请求无法被small bin、unsorted bin满足的时候，就通过binmaps遍历bin查找最合适的chunk，如果该chunk有剩余部分的话，就将该剩余部分变成一个新的chunk加入到unsorted bin中，另外，<strong>再将该新的chunk变成新的last remainder chunk。</strong></li>
 <li><strong>它的作用是什么：</strong>此类型的chunk用于提高连续malloc(small chunk)的效率，主要是提高内存分配的局部性。那么具体是怎么提高局部性的呢？举例说明。当用户请求一个small chunk，且该请求无法被small bin满足，那么就转而交由unsorted bin处理。同时，假设当前unsorted bin中只有一个chunk的话——就是last remainder chunk，那么就将该chunk分成两部分：前者分配给用户，剩下的部分放到unsorted bin中，并成为新的last remainder chunk。这样就保证了连续malloc(small chunk)中，各个small chunk在内存分布中是相邻的，即提高了内存分配的局部性。</li>
 <li>详情见文章：<a href="https://link.zhihu.com/?target=https://blog.csdn.net/qq_41453285/article/details/97803141">https://blog.csdn.net/qq_41453285/article/details/97803141</a>。</li>
-<li>我是小董，V公众点击”笔记白嫖”解锁更多【堆漏洞挖掘】资料内容。</li>
 </ul>
 <h2 id="二、bin链的介绍与bin链分类"><a href="#二、bin链的介绍与bin链分类" class="headerlink" title="二、bin链的介绍与bin链分类"></a>二、bin链的介绍与bin链分类</h2><ul>
 <li><p>bin是一个由struct chunk结构体组成的链表。</p>
@@ -243,7 +242,7 @@
 </li>
 <li><p>不同的bin链是由arena管理的。</p>
 </li>
-<li><p>bin链中的chunk均为free chunk。</p>
+<li><p>bin链中的chunk均为<strong>free chunk</strong>。</p>
 </li>
 <li><p>根据bin链成员的大小不同，分为以下几类：</p>
 </li>
@@ -267,26 +266,26 @@
 </ul>
 </li>
 </ul>
-<p><img    class="lazyload" data-original="2021-04-11-Chunk%E4%B8%8EBins%E5%88%86%E7%B1%BB.assets/v2-1c456be35efc37e943afa83fb29bb29c_720w.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></p>
+<p><img   class="lazyload" data-original="/2021/04/11/2021-04-11-Chunk%E4%B8%8EBins%E5%88%86%E7%B1%BB/v2-1c456be35efc37e943afa83fb29bb29c_720w.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">img</span></p>
 <ul>
 <li><strong>数组存储bin链的结构，见文章：</strong><a href="https://link.zhihu.com/?target=https://blog.csdn.net/qq_41453285/article/details/97613588">https://blog.csdn.net/qq_41453285/article/details/97613588</a>。</li>
 </ul>
 <h2 id="四、Fast-Bin"><a href="#四、Fast-Bin" class="headerlink" title="四、Fast Bin"></a>四、Fast Bin</h2><ul>
 <li><strong>概念：</strong>chunk的大小在32字节<del>128字节（0x20</del>0x80）的chunk称为“fast chunk”（大小不是malloc时的大小，而是在内存中struct malloc_chunk的大小，包含前2个成员）。</li>
 <li>fast bin链表的个数为10个。</li>
-<li><strong>不会对free chunk进行合并：</strong>鉴于设计fast bin的初衷就是进行快速的小内存分配和释放，因此系统将属于fast bin的chunk的PREV_INUSE位总是设置为1，这样即使当fast bin中有某个chunk同一个free chunk相邻的时候，系统也不会进行自动合并操作，而是保留两者。虽然这样做可能会造成额外的碎片化问题，但瑕不掩瑜。</li>
+<li><strong>不会对free chunk进行合并：</strong>鉴于设计fast bin的初衷就是进行快速的小内存分配和释放，因此系统将属于fast bin的chunk的PREV_INUSE位<strong>总是设置为1</strong>，这样即使当fast bin中有某个chunk同一个free chunk相邻的时候，系统也不会进行自动合并操作，而是保留两者。虽然这样做可能会造成额外的碎片化问题，但瑕不掩瑜。</li>
 </ul>
 <h3 id="fastbinsY数组存储fastbins的规则"><a href="#fastbinsY数组存储fastbins的规则" class="headerlink" title="fastbinsY数组存储fastbins的规则"></a>fastbinsY数组存储fastbins的规则</h3><ul>
 <li>每个fast bin链表都是单链表（使用fd指针）。因此，fast bin中无论是添加还是移除fast chunk，都是对“链表尾”进行操作，而不会对某个中间的fast chunk进行操作。</li>
 <li>单个fastbin链表中的chunk大小都是相同的，各个fastbin链表中的chunk大小是不同的。</li>
 <li>fastbinY数组中的每个bin链表的排序，是按照链表元素的大小进行排序的。数组的第一个元素的fast bin链表中的每个chunk的大小是32字节的，数组的第二个元素的fast bin链表中的每个chunk的大小是48字节的……每个元素都比前面的fast bin链大16字节，以此类推进行排序。</li>
 </ul>
-<p><img    class="lazyload" data-original="2021-04-11-Chunk%E4%B8%8EBins%E5%88%86%E7%B1%BB.assets/v2-4be067bab2e304c104678811064657df_720w.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></p>
+<p><img   class="lazyload" data-original="/2021/04/11/2021-04-11-Chunk%E4%B8%8EBins%E5%88%86%E7%B1%BB/v2-4be067bab2e304c104678811064657df_720w.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">img</span></p>
 <h3 id="链表索引宏定义：（fastbin-index）"><a href="#链表索引宏定义：（fastbin-index）" class="headerlink" title="链表索引宏定义：（fastbin_index）"></a>链表索引宏定义：（fastbin_index）</h3><ul>
 <li><strong>功能：</strong>通过此宏能判断某一个fastchunk属于哪一个fastbin链表。</li>
 <li><strong>参数：</strong>某一个chunk的大小。</li>
 </ul>
-<p><img    class="lazyload" data-original="2021-04-11-Chunk%E4%B8%8EBins%E5%88%86%E7%B1%BB.assets/v2-0709536f14aa2206dbe2fd972806b40f_720w.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></p>
+<p><img   class="lazyload" data-original="/2021/04/11/2021-04-11-Chunk%E4%B8%8EBins%E5%88%86%E7%B1%BB/v2-0709536f14aa2206dbe2fd972806b40f_720w.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">img</span></p>
 <p><strong>malloc操作与fastbins的初始化：</strong></p>
 <ul>
 <li><p>当应用层通过malloc函数<strong>第一次</strong>申请的chunk属于16字节~80字节之间时，因为初始化的时候fast bin支持的最大内存大小以及所有fast bin链表都是空的，所以它也不会交由fast bin来处理，而是向下传递交由small bin来处理，如果small bin也为空的话就交给unsorted bin处理。</p>
@@ -337,7 +336,7 @@
 <li><strong>bins数组存储small bin链时：</strong>第一个small bin链中chunk的大小为32字节，后续每个small bin中chunk的大小依次增加两个机器字长（32位相差8字节，64位相差16字节）…….以此类推，跟fastbinsY数组存储fastbin链的原理是相同的（用下图表示）。</li>
 <li><strong>bin链存储的大小与数组下标的关系：</strong>chun_size=2<em>SIZE_SZ</em>index。</li>
 </ul>
-<p><img    class="lazyload" data-original="2021-04-11-Chunk%E4%B8%8EBins%E5%88%86%E7%B1%BB.assets/v2-f20921b235e39c6e13644572fdc8d0d7_720w.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></p>
+<p><img   class="lazyload" data-original="/2021/04/11/2021-04-11-Chunk%E4%B8%8EBins%E5%88%86%E7%B1%BB/v2-f20921b235e39c6e13644572fdc8d0d7_720w.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">img</span></p>
 <h3 id="malloc操作与small-bin的初始化"><a href="#malloc操作与small-bin的初始化" class="headerlink" title="malloc操作与small bin的初始化"></a>malloc操作与small bin的初始化</h3><ul>
 <li><p>类似于fast bins，最初所有的small bin都是空的，因此在对这些small bin完成初始化之前，即使用户请求的内存大小属于small chunk也不会交由small bin进行处理，而是交由unsorted bin处理。</p>
 </li>
@@ -349,7 +348,7 @@
 </li>
 <li><ul>
 <li>将bins数组中的第一个成员索引值设置为了1，而不是我们常用的0(在bin_at宏中，自动将i进行了减1处理)。</li>
-<li>从上面代码可以看出在初始化的时候glibc malloc将所有bin的指针都指向了自己——这就代表这些bin都是空的。</li>
+<li>从下面代码可以看出在初始化的时候glibc malloc将所有bin的指针都指向了自己——这就代表这些bin都是空的。</li>
 </ul>
 </li>
 </ul>
@@ -372,15 +371,15 @@
 <li>large chunk可以添加、删除在large bin的任何一个位置。</li>
 <li><strong>在这63个largebins中：第一组的32个largebin链</strong>依次以64字节步长为间隔，即第一个largebin链中chunksize为1024-1087字节，第二个large bin中chunk size为1088~1151字节。<strong>第二组的16个largebin链</strong>依次以512字节步长为间隔；<strong>第三组的8个largebin链</strong>以步长4096为间隔；<strong>第四组的4个largebin链</strong>以32768字节为间隔；<strong>第五组的2个largebin链</strong>以262144字节为间隔；<strong>最后一组</strong>的largebin链中的chunk大小无限制。</li>
 </ul>
-<p><img    class="lazyload" data-original="2021-04-11-Chunk%E4%B8%8EBins%E5%88%86%E7%B1%BB.assets/v2-47264da3791b9433f4cde0589001089f_720w.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></p>
+<p><img   class="lazyload" data-original="/2021/04/11/2021-04-11-Chunk%E4%B8%8EBins%E5%88%86%E7%B1%BB/v2-47264da3791b9433f4cde0589001089f_720w.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">img</span></p>
 <ul>
-<li><strong>在同一个largebin中：</strong>每个chunk的大小不一定相同，因此为了加快内存分配和释放的速度，就将同一个largebin中的所有chunk按照chunksize进行从大到小的排列：最大的chunk放在一个链表的front end，最小的chunk放在rear end；相同大小的chunk按照最近使用顺序排序。</li>
+<li><strong>在同一个largebin中：</strong>每个chunk的大小不一定相同，因此为了加快内存分配和释放的速度，就将同一个largebin中的所有chunk按照chunksize进行<strong>从大到小</strong>的排列：最大的chunk放在一个链表的front end，最小的chunk放在rear end；相同大小的chunk按照最近使用顺序排序。</li>
 </ul>
 <h3 id="链表索引宏定义：（largebin-index）"><a href="#链表索引宏定义：（largebin-index）" class="headerlink" title="链表索引宏定义：（largebin_index）"></a>链表索引宏定义：（largebin_index）</h3><ul>
 <li>参数为链表能存储的chunk大小，宏定义中有简介调用其他宏定义。</li>
 <li>例如：第一个largebin的起始大小为1024，那么1024&gt;&gt;6=16，所以其在bins数组中的下标为48+16=64。</li>
 </ul>
-<p><img    class="lazyload" data-original="2021-04-11-Chunk%E4%B8%8EBins%E5%88%86%E7%B1%BB.assets/v2-37630d6c2b179946ced49927b69d94d9_720w.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></p>
+<p><img   class="lazyload" data-original="/2021/04/11/2021-04-11-Chunk%E4%B8%8EBins%E5%88%86%E7%B1%BB/v2-37630d6c2b179946ced49927b69d94d9_720w.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">img</span></p>
 <h3 id="malloc操作与large-bin的初始化"><a href="#malloc操作与large-bin的初始化" class="headerlink" title="malloc操作与large bin的初始化"></a>malloc操作与large bin的初始化</h3><ul>
 <li><p>初始化完成之前的操作类似于small bin。</p>
 </li>
@@ -396,7 +395,7 @@
 <ul>
 <li>类似于small chunk。</li>
 </ul>
-<p><img    class="lazyload" data-original="2021-04-11-Chunk%E4%B8%8EBins%E5%88%86%E7%B1%BB.assets/v2-074b7317613db621519df68372bc2373_720w.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">img</span></p>
+<p><img   class="lazyload" data-original="/2021/04/11/2021-04-11-Chunk%E4%B8%8EBins%E5%88%86%E7%B1%BB/v2-074b7317613db621519df68372bc2373_720w.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">img</span></p>
 
       </section>
       <section class="extra">

@@ -195,14 +195,14 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>December 01, 2020</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4377</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4435</span>
     </div>
   </div>
 </section>
     <section class="main">
       <section class="content">
         <h2 id="ROPgadget"><a href="#ROPgadget" class="headerlink" title="ROPgadget"></a>ROPgadget</h2><p>一般用在64位下，因为64位的函数传参与32位有些不同，需使用到寄存器传参，常用命令格式：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">ROPgadget --binary 文件名 --only &#x27;pop|ret&#x27;  或者 ROPgadget --binary 文件名 --only &#x27;pop|ret&#x27;| grep &#x27;eax&#x27; <br>ROPgadget --binary 文件名 --only &#x27;leave|ret&#x27;<br>ROPgadget --binary 文件名 --string &#x27;sh&#x27;（有的时候是找sh，这个也可以成为参数）<br>ROPgadget --binary 文件名 --string &#x27;/bin/sh&#x27;<br>ROPgadget --binary 文件名 --only &#x27;int&#x27;  （寻找int 80H系统中断指令）<br></code></pre></td></tr></table></figure>
+<figure class="highlight dsconfig"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs dsconfig"><span class="hljs-string">ROPgadget</span> <span class="hljs-built_in">--binary</span> 文件名 <span class="hljs-built_in">--only</span> <span class="hljs-string">&#x27;pop|ret&#x27;</span>  或者 <span class="hljs-string">ROPgadget</span> <span class="hljs-built_in">--binary</span> 文件名 <span class="hljs-built_in">--only</span> <span class="hljs-string">&#x27;pop|ret&#x27;</span>| <span class="hljs-string">grep</span> <span class="hljs-string">&#x27;eax&#x27;</span> <br><span class="hljs-string">ROPgadget</span> <span class="hljs-built_in">--binary</span> 文件名 <span class="hljs-built_in">--only</span> <span class="hljs-string">&#x27;leave|ret&#x27;</span><br><span class="hljs-string">ROPgadget</span> <span class="hljs-built_in">--binary</span> 文件名 <span class="hljs-built_in">--string</span> <span class="hljs-string">&#x27;sh&#x27;</span>（有的时候是找<span class="hljs-string">sh</span>，这个也可以成为参数）<br><span class="hljs-string">ROPgadget</span> <span class="hljs-built_in">--binary</span> 文件名 <span class="hljs-built_in">--string</span> <span class="hljs-string">&#x27;/bin/sh&#x27;</span><br><span class="hljs-string">ROPgadget</span> <span class="hljs-built_in">--binary</span> 文件名 <span class="hljs-built_in">--only</span> <span class="hljs-string">&#x27;int&#x27;</span>  （寻找<span class="hljs-string">int</span> <span class="hljs-string">80H</span>系统中断指令）<br></code></pre></td></tr></table></figure>
 
 <p>附：</p>
 <p>搭配使用one_gadget</p>
@@ -211,14 +211,14 @@
 
 <p>one_gadget是用来去查找动态链接库里execve(“/bin/sh”, rsp+0x70, environ)函数的地址的</p>
 <p>使用方法：</p>
-<p><img   class="lazyload" data-original="pwn%E5%B7%A5%E5%85%B7%E7%9A%84%E5%AE%89%E8%A3%85%E5%8F%8A%E4%BD%BF%E7%94%A8%E6%8C%87%E4%BB%A4.assets/2020101517362410.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2020/12/01/pwn%E5%B7%A5%E5%85%B7%E7%9A%84%E5%AE%89%E8%A3%85%E5%8F%8A%E4%BD%BF%E7%94%A8%E6%8C%87%E4%BB%A4/2020101517362410.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>来源： <a target="_blank" rel="noopener" href="https://blog.csdn.net/yongbaoii/article/details/109101822">https://blog.csdn.net/yongbaoii/article/details/109101822</a> </p>
 <h2 id="gdb-peda（必须掌握）"><a href="#gdb-peda（必须掌握）" class="headerlink" title="gdb -peda（必须掌握）"></a>gdb -peda（必须掌握）</h2><h4 id="用途"><a href="#用途" class="headerlink" title="用途"></a>用途</h4><p>启动你的程序，可以按照你的自定义的要求随心所欲的运行程序</p>
 <p>可让被调试的程序在你所指定的调置的断点处停住。（断点可以是条件表达式）</p>
 <p>当程序被停住时，可以检查此时你的程序中所发生的事。</p>
 <p>动态的改变你程序的执行环境</p>
 <p>使用前要：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">gcc -g test.c -o test<br>//gcc中-g选项是为了获得有关调试信息，要用gdb进行调试，必须使用-g生成二进制可执行文件<br></code></pre></td></tr></table></figure>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs stata">gcc -<span class="hljs-keyword">g</span> <span class="hljs-keyword">test</span>.c -o <span class="hljs-keyword">test</span><br><span class="hljs-comment">//gcc中-g选项是为了获得有关调试信息，要用gdb进行调试，必须使用-g生成二进制可执行文件</span><br></code></pre></td></tr></table></figure>
 
 <h4 id="常用指令："><a href="#常用指令：" class="headerlink" title="常用指令："></a>常用指令：</h4><ul>
 <li><p>checksec 查看elf编译的保护选项</p>
@@ -251,9 +251,9 @@
 </li>
 <li><p>c 继续运行 </p>
 </li>
-<li><p>ni 单步执行不进入 </p>
+<li><p>ni 单步执行不进入函数调用</p>
 </li>
-<li><p>si 单步执行并进入</p>
+<li><p>si 单步执行并进入函数调用</p>
 </li>
 <li><p>elfsymbol – 获取non-debugging symbol信息（plt表）</p>
 </li>
@@ -264,6 +264,12 @@
 <li><p>vmmap 得到虚拟映射地址，同时可查看执行权限</p>
 </li>
 <li><p>heapinfo 查看bin链信息</p>
+</li>
+<li><p>heapbase 查看堆地址</p>
+</li>
+<li><p>finish 执行到函数返回</p>
+</li>
+<li><p>arena 查看mainarena</p>
 </li>
 <li><p>telescope 地址    可以查看一小段该地址的内容</p>
 </li>
@@ -352,7 +358,7 @@
 </ul>
 <h2 id="pwntools"><a href="#pwntools" class="headerlink" title="pwntools"></a>pwntools</h2><h3 id="context设置"><a href="#context设置" class="headerlink" title="context设置"></a>context设置</h3><p><code>context</code>是pwntools用来设置环境的功能。在很多时候，由于二进制文件的情况不同，我们可能需要进行一些环境设置才能够正常运行exp，比如有一些需要进行汇编，但是32的汇编和64的汇编不同，如果不设置context会导致一些问题。</p>
 <p>一般来说我们设置context只需要简单的一句话:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">context(os=&#x27;linux&#x27;, arch=&#x27;amd64&#x27;, log_level=&#x27;debug&#x27;)<br></code></pre></td></tr></table></figure>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs routeros">context(<span class="hljs-attribute">os</span>=<span class="hljs-string">&#x27;linux&#x27;</span>, <span class="hljs-attribute">arch</span>=<span class="hljs-string">&#x27;amd64&#x27;</span>, <span class="hljs-attribute">log_level</span>=<span class="hljs-string">&#x27;debug&#x27;</span>)<br></code></pre></td></tr></table></figure>
 
 <p>这句话的意思是： </p>
 <ol>
@@ -362,7 +368,7 @@
 </ol>
 <h3 id="Cyclic-Pattern"><a href="#Cyclic-Pattern" class="headerlink" title="Cyclic Pattern"></a>Cyclic Pattern</h3><p>Cyclic pattern是一个很强大的功能，大概意思就是，使用pwntools生成一个pattern，pattern就是指一个字符串，可以通过其中的一部分数据去定位到他在一个字符串中的位置。</p>
 <p>在我们完成栈溢出题目的时候，使用pattern可以大大的减少计算溢出点的时间。 </p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">用法：<br>cyclic(0x100) # 生成一个0x100大小的pattern，即一个特殊的字符串<br>cyclic_find(0x61616161) # 找到该数据在pattern中的位置<br>cyclic_find(&#x27;aaaa&#x27;) # 查找位置也可以使用字符串去定位<br></code></pre></td></tr></table></figure>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs 1c">用法：<br>cyclic(<span class="hljs-number">0</span>x100) <span class="hljs-meta"># 生成一个0x100大小的pattern，即一个特殊的字符串</span><br>cyclic_find(<span class="hljs-number">0</span>x61616161) <span class="hljs-meta"># 找到该数据在pattern中的位置</span><br>cyclic_find(&#x27;aaaa&#x27;) <span class="hljs-meta"># 查找位置也可以使用字符串去定位</span><br></code></pre></td></tr></table></figure>
 
 <p>比如，我们在栈溢出的时候，首先构造<code>cyclic(0x100)</code>，或者更长长度的pattern，进行输入，输入后pc的值变为了0x61616161，那么我们通过<code>cyclic_find(0x61616161)</code>就可以得到从哪一个字节开始会控制PC寄存器了，避免了很多没必要的计算。</p>
 <p>可以直接在shell中使用cyclic 100</p>
