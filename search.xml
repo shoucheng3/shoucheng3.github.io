@@ -101,7 +101,7 @@
       </tags>
   </entry>
   <entry>
-    <title>不安全的unlike</title>
+    <title>不安全的unlink</title>
     <url>/2021/05/30/2021-05-30-%E4%B8%8D%E5%AE%89%E5%85%A8%E7%9A%84unlink/</url>
     <content><![CDATA[<p>以下知识摘自《CTF竞赛权威指南 Pwn篇》、CTF-Wiki</p>
 <h1 id="不安全的unlike"><a href="#不安全的unlike" class="headerlink" title="不安全的unlike"></a>不安全的unlike</h1><h3 id="什么叫unlike"><a href="#什么叫unlike" class="headerlink" title="什么叫unlike"></a>什么叫unlike</h3><p>为了避免堆内存的过度碎片化，当一个堆块（非fastbin chunk）被释放时，libc会查看其前后堆块是否处于被释放的状态，如果是，则将前面或后面的堆块从bins链取出来，与当前释放堆块合并，这个取出堆块的过程就叫做unlike</p>
@@ -109,7 +109,7 @@
 <p><img src="/2021/05/30/2021-05-30-%E4%B8%8D%E5%AE%89%E5%85%A8%E7%9A%84unlink/unlink_smallbin_intro.png"></p>
 ]]></content>
       <tags>
-        <tag>unlike</tag>
+        <tag>unlink</tag>
       </tags>
   </entry>
   <entry>
