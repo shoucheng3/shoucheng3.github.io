@@ -202,7 +202,7 @@ fas...">
 </section>
     <section class="main">
       <section class="content">
-        <p><img   class="lazyload" data-original="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E9%9B%86%E5%90%88/image-20210720154252123.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210720154252123</span></p>
+        <p><img   class="lazyload" data-original="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E9%9B%86%E5%90%88/image-20210720154252123-1627363406388.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210720154252123</span></p>
 <h1 id="fastbin"><a href="#fastbin" class="headerlink" title="fastbin"></a>fastbin</h1><h3 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h3><ul>
 <li><p>大小范围：0x20 - 0x80</p>
 </li>
@@ -211,7 +211,7 @@ fas...">
 <li><p>FILO（最后一个进入fastbin链表的，会被放在头部）<br>总共有十个fastbin链表，每个链表中fastbin的size一样，0x10递增<br>大小属于fastbin的chunk被free掉时，不会改变nextchunk的previnuse位，也就是说不会被合并。</p>
 </li>
 </ul>
-<p><img   class="lazyload" data-original="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E9%9B%86%E5%90%88/image-20210720154343954.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210720154343954</span></p>
+<p><img   class="lazyload" data-original="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E9%9B%86%E5%90%88/image-20210720154343954-1627363410633.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210720154343954</span></p>
 <h3 id="检查"><a href="#检查" class="headerlink" title="检查"></a>检查</h3><ul>
 <li>被释放的堆块的fd指针不能指向自己（这也就是想要double free的时候，还需要一个中间chunk的原因）</li>
 <li>将fastbin里面的chunk分配出去时，会检查size位会不会匹配chunk的大小，会才能分配</li>
@@ -249,7 +249,7 @@ fas...">
 </ul>
 <h1 id="largebin"><a href="#largebin" class="headerlink" title="largebin"></a>largebin</h1><h3 id="基本结构-3"><a href="#基本结构-3" class="headerlink" title="基本结构"></a>基本结构</h3><img   class="lazyload" data-original="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E9%9B%86%E5%90%88/image-20210720153655147.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  style="zoom:80%;"><span class="image-caption">image-20210720153655147</span>
 
-<p><img   class="lazyload" data-original="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E9%9B%86%E5%90%88/image-20210726103541056.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210726103541056</span></p>
+<p><img   class="lazyload" data-original="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E9%9B%86%E5%90%88/image-20210726103541056-1627363427270.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210726103541056</span></p>
 <ul>
 <li><p>大小范围：0x410 以上</p>
 </li>
@@ -336,7 +336,7 @@ fas...">
         
   <nav class="nav">
     <a href="/2021/07/20/2021-07-26-offbyone-null/"><i class="iconfont iconleft"></i>offbyone&null</a>
-    <a href="/2021/06/05/buu06/">buu06<i class="iconfont iconright"></i></a>
+    <a href="/2021/06/05/2021-06-14-buu06/">buu06<i class="iconfont iconright"></i></a>
   </nav>
 
       </section>
