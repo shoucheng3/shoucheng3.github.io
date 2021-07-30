@@ -195,7 +195,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>April 18, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>2676</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>3476</span>
     </div>
   </div>
 </section>
@@ -204,10 +204,10 @@
         <h1 id="一些关于堆的小知识点"><a href="#一些关于堆的小知识点" class="headerlink" title="一些关于堆的小知识点"></a>一些关于堆的小知识点</h1><p>（没有顺序，知识点是零散的，都是我自己学到一点，记录下一点）</p>
 <p>1、当small chunk只有一个时，如果被释放了，会被划分到unsorted bin里面，如果只有一个时，该chunk的fd和bk都指向libc中的地址，可以借此算出libc_base</p>
 <p>2、当先调用了mmap函数时，malloc系列函数申请的chunk的地址是从heap的起始地址开始分配的，又有页（4KB）是内存分配的最小单位，导致heap地址的最低三位总是0x000。因此申请的chunk可以只要覆盖地址最低两位进行修改其fd和bk的值</p>
-<p>3、在利用malloc_hook（__malloc_hook是一个弱类型的函数指针变量，指向void * function(size_t size void * caller)，当调用malloc系列函数时，会判断hook指针是否为空，不为空则调用它）函数时，要使用错位偏移，即为把<strong>hook函数地址-0x20+0xd（有时候也可以找找hook地址-0x20+0x5）</strong>。此时，在写上p8(0)*3+p64(one_gadget)即可获取shell（似乎有些不准确，虽然有的确实行的通，但是更全面的应该是检验的size位置是int类型的函数，所以我们应该查看低32位的数，所以不局限-0x20，可能是0x30，0x38等等，在gdb里面调试发现即可）</p>
+<p>3、在利用malloc_hook（__malloc_hook是一个弱类型的函数指针变量，指向void * function(size_t size void * caller)，当调用malloc系列函数时，会判断hook指针是否为空，不为空则调用它）函数时，要使用错位偏移，即为把<strong>hook函数地址-0x30+0xd（有时候也可以找找hook地址-0x20+0x5）</strong>。此时，在写上p8(0)*3+p64(one_gadget)即可获取shell（似乎有些不准确，虽然有的确实行的通，但是更全面的应该是检验的size位置是int类型的函数，所以我们应该查看低32位的数，所以不局限-0x20，可能是0x30，0x38等等，在gdb里面调试发现即可）</p>
 <p>4、hook函数指针位置在<code>main_arena-0x10</code>处，在gdb中该地址的指令格式应为如此:<code>x/10gx (long long) &amp;main_arena-0x30</code></p>
 <p>5、chunk的size字段的最末位的三个比特位被用作状态标识，所以，size字段的以16进制表示时，最后一位16进制数是不能算到size里面的</p>
-<p>6、一个chunk的大小最小是32字节（64位系统下），或者16字节（32位系统下）</p>
+<p>6、一个chunk的大小最小是0x20(32字节64位系统下)，或者0x10(16字节32位系统下)</p>
 <p>7、在Glibc2.26之后的版本出现了Tcache机制，在64位情况下，tcache优先于其他bin链接收释放掉的0×20<del>0×410大小的堆块（32位下0xC</del>0x200），tcache最多可以接收7个chunk，多出的部分将按照原来Glibc版本里面的方式分配。</p>
 <p>并且从tcache分配出去的chunk并不会检查被分配位置的size大小，也就是不必像之前的版本使用错位偏移来使size符合检查</p>
 <p>利用Tcache泄露libc有以下几种方法：</p>
@@ -218,8 +218,8 @@
 <li>修改堆上的Tcache管理结构，把count值改为7，然后再次free一个该大小的chunk，注意防止chunk被top chunk合并</li>
 </ul>
 <p>以上都可以让chunk的fd和bk指针指向libc的某个位置而泄露地址</p>
-<p>8、当修改hook函数为one_gadget发现所有给的execve都不行时，这时需要我们借用realloc去调整栈的参数，使execve的环境被满足才可以利用成功。__realloc_hook的地址等于   __malloc_hook-0x8。因为调用realloc会执行许多的push指令，可以慢慢把rsp调整到满足环境。要查看push可以把realloc_hook地址加上1~9指向的都是push指令</p>
-<p>当然把one_gadget写到__relloc_hook地址上，与__malloc_hook效果是一样的，在使用malloc函数的也会进行调用</p>
+<p>8、当修改hook函数为one_gadget发现所有给的execve都不行时，这时需要我们借用__libc_realloc去调整栈的参数，使execve的环境被满足才可以利用成功。__libc_realloc的地址是__malloc_hook-0x8。因为调用realloc会执行许多的push指令，可以把rsp调整到满足环境。要查看push操作，可以把__libc_realloc地址加上n，指向的都是push指令</p>
+<p>操作：把one_gadget写到__relloc_hook地址上，在使用malloc函数的会进行调用；在__malloc_hook地址写上__libc_realloc+n(就会先执行__libc_realloc+n调整，再执行one_gadget)</p>
 <p>9、堆题libc都很重要,题目没给libc，如果存在double free，可以用其测试libc版本</p>
 <ul>
 <li>如果报fastbin double free 那就是2.23~2.26<ul>
@@ -246,6 +246,14 @@
 <p>15、unsortedbin中的chunk重新分配出来时，里面的数据不会被系统清空（如果程序没动的话），所以里面还是存在着libc的一个地址，可以通过写满8个A来进行定位bk的内容</p>
 <p>16、getshell有个办法是：修改free_hook内容为system地址，然后free一个chunk，chunk内容为”/bin/sh”，就相当于执行了system(“/bin/sh”)</p>
 <p>17、在libc版本2.23及以下的时候，使用one_gadget稳定getshell，可以使用条件为[rsp+0x50] == NULL的one_gadget，然后对同一个chunk进行double free（指针没有置0）即可getshell</p>
+<p>18、当把malloc_hook劫持为one_gadget失败时，除了可以去调整栈之外，还可以换思路去劫持free_hook，就是16中的办法，或者是劫持realloc（在malloc_hook-0x8的地方），往realloc_hook中写入one_gadget,malloc_hook中写入realloc函数的地址</p>
+<p>19、因为free_hook前面是不存在像malloc_hook一样的0x7f的信息，所以无法将fastchunk分配过去</p>
+<ul>
+<li>在2.23版本中可以使用unsortedbin attack（修改unsortedbin中的FD字段为0，BK字段为target addr - 0x10），在那边写入unsortedbin地址，从而拥有了0x7f（使用过之后如果fastbin里面没有chunk，那么申请堆块会到unsortedbin里面去找，找的话就会报错，此时需要到main_arena对应地址去修复unsortedbin的指针，改回原来的样子）</li>
+<li>劫持top chunk，生成一个fastchunk释放掉，接着把fd指针修改为fastchunk的大小（如写入0x81），然后再把刚才释放的堆块申请出来，此时会在main_arena生成出一个0x81，可以通过fastchunk的检查，而在这个下方，就是top chunk的指针，把指针内容修改到目标地址前面的地址（地址需要符合top size），然后再申请堆块即可（此时不可以存在被释放的堆块，要让堆块是从top chunk中分配的）</li>
+</ul>
+<p>20、绕过calloc的清空数据：把堆的is_mmap位置改为1，calloc将不会清空属于mmap的堆块数据</p>
+<p>顺序：释放==&gt;修改堆头==&gt;申请堆块</p>
 
       </section>
       <section class="extra">

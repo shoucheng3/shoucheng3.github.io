@@ -196,7 +196,7 @@ fas...">
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>July 16, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>1945</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>1952</span>
     </div>
   </div>
 </section>
@@ -231,7 +231,7 @@ fas...">
 </li>
 </ul>
 <h3 id="unsorted-attack"><a href="#unsorted-attack" class="headerlink" title="unsorted attack"></a>unsorted attack</h3><p>libc版本在2.23及以下才能使用</p>
-<p>利用前提是先有UAF，修改unsortedbin中的BK字段为target addr - 0x10，然后malloc一个相同大小的chunk，即可完成攻击，在目标地址写入unsorted bin的地址，一般用来伪造堆头（制造出0x7f）、修改次数限制、上限信息、配合局部写</p>
+<p>利用前提是先有UAF，修改unsortedbin中的FD字段为0，BK字段为target addr - 0x10，然后malloc一个相同大小的chunk，即可完成攻击，在目标地址写入unsorted bin的地址，一般用来伪造堆头（制造出0x7f）、修改次数限制、上限信息、配合局部写</p>
 <h1 id="smallbin"><a href="#smallbin" class="headerlink" title="smallbin"></a>smallbin</h1><h3 id="基本结构-2"><a href="#基本结构-2" class="headerlink" title="基本结构"></a>基本结构</h3><img   class="lazyload" data-original="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E9%9B%86%E5%90%88/image-20210726103140256.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  style="zoom:80%;"><span class="image-caption">image-20210726103140256</span>
 
 <ul>

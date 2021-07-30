@@ -195,7 +195,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>July 20, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6959</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>7063</span>
     </div>
   </div>
 </section>
@@ -203,6 +203,7 @@
       <section class="content">
         <h1 id="offbyone"><a href="#offbyone" class="headerlink" title="offbyone"></a>offbyone</h1><h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>正常来说，我们希望程序的堆溢出能够溢出到next chunk的fd或者bk字段，进而完成利用。但是这样的情况是很少的，因而需要一种更加常见的特殊的堆溢出形式——offbyone，溢出字节就如他的名字一样，只能溢出一个字节。实际生活中这种漏洞很常见，程序员很容易犯这种错误，一般是因为边界检查不严格等情况。</p>
 <p>怎么利用呢？试想一下，如果能溢出一个字节，那么我们申请个0xn8大小的堆块，那么多出的一个字节是不是可以修改下一个堆块的size字段？修改了之后，会让程序认为这个堆块的大小就是你修改的大小，从而导致overlap</p>
+<p>如果你只把一个堆块的size变大，然后释放再申请出来，扩大的size将会从下面的堆块中取来，并把里面的内容清空，也就是想要再使用里面的堆块，需要去修复对应的堆头（用来泄露libc基址时，需要这样分开来操作）</p>
 <p>offbyone情形：</p>
 <ul>
 <li>strlen函数把next chunk的size字段也给计入进去，造成溢出一个字节</li>

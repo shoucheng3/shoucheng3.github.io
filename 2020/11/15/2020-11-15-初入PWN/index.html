@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>November 15, 2020</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>10464</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>10703</span>
     </div>
   </div>
 </section>
@@ -352,7 +352,7 @@
 <p>（4）eip：用来存储即将执行的程序指令的地址，cpu 依照 eip 的存储内容读取指令并执行，eip 随之指向相邻的下一条指令</p>
 <p>因此，所谓的栈溢出漏洞，就是利用一些危险函数进行读取远超一个变量所需的数值，覆盖到相邻栈中的数值，从而修改相邻栈中的变量的值，往这些修改的值中注入我们所需要的跳转的例如shellcode，函数地址等，使程序崩坏或是让程序执行一些我们想要执行的程序，达到破坏的目的</p>
 <p>x86下的CPU包含的8个四字节的通用寄存器：</p>
-<p><img   class="lazyload" data-original="2020-11-15-%E5%88%9D%E5%85%A5PWN.assets/271639137915732.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2020/11/15/2020-11-15-%E5%88%9D%E5%85%A5PWN/271639137915732.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>寄存器使用约定：寄存器eax、edx和ecx为主调函数保存寄存器(caller-saved registers)，当函数调用时，若主调函数希望保持这些寄存器的值，则必须在调用前显式地将其保存在栈中；被调函数可以覆盖这些寄存器，而不会破坏主调函数所需的数据。寄存器ebx、esi和edi为被调函数保存寄存器(callee-saved registers)，即被调函数在覆盖这些寄存器的值时，必须先将寄存器原值压入栈中保存起来，并在函数返回前从栈中恢复其原值，因为主调函数可能也在使用这些寄存器。此外，被调函数必须保持寄存器ebp和esp，并在函数返回后将其恢复到调用前的值，亦即必须恢复主调函数的栈帧。</p>
 <h3 id="return-to-libc"><a href="#return-to-libc" class="headerlink" title="return to libc"></a><strong>return to libc</strong></h3><h4 id="——构造system-“-bin-sh“"><a href="#——构造system-“-bin-sh“" class="headerlink" title="——构造system(“/bin/sh“)"></a>——构造system(“/bin/sh“)</h4><p>使用前提：ASLR被关闭，内存中存在可达到目的的特定函数</p>
 <p>system地址：<strong>在ASLR 被关闭的前提下</strong>，我们可以通过调试工具在运行程序过程中直接查看 system() 的地址，也可以查看动态库在内存的起始地址，再在动态链接库内查看函数的相对偏移位置，通过计算得到函数的绝对地址。</p>
@@ -362,7 +362,7 @@
 <p>那么如果要调用函数，就需要参数，而参数被存入在上方列举的寄存器中，那么此时我们要做的就是向寄存器存入我们需要的参数 ：</p>
 <p>1）如果在内存中已经存在我们要的数据，可用mov指令来存入 </p>
 <p>2）用pop指令来将栈顶数据弹入寄存器，pop 所传输的数据应该在 gadget 地址之后，如图：</p>
-<p><img   class="lazyload" data-original="2020-11-15-%E5%88%9D%E5%85%A5PWN.assets/v2-07a48918aeb2f8b7dd2ddc4836a7b773_720w.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2020/11/15/2020-11-15-%E5%88%9D%E5%85%A5PWN/v2-07a48918aeb2f8b7dd2ddc4836a7b773_720w.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>我们可以使用 push esp 这个gadget来执行shellcode</p>
 <p>对于所有包含 pop 指令的 gadget，在其gadget地址之后都要添加 需要pop传入寄存器的数据，同时在所有 gadget 最后包含一段shellcode</p>
 <p>如果利用 gadget 读取 ebp 的值再加上某个合适的数值，就可以保证溢出数据都具有可执行权限，这样就不再需要获取确切地址，也就具有了<strong>绕过内存随机化（ALSR）</strong>的可能。</p>
@@ -376,7 +376,7 @@
 <p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/25816426">手把手教你栈溢出从入门到放弃（上）</a></p>
 <p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/25892385">手把手教你栈溢出从入门到放弃（下）</a></p>
 <h3 id="二、x64架构下的栈溢出"><a href="#二、x64架构下的栈溢出" class="headerlink" title="二、x64架构下的栈溢出"></a>二、x64架构下的栈溢出</h3><p>x64位下的十六个通用寄存器：</p>
-<p><img   class="lazyload" data-original="2020-11-15-%E5%88%9D%E5%85%A5PWN.assets/register.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2020/11/15/2020-11-15-%E5%88%9D%E5%85%A5PWN/register.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>需要补充：在gcc下编译的才是把前六个参数依次放入rdi,rsi,rdx,rcx,r8,r9，而如果在VS编译环境下的只有前四个参数依次放入rcx,rdx,r8,r9</p>
 <p>gcc编译环境：在通用寄存器中，函数执行前后必须保持原始的寄存器有3个：是rbx、rbp、rsp。rx寄存器中，最后4个必须保持原值：r12、r13、r14、r15。</p>
 <p>保持原值的意义是为了让当前函数有可信任的寄存器，减小在函数调用过程中的保存&amp;恢复操作。除了rbp、rsp用于特定用途外，其余5个寄存器可随意使用。</p>
@@ -499,6 +499,9 @@
 <p>27、**char <em>strtok(char s[], const char <em>delim)</em></em></p>
 <p>功能：分解字符串为一组字符串。s为要分解的字符串，delim为分隔符字符（如果传入字符串，则传入的字符串中每个字符均为分割符）。首次调用时，s指向要分解的字符串，之后再次调用要把s设成NULL</p>
 <p>返回值：从s开头开始的一个个被分割的串。当s中的字符查找到末尾时，返回NULL；如果查找不到delim中的字符时，返回当前strtok的字符串的指针。</p>
+<p>28、*<em>long int strtol(const char <em>nptr,char **endptr,int base)</em></em></p>
+<p>功能：strtol函数会将参数nptr字符串根据参数base来转换成长整型数，参数base范围从2至36</p>
+<p>参数base代表采用的进制方式，如base值为10则采用10进制，若base值为16则采用16进制等。当base值为0时则是采用10进制做转换，但遇到如’0x’前置字符则会使用16进制做转换、遇到’0’前置字符而不是’0x’的时候会使用8进制做转换。</p>
 
       </section>
       <section class="extra">
