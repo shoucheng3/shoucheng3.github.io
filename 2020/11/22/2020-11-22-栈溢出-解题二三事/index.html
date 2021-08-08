@@ -195,7 +195,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>November 22, 2020</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>3447</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>3494</span>
     </div>
   </div>
 </section>
@@ -243,7 +243,7 @@
 <p>9、劫持栈帧到.bss段上时，要注意一下是否可能会将.got.plt表覆盖，导致程序无法正常执行</p>
 <p>10、承接第4点吧，我们避免输入\x00导致程序截断，同时也要注意程序是否自身有着\x00，导致了截断</p>
 <p>11、遇到strcat、strcpy、strcmp、strlen等函数的阻碍时，由于这些函数遇到’\0’将会停止，那么只要将其中的某个变量的第一个字符设为’\0’即可快速简单的绕过这些函数</p>
-<p>12、当用puts函数泄露got表的地址，使用u64解包时，由于u64解包的条件是需要字符串的长度为8个字节，而地址的长度顶多6个字节那么长（高地址填充0，但是我们并不能接收到），此时就需要使用这样的形式进行接收：<strong>u64(p.recv(6).ljust(8,’\0’))</strong>  （’\0’写成’\x00’也行，毕竟在内存中存储情况是一样的）</p>
+<p>12、当用puts函数泄露got表的地址，使用u64解包时，由于u64解包的条件是需要字符串的长度为8个字节，而地址的长度顶多6个字节那么长（高地址填充0，但是我们并不能接收到），此时就需要使用这样的形式进行接收：<strong>u64(p.recv(6).ljust(8,’\0’))</strong>  （’\0’写成’\x00’也行，毕竟在内存中存储情况是一样的还有**u64(io.recvuntil(‘\x7f’).ljust(8,’\x00’))**）</p>
 <p>13、一个大多数人应该都有错误的认知：认为溢出只要到如gets函数就能实现溢出了，所以下面的代码就不用看，这是绝对错误的！首先，我们通过栈溢出改变的只是返回地址的内容，想要到达返回地址，整个的函数执行流必须进行完，才会发生退栈，从而利用返回地址，所以下方的代码也要处理</p>
 <p>14、执行strcmp、strncmp、strcasecmp的时候，rdx会被设置为将要被比较的字符串的长度</p>
 <p>15、system的参数不一定是要/bin/sh才可以，只有sh也是可以的。而且sh可以从fflush()这个函数中获取，直接查找ida或者ROPgadget –binary 文件名 –string ‘sh’查询（不一定都能成功）</p>
