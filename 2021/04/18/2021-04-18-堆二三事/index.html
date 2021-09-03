@@ -195,7 +195,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>April 18, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>3476</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4422</span>
     </div>
   </div>
 </section>
@@ -208,18 +208,19 @@
 <p>4、hook函数指针位置在<code>main_arena-0x10</code>处，在gdb中该地址的指令格式应为如此:<code>x/10gx (long long) &amp;main_arena-0x30</code></p>
 <p>5、chunk的size字段的最末位的三个比特位被用作状态标识，所以，size字段的以16进制表示时，最后一位16进制数是不能算到size里面的</p>
 <p>6、一个chunk的大小最小是0x20(32字节64位系统下)，或者0x10(16字节32位系统下)</p>
-<p>7、在Glibc2.26之后的版本出现了Tcache机制，在64位情况下，tcache优先于其他bin链接收释放掉的0×20<del>0×410大小的堆块（32位下0xC</del>0x200），tcache最多可以接收7个chunk，多出的部分将按照原来Glibc版本里面的方式分配。</p>
+<p>7、在Glibc2.26之后的版本出现了Tcache机制，在64位情况下，tcache优先于其他bin链接收释放掉的0×20<del>0×400大小的堆块（32位下0xC</del>0x200），tcache最多可以接收7个chunk，多出的部分将按照原来Glibc版本里面的方式分配。</p>
 <p>并且从tcache分配出去的chunk并不会检查被分配位置的size大小，也就是不必像之前的版本使用错位偏移来使size符合检查</p>
 <p>利用Tcache泄露libc有以下几种方法：</p>
 <ul>
 <li>申请8个大堆块，释放8个，这里堆块大小，大于fastbin范围，就是填满tcache，让第八个进入unsorted bin中</li>
-<li>有double free的情况下，连续free 8次同一个堆块，这里堆块大小，大于fastbin范围</li>
-<li>申请大堆块，大于0×410</li>
-<li>修改堆上的Tcache管理结构，把count值改为7，然后再次free一个该大小的chunk，注意防止chunk被top chunk合并</li>
+<li>有UAF的情况下，连续free 8次同一个堆块，这里堆块大小，大于fastbin范围</li>
+<li>申请大堆块，大于0×400</li>
+<li>修改堆上的Tcache管理结构，把count值改为7（count的值是有规律的，在Tcache里面，第一个字节存放的是0x20大小的堆块个数，每隔一个字节，堆块大小增加0x10），然后再次free一个该大小的chunk，注意防止chunk被top chunk合并</li>
 </ul>
 <p>以上都可以让chunk的fd和bk指针指向libc的某个位置而泄露地址</p>
-<p>8、当修改hook函数为one_gadget发现所有给的execve都不行时，这时需要我们借用__libc_realloc去调整栈的参数，使execve的环境被满足才可以利用成功。__libc_realloc的地址是__malloc_hook-0x8。因为调用realloc会执行许多的push指令，可以把rsp调整到满足环境。要查看push操作，可以把__libc_realloc地址加上n，指向的都是push指令</p>
-<p>操作：把one_gadget写到__relloc_hook地址上，在使用malloc函数的会进行调用；在__malloc_hook地址写上__libc_realloc+n(就会先执行__libc_realloc+n调整，再执行one_gadget)</p>
+<p>8、当修改hook函数为one_gadget发现所有给的execve都不行时，这时需要我们借用__libc_realloc去调整栈的参数，使execve的环境被满足才可以利用成功。__realloc_hook的地址是__malloc_hook-0x8。因为调用realloc会执行许多的push指令，可以把rsp调整到满足环境。要查看push操作，可以把__libc_realloc地址加上n，指向的都是push指令</p>
+<p>操作：把one_gadget写到__relloc_hook地址上，因为在使用malloc函数后面会调用到__relloc_hook；在__malloc_hook地址写上__libc_realloc+n(就会先执行__libc_realloc+n调整，再执行one_gadget)</p>
+<p>如果是使用realloc调整rsp，那只有realloc + 0x4的地址，存在着一条pop指令</p>
 <p>9、堆题libc都很重要,题目没给libc，如果存在double free，可以用其测试libc版本</p>
 <ul>
 <li>如果报fastbin double free 那就是2.23~2.26<ul>
@@ -254,6 +255,25 @@
 </ul>
 <p>20、绕过calloc的清空数据：把堆的is_mmap位置改为1，calloc将不会清空属于mmap的堆块数据</p>
 <p>顺序：释放==&gt;修改堆头==&gt;申请堆块</p>
+<p>21、<code>tcache_perthread_struct</code>这个结构体是可以释放的，并且可以将它释放到<code>unsorted bin</code>中去，然后分配这个<code>unsorted bin chunk</code>，可以控制任意地址分配堆内存</p>
+<p>22、当堆题中没有show功能时，要泄露出libc地址，需要借助stdout吐出libc地址</p>
+<p>需要把__libc_stdout上的值修改为<code>p64(0xfbad1800) + p64(0) * 3 + &#39;\x00&#39;</code></p>
+<p>23、当分配unsorted chunk时，如果剩下的块仍然大于0x80，并且还是唯一的，那这个新的unsorted chunkfd，bk指针仍然执行libc地址，并且分配出去的堆块，如果不是calloc或者执行了memset函数，那么上面将会存放着之前unsorted chunk的fd、bk指针</p>
+<p>24、libc-2.23.so时的fd，bk指针，指向的是堆块的prev_size位置，libc-2.27.so时的fd，bk指针指向的是堆块的内容（就是存放fd，bk指针的位置）比libc-2.23.so多了0x10</p>
+<p>25、利用exit_hook：劫持<code>_dl_rtld_lock_recursive</code>的值为one_gadget，当调用exit函数时可得到shell</p>
+<p><img   class="lazyload" data-original="/2021/04/18/2021-04-18-%E5%A0%86%E4%BA%8C%E4%B8%89%E4%BA%8B/image-20210903170451297.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210903170451297</span></p>
+<p>在gdb中<code>p _rtld_global</code>可以找到这两个函数，但是要找到这个值所在地址，还需要在_rtld_global中寻找</p>
+<p><img   class="lazyload" data-original="/2021/04/18/2021-04-18-%E5%A0%86%E4%BA%8C%E4%B8%89%E4%BA%8B/image-20210903172330664.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210903172330664</span></p>
+<p>libc-2.23.so:</p>
+<ul>
+<li>rtld_lock = libc_base + 0x5F0F48</li>
+<li>rtld_unlock = libc_base + 0x5F0F50</li>
+</ul>
+<p>libc-2.27.so:</p>
+<ul>
+<li>rtld_lock = libc_base + 0x619F60</li>
+<li>rtld_unlock = libc_base + 0x619F68</li>
+</ul>
 
       </section>
       <section class="extra">

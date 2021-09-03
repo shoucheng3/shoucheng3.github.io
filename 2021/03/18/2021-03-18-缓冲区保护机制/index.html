@@ -195,14 +195,14 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>March 18, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>2676</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>2810</span>
     </div>
   </div>
 </section>
     <section class="main">
       <section class="content">
         <p>为了更好地对缓冲区进行利用，十分有必要了解一下checksec所检查出的漏洞缓解措施都意味着什么</p>
-<p><img   class="lazyload" data-original="2021-03-18-%E7%BC%93%E5%86%B2%E5%8C%BA%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6.assets/QQ%E5%9B%BE%E7%89%8720210319191658.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2021/03/18/2021-03-18-%E7%BC%93%E5%86%B2%E5%8C%BA%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6/QQ%E5%9B%BE%E7%89%8720210319191658.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>如图上所示，RELRO、Stack、NX、PIE四种保护机制，下方介绍时，括号里的是在Windows系统中的名称</p>
 <p>以下主要来源于《从0到1CTFer成长之路》</p>
 <h3 id="一、NX-DEP"><a href="#一、NX-DEP" class="headerlink" title="一、NX(DEP)"></a>一、NX(DEP)</h3><p>NX即是No-execute，不可执行。原理是通过现代操作系统的内存保护单元机制（MPU）对程序内存按页的粒度进行权限设置，其基本规则为<strong>可写权限与可执行权限互斥</strong>。因此开启了NX的程序代表着堆栈上写入的代码数据将不可被执行，也就无法直接通过溢出写入shellcode而执行任意代码。</p>
@@ -221,11 +221,18 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">gcc -fpic -pie -o test test.c<br></code></pre></td></tr></table></figure>
 
 <h3 id="四、Full-Relro"><a href="#四、Full-Relro" class="headerlink" title="四、Full Relro"></a>四、Full Relro</h3><p>Full Relro 保护措施与Linux下的Lazy Binding机制有关，主要作用是设置符号重定向表格为只读或在程序启动时就解析并绑定所有动态符号，禁止.GOT.PLT表和其他一些相关内存的读写，从而阻止攻击者直接进行修改程序所要执行的函数</p>
-<p>当只是开启了Partial RELRO，说明我们对GOT表具有写权限。</p>
+<ul>
+<li>RELRO防御策略：<ul>
+<li>为NO RELRO的时候，<code>init.array</code>、<code>fini.array</code>、<code>got.plt</code>均可读可写</li>
+<li>为PARTIAL RELRO的时候，<code>init.array</code>、<code>fini.array</code>可读不可写，<code>got.plt</code>可读可写</li>
+<li>为FULL RELRO时，<code>init.array</code>、<code>fini.array</code>、<code>got.plt</code>均可读不可写。</li>
+</ul>
+</li>
+</ul>
 <p>GCC开启Full Relro 的方法是加入**-z relro参数**</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">gcc -z relro -o test test.c<br></code></pre></td></tr></table></figure>
 
-<h3 id="五、Fortify"><a href="#五、Fortify" class="headerlink" title="五、Fortify"></a>五、Fortify</h3><p><img   class="lazyload" data-original="2021-03-18-%E7%BC%93%E5%86%B2%E5%8C%BA%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6.assets/QQ%E5%9B%BE%E7%89%8720210319191855.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<h3 id="五、Fortify"><a href="#五、Fortify" class="headerlink" title="五、Fortify"></a>五、Fortify</h3><p><img   class="lazyload" data-original="/2021/03/18/2021-03-18-%E7%BC%93%E5%86%B2%E5%8C%BA%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6/QQ%E5%9B%BE%E7%89%8720210319191855.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>这部分转载自<a target="_blank" rel="noopener" href="http://yunnigu.dropsec.xyz/2016/10/08/checksec%E5%8F%8A%E5%85%B6%E5%8C%85%E5%90%AB%E7%9A%84%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6/">http://yunnigu.dropsec.xyz/2016/10/08/checksec及其包含的保护机制/</a></p>
 <p>FORTIFY_SOURCE 机制对格式化字符串有两个限制</p>
 <p> （1）包含%n的格式化字符串不能位于程序内存中的可写地址。</p>

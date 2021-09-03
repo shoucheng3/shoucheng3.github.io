@@ -195,7 +195,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>November 22, 2020</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>3494</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4687</span>
     </div>
   </div>
 </section>
@@ -243,25 +243,26 @@
 <p>9、劫持栈帧到.bss段上时，要注意一下是否可能会将.got.plt表覆盖，导致程序无法正常执行</p>
 <p>10、承接第4点吧，我们避免输入\x00导致程序截断，同时也要注意程序是否自身有着\x00，导致了截断</p>
 <p>11、遇到strcat、strcpy、strcmp、strlen等函数的阻碍时，由于这些函数遇到’\0’将会停止，那么只要将其中的某个变量的第一个字符设为’\0’即可快速简单的绕过这些函数</p>
-<p>12、当用puts函数泄露got表的地址，使用u64解包时，由于u64解包的条件是需要字符串的长度为8个字节，而地址的长度顶多6个字节那么长（高地址填充0，但是我们并不能接收到），此时就需要使用这样的形式进行接收：<strong>u64(p.recv(6).ljust(8,’\0’))</strong>  （’\0’写成’\x00’也行，毕竟在内存中存储情况是一样的还有**u64(io.recvuntil(‘\x7f’).ljust(8,’\x00’))**）</p>
+<p>12、当用puts函数泄露got表的地址，使用u64解包时，由于u64解包的条件是需要字符串的长度为8个字节，而地址的长度顶多6个字节那么长（高地址填充0，但是我们并不能接收到），此时就需要使用这样的形式进行接收：<strong>u64(p.recv(6).ljust(8,’\0’))</strong>  （’\0’写成’\x00’也行，毕竟在内存中存储情况是一样的还有**u64(p.recvuntil(‘\x7f’).ljust(8,’\x00’))**）</p>
 <p>13、一个大多数人应该都有错误的认知：认为溢出只要到如gets函数就能实现溢出了，所以下面的代码就不用看，这是绝对错误的！首先，我们通过栈溢出改变的只是返回地址的内容，想要到达返回地址，整个的函数执行流必须进行完，才会发生退栈，从而利用返回地址，所以下方的代码也要处理</p>
 <p>14、执行strcmp、strncmp、strcasecmp的时候，rdx会被设置为将要被比较的字符串的长度</p>
 <p>15、system的参数不一定是要/bin/sh才可以，只有sh也是可以的。而且sh可以从fflush()这个函数中获取，直接查找ida或者ROPgadget –binary 文件名 –string ‘sh’查询（不一定都能成功）</p>
 <p>16、当远程docker过滤空格和cat时，将无法使用cat flag获取到flag，此时我们可以用<strong>more&lt;flag或者base64&lt;flag</strong>获取flag，其中的&lt;可以代替空格的功能，第一个<strong>more&lt;flag</strong> 与cat一样都是输出文件内容，而base64是把flag的内容转换成base64编码</p>
 <p>17、64位的文件有时候不一定会存在rbp的调用，不存在leave指令，这时候我们只需要去关注rsp的位置即可，因为ret指令代表着pop rip，把栈顶的内容弹出给rip，所以锁定rsp的位置，就可以劫持rip</p>
 <p>18、有时候在我们输入时，无法通过recvuntil去卡到输入的点，可以使用sleep()函数，让线程休眠，让对面的程序跑到我们要到点，再进行输入，方可利用成功（个人猜测）</p>
-<p>19、64位下的linux的系统调用号（使用syscall调用，调用号是保存到rax中）：</p>
+<p>19、64位下的linux的系统调用号（使用syscall调用，调用号是保存到rax中,函数传参依次存入RDI,RSI,RDX,RCX,R8,R9）</p>
 <p><strong>0(0x0) sys_read</strong></p>
 <p><strong>1(0x1) sys_write</strong></p>
 <p><strong>2(0x2)sys_open</strong></p>
 <p><strong>3(0x3)sys_close</strong></p>
 <p><strong>9(0x9)sys_mmap</strong></p>
-<p><strong>37(0x25)sys_alarm</strong></p>
 <p><strong>15(0xF) sys_rt_sigreturn</strong></p>
+<p><strong>37(0x25)sys_alarm</strong></p>
 <p><strong>59(0x3B) sys_execve</strong></p>
 <p><strong>60(0x3C)sys_exit</strong></p>
 <p><strong>62(0x3E)sys_kill</strong></p>
-<p>32位下linux系统调用号（使用syscall，调用号保存在eax中），函数其他参数依次存入ebx，ecx，edx中</p>
+<p>32位下linux系统调用号（使用int 80h，调用号保存在eax中，执行完函数的返回值也保存在eax里面），函数其他参数依次存入ebx，ecx，edx中</p>
+<p><strong>1(0x1)sys_exit</strong></p>
 <p><strong>3(0x3)sys_read</strong></p>
 <p><strong>4(0x4)sys_write</strong></p>
 <p><strong>5(0x5)sys_open(文件名,0,0)</strong></p>
@@ -269,18 +270,39 @@
 <p>20、使用<strong>execve</strong>获取shell时，其参数要设置为<code>execve(&quot;/bin/sh&quot;,0,0)</code></p>
 <p>21、劫持rip时，如果觉得在ida中的栈查看覆盖偏移量是对的，却没能获取shell时，去看看汇编代码，可能这时候出题人故意设置了返回代码不是平常的 leave  ret这两个，被修改为其他的代码了，导致退栈时候rsp指向地方的不是在rbp的下面，这时候我们要去gdb里面下断点在返回的指令前，查看rbp具体指向的地方</p>
 <p>22、<strong>gdb 文件名 core</strong>可以调试程序中断而生成的核心转储文件，进行深入查看中断原因 </p>
-<p>23、当题目已给出libc时，可以直接用libc显示出函数在其内的偏移地址，命令格式如下：</p>
+<p>23、当题目已给出libc时，可以直接用libc显示出函数在其内的偏移地址，命令格式如下：（也可以直接调用libc文件，libc = ELF(“./文件名”)）</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">objdump -T ./libc-2.23.so | grep system #显示system的libc地址<br></code></pre></td></tr></table></figure>
 
 <p><img   class="lazyload" data-original="/2020/11/22/2020-11-22-%E6%A0%88%E6%BA%A2%E5%87%BA-%E8%A7%A3%E9%A2%98%E4%BA%8C%E4%B8%89%E4%BA%8B/QQ%E5%9B%BE%E7%89%8720210510214657.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>24、静态链接题目多半考虑ret2syscall，或者看有没有mprotect函数，修改段的执行权限，注入shellcode</p>
 <p>25、libc中environ存储了栈上环境变量的特性，可以利用这个特效来泄露出栈上的地址，写为这样libc.sym[“environ”]</p>
 <p>26、scanf读取过长的输入时会使用malloc_hook分配chunk，也就是可以借此如果能修改__malloc_hook为one_gadget的话，就能getshell</p>
-<p>27、got表劫持：常见劫持put(buf)、free(buf)、atoi(buf)、atol(buf)</p>
+<p>27、got表劫持：常见劫持put(buf)、free(buf)、atoi(buf)、atol(buf)、strlen(buf)</p>
 <p>28、当scanf的参数不是%s时候，是u，d等数字，输入数字是使用str()即可，不用p64()。</p>
 <p>因为输入数字是就是使用数字输入，如果使用了p64()将会变成字符数字</p>
-<p>29、使用execv(“/bin/sh”,0)getshell需要两个参数</p>
+<p>29、使用execv(“/bin/sh”,0)getshell需要两个参数,比execve少一个</p>
 <p>另外：2.29之后的libc直接调用system会出问题</p>
+<p>30、碰到静态编译的题目时，有两种方法：</p>
+<ul>
+<li><p>使用ROPgadget内置的功能，可以自动生成rop链，调用系统函数getshell，命令：</p>
+<p><code>ROPgadget --binary 文件名 --ropchain</code></p>
+</li>
+<li><p>使用mprotect函数修改.bss段执行权限，把shellcode写入.bss段中执行而getshell</p>
+</li>
+</ul>
+<p>31、格式化字符串漏洞：当要往某个地址上写入地址时，格式为：目标addr + ‘%’ + str(addr - 已写的长度) + “c%a(a是偏移量)$hn” 这边一般使用hn写两个字节，或者hhn写一个字节，这样不容易造成timeout，当然前提是格式化漏洞给的长度够长</p>
+<p>已写长度：打印出来的字符长度（%前出现的字符），地址数值大的写后面（就能直接减去前面已经写的偏移量）</p>
+<p>32、对于劫持rip的理解：首先我们传递给rip的是某个地址，其次这个地址指向的是一段有可执行权限的地址，最后这个地址上存在着指令（机器码）rop就是还需要ret来衔接进行不断地更换rip的值</p>
+<p>33、linux中，程序在加载的时候，会依次调用<code>init.array</code>数组中的每一个函数指针；在结束的时候，依次调用<code>fini.array</code>中的每一个函数指针。一般用在当程序出现格式化字符串漏洞，但是至少需要写两次才能完成攻击。</p>
+<ul>
+<li>可以考虑改写<code>fini.array</code>中的函数指针为<code>main</code>函数地址，可以再执行一次<code>main</code>函数。（或者在格式化字符串漏洞后面存在有其他函数的调用，也可以考虑修改这个函数的got表）</li>
+<li>一般来说，这个数组的长度为1，也就是说只能写一个地址</li>
+</ul>
+<p>获取fini.array地址有两种方式：1、<code>fini_array = elf.sym[&quot;__init_array_end&quot;]</code>   2、使用<code>readelf -s 文件名</code>命令去查找<code>__init_array_end</code>的地址</p>
+<p>34、如果把0x80000000赋值给a，而a = -a，那么a还是等于0x80000000</p>
+<p>35、用libc寻找/bin/sh地址，要这么写binsh = libc_base + next(libc.search(‘/bin/sh’))</p>
+<p>36、scanf(buf,buf)，如果是以这样的形式出现输入，因为第一个buf是格式化字符串的样子，scanf使用了我们的输入作为格式化字符串，因此会存在格式化字符串漏洞，计算偏移需要通过gdb调试（必须在相应的版本下调试）</p>
+<p>%n$s（n是偏移，s是输入的形式以字符串，所以我们输入的地方是以偏移点作为指针输入的）</p>
 
       </section>
       <section class="extra">

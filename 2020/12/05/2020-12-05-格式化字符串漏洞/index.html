@@ -208,7 +208,7 @@
 <li>后续参数，就是下图中逗号后的变量（可以不要）</li>
 </ul>
 <p>上述可转为该图：</p>
-<p><img   class="lazyload" data-original="2020-12-05-%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E.assets/printf.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2020/12/05/2020-12-05-%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E/printf.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>将相关正式概念代入图片更好理解</p>
 <h3 id="相关函数"><a href="#相关函数" class="headerlink" title="相关函数"></a>相关函数</h3><p>输入：</p>
 <ul>
@@ -278,7 +278,7 @@
 <ul>
 <li><p>printf函数的字符串漏洞</p>
 <p>此漏洞如（来自攻防世界的CGfsb）：</p>
-<p><img   class="lazyload" data-original="2020-12-05-%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E.assets/QQ%E5%9B%BE%E7%89%8720201205111442-1607139495232.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2020/12/05/2020-12-05-%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E/QQ%E5%9B%BE%E7%89%8720201205111442-1607139495232.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 </li>
 </ul>
 <p>在格式化字符串函数中%n，作用是把在%n前输出的字符个数赋值给对应的整型指针参数所指的变量</p>
@@ -301,7 +301,7 @@
 </ul>
 <p>把格式化的数据写入某个字符串缓冲区。如果成功，则返回写入的字符总数（不包括’\0’），不包括字符串追加在字符串末尾的空字符。如果失败，则返回一个负数。</p>
 <h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><h3 id="x86系统下："><a href="#x86系统下：" class="headerlink" title="x86系统下："></a>x86系统下：</h3><p>以printf为例</p>
-<p><img   class="lazyload" data-original="2020-12-05-%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E.assets/printf-1608199588168.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2020/12/05/2020-12-05-%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E/printf-1608199588168.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>假设printf函数将以图中方式进行输出。那么作为一个函数，首先就是将参数入栈，又按照从右到左的方式。那么将按以下的情况入栈：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">3.14<br>123456<br>addr of &quot;red&quot;<br>addr of format string: Color %s，Number %d，Float %4.2f<br></code></pre></td></tr></table></figure>
 
@@ -327,7 +327,7 @@
 <li><p>%f解析内容对应的浮点值</p>
 <p>第一个，注意！解析地址！如果是一个无法访问的地址比如0，那么程序将崩溃，这也是我们利用的点，比如注入不限量个%s，总有一个能让程序崩溃的。而其余两个我们也可以借此而使得栈上的内容泄露出来</p>
 <p>这里补充一点：我们是可以获取栈中被视为第n+1个参数的值方法为：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">%n$x<br></code></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">%n$p<br></code></pre></td></tr></table></figure>
 
 <p>n代表该格式化字符串对应的第n个输出参数，那相对于输出函数来说，就是第n+1个参数了。</p>
 <h3 id="x64系统下："><a href="#x64系统下：" class="headerlink" title="x64系统下："></a>x64系统下：</h3><p>原理与x86并无不同，唯一需要注意的就是x64系统下，函数的前六位参数是使用寄存器存放的，顺序为RDI,RSI,RDX,RCX,R8,R9对应前六位参数，所以在gdb中相对偏移时，要把栈上的偏移加上相差寄存器的数量的才是n的值</p>
