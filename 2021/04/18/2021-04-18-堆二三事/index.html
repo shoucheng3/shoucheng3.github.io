@@ -195,7 +195,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>April 18, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4463</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4464</span>
     </div>
   </div>
 </section>
@@ -237,7 +237,7 @@
 </li>
 </ul>
 <p>10、chunk的三个标志位：从高到低依次表示为：non_main_arena、is_mmap、prev_inuse</p>
-<p>non_main_arena：0表示当前chunk是属于main_arena，1表示属于</p>
+<p>non_main_arena：0表示当前chunk是属于main_arena，1表示不属于</p>
 <p>is_mmap：1表示当前chunk是使用mmap申请的，0表示不是</p>
 <p>prev_inuse：1表示前一个chunk在被用户使用，0表示前一个chunk被释放</p>
 <p>11、如果申请的chunk大小为0x60和0x68返回的是一样大小的chunk，而0x68多出的8个字节是使用了后一个chunk的presize</p>

