@@ -196,7 +196,7 @@ House ...">
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>July 27, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>2727</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>2762</span>
     </div>
   </div>
 </section>
@@ -210,7 +210,7 @@ House ...">
 <p>一般来说想要控制的目标区域多为返回地址或是一个函数指针，正常情况下，该内存区域我们输入的数据是无法控制的，想要利用hos攻击技术来改写该区域，首先需要我们可以控制那片目标区域的前面空间和后面空间，示意图如下</p>
 <p><img   class="lazyload" data-original="/2021/07/27/2021-07-27-house-of%E7%B3%BB%E5%88%97/t01ab6f5c485fc67d66.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">http://p7.qhimg.com/t01c4e1f8669a8b77bd.png</span></p>
 <p>（2）存在可将堆变量指针覆盖为指向可控区域，即上一步中的区域</p>
-<h3 id="利用思路"><a href="#利用思路" class="headerlink" title="利用思路"></a>利用思路</h3><p>（1）伪造堆块，在可控1及可控2构造好数据，将它伪造成一个fast chunk。</p>
+<h3 id="利用思路"><a href="#利用思路" class="headerlink" title="利用思路"></a>利用思路</h3><p>（1）伪造堆块，在可控1及可控2（可控2的伪造size不能小于2*SIZE_SZ且不能大于已分配内存）构造好数据，将它伪造成一个fast chunk。</p>
 <p>（2）覆盖堆指针指向上一步伪造的堆块。</p>
 <p>（3）释放堆块，将伪造的堆块释放入fast bin里面。</p>
 <p>（4）申请堆块，将刚刚释放的堆块申请出来，最终使得可以往目标区域中写入数据，实现目的。</p>

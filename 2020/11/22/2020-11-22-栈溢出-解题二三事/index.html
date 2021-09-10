@@ -195,7 +195,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>November 22, 2020</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4839</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4956</span>
     </div>
   </div>
 </section>
@@ -304,6 +304,7 @@
 <p>36、scanf(buf,buf)，如果是以这样的形式出现输入，因为第一个buf是格式化字符串的样子，scanf使用了我们的输入作为格式化字符串，因此会存在格式化字符串漏洞，计算偏移需要通过gdb调试（必须在相应的版本下调试）</p>
 <p>%n$s（n是偏移，s是输入的形式以字符串，所以我们输入的地方是以偏移点作为指针输入的）</p>
 <p>37、当程序存在close(1)以及close(2)：代表关闭了linux里面的标准输出(1)和标准错误(2)，所以即使已经getshell了，我们是看不到输出的，所以这时候输入<code>exec 1&gt;&amp;0</code>就可以让标准输出的文件描述符重定向为0，而0没被关闭（0，1，2是默认开启的），才能看到输出</p>
+<p>38、当flag保存在栈上时，可以通过修改栈上的environ指针，改为flag的地址，然后stack check fail会打印环境变量的第一个值即可打印出flag，然后破坏堆结构似乎也可以（别人wp看来的，但是我本地试了没成功）</p>
 
       </section>
       <section class="extra">
