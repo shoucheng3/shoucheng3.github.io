@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>November 15, 2020</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>10703</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>10733</span>
     </div>
   </div>
 </section>
@@ -236,8 +236,8 @@
 <td>接收指定字节数的数据</td>
 </tr>
 <tr>
-<td>recvuntil(delims,timeout=default)</td>
-<td>接收数据直到 delims 出现</td>
+<td>buf = p.recvuntil(“\n”, drop=True)</td>
+<td>直到接收到\n为止，drop=True表示丢弃\n，buf为接收到的输出但不包括丢弃的\n</td>
 </tr>
 <tr>
 <td>recvrepeat(timeout=default)</td>

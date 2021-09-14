@@ -195,7 +195,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>November 22, 2020</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4956</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>5571</span>
     </div>
   </div>
 </section>
@@ -305,6 +305,12 @@
 <p>%n$s（n是偏移，s是输入的形式以字符串，所以我们输入的地方是以偏移点作为指针输入的）</p>
 <p>37、当程序存在close(1)以及close(2)：代表关闭了linux里面的标准输出(1)和标准错误(2)，所以即使已经getshell了，我们是看不到输出的，所以这时候输入<code>exec 1&gt;&amp;0</code>就可以让标准输出的文件描述符重定向为0，而0没被关闭（0，1，2是默认开启的），才能看到输出</p>
 <p>38、当flag保存在栈上时，可以通过修改栈上的environ指针，改为flag的地址，然后stack check fail会打印环境变量的第一个值即可打印出flag，然后破坏堆结构似乎也可以（别人wp看来的，但是我本地试了没成功）</p>
+<p>39、当遇到一些题目需要在shellcode前面加上’\x00’才能绕过时，因为’\x00’是会影响到shellcode解析的，所以要让’\x00’凑成有意义的指令却又不能影响到shellcode（底下的机器码在32位和64位中都是一样的）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs assembly">00 40 00                 add    BYTE PTR [rax+0x0],  al<br>00 41 00                 add    BYTE PTR [rcx+0x0],  al<br>00 42 00                 add    BYTE PTR [rdx+0x0],  al<br>00 43 00                 add    BYTE PTR [rbx+0x0],  al<br>00 45 00                 add    BYTE PTR [rbp+0x0],  al<br>00 46 00                 add    BYTE PTR [rsi+0x0],  al<br>00 47 00                 add    BYTE PTR [rdi+0x0],  al<br></code></pre></td></tr></table></figure>
+
+<p>40、在本地关闭程序中的alarm函数</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> 将程序名为ProgrammName中的alarm替换为isnan</span><br><span class="hljs-meta">&gt;</span><span class="bash"> sed -i s/alarm/isnan/g ./ProgrammName</span><br></code></pre></td></tr></table></figure>
+
 
       </section>
       <section class="extra">

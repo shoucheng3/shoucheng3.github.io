@@ -195,7 +195,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>April 18, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4464</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4519</span>
     </div>
   </div>
 </section>
@@ -274,7 +274,7 @@
 <li>rtld_lock = libc_base + 0x619F60</li>
 <li>rtld_unlock = libc_base + 0x619F68</li>
 </ul>
-<p>26、libc-2.27.so的unlink要先把tcache bin填满才能用</p>
+<p>26、libc-2.27.so的unlink要先把tcache bin填满才能用，unlink要保证unsorted bin是空的，所以有时候泄露信息用了unsorted bin，要申请回来</p>
 
       </section>
       <section class="extra">

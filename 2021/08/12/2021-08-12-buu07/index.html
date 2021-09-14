@@ -195,7 +195,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>August 12, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>30543</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>31368</span>
     </div>
   </div>
 </section>
@@ -212,7 +212,28 @@
 
 
 <h2 id="二、jarvisoj-level6-x64"><a href="#二、jarvisoj-level6-x64" class="headerlink" title="二、jarvisoj_level6_x64"></a>二、jarvisoj_level6_x64</h2><p><img   class="lazyload" data-original="/2021/08/12/2021-08-12-buu07/image-20210812200521406.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210812200521406</span></p>
-<p>看附件名字，应该是道堆题，这道堆题没开PIE</p>
+<p>看附件名字，应该是道堆题，这道堆题没开PIE，RELRO没开全，这种题目一般是想办法修改got表，这样能稳定getshell</p>
+<p><img   class="lazyload" data-original="/2021/08/12/2021-08-12-buu07/image-20210914200255661.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210914200255661</span></p>
+<p>首先，创建了一个大堆块，用来保存后面申请堆块的size，指针等信息</p>
+<p><img   class="lazyload" data-original="/2021/08/12/2021-08-12-buu07/image-20210914200621734.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210914200621734</span></p>
+<p>在申请堆块功能里的这个语句代表分配堆块的大小是0x80的整数倍</p>
+<p><img   class="lazyload" data-original="/2021/08/12/2021-08-12-buu07/image-20210914200526193-16316211508721.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210914200526193</span></p>
+<p>在edit功能中，如果你写入与之前申请不匹配的size，那么会调用realloc扩充堆块的size，似乎可以造成overlap</p>
+<p><img   class="lazyload" data-original="/2021/08/12/2021-08-12-buu07/image-20210914200603042-16316211674692.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210914200603042</span></p>
+<p>free功能的话，堆结构里面的指针没有清零，存在UAF。但是前面的flag、size都清零了，所以只能double free</p>
+<p><img   class="lazyload" data-original="/2021/08/12/2021-08-12-buu07/image-20210914202759594.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210914202759594</span></p>
+<p>有个注意点是在申请堆块中的输入堆块内容时，你输入多大的size，那你相应就要填入多大的字符，否则这边的read是不会停止的</p>
+<p>思路：就先checksec看到的，去劫持got表，一般是free，然后再去释放一个内容为/bin/sh的堆块。这题堆块内容没有清空，并且申请堆块时输入的数据是可以不输入\x00的，所以不会截断，那就说明蕴含着很多脏数据都是可以泄露的！比如libc，比如堆地址，而如果有了堆地址，unlink，随之而来，然后PIE又没开，直接写got表地址，然后写入system地址即可！</p>
+<p><img   class="lazyload" data-original="/2021/08/12/2021-08-12-buu07/image-20210914204249244.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210914204249244</span></p>
+<p>这边释放堆块要注意，得先申请四个，然后隔着释放，因为都是unsorted chunk，得要防止触发unlink合并</p>
+<p><img   class="lazyload" data-original="/2021/08/12/2021-08-12-buu07/image-20210914211338216.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210914211338216</span></p>
+<p>释放完四个堆块后，有残余脏数据的堆结构，现在就要依据这个脏数据进行构造unlink</p>
+<p><img   class="lazyload" data-original="/2021/08/12/2021-08-12-buu07/image-20210914212020955.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210914212020955</span></p>
+<p>很明显，申请出来的，只能在第三个堆地址上伪造出堆头，这样才能释放该伪造堆块，触发unlink</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python"><br></code></pre></td></tr></table></figure>
+
+
+
 <h2 id="三、inndy-rop"><a href="#三、inndy-rop" class="headerlink" title="三、inndy_rop"></a>三、inndy_rop</h2><p>先checksec一下，32位，只开了nx</p>
 <p><img   class="lazyload" data-original="/2021/08/12/2021-08-12-buu07/image-20210823202233200.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210823202233200</span></p>
 <p>进入ida，程序很简单，只有一个gets函数，明显溢出</p>
