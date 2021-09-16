@@ -195,7 +195,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>April 18, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4519</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4587</span>
     </div>
   </div>
 </section>
@@ -220,7 +220,7 @@
 <p>以上都可以让chunk的fd和bk指针指向libc的某个位置而泄露地址</p>
 <p>8、当修改hook函数为one_gadget发现所有给的execve都不行时，这时需要我们借用__libc_realloc去调整栈的参数，使execve的环境被满足才可以利用成功。__realloc_hook的地址是__malloc_hook-0x8。因为调用realloc会执行许多的push指令，可以把rsp调整到满足环境。要查看push操作，可以把__libc_realloc地址加上n，指向的都是push指令</p>
 <p>操作：把one_gadget写到__relloc_hook地址上，因为在使用malloc函数后面会调用到__relloc_hook；在__malloc_hook地址写上__libc_realloc+n(就会先执行__libc_realloc+n调整，再执行one_gadget)</p>
-<p>如果是使用realloc调整rsp，那只有realloc + 0x4的地址，存在着一条pop指令</p>
+<p>如果是使用realloc调整rsp，那只有__realloc_hook + 0x4的地址，存在着一条pop指令</p>
 <p>9、堆题libc都很重要,题目没给libc，如果存在double free，可以用其测试libc版本</p>
 <ul>
 <li>如果报fastbin double free 那就是2.23~2.26<ul>
@@ -275,6 +275,7 @@
 <li>rtld_unlock = libc_base + 0x619F68</li>
 </ul>
 <p>26、libc-2.27.so的unlink要先把tcache bin填满才能用，unlink要保证unsorted bin是空的，所以有时候泄露信息用了unsorted bin，要申请回来</p>
+<p>27、当我们申请一个大于top chunk的堆块时，程序会调用mmap进行内存分配，分配下来堆块的地址是libc中的地址</p>
 
       </section>
       <section class="extra">
