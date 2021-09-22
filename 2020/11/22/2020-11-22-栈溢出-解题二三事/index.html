@@ -195,7 +195,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>November 22, 2020</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>5571</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>5622</span>
     </div>
   </div>
 </section>
@@ -239,7 +239,9 @@
 <p>5、遇到不确定的地址时而最后地址的末端是我们需要到的shell的起始地址，可以填入\x90，对应的机器码指令是NOP(No Operation)，让CPU什么都不做，跳转到下一条命令，但是这个应用的前提是该处代码具有可执行性</p>
 <p>6、在一起定义的两个全局变量，在内存的中位置是相邻的。如果一个全局变量被破坏了，不妨先查查其前后相关变量的访问代码，看看是否存在越界访问的可能。</p>
 <p>7、有一个有意思的东西：在有的pwn题目中，我可以很正常的使用recvuntil()或者sendlineafter()去接收字符串，然而有的却不行；有的题目可以不用接收字符串直接输入payload（一开始认为是因为程序是在自己运行，刚好溢出点又在第一次输入的地方，所以可以），然而却碰到有些却要我接收信息才可以进行payload的输入</p>
+<p>回复：最好是进行交互，之前可能是因为环境有些问题</p>
 <p>8、遇到一个对齐的问题：关于使用system函数进行跳转出现报错的原因</p>
+<p>回复：system获得shell，是要求有栈对齐的</p>
 <p>9、劫持栈帧到.bss段上时，要注意一下是否可能会将.got.plt表覆盖，导致程序无法正常执行</p>
 <p>10、承接第4点吧，我们避免输入\x00导致程序截断，同时也要注意程序是否自身有着\x00，导致了截断</p>
 <p>11、遇到strcat、strcpy、strcmp、strlen等函数的阻碍时，由于这些函数遇到’\0’将会停止，那么只要将其中的某个变量的第一个字符设为’\0’即可快速简单的绕过这些函数</p>

