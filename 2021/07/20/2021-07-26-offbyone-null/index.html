@@ -195,7 +195,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>July 20, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>7063</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>7199</span>
     </div>
   </div>
 </section>
@@ -215,6 +215,7 @@
 <img   class="lazyload" data-original="/2021/07/20/2021-07-26-offbyone-null/image-20210726164413949.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  style="zoom:80%;"><span class="image-caption">image-20210726164413949</span>
 
 <p>可以看到b的size被改大了，正好覆盖到了c的末尾，我们构造了chunkoverlap。这时候我们将C free掉，他会进入fastbin。我们再将B free掉，B+C这一段区域会进入unsorted bin。我们再次申请一个大小为0xd0的堆块，也就是说B+C这段内存被我们控制了，此时我们就可以控制C的fd字段，就可以进行fastbin attack了。</p>
+<p>当然，实践应用的时候，并不局限说堆块大小都是0x70，0x28，0x38都行，只要能通过验证即可</p>
 <h2 id="例题"><a href="#例题" class="headerlink" title="例题"></a>例题</h2><p><img   class="lazyload" data-original="/2021/07/20/2021-07-26-offbyone-null/image-20210726113130649.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210726113130649</span></p>
 <p>常规checksec一下，然后进入ida看看程序代码</p>
 <p><img   class="lazyload" data-original="/2021/07/20/2021-07-26-offbyone-null/image-20210726113232848.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210726113232848</span></p>
@@ -244,6 +245,7 @@
 <img   class="lazyload" data-original="/2021/07/20/2021-07-26-offbyone-null/image-20210726170351639.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  style="zoom:80%;"><span class="image-caption">image-20210726170351639</span>
 
 <p>此时，C的previnuse位被改成了0，程序会将B看作已经被释放的堆块。然后由于系统是通过prevsize位来定位前一个堆块的位置，在这里，我们将其改成了0x200,也就是说定位到了A堆块。然后先将A free掉放入unsortedbin，这时候再free C，就会触发合并操作。ABC将会被看作一个大小为0x300的堆块放入unsortedbin中。然而实际上，B并没有被free，我们也就通过这样的方式构造了overlap</p>
+<p>在实际运用时，不局限都是0x100的，可以是中间的某个堆块是fast chunk也行，但是第一个在头的必须也得是unsorted chunk大小的堆块，否则触发合并会出问题</p>
 <h2 id="例题-1"><a href="#例题-1" class="headerlink" title="例题"></a>例题</h2><p><img   class="lazyload" data-original="/2021/07/20/2021-07-26-offbyone-null/image-20210726173924395.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210726173924395</span></p>
 <p>看程序的add函数里面，会把输入的长度多一个字节的地方置为0</p>
 <p>这边有些奇怪，不懂为什么，如果只是用四个进行构造，将会报错，但是五个就行，第一个是用来泄露libc基址的，不用理会</p>
@@ -274,7 +276,7 @@
         
   <nav class="nav">
     <a href="/2021/07/27/2021-07-27-house-of%E7%B3%BB%E5%88%97/"><i class="iconfont iconleft"></i>house of系列</a>
-    <a href="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E9%9B%86%E5%90%88/">bin链情况集合<i class="iconfont iconright"></i></a>
+    <a href="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E5%90%88%E9%9B%86/">bin链情况集合<i class="iconfont iconright"></i></a>
   </nav>
 
       </section>

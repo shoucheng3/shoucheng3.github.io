@@ -195,7 +195,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>August 30, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>1434</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>1660</span>
     </div>
   </div>
 </section>
@@ -212,21 +212,15 @@
 </ul>
 </li>
 </ul>
-<p>简单来说：就是类似fastbin一样的东西，每条链上最多可以有 7 个 chunk，free堆块的时候优先放入tcache中，满了才放入fastbin，unsorted bin，malloc的时候优先去tcache找（tcache的范围是 [0x20, 0x400)，超过这个大小的就会放入unsorted bin）</p>
+<p>简单来说：就是类似fastbin一样的东西，每条链上最多可以有 7 个 chunk，free堆块的时候优先放入tcache中，满了才放入fastbin，unsorted bin，malloc的时候优先去tcache找（tcache的范围是 [0x20, 0x410]，超过这个大小的就会放入unsorted bin）</p>
 <p>tcache dup：因为前几个版本的 <code>tcache bin</code>是缺乏校验机制的，即使对<code>tcache bin chunk</code>重复释放，也不会引发任何异常。比<code>fastbin chunk</code>的约束更少，一来不检查size域，二来也不检查是否重复释放</p>
-<p><code>tcache_perthread_struct</code>这个结构体是可以释放的，并且可以将它释放到<code>unsorted bin</code>中去，然后分配这个<code>unsorted bin chunk</code>，可以控制任意地址分配堆内存。</p>
-<p>但是这个机制存在的重复释放，在libc-2.29.so时候往tcache结构体添加了一个<code>key</code>字段来防止double free</p>
-<p>ps：libc-2.27有的小版本也是不允许double free的，但是如果存在UAF，在第一次free后，往里面写入数据，才能再次free</p>
+<p><code>tcache_perthread_struct</code>这个结构体是可以释放的，并且可以将它释放到<code>unsorted bin</code>中去（前提是先修改0x250大小堆块的count为7），然后分配这个<code>unsorted bin chunk</code>，可以控制任意地址分配堆内存。</p>
+<h3 id="高版本Tcache"><a href="#高版本Tcache" class="headerlink" title="高版本Tcache"></a>高版本Tcache</h3><p>一、在libc-2.29.so及以上的版本往tcache结构体添加了一个<code>key</code>来防止double free，判断条件就是tcache_entry的key指针（被释放堆块的bk指针位置上填入tcache的地址）是否等于<strong>tcache bin</strong>的地址</p>
+<p>绕过：利用UAF或者溢出等等，修改被释放堆块next指针，哪怕是一个字节都行</p>
+<p>二、在<code> libc-2.32.so</code>版本中新加入了一个 key 会对 tcache next 的内容进行异或</p>
+<p>绕过：我们可以申请一个堆块 a，并且 free (a)，直接 leak 就可以得到堆地址 &gt;&gt; 12，我们计算一下就可以得到了。</p>
+<h3 id="利用"><a href="#利用" class="headerlink" title="利用"></a>利用</h3><h4 id="一、泄露堆基址"><a href="#一、泄露堆基址" class="headerlink" title="一、泄露堆基址"></a>一、泄露堆基址</h4><p>构造两个相同 size 的堆块 a 和 b，我们先 free (a) 让他进入到 tcache 中，再 free (b) 也让他进入到 tcache 中。这时候，在堆块 b 的 fd 位置就存在着堆块 a 的地址，我们 leak 出来就能够得到堆地址</p>
 <h2 id="libc-2-29-so"><a href="#libc-2-29-so" class="headerlink" title="libc-2.29.so"></a>libc-2.29.so</h2><ul>
-<li><p>往tcache结构体中加入<code>key</code>字段防止double free</p>
-<ul>
-<li><p>绕过：</p>
-<p>1.free一个chunk</p>
-<p>2.能够修改已经free的chunk的key值</p>
-<p>3.double free</p>
-</li>
-</ul>
-</li>
 <li><p>对于<code>unsortbin</code>的解链添加了验证链完整性的检查，让 <code>unsortbin attack</code>失效</p>
 <ul>
 <li><p>绕过：</p>
@@ -280,7 +274,7 @@
           
   <aside class="toc-wrap">
     <h3 class="toc-title">文章目录：</h3>
-    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#libc-2-23-so"><span class="toc-text">libc-2.23.so</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcache"><span class="toc-text">Tcache</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#libc-2-29-so"><span class="toc-text">libc-2.29.so</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcache-Stashing-Unlink-Attack"><span class="toc-text">Tcache Stashing Unlink Attack</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#libc-2-3-so"><span class="toc-text">libc-2.3.so</span></a></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#libc-2-23-so"><span class="toc-text">libc-2.23.so</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcache"><span class="toc-text">Tcache</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%AB%98%E7%89%88%E6%9C%ACTcache"><span class="toc-text">高版本Tcache</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8"><span class="toc-text">利用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#libc-2-29-so"><span class="toc-text">libc-2.29.so</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Tcache-Stashing-Unlink-Attack"><span class="toc-text">Tcache Stashing Unlink Attack</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#libc-2-3-so"><span class="toc-text">libc-2.3.so</span></a></li></ol>
   </aside>
 
         

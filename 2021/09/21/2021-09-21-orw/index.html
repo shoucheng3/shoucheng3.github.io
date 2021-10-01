@@ -195,7 +195,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>September 21, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6093</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6916</span>
     </div>
   </div>
 </section>
@@ -251,11 +251,22 @@
 <p>可以自己算偏移，也可以借用pwntools的SigreturnFrame类直接来构造。此时frame中的rsp和rip对应的就是setcontext的rsp和rcx</p>
 <figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">context.arch</span> = <span class="hljs-string">&quot;amd64&quot;</span><br><span class="hljs-attr">frame</span> = SigreturnFrame()<br><span class="hljs-attr">frame.rsp</span> = shellcode_addr<br><span class="hljs-attr">frame.rip</span> = ret_addr<br></code></pre></td></tr></table></figure>
 
-
-
+<p>例题查看我之前的比赛复现题目：<code>K1ng_in_h3Ap_II</code>，<code>Whats your name</code></p>
 <h3 id="高版本"><a href="#高版本" class="headerlink" title="高版本"></a>高版本</h3><p>但在 <code>Glibc 2.29</code>之后 <code>setcontext</code>中的gadget变成了以 <code>rdx</code>索引，因此如果我们按照之前思路的话，还要先通过 <code>ROP</code>控制 <code>RDX</code>的值，如下所示：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs assembly">.text:00000000000580DD                 mov     rsp, [rdx+0A0h]<br>.text:00000000000580E4                 mov     rbx, [rdx+80h]<br>.text:00000000000580EB                 mov     rbp, [rdx+78h]<br>.text:00000000000580EF                 mov     r12, [rdx+48h]<br>.text:00000000000580F3                 mov     r13, [rdx+50h]<br>.text:00000000000580F7                 mov     r14, [rdx+58h]<br>.text:00000000000580FB                 mov     r15, [rdx+60h]<br>.text:00000000000580FF                 test    dword ptr fs:48h, 2<br>    ....<br>.text:00000000000581C6                 mov     rcx, [rdx+0A8h]<br>.text:00000000000581CD                 push    rcx<br>.text:00000000000581CE                 mov     rsi, [rdx+70h]<br>.text:00000000000581D2                 mov     rdi, [rdx+68h]<br>.text:00000000000581D6                 mov     rcx, [rdx+98h]<br>.text:00000000000581DD                 mov     r8, [rdx+28h]<br>.text:00000000000581E1                 mov     r9, [rdx+30h]<br>.text:00000000000581E5                 mov     rdx, [rdx+88h]<br>.text:00000000000581EC                 xor     eax, eax<br>.text:00000000000581EE                 retn<br></code></pre></td></tr></table></figure>
 
+<h3 id="gadget1"><a href="#gadget1" class="headerlink" title="gadget1"></a>gadget1</h3><p>这其中用到的 <code>gadget</code>是 <code>getkeyserv_handle+576</code>，其汇编如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs assembly">mov     rdx, [rdi+8]<br>mov     [rsp+0C8h+var_C8], rax<br>call    qword ptr [rdx+20h]<br></code></pre></td></tr></table></figure>
+
+<p>这个 <code>gadget</code>可以通过 <code>rdi</code> 来控制 <code>rdx</code>， 非常好用，而且从 Glibc2.29到2.32都可用</p>
+<p>控制 <code>rdx</code>之后，我们就可以通过 <code>setcontext</code>来控制其他寄存器了</p>
+<h3 id="gadget2"><a href="#gadget2" class="headerlink" title="gadget2"></a>gadget2</h3><p>通过 gadget控制rbp的值，从而进行栈迁移，将栈劫持到我们可以控制的堆地址上，并执行预先布置的rop链，从而获取flag</p>
+<p>先介绍一下万金油的gadget <code>svcudp_reply+26</code>，汇编如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs assembly">mov rbp, qword ptr [rdi + 0x48]; <br>mov rax, qword ptr [rbp + 0x18]; <br>lea r13, [rbp + 0x10]; <br>mov dword ptr [rbp + 0x10], 0; <br>mov rdi, r13; <br>call qword ptr [rax + 0x28];<br></code></pre></td></tr></table></figure>
+
+<p>这个gadgets主要是通过 <code>rdi</code>控制 <code>rbp</code>进而控制 <code>rax</code>并执行跳转，由于我们已经控制了 <code>rbp</code>的值，因此只需要在 <code>rax+0x28</code>的位置部署 <code>leave；ret</code>即可完成栈迁移</p>
+<p>从而在我们已经布置好 <code>orw rop链</code>的位置伪造栈地址并劫持控制流，最终读取<code>flag</code></p>
+<h3 id="gadget3"><a href="#gadget3" class="headerlink" title="gadget3"></a>gadget3</h3><p>在gadget2中是通过gadgets进行栈迁移，将原本的栈地址劫持到了堆上，但如果栈地址已知的话，解题过程会更加简单，而且不需要特意去寻找gadgets，那么如何泄露栈地址呢？其实程序的栈地址会存放在 <code>environ</code>中，我们只要输出<code>environ</code>的内容就能获取栈地址</p>
 <p>来源：<a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/236832">https://www.anquanke.com/post/id/236832</a></p>
 <p>​            <a target="_blank" rel="noopener" href="http://blog.eonew.cn/archives/993">http://blog.eonew.cn/archives/993</a></p>
 <p>​            <a target="_blank" rel="noopener" href="https://blog.csdn.net/A951860555/article/details/118268484">https://blog.csdn.net/A951860555/article/details/118268484</a></p>
@@ -277,7 +288,7 @@
 
         
   <nav class="nav">
-    <a></a>
+    <a href="/2021/09/26/2021-09-26-2021%E5%A4%A9%E7%BF%BC%E6%9D%AFPWN/"><i class="iconfont iconleft"></i>2021天翼杯PWN</a>
     <a href="/2021/09/21/2021-09-21-2021%E9%95%BF%E5%9F%8E%E6%9D%AFPWN/">2021长城杯PWN<i class="iconfont iconright"></i></a>
   </nav>
 
@@ -298,7 +309,7 @@
           
   <aside class="toc-wrap">
     <h3 class="toc-title">文章目录：</h3>
-    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF%E5%89%8D%E7%BD%AE"><span class="toc-text">背景前置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%A5%E9%97%A8%E7%BA%A7orw"><span class="toc-text">入门级orw</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81pwnable-orw"><span class="toc-text">一、pwnable_orw</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81easy-shellcode"><span class="toc-text">二、easy_shellcode</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A0%86%E4%B8%8Aorw"><span class="toc-text">堆上orw</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%8E%E7%89%88%E6%9C%AC"><span class="toc-text">低版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%AB%98%E7%89%88%E6%9C%AC"><span class="toc-text">高版本</span></a></li></ol></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF%E5%89%8D%E7%BD%AE"><span class="toc-text">背景前置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%A5%E9%97%A8%E7%BA%A7orw"><span class="toc-text">入门级orw</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81pwnable-orw"><span class="toc-text">一、pwnable_orw</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81easy-shellcode"><span class="toc-text">二、easy_shellcode</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A0%86%E4%B8%8Aorw"><span class="toc-text">堆上orw</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%8E%E7%89%88%E6%9C%AC"><span class="toc-text">低版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%AB%98%E7%89%88%E6%9C%AC"><span class="toc-text">高版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#gadget1"><span class="toc-text">gadget1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#gadget2"><span class="toc-text">gadget2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#gadget3"><span class="toc-text">gadget3</span></a></li></ol></li></ol>
   </aside>
 
         

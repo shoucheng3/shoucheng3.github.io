@@ -195,7 +195,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>November 22, 2020</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>5622</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>5937</span>
     </div>
   </div>
 </section>
@@ -249,6 +249,7 @@
 <p>13、一个大多数人应该都有错误的认知：认为溢出只要到如gets函数就能实现溢出了，所以下面的代码就不用看，这是绝对错误的！首先，我们通过栈溢出改变的只是返回地址的内容，想要到达返回地址，整个的函数执行流必须进行完，才会发生退栈，从而利用返回地址，所以下方的代码也要处理</p>
 <p>14、执行strcmp、strncmp、strcasecmp的时候，rdx会被设置为将要被比较的字符串的长度</p>
 <p>15、system的参数不一定是要/bin/sh才可以，只有sh也是可以的。而且sh可以从fflush()这个函数中获取，直接查找ida或者ROPgadget –binary 文件名 –string ‘sh’查询（不一定都能成功）</p>
+<p>有时候system参数会出现截断问题，写成<code>;sh\x00</code>，<code>||sh</code>，<code>&amp;&amp;sh</code></p>
 <p>16、当远程docker过滤空格和cat时，将无法使用cat flag获取到flag，此时我们可以用<strong>more&lt;flag或者base64&lt;flag</strong>获取flag，其中的&lt;可以代替空格的功能，第一个<strong>more&lt;flag</strong> 与cat一样都是输出文件内容，而base64是把flag的内容转换成base64编码</p>
 <p>17、64位的文件有时候不一定会存在rbp的调用，不存在leave指令，这时候我们只需要去关注rsp的位置即可，因为ret指令代表着pop rip，把栈顶的内容弹出给rip，所以锁定rsp的位置，就可以劫持rip</p>
 <p>18、有时候在我们输入时，无法通过recvuntil去卡到输入的点，可以使用sleep()函数，让线程休眠，让对面的程序跑到我们要到点，再进行输入，方可利用成功（个人猜测）</p>
@@ -283,7 +284,7 @@
 <p>28、当scanf的参数不是%s时候，是u，d等数字，输入数字是使用str()即可，不用p64()。</p>
 <p>因为输入数字是就是使用数字输入，如果使用了p64()将会变成字符数字</p>
 <p>29、使用execv(“/bin/sh”,0)getshell需要两个参数,比execve少一个</p>
-<p>另外：2.29之后的libc直接调用system会出问题</p>
+<p>另外：2.29之后的libc直接调用system会出问题，但是劫持__free_hook为system没问题</p>
 <p>30、碰到静态编译的题目时，有两种方法：</p>
 <ul>
 <li><p>使用ROPgadget内置的功能，可以自动生成rop链，调用系统函数getshell，命令：</p>
@@ -313,6 +314,10 @@
 <p>40、在本地关闭程序中的alarm函数</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> 将程序名为ProgrammName中的alarm替换为isnan</span><br><span class="hljs-meta">&gt;</span><span class="bash"> sed -i s/alarm/isnan/g ./ProgrammName</span><br></code></pre></td></tr></table></figure>
 
+<p>41、mprotect修改内存权限的第一个参数必须是起始地址，修改的长度必须是页的倍数</p>
+<p>42、<em><em>int snprintf(char</em> dest_str,size_t size,const char</em> format,…);**</p>
+<p>将可变个参数(…)按照format格式化成字符串，然后将其复制到str中。返回值为欲写入的字符串长度</p>
+<p>这个函数有个漏洞，因为返回值是欲写入的字符串长度，也就是说，被复制的字符串很长，又能被加载（比如%s）那返回值就可能很大，如果以这个作为某种输入的值就有产生溢出</p>
 
       </section>
       <section class="extra">
