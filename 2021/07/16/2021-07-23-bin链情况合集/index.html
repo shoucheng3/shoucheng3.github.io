@@ -196,7 +196,7 @@ fas...">
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>July 16, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>2214</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>2335</span>
     </div>
   </div>
 </section>
@@ -237,15 +237,12 @@ fas...">
 <h1 id="small-bin"><a href="#small-bin" class="headerlink" title="small bin"></a>small bin</h1><h3 id="基本结构-2"><a href="#基本结构-2" class="headerlink" title="基本结构"></a>基本结构</h3><img   class="lazyload" data-original="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E5%90%88%E9%9B%86/image-20210726103140256.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  style="zoom:80%;"><span class="image-caption">image-20210726103140256</span>
 
 <ul>
-<li><p>大小范围：0x90 - 0x400</p>
-</li>
-<li><p>由62个双向链表组成，每个链表中的chunk大小一样，大小以0x10递增，存在fd和bk指针</p>
-</li>
-<li><p>相邻的free chunk会触发合并操作，即合并成一个大的free chunk</p>
-</li>
-<li><p>采用的遍历顺序是FIFO</p>
-</li>
+<li>大小范围：0x90 - 0x400</li>
+<li>由62个双向链表组成，每个链表中的chunk大小一样，大小以0x10递增，存在fd和bk指针</li>
+<li>相邻的free chunk会触发合并操作，即合并成一个大的free chunk</li>
+<li>采用的遍历顺序是FIFO</li>
 </ul>
+<h3 id="小技巧-2"><a href="#小技巧-2" class="headerlink" title="小技巧"></a>小技巧</h3><p>small bin 中存在两个块时，第一个块的fd指针指向main_arena，bk指针指向了下一个堆块，所以可以泄露出libc以及堆地址</p>
 <h1 id="large-bin"><a href="#large-bin" class="headerlink" title="large bin"></a>large bin</h1><h3 id="基本结构-3"><a href="#基本结构-3" class="headerlink" title="基本结构"></a>基本结构</h3><img   class="lazyload" data-original="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E5%90%88%E9%9B%86/image-20210720153655147.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  style="zoom:80%;"><span class="image-caption">image-20210720153655147</span>
 
 <p><img   class="lazyload" data-original="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E5%90%88%E9%9B%86/image-20210726103541056-1627363427270.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210726103541056</span></p>
@@ -257,7 +254,8 @@ fas...">
 <li>采用的遍历顺序是FIFO</li>
 <li><strong>在这63个largebins中：第一组的32个largebin链</strong>依次以64字节步长为间隔，即第一个largebin链中chunksize为1024-1087字节，第二个large bin中chunk size为1088~1151字节。<strong>第二组的16个largebin链</strong>依次以512字节步长为间隔；<strong>第三组的8个largebin链</strong>以步长4096为间隔；<strong>第四组的4个largebin链</strong>以32768字节为间隔；<strong>第五组的2个largebin链</strong>以262144字节为间隔；<strong>最后一组</strong>的largebin链中的chunk大小无限制。</li>
 </ul>
-<h3 id="小技巧-2"><a href="#小技巧-2" class="headerlink" title="小技巧"></a>小技巧</h3><p>如果堆块在 largebin 中，他的 <strong>fd_nextsize</strong> 和 <strong>bk_nextsize</strong> 都会指向堆块地址，可以泄露出堆地址</p>
+<h3 id="小技巧-3"><a href="#小技巧-3" class="headerlink" title="小技巧"></a>小技巧</h3><p>如果堆块在 largebin 中，他的 <strong>fd_nextsize</strong> 和 <strong>bk_nextsize</strong> 都会指向堆块地址，可以泄露出堆地址</p>
+<p>如果largenbin上仅有一个堆块，那该堆块的fd_nextsize和bk_nextsize指向自身</p>
 <h1 id="malloc过程"><a href="#malloc过程" class="headerlink" title="malloc过程"></a>malloc过程</h1><ul>
 <li><p>计算真正堆块大小（加上头部长度、对齐）</p>
 </li>
@@ -329,7 +327,7 @@ fas...">
 
         
   <nav class="nav">
-    <a href="/2021/07/20/2021-07-26-offbyone-null/"><i class="iconfont iconleft"></i>offbyone&null</a>
+    <a href="/2021/07/20/2021-07-26-offbyone&null/"><i class="iconfont iconleft"></i>offbyone&null</a>
     <a href="/2021/06/05/2021-06-14-buu06/">buu06<i class="iconfont iconright"></i></a>
   </nav>
 
@@ -350,7 +348,7 @@ fas...">
           
   <aside class="toc-wrap">
     <h3 class="toc-title">文章目录：</h3>
-    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#fast-bin"><span class="toc-text">fast bin</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="toc-text">基本结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A3%80%E6%9F%A5"><span class="toc-text">检查</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E6%8A%80%E5%B7%A7"><span class="toc-text">小技巧</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#unsorted-bin"><span class="toc-text">unsorted bin</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84-1"><span class="toc-text">基本结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#unsorted-bin-attack"><span class="toc-text">unsorted bin attack</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E6%8A%80%E5%B7%A7-1"><span class="toc-text">小技巧</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#small-bin"><span class="toc-text">small bin</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84-2"><span class="toc-text">基本结构</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#large-bin"><span class="toc-text">large bin</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84-3"><span class="toc-text">基本结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E6%8A%80%E5%B7%A7-2"><span class="toc-text">小技巧</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#malloc%E8%BF%87%E7%A8%8B"><span class="toc-text">malloc过程</span></a></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#fast-bin"><span class="toc-text">fast bin</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="toc-text">基本结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A3%80%E6%9F%A5"><span class="toc-text">检查</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E6%8A%80%E5%B7%A7"><span class="toc-text">小技巧</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#unsorted-bin"><span class="toc-text">unsorted bin</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84-1"><span class="toc-text">基本结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#unsorted-bin-attack"><span class="toc-text">unsorted bin attack</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E6%8A%80%E5%B7%A7-1"><span class="toc-text">小技巧</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#small-bin"><span class="toc-text">small bin</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84-2"><span class="toc-text">基本结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E6%8A%80%E5%B7%A7-2"><span class="toc-text">小技巧</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#large-bin"><span class="toc-text">large bin</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84-3"><span class="toc-text">基本结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E6%8A%80%E5%B7%A7-3"><span class="toc-text">小技巧</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#malloc%E8%BF%87%E7%A8%8B"><span class="toc-text">malloc过程</span></a></li></ol>
   </aside>
 
         
