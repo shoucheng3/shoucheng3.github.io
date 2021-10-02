@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>November 15, 2020</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>10731</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>10897</span>
     </div>
   </div>
 </section>
@@ -502,6 +502,7 @@
 <p>28、*<em>long int strtol(const char <em>nptr,char **endptr,int base)</em></em></p>
 <p>功能：strtol函数会将参数nptr字符串根据参数base来转换成长整型数，参数base范围从2至36</p>
 <p>参数base代表采用的进制方式，如base值为10则采用10进制，若base值为16则采用16进制等。当base值为0时则是采用10进制做转换，但遇到如’0x’前置字符则会使用16进制做转换、遇到’0’前置字符而不是’0x’的时候会使用8进制做转换。</p>
+<p>29、python2中的input()函数存在漏洞，会执行获得的输入，所以如果脚本存在引入os库输入<code>os.system(&#39;/bin/sh&#39;)</code>即可getshell，如没有引入os库，输入该内容<code>__import__(&#39;os&#39;).system(&#39;/bin/sh&#39;)s</code> 也可getshell</p>
 
       </section>
       <section class="extra">

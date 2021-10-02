@@ -195,7 +195,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>April 18, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4925</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4935</span>
     </div>
   </div>
 </section>
@@ -248,7 +248,7 @@
 <p>16、getshell有个办法是：修改free_hook内容为system地址，然后free一个chunk，chunk内容为”/bin/sh”，就相当于执行了system(“/bin/sh”)</p>
 <p>17、在libc版本2.23及以下的时候，使用one_gadget稳定getshell，可以使用条件为[rsp+0x50] == NULL的one_gadget，然后对同一个chunk进行double free（指针没有置0）即可getshell</p>
 <p>18、当把malloc_hook劫持为one_gadget失败时，除了可以去调整栈之外，还可以换思路去劫持free_hook，就是16中的办法，或者是劫持realloc（在malloc_hook-0x8的地方），往realloc_hook中写入one_gadget,malloc_hook中写入realloc函数的地址</p>
-<p>19、因为free_hook前面是不存在像malloc_hook一样的0x7f的信息，所以无法将fastchunk分配过去</p>
+<p>19、因为free_hook前面一大段内容不存在像malloc_hook一样的0x7f的信息，所以要寻找的可以分配的堆头可能要往前找很大的偏移</p>
 <ul>
 <li>在2.23版本中可以使用unsortedbin attack（修改unsortedbin中的FD字段为0，BK字段为target addr - 0x10），在那边写入unsortedbin地址，从而拥有了0x7f（使用过之后如果fastbin里面没有chunk，那么申请堆块会到unsortedbin里面去找，找的话就会报错，此时需要到main_arena对应地址去修复unsortedbin的指针，改回原来的样子）</li>
 <li>劫持top chunk，生成一个fastchunk释放掉，接着把fd指针修改为fastchunk的大小（如写入0x81），然后再把刚才释放的堆块申请出来，此时会在main_arena生成出一个0x81，可以通过fastchunk的检查，而在这个下方，就是top chunk的指针，把指针内容修改到目标地址前面的地址（地址需要符合top size），然后再申请堆块即可（此时不可以存在被释放的堆块，要让堆块是从top chunk中分配的）</li>
@@ -258,7 +258,7 @@
 <p>21、<code>tcache_perthread_struct</code>这个结构体是可以释放的，并且可以将它释放到<code>unsorted bin</code>中去，然后分配这个<code>unsorted bin chunk</code>，可以控制任意地址分配堆内存</p>
 <p>22、当堆题中没有show功能时，要泄露出libc地址，需要借助stdout吐出libc地址</p>
 <p>需要把__libc_stdout上的值修改为<code>p64(0xfbad1800) + p64(0) * 3 + &#39;\x00&#39;</code></p>
-<p>23、当分配unsorted chunk时，如果剩下的块仍然大于0x80，并且还是唯一的，那这个新的unsorted chunkfd，bk指针仍然执行libc地址，并且分配出去的堆块，如果没有对堆块进行清零，那么上面将会存放着之前unsorted chunk的fd、bk指针</p>
+<p>23、当分配unsorted chunk时，如果剩下的块仍然大于0x80，并且还是唯一的，那这个新的unsorted chunkfd，bk指针仍然指向libc地址，并且分配出去的堆块，如果没有对堆块进行清零，那么上面将会存放着之前unsorted chunk的fd、bk指针</p>
 <p>24、libc-2.23.so时的fd，bk指针，指向的是堆块的prev_size位置，libc-2.27.so时的fd，bk指针指向的是堆块的内容（就是存放fd，bk指针的位置）比libc-2.23.so多了0x10</p>
 <p>25、利用exit_hook：劫持<code>_dl_rtld_lock_recursive</code>的值为one_gadget，当调用exit函数时可得到shell</p>
 <p><img   class="lazyload" data-original="/2021/04/18/2021-04-18-%E5%A0%86%E4%BA%8C%E4%B8%89%E4%BA%8B/image-20210903170451297.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210903170451297</span></p>

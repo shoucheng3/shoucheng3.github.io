@@ -195,7 +195,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>July 20, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>11462</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>11495</span>
     </div>
   </div>
 </section>
@@ -325,7 +325,7 @@
 <h5 id="5-伪造-prev-size，off-by-null-修改-size-的-p-标志位"><a href="#5-伪造-prev-size，off-by-null-修改-size-的-p-标志位" class="headerlink" title="5. 伪造 prev_size，off by null 修改 size 的 p 标志位"></a>5. 伪造 prev_size，off by null 修改 size 的 p 标志位</h5><p>这部分内容不是本文重点故略过</p>
 <h6 id="构造代码：-3"><a href="#构造代码：-3" class="headerlink" title="构造代码："></a>构造代码：</h6><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># off by null</span><br>add(<span class="hljs-number">0x108</span>, p64(<span class="hljs-number">0</span>) + p64(<span class="hljs-number">0x111</span>))  <span class="hljs-comment"># 8</span><br>edit(<span class="hljs-number">6</span>, <span class="hljs-string">&#x27;a&#x27;</span> * <span class="hljs-number">0x100</span> + p64(<span class="hljs-number">0xA90</span>))<br>delete(<span class="hljs-number">3</span>)  <span class="hljs-comment"># unlink</span><br></code></pre></td></tr></table></figure>
 
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>低版本的检查过少的时代已经一去不返，新版本的检查增多，使得利用手法也随之复杂，但本质都是堆块的良好布局，对各种bin链上用于管理而会残余的垃圾数据进行利用，而想最后大佬使用的布置思想十分值得我这个小菜鸡深刻学习理解，为了避免爆破而构造出偏移在0x100内的堆块，膜拜pwn👴</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>低版本的检查过少的时代已经一去不返，新版本的检查增多，使得利用手法也随之复杂，但本质都是堆块的良好布局，对各种bin链上用于管理而会残余的垃圾数据进行利用，以及在新版本下似乎有些趋向于利用 large chunk 构造堆块了。最后大佬使用的布置思想十分值得我这个小菜鸡深刻学习理解，为了避免爆破而构造出偏移在0x100内的堆块，膜拜pwn👴</p>
 
       </section>
       <section class="extra">
