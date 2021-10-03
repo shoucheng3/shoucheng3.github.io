@@ -195,7 +195,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>April 18, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4935</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4949</span>
     </div>
   </div>
 </section>
@@ -277,7 +277,7 @@
 <p>26、libc-2.27.so的unlink要先把tcache bin填满才能用，unlink要保证unsorted bin是空的，所以有时候泄露信息用了unsorted bin，要申请回来</p>
 <p>27、当我们申请一个大于top chunk的堆块时，程序会调用mmap进行内存分配，分配下来堆块的地址是libc中的地址</p>
 <p>28、libc-2.27堆的orw：利用setcontext+53的指令，把setcontext+53的地址一般写在__free_hook上，而shellcode写在堆上，然后进行释放堆块从而执行orw</p>
-<p>29、当劫持堆块到tcache，释放tcache获得libc地址后，需要修复tcache，需要先申请出堆块（堆块要是从tcache上面分配出来的），把前面的清空，然后在放置堆块指针的地方同样清空，被清空的堆块才能被分配出来，然后分配能被清空指针的堆块，然后只要在这个分配的堆块写上tcache中堆块指针的地址，就可以直接分配出去</p>
+<p>29、当劫持堆块到tcache，释放tcache获得libc地址后， 由于 unsorted bin 的 fd 和 bk 会在 tcache struct 写一些数据，而这些数据会覆盖到 tcache struct 上的 counts，导致取出相应的 size 时发生错误，所以需要修复tcache，将<strong>不必要的数据清为 0，有需要伪造并取出的部分赋值为 1</strong></p>
 
       </section>
       <section class="extra">

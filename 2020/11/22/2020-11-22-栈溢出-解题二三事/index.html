@@ -195,7 +195,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>November 22, 2020</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>5937</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6219</span>
     </div>
   </div>
 </section>
@@ -318,6 +318,8 @@
 <p>42、<em><em>int snprintf(char</em> dest_str,size_t size,const char</em> format,…);**</p>
 <p>将可变个参数(…)按照format格式化成字符串，然后将其复制到str中。返回值为欲写入的字符串长度</p>
 <p>这个函数有个漏洞，因为返回值是欲写入的字符串长度，也就是说，被复制的字符串很长，又能被加载（比如%s）那返回值就可能很大，如果以这个作为某种输入的值就有产生溢出</p>
+<p>43、程序是通过cs寄存器判断是64位还是32位，cs == 0x23代表32位模式，cs == 0x33代表64位模式，而cs寄存器可以通过<code>retfq</code>汇编指令来修改</p>
+<p>retfq有两步操作：<code>ret以及set cs</code>，所以执行retfq会跳转到rsp同时将cs设置为[rsp+0x8]，我们只需要事先在ret位置写入32位的shellcode就可以执行了，但是这里有一点需要注意的是，retfq跳转过去的时候程序已经切换成了32位模式，所以地址解析也是以32位的规则来的，所以如原先的<code>rsp = 0x7ffe530d01b8</code>会被解析成<code>esp = 0x530d01b8</code></p>
 
       </section>
       <section class="extra">

@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>November 09, 2020</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>10465</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>11917</span>
     </div>
   </div>
 </section>
@@ -645,6 +645,26 @@
 <p>5、类的私有方法：定义方法函数时，在前面加两个下划线</p>
 <p>6、类的继承：<strong>class 子类(父类)</strong></p>
 <p>（1）继承后，可以调用父类中的方法，并且可以进行改变</p>
+<h3 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">try</span>:<br>    可能产生异常的代码块<br><span class="hljs-keyword">except</span> [ (Error1, Error2, ... ) [<span class="hljs-keyword">as</span> e] ]:<br>    处理异常的代码块<span class="hljs-number">1</span><br><span class="hljs-keyword">except</span> [ (Error3, Error4, ... ) [<span class="hljs-keyword">as</span> e] ]:<br>    处理异常的代码块<span class="hljs-number">2</span><br><span class="hljs-keyword">except</span>  [Exception]:<br>    处理其它异常<br></code></pre></td></tr></table></figure>
+
+<p>该格式中，[] 括起来的部分可以使用，也可以省略。其中各部分的含义如下：</p>
+<ul>
+<li>(Error1, Error2,…) 、(Error3, Error4,…)：其中，Error1、Error2、Error3 和 Error4 都是具体的异常类型。显然，一个 except 块可以同时处理多种异常。</li>
+<li>[as e]：作为可选参数，表示给异常类型起一个别名 e，这样做的好处是方便在 except 块中调用异常类型（后续会用到）。</li>
+<li>[Exception]：作为可选参数，可以代指程序可能发生的所有异常情况，其通常用在最后一个 except 块。</li>
+</ul>
+<p>try except 语句的执行流程如下：</p>
+<ol>
+<li>首先执行 try 中的代码块，如果执行过程中出现异常，系统会自动生成一个异常类型，并将该异常提交给 Python 解释器，此过程称为捕获异常。</li>
+<li>当 Python 解释器收到异常对象时，会寻找能处理该异常对象的 except 块，如果找到合适的 except 块，则把该异常对象交给该 except 块处理，这个过程被称为处理异常。如果 Python 解释器找不到处理异常的 except 块，则程序运行终止，Python 解释器也将退出</li>
+</ol>
+<p>事实上，不管程序代码块是否处于 try 块中，甚至包括 except 块中的代码，只要执行该代码块时出现了异常，系统都会自动生成对应类型的异常。但是，如果此段程序没有用 try 包裹，又或者没有为该异常配置处理它的 except 块，则 Python 解释器将无法处理，程序就会停止运行；反之，如果程序发生的异常经 try 捕获并由 except 处理完成，则程序可以继续执行。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">try</span>:<br>    a = <span class="hljs-built_in">int</span>(<span class="hljs-built_in">input</span>(<span class="hljs-string">&quot;输入被除数：&quot;</span>))<br>    b = <span class="hljs-built_in">int</span>(<span class="hljs-built_in">input</span>(<span class="hljs-string">&quot;输入除数：&quot;</span>))<br>    c = a / b<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;您输入的两个数相除的结果是：&quot;</span>, c )<br><span class="hljs-keyword">except</span> (ValueError, ArithmeticError):<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;程序发生了数字格式异常、算术异常之一&quot;</span>)<br><span class="hljs-keyword">except</span> :<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;未知异常&quot;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;程序继续运行&quot;</span>)<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs brainfuck"><span class="hljs-comment">运行结果如下：</span><br><span class="hljs-comment">输入被除数：a</span><br><span class="hljs-comment">程序发生了数字格式异常、算术异常之一</span><br><span class="hljs-comment">程序继续运行</span><br></code></pre></td></tr></table></figure>
+
+<p>上面程序中，第 6 行代码使用了（ValueError, ArithmeticError）来指定所捕获的异常类型，这就表明该 except 块可以同时捕获这 2 种类型的异常；第 8 行代码只有 except 关键字，并未指定具体要捕获的异常类型，这种省略异常类的 except 语句也是合法的，它表示可捕获所有类型的异常，一般会作为异常捕获的最后一个 except 块。</p>
+<p>除此之外，由于 try 块中引发了异常，并被 except 块成功捕获，因此程序才可以继续执行，才有了“程序继续运行”的输出结果。</p>
 
       </section>
       <section class="extra">
@@ -682,7 +702,7 @@
           
   <aside class="toc-wrap">
     <h3 class="toc-title">文章目录：</h3>
-    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95"><span class="toc-text">一、基础语法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="toc-text">二、数据类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E8%BF%90%E7%AE%97%E7%AC%A6%EF%BC%88%E5%8F%AA%E8%AE%B0%E5%BD%95%E4%B8%8Ec%E4%B8%8D%E5%90%8C%E7%9A%84%E7%AC%A6%E5%8F%B7%EF%BC%89"><span class="toc-text">三、运算符（只记录与c不同的符号）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E8%AF%AD%E5%8F%A5%E7%BB%93%E6%9E%84"><span class="toc-text">四、语句结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E8%BF%AD%E4%BB%A3%E5%99%A8%E4%B8%8E%E7%94%9F%E6%88%90%E5%99%A8"><span class="toc-text">五、迭代器与生成器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%87%BD%E6%95%B0"><span class="toc-text">六、函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E6%97%A5%E6%9C%9F%E4%B8%8E%E6%97%B6%E9%97%B4"><span class="toc-text">七、日期与时间</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E6%A8%A1%E5%9D%97"><span class="toc-text">八、模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E6%96%87%E4%BB%B6"><span class="toc-text">九、文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1"><span class="toc-text">十、面向对象</span></a></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95"><span class="toc-text">一、基础语法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="toc-text">二、数据类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E8%BF%90%E7%AE%97%E7%AC%A6%EF%BC%88%E5%8F%AA%E8%AE%B0%E5%BD%95%E4%B8%8Ec%E4%B8%8D%E5%90%8C%E7%9A%84%E7%AC%A6%E5%8F%B7%EF%BC%89"><span class="toc-text">三、运算符（只记录与c不同的符号）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E8%AF%AD%E5%8F%A5%E7%BB%93%E6%9E%84"><span class="toc-text">四、语句结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E8%BF%AD%E4%BB%A3%E5%99%A8%E4%B8%8E%E7%94%9F%E6%88%90%E5%99%A8"><span class="toc-text">五、迭代器与生成器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%87%BD%E6%95%B0"><span class="toc-text">六、函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E6%97%A5%E6%9C%9F%E4%B8%8E%E6%97%B6%E9%97%B4"><span class="toc-text">七、日期与时间</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E6%A8%A1%E5%9D%97"><span class="toc-text">八、模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E6%96%87%E4%BB%B6"><span class="toc-text">九、文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1"><span class="toc-text">十、面向对象</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86"><span class="toc-text">异常处理</span></a></li></ol>
   </aside>
 
         
