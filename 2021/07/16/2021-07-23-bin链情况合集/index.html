@@ -196,7 +196,7 @@ fas...">
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>July 16, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>2335</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>2332</span>
     </div>
   </div>
 </section>
@@ -231,7 +231,7 @@ fas...">
 <li><p>chunk被释放进入unsortedbin时，fdbk字段会留下一个main_arena的地址信息</p>
 </li>
 </ul>
-<h3 id="unsorted-bin-attack"><a href="#unsorted-bin-attack" class="headerlink" title="unsorted bin attack"></a>unsorted bin attack</h3><p>libc版本在2.23及以下才能使用</p>
+<h3 id="unsorted-bin-attack"><a href="#unsorted-bin-attack" class="headerlink" title="unsorted bin attack"></a>unsorted bin attack</h3><p>libc-2.29.so以下：</p>
 <p>利用前提是先有UAF，修改unsortedbin中的FD字段为0，BK字段为target addr - 0x10，然后malloc一个相同大小的chunk，即可完成攻击，在目标地址写入unsorted bin的地址，一般用来伪造堆头（制造出0x7f）、修改次数限制、上限信息、配合局部写</p>
 <h3 id="小技巧-1"><a href="#小技巧-1" class="headerlink" title="小技巧"></a>小技巧</h3><p>当 unsorted bin 链上有两个堆块的时候，其中一个堆块的 fd 会指向另一个堆块，我们可以直接 leak 得到，可计算出堆基址</p>
 <h1 id="small-bin"><a href="#small-bin" class="headerlink" title="small bin"></a>small bin</h1><h3 id="基本结构-2"><a href="#基本结构-2" class="headerlink" title="基本结构"></a>基本结构</h3><img   class="lazyload" data-original="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E5%90%88%E9%9B%86/image-20210726103140256.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  style="zoom:80%;"><span class="image-caption">image-20210726103140256</span>

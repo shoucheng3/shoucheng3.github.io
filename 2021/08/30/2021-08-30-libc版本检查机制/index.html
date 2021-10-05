@@ -195,7 +195,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>August 30, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>5725</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>5928</span>
     </div>
   </div>
 </section>
@@ -248,10 +248,19 @@
 </ul>
 </li>
 </ul>
-<h3 id="Tcache-Stashing-Unlink-Attack"><a href="#Tcache-Stashing-Unlink-Attack" class="headerlink" title="Tcache Stashing Unlink Attack"></a>Tcache Stashing Unlink Attack</h3><h4 id="利用条件"><a href="#利用条件" class="headerlink" title="利用条件"></a>利用条件</h4><p>1.<code>smallbin</code>中可以控制大小为size块的bk指针</p>
+<h3 id="Tcache-Stashing-Unlink-Attack"><a href="#Tcache-Stashing-Unlink-Attack" class="headerlink" title="Tcache Stashing Unlink Attack"></a>Tcache Stashing Unlink Attack</h3><p>高版本一样可用，因为是对unlink的绕过，至少目前我知道的：到libc-2.32是没问题的</p>
+<h4 id="利用条件"><a href="#利用条件" class="headerlink" title="利用条件"></a>利用条件</h4><p>1.<code>smallbin</code>中可以控制大小为size块的bk指针</p>
 <p>2.<code>tcache</code>中size块的个数为6</p>
 <p>3.申请堆块是<code>calloc</code></p>
-<h4 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h4><p>bk指针的 fd 处被写入一个libc地址</p>
+<h4 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h4><ul>
+<li>释放6个0x100的chunk到tcache bin中</li>
+<li>构造两个0x100的small bin（利用Unsorted bin或Large bin切割得到）</li>
+<li>修改后插入的small bin的 bk 指针为目标地址-0x10，且保持fd指针不变</li>
+<li>用calloc分配0x100的chunk</li>
+</ul>
+<h4 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h4><ul>
+<li>在目标地址上写入原本small bin上的 bk 指针内容</li>
+</ul>
 <h2 id="libc-2-32-so"><a href="#libc-2-32-so" class="headerlink" title="libc-2.32.so"></a>libc-2.32.so</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (SINGLE_THREAD_P)  <br>&#123;<br>    <span class="hljs-comment">/* Check that the top of the bin is not the record we are going to</span><br><span class="hljs-comment">        add (i.e., double free).  */</span><br>    <span class="hljs-keyword">if</span> (__builtin_expect(old == p, <span class="hljs-number">0</span>))<br>        malloc_printerr(<span class="hljs-string">&quot;double free or corruption (fasttop)&quot;</span>);<br>    p-&gt;fd = PROTECT_PTR(&amp;p-&gt;fd, old);<br>    *fb = p;<br>&#125;<br><span class="hljs-keyword">else</span><br>    <span class="hljs-keyword">do</span><br>    &#123;<br>        <span class="hljs-comment">/* Check that the top of the bin is not the record we are going to</span><br><span class="hljs-comment">            add (i.e., double free).  */</span><br>        <span class="hljs-keyword">if</span> (__builtin_expect(old == p, <span class="hljs-number">0</span>))<br>            malloc_printerr(<span class="hljs-string">&quot;double free or corruption (fasttop)&quot;</span>);<br>        old2 = old;<br>        p-&gt;fd = PROTECT_PTR(&amp;p-&gt;fd, old);<br>    &#125; <span class="hljs-keyword">while</span> ((old = catomic_compare_and_exchange_val_rel(fb, p, old2))<br>        != old2);<br></code></pre></td></tr></table></figure>
 
 <p>上面是glibc2.32下的fastbin源码，同样存在跟tcache一样的保护机制，会对 fd 指针进行异或处理</p>
