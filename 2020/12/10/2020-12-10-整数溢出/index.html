@@ -124,7 +124,8 @@
 
   
 
-<meta name="generator" content="Hexo 5.4.0"></head>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="ShouCheng" type="application/atom+xml">
+</head>
 
 <body class="lock-screen">
   <div class="loading"></div>
@@ -248,7 +249,7 @@
 <li>无符号数溢出</li>
 <li>高位数传低位数的截断</li>
 </ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs plaintext"># 伪代码<br>short int a;<br><br>a = a + 1;<br># 对应的汇编<br>movzx  eax, word ptr [rbp - 0x1c]<br>add    eax, 1<br>mov    word ptr [rbp - 0x1c], ax<br><br>unsigned short int b;<br><br>b = b + 1;<br># assembly code<br>add    word ptr [rbp - 0x1a], 1<br></code></pre></td></tr></table></figure>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs x86asm"># 伪代码<br>short <span class="hljs-keyword">int</span> a<span class="hljs-comment">;</span><br><br>a = a + <span class="hljs-number">1</span><span class="hljs-comment">;</span><br># 对应的汇编<br><span class="hljs-keyword">movzx</span>  <span class="hljs-built_in">eax</span>, <span class="hljs-built_in">word</span> <span class="hljs-built_in">ptr</span> [<span class="hljs-built_in">rbp</span> - <span class="hljs-number">0x1c</span>]<br><span class="hljs-keyword">add</span>    <span class="hljs-built_in">eax</span>, <span class="hljs-number">1</span><br><span class="hljs-keyword">mov</span>    <span class="hljs-built_in">word</span> <span class="hljs-built_in">ptr</span> [<span class="hljs-built_in">rbp</span> - <span class="hljs-number">0x1c</span>], <span class="hljs-built_in">ax</span><br><br>unsigned short <span class="hljs-keyword">int</span> b<span class="hljs-comment">;</span><br><br>b = b + <span class="hljs-number">1</span><span class="hljs-comment">;</span><br># assembly code<br><span class="hljs-keyword">add</span>    <span class="hljs-built_in">word</span> <span class="hljs-built_in">ptr</span> [<span class="hljs-built_in">rbp</span> - <span class="hljs-number">0x1a</span>], <span class="hljs-number">1</span><br></code></pre></td></tr></table></figure>
 
 <p>以上为无符号数和有符号数进行+1操作的汇编指令，可以看出，有符号数的运算是在寄存器中进行运算的，而无符号数是直接在内存中进行运算的</p>
 <h1 id="有符号数溢出"><a href="#有符号数溢出" class="headerlink" title="有符号数溢出"></a>有符号数溢出</h1><p>以下均假设 short int a;</p>
@@ -265,12 +266,12 @@
 <ul>
 <li>加法截断： </li>
 </ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">0xffffffff + 0x00000001 <br><br>= 0x0000000100000000 (long int) <br><br>= 0x00000000 (int) <br></code></pre></td></tr></table></figure>
+<figure class="highlight excel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs excel"><span class="hljs-number">0</span>xffffffff + <span class="hljs-number">0</span>x00000001 <br><br>= <span class="hljs-number">0</span>x0000000100000000 (long <span class="hljs-built_in">int</span>) <br><br>= <span class="hljs-number">0</span>x00000000 (<span class="hljs-built_in">int</span>) <br></code></pre></td></tr></table></figure>
 
 <ul>
 <li>乘法截断</li>
 </ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">0x00123456 * 0x00654321 <br>= 0x000007336BF94116 (long int) <br>= 0x6BF94116 (int)<br></code></pre></td></tr></table></figure>
+<figure class="highlight excel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs excel"><span class="hljs-number">0</span>x00123456 * <span class="hljs-number">0</span>x00654321 <br>= <span class="hljs-number">0</span>x000007336BF94116 (long <span class="hljs-built_in">int</span>) <br>= <span class="hljs-number">0</span>x6BF94116 (<span class="hljs-built_in">int</span>)<br></code></pre></td></tr></table></figure>
 
 <p>整数溢出就大致到此了，但是如何利用它造成危害呢？一般都是利用整数溢出和其他的漏洞进行搭配而造成危害。</p>
 <p>以下有两个函数，常被误用而产生整数溢出，接着就可能导致缓冲区溢出漏洞。</p>

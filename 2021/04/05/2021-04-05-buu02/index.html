@@ -124,7 +124,8 @@
 
   
 
-<meta name="generator" content="Hexo 5.4.0"></head>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="ShouCheng" type="application/atom+xml">
+</head>
 
 <body class="lock-screen">
   <div class="loading"></div>
@@ -195,56 +196,56 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>April 05, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>1776</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>1730</span>
     </div>
   </div>
 </section>
     <section class="main">
       <section class="content">
-        <h1 id="buu——pwn学习"><a href="#buu——pwn学习" class="headerlink" title="buu——pwn学习"></a>buu——pwn学习</h1><h3 id="四、ciscn-2019-n-8"><a href="#四、ciscn-2019-n-8" class="headerlink" title="四、ciscn_2019_n_8"></a>四、ciscn_2019_n_8</h3><p>checksec一下<img   class="lazyload" data-original="2021-04-05-buu02.assets/QQ%E5%9B%BE%E7%89%8720210405201012.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" >发现保护基本都开了，有点害怕，赶紧进入ida一探究竟：</p>
-<p><img   class="lazyload" data-original="2021-04-05-buu02.assets/QQ%E5%9B%BE%E7%89%8720210405202606.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+        <h1 id="buu——pwn学习"><a href="#buu——pwn学习" class="headerlink" title="buu——pwn学习"></a>buu——pwn学习</h1><h3 id="四、ciscn-2019-n-8"><a href="#四、ciscn-2019-n-8" class="headerlink" title="四、ciscn_2019_n_8"></a>四、ciscn_2019_n_8</h3><p>checksec一下<img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/QQ%E5%9B%BE%E7%89%8720210405201012.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" >发现保护基本都开了，有点害怕，赶紧进入ida一探究竟：</p>
+<p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/QQ%E5%9B%BE%E7%89%8720210405202606.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>好吧，是我想多了，达成条件很简单，就是让var[13]的值等于17就可以获取shell，这里要注意一点，var是int类型数组，所以填充的时候，比如var[0]就要填进去4个字节的内容才能填满（这里我刚开始疏忽了，一直没能获取权限。。）所以要是用a去填充要先填52个才行，之后才是输入17，不过如果直接使用p32会更方便一些，exp如下：</p>
-<p><img   class="lazyload" data-original="2021-04-05-buu02.assets/QQ%E5%9B%BE%E7%89%8720210405205400.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
-<h3 id="五、not-the-same-3dsctf-2016"><a href="#五、not-the-same-3dsctf-2016" class="headerlink" title="五、not_the_same_3dsctf_2016"></a>五、not_the_same_3dsctf_2016</h3><p><img   class="lazyload" data-original="2021-04-05-buu02.assets/QQ%E5%9B%BE%E7%89%8720210405205812.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
-<p><img   class="lazyload" data-original="2021-04-05-buu02.assets/QQ%E5%9B%BE%E7%89%8720210405205847.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/QQ%E5%9B%BE%E7%89%8720210405205400.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<h3 id="五、not-the-same-3dsctf-2016"><a href="#五、not-the-same-3dsctf-2016" class="headerlink" title="五、not_the_same_3dsctf_2016"></a>五、not_the_same_3dsctf_2016</h3><p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/QQ%E5%9B%BE%E7%89%8720210405205812.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/QQ%E5%9B%BE%E7%89%8720210405205847.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>查看一下开启了nx保护，以及一部分的relro，然后运行了一下，好像什么都没有。。拖入ida看看</p>
-<p><img   class="lazyload" data-original="2021-04-05-buu02.assets/QQ%E5%9B%BE%E7%89%8720210405210102.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
-<p>好家伙，main函数里面的东西，以及函数窗口里面的情况让我想起了<strong>get_started_3dsctf_2016</strong>这题，似乎很像的样子<img   class="lazyload" data-original="2021-04-05-buu02.assets/QQ%E5%9B%BE%E7%89%8720210405210308.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/QQ%E5%9B%BE%E7%89%8720210405210102.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p>好家伙，main函数里面的东西，以及函数窗口里面的情况让我想起了<strong>get_started_3dsctf_2016</strong>这题，似乎很像的样子<img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/QQ%E5%9B%BE%E7%89%8720210405210308.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>同样的不用覆盖ebp，直接就能到返回地址了，不清楚原理。。暂且不管吧，以后可能会看到的</p>
-<p><img   class="lazyload" data-original="2021-04-05-buu02.assets/QQ%E5%9B%BE%E7%89%8720210405211241.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/QQ%E5%9B%BE%E7%89%8720210405211241.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>这里有个函数，已经将flag的值读取并输入到了fl4g的位置，所以我们先用这个函数填充到返回地址处，把flag先读取到fl14为起始地址的内存中，接下来试着把这里的内容泄露出来，即可获取flag。所以我们需要write函数，并且因为write函数有三个参数，所以还需要pop 三个寄存器的指令进行清理栈，最后的p32(0)是pop中含着的ret操作，所以还需要再加一个返回地址，因为我们已经输出了flag，所以返回地址并不需要在意是哪，随便都可。具体exp如下：</p>
-<p><img   class="lazyload" data-original="2021-04-05-buu02.assets/QQ%E5%9B%BE%E7%89%8720210405212259.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/QQ%E5%9B%BE%E7%89%8720210405212259.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <h3 id="六、-HarekazeCTF2019-baby-rop"><a href="#六、-HarekazeCTF2019-baby-rop" class="headerlink" title="六、[HarekazeCTF2019]baby_rop"></a>六、[HarekazeCTF2019]baby_rop</h3><p>只开启了nx和部分的relro保护机制，并且运行了没有多少的内容，很正常的内容回显。应该不会难的，嗯，先这么想。</p>
-<p><img   class="lazyload" data-original="2021-04-05-buu02.assets/QQ%E5%9B%BE%E7%89%8720210405212721.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
-<p><img   class="lazyload" data-original="2021-04-05-buu02.assets/QQ%E5%9B%BE%E7%89%8720210405212741.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/QQ%E5%9B%BE%E7%89%8720210405212721.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/QQ%E5%9B%BE%E7%89%8720210405212741.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>进入ida看看，是不是跟想象的一样简单</p>
-<p><img   class="lazyload" data-original="2021-04-05-buu02.assets/QQ%E5%9B%BE%E7%89%8720210405213207.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
-<p><img   class="lazyload" data-original="2021-04-05-buu02.assets/QQ%E5%9B%BE%E7%89%8720210405213218.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/QQ%E5%9B%BE%E7%89%8720210405213207.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/QQ%E5%9B%BE%E7%89%8720210405213218.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>的确如此，没有乱起名字。。确实是简单的rop，system函数和/bin/sh字符全都在，并且还有scanf的无限制输入，exp如下：</p>
-<p><img   class="lazyload" data-original="2021-04-05-buu02.assets/QQ%E5%9B%BE%E7%89%8720210405214535.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/QQ%E5%9B%BE%E7%89%8720210405214535.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>小插曲，我进入的时候，很惊讶的发现没有flag。。。不知道是管理员忘了，还是说哪个人做了不小心可能删了吧。。</p>
 <h3 id="七、jarvisoj-level2-x64"><a href="#七、jarvisoj-level2-x64" class="headerlink" title="七、jarvisoj_level2_x64"></a>七、jarvisoj_level2_x64</h3><p>只开启了nx，运行一下，貌似也很简单的样子，预测可能跟32位的level2差不多吧，就是变到了64位的环境下，可能为了考验传参</p>
-<p><img    class="lazyload" data-original="2021-04-05-buu02.assets/image-20210405220229158.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">image-20210405220229158</span></p>
-<p><img   class="lazyload" data-original="2021-04-05-buu02.assets/QQ%E5%9B%BE%E7%89%8720210405220316.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/image-20210405220229158.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  alt="image-20210405220229158"></p>
+<p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/QQ%E5%9B%BE%E7%89%8720210405220316.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>做法跟上一题差不多吧，就不多放图片了，直接exp了：</p>
-<p><img   class="lazyload" data-original="2021-04-05-buu02.assets/QQ%E5%9B%BE%E7%89%8720210405221357.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/QQ%E5%9B%BE%E7%89%8720210405221357.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <h3 id="八、ciscn-2019-n-5"><a href="#八、ciscn-2019-n-5" class="headerlink" title="八、ciscn_2019_n_5"></a>八、ciscn_2019_n_5</h3><p>好家伙，nx都没开启，可能要直接在栈上执行shellcode了</p>
-<p><img    class="lazyload" data-original="2021-04-05-buu02.assets/image-20210407194309117.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">image-20210407194309117</span></p>
-<p><img   class="lazyload" data-original="2021-04-05-buu02.assets/QQ%E5%9B%BE%E7%89%8720210407194556.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/image-20210407194309117.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  alt="image-20210407194309117"></p>
+<p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/QQ%E5%9B%BE%E7%89%8720210407194556.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>确实的，有个gets无限输入，很明显可以被利用的溢出点。不过后面带了个name有点奇怪，进入看看汇编是什么情况</p>
-<p><img   class="lazyload" data-original="2021-04-05-buu02.assets/QQ%E5%9B%BE%E7%89%8720210407194714.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/QQ%E5%9B%BE%E7%89%8720210407194714.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>好吧，应该是ida出错了一些，只有调用了text，那就直接进行覆盖吧。因为pwntools已经有着自带的shellcode注入了，（要是没有的话我也不会写了，哈哈哈）exp如下：</p>
-<p><img   class="lazyload" data-original="2021-04-05-buu02.assets/QQ%E5%9B%BE%E7%89%8720210407201139.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/QQ%E5%9B%BE%E7%89%8720210407201139.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>这里一开始是想直接就在栈上注入shellcode的，不过没能成功，可能是因为太长覆盖了一些其他信息了吧，所以就转移到bss上执行，在gdb中也能查看到bss也具有可执行性</p>
-<p><img   class="lazyload" data-original="2021-04-05-buu02.assets/QQ%E5%9B%BE%E7%89%8720210407201152.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/QQ%E5%9B%BE%E7%89%8720210407201152.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <h3 id="九、ciscn-2019-ne-5"><a href="#九、ciscn-2019-ne-5" class="headerlink" title="九、ciscn_2019_ne_5"></a>九、ciscn_2019_ne_5</h3><p>开启了nx和部分的relro缓解措施</p>
-<p><img   class="lazyload" data-original="2021-04-05-buu02.assets/QQ%E5%9B%BE%E7%89%8720210407201501.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/QQ%E5%9B%BE%E7%89%8720210407201501.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>进入ida按F5会反编译失败，只要进入到对应地址的scanf函数里面按F5对函数编译，再回到main函数即可反编译成功</p>
-<p><img   class="lazyload" data-original="2021-04-05-buu02.assets/QQ%E5%9B%BE%E7%89%8720210407204835.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/QQ%E5%9B%BE%E7%89%8720210407204835.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>首先把第一个密码绕过，输入administrator即可，当我们进入下面额print函数查看可以发现有system函数的调用，此时我们只需要再查找到参数和溢出点即可，往上看，调用了fflush函数，里面有sh字符串。这里有个点，sh字符串也可以成为system的函数获取到shell的权限。那么只剩下溢出点了。前面的scanf函数输入，都无法溢出。只有在Addlog里面的scanf函数可以覆盖，然后再去到函数4GetFlag里面</p>
-<p><img   class="lazyload" data-original="2021-04-05-buu02.assets/QQ%E5%9B%BE%E7%89%8720210407204813.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/QQ%E5%9B%BE%E7%89%8720210407204813.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>有个strcpy函数，可以把之前输入的src复制到dest中，造成溢出。exp如下：</p>
-<p><img   class="lazyload" data-original="2021-04-05-buu02.assets/QQ%E5%9B%BE%E7%89%8720210407213005.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/QQ%E5%9B%BE%E7%89%8720210407213005.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>exp还有个要注意的就是system后跟的返回地址不能写p32(0)这样的，因为这么写，scanf函数遇到’\x00’会停止读取，所以我这里选择直接写四个字符串</p>
 
       </section>

@@ -11,8 +11,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="google" content="notranslate" />
   
-  <meta name="description" content="image-20210720154252123
-fas...">
+  <meta name="description" content="
+fast bin基本结构
+大小范围：0x20 - 0...">
   <meta name="author" content="ShouCheng">
   <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
   <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
@@ -125,7 +126,8 @@ fas...">
 
   
 
-<meta name="generator" content="Hexo 5.4.0"></head>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="ShouCheng" type="application/atom+xml">
+</head>
 
 <body class="lock-screen">
   <div class="loading"></div>
@@ -196,13 +198,13 @@ fas...">
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>July 16, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>2332</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>2217</span>
     </div>
   </div>
 </section>
     <section class="main">
       <section class="content">
-        <p><img   class="lazyload" data-original="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E5%90%88%E9%9B%86/image-20210720154252123-1627363406388.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210720154252123</span></p>
+        <p><img   class="lazyload" data-original="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E5%90%88%E9%9B%86/image-20210720154252123-1627363406388.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  alt="image-20210720154252123"></p>
 <h1 id="fast-bin"><a href="#fast-bin" class="headerlink" title="fast bin"></a>fast bin</h1><h3 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h3><ul>
 <li><p>大小范围：0x20 - 0x80</p>
 </li>
@@ -211,7 +213,7 @@ fas...">
 <li><p>FILO（最后一个进入fastbin链表的，会被放在头部）<br>总共有十个fastbin链表，每个链表中fastbin的size一样，0x10递增<br>大小属于fastbin的chunk被free掉时，不会改变nextchunk的previnuse位，也就是说不会被合并。</p>
 </li>
 </ul>
-<p><img   class="lazyload" data-original="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E5%90%88%E9%9B%86/image-20210720154343954-1627363410633.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210720154343954</span></p>
+<p><img   class="lazyload" data-original="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E5%90%88%E9%9B%86/image-20210720154343954-1627363410633.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  alt="image-20210720154343954"></p>
 <h3 id="检查"><a href="#检查" class="headerlink" title="检查"></a>检查</h3><ul>
 <li>被释放的堆块的fd指针不能指向自己（这也就是想要double free的时候，还需要一个中间chunk的原因）</li>
 <li>将fastbin里面的chunk分配出去时，会检查size位会不会匹配chunk的大小，会才能分配</li>
@@ -234,7 +236,7 @@ fas...">
 <h3 id="unsorted-bin-attack"><a href="#unsorted-bin-attack" class="headerlink" title="unsorted bin attack"></a>unsorted bin attack</h3><p>libc-2.29.so以下：</p>
 <p>利用前提是先有UAF，修改unsortedbin中的FD字段为0，BK字段为target addr - 0x10，然后malloc一个相同大小的chunk，即可完成攻击，在目标地址写入unsorted bin的地址，一般用来伪造堆头（制造出0x7f）、修改次数限制、上限信息、配合局部写</p>
 <h3 id="小技巧-1"><a href="#小技巧-1" class="headerlink" title="小技巧"></a>小技巧</h3><p>当 unsorted bin 链上有两个堆块的时候，其中一个堆块的 fd 会指向另一个堆块，我们可以直接 leak 得到，可计算出堆基址</p>
-<h1 id="small-bin"><a href="#small-bin" class="headerlink" title="small bin"></a>small bin</h1><h3 id="基本结构-2"><a href="#基本结构-2" class="headerlink" title="基本结构"></a>基本结构</h3><img   class="lazyload" data-original="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E5%90%88%E9%9B%86/image-20210726103140256.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  style="zoom:80%;"><span class="image-caption">image-20210726103140256</span>
+<h1 id="small-bin"><a href="#small-bin" class="headerlink" title="small bin"></a>small bin</h1><h3 id="基本结构-2"><a href="#基本结构-2" class="headerlink" title="基本结构"></a>基本结构</h3><img   class="lazyload" data-original="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E5%90%88%E9%9B%86/image-20210726103140256.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  alt="image-20210726103140256" style="zoom:80%;">
 
 <ul>
 <li>大小范围：0x90 - 0x400</li>
@@ -243,9 +245,9 @@ fas...">
 <li>采用的遍历顺序是FIFO</li>
 </ul>
 <h3 id="小技巧-2"><a href="#小技巧-2" class="headerlink" title="小技巧"></a>小技巧</h3><p>small bin 中存在两个块时，第一个块的fd指针指向main_arena，bk指针指向了下一个堆块，所以可以泄露出libc以及堆地址</p>
-<h1 id="large-bin"><a href="#large-bin" class="headerlink" title="large bin"></a>large bin</h1><h3 id="基本结构-3"><a href="#基本结构-3" class="headerlink" title="基本结构"></a>基本结构</h3><img   class="lazyload" data-original="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E5%90%88%E9%9B%86/image-20210720153655147.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  style="zoom:80%;"><span class="image-caption">image-20210720153655147</span>
+<h1 id="large-bin"><a href="#large-bin" class="headerlink" title="large bin"></a>large bin</h1><h3 id="基本结构-3"><a href="#基本结构-3" class="headerlink" title="基本结构"></a>基本结构</h3><img   class="lazyload" data-original="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E5%90%88%E9%9B%86/image-20210720153655147.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  alt="image-20210720153655147" style="zoom:80%;">
 
-<p><img   class="lazyload" data-original="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E5%90%88%E9%9B%86/image-20210726103541056-1627363427270.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210726103541056</span></p>
+<p><img   class="lazyload" data-original="/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E5%90%88%E9%9B%86/image-20210726103541056-1627363427270.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  alt="image-20210726103541056"></p>
 <ul>
 <li>大小范围：0x410 以上</li>
 <li>63个双向链表，不仅存在fd和bk指针，同时还有fd nextsize 和 bk nextsize</li>

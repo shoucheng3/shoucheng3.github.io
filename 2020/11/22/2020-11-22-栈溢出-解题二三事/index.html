@@ -124,7 +124,8 @@
 
   
 
-<meta name="generator" content="Hexo 5.4.0"></head>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="ShouCheng" type="application/atom+xml">
+</head>
 
 <body class="lock-screen">
   <div class="loading"></div>
@@ -195,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>November 22, 2020</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6219</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6328</span>
     </div>
   </div>
 </section>
@@ -251,6 +252,7 @@
 <p>15、system的参数不一定是要/bin/sh才可以，只有sh也是可以的。而且sh可以从fflush()这个函数中获取，直接查找ida或者ROPgadget –binary 文件名 –string ‘sh’查询（不一定都能成功）</p>
 <p>有时候system参数会出现截断问题，写成<code>;sh\x00</code>，<code>||sh</code>，<code>&amp;&amp;sh</code></p>
 <p>16、当远程docker过滤空格和cat时，将无法使用cat flag获取到flag，此时我们可以用<strong>more&lt;flag或者base64&lt;flag</strong>获取flag，其中的&lt;可以代替空格的功能，第一个<strong>more&lt;flag</strong> 与cat一样都是输出文件内容，而base64是把flag的内容转换成base64编码</p>
+<p>&lt;、&lt;&gt;可以代替空格</p>
 <p>17、64位的文件有时候不一定会存在rbp的调用，不存在leave指令，这时候我们只需要去关注rsp的位置即可，因为ret指令代表着pop rip，把栈顶的内容弹出给rip，所以锁定rsp的位置，就可以劫持rip</p>
 <p>18、有时候在我们输入时，无法通过recvuntil去卡到输入的点，可以使用sleep()函数，让线程休眠，让对面的程序跑到我们要到点，再进行输入，方可利用成功（个人猜测）</p>
 <p>19、64位下的linux的系统调用号（使用syscall调用，调用号是保存到rax中,函数传参依次存入RDI,RSI,RDX,RCX,R8,R9）</p>
@@ -294,7 +296,8 @@
 </li>
 </ul>
 <p>31、格式化字符串漏洞：当要往某个地址上写入地址时，格式为：目标addr + ‘%’ + str(addr - 已写的长度) + “c%a(a是偏移量)$hn” 这边一般使用hn写两个字节，或者hhn写一个字节，这样不容易造成timeout，当然前提是格式化漏洞给的长度够长</p>
-<p>已写长度：打印出来的字符长度（%前出现的字符），地址数值大的写后面（就能直接减去前面已经写的偏移量）</p>
+<p>已写长度：printf打印出来的字符长度，地址数值大的写后面（就能直接减去前面已经写的偏移量）</p>
+<p>64位，因为地址必定含有’\x00’，会产生截断，所以往目标地址写入值，要把地址放在最后面，不然打印的字符被截断，n就没办法发生作用</p>
 <p>32、对于劫持rip的理解：首先我们传递给rip的是某个地址，其次这个地址指向的是一段有可执行权限的地址，最后这个地址上存在着指令（机器码）rop就是还需要ret来衔接进行不断地更换rip的值</p>
 <p>33、linux中，程序在加载的时候，会依次调用<code>init.array</code>数组中的每一个函数指针；在结束的时候，依次调用<code>fini.array</code>中的每一个函数指针。一般用在当程序出现格式化字符串漏洞，但是至少需要写两次才能完成攻击。</p>
 <ul>
@@ -304,10 +307,10 @@
 <p>获取fini.array地址有两种方式：1、<code>fini_array = elf.sym[&quot;__init_array_end&quot;]</code>   2、使用<code>readelf -s 文件名</code>命令去查找<code>__init_array_end</code>的地址</p>
 <p>34、如果把0x80000000赋值给a，而a = -a，那么a还是等于0x80000000</p>
 <p>35、用libc寻找/bin/sh地址，要这么写binsh = libc_base + next(libc.search(‘/bin/sh’))</p>
-<p>36、scanf(buf,buf)，如果是以这样的形式出现输入，因为第一个buf是格式化字符串的样子，scanf使用了我们的输入作为格式化字符串，因此会存在格式化字符串漏洞，计算偏移需要通过gdb调试（必须在相应的版本下调试）</p>
+<p>36、scanf(buf,buf)，如果是以这样的形式出现输入，因为第一个buf是格式化字符串，scanf使用了我们的输入作为格式化字符串，因此会存在格式化字符串漏洞，计算偏移需要通过gdb调试（必须在相应的版本下调试）</p>
 <p>%n$s（n是偏移，s是输入的形式以字符串，所以我们输入的地方是以偏移点作为指针输入的）</p>
 <p>37、当程序存在close(1)以及close(2)：代表关闭了linux里面的标准输出(1)和标准错误(2)，所以即使已经getshell了，我们是看不到输出的，所以这时候输入<code>exec 1&gt;&amp;0</code>就可以让标准输出的文件描述符重定向为0，而0没被关闭（0，1，2是默认开启的），才能看到输出</p>
-<p>38、当flag保存在栈上时，可以通过修改栈上的environ指针，改为flag的地址，然后stack check fail会打印环境变量的第一个值即可打印出flag，然后破坏堆结构似乎也可以（别人wp看来的，但是我本地试了没成功）</p>
+<p>38、glibc版本仅限于libc-2.26及以下：当flag保存在栈上、bss等地方时，可以通过修改栈上main函数的argv[0]（文件路径），改为flag的地址，然后stack check fail会打印环境变量的第一个值，即可打印出flag，高版本增加了限制，不会再打印出文件路径</p>
 <p>39、当遇到一些题目需要在shellcode前面加上’\x00’才能绕过时，因为’\x00’是会影响到shellcode解析的，所以要让’\x00’凑成有意义的指令却又不能影响到shellcode（底下的机器码在32位和64位中都是一样的）</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs assembly">00 40 00                 add    BYTE PTR [rax+0x0],  al<br>00 41 00                 add    BYTE PTR [rcx+0x0],  al<br>00 42 00                 add    BYTE PTR [rdx+0x0],  al<br>00 43 00                 add    BYTE PTR [rbx+0x0],  al<br>00 45 00                 add    BYTE PTR [rbp+0x0],  al<br>00 46 00                 add    BYTE PTR [rsi+0x0],  al<br>00 47 00                 add    BYTE PTR [rdi+0x0],  al<br></code></pre></td></tr></table></figure>
 

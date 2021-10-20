@@ -124,7 +124,8 @@
 
   
 
-<meta name="generator" content="Hexo 5.4.0"></head>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="ShouCheng" type="application/atom+xml">
+</head>
 
 <body class="lock-screen">
   <div class="loading"></div>
@@ -195,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>August 30, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>5928</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>7006</span>
     </div>
   </div>
 </section>
@@ -237,7 +238,9 @@
 <li>可以通过 largebin 来泄露堆地址，由于 key 是当前指针 &gt;&gt; 12，所以我们可以确保在 4096 字节内这个 key 都是正确的</li>
 </ul>
 <h3 id="利用"><a href="#利用" class="headerlink" title="利用"></a>利用</h3><h4 id="一、泄露堆基址"><a href="#一、泄露堆基址" class="headerlink" title="一、泄露堆基址"></a>一、泄露堆基址</h4><p>构造两个相同 size 的堆块 a 和 b，我们先 free (a) 让他进入到 tcache 中，再 free (b) 也让他进入到 tcache 中。这时候，在堆块 b 的 fd 位置就存在着堆块 a 的地址，我们 leak 出来就能够得到堆地址</p>
-<h2 id="libc-2-29-so"><a href="#libc-2-29-so" class="headerlink" title="libc-2.29.so"></a>libc-2.29.so</h2><ul>
+<h2 id="libc-2-29-so"><a href="#libc-2-29-so" class="headerlink" title="libc-2.29.so"></a>libc-2.29.so</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (__glibc_unlikely (size &lt;= <span class="hljs-number">2</span> * SIZE_SZ) || __glibc_unlikely (size &gt; av-&gt;system_mem)) 				malloc_printerr (<span class="hljs-string">&quot;malloc: invalid size (unsorted)&quot;</span>); <br><span class="hljs-keyword">if</span> (__glibc_unlikely (chunksize_nomask (next) &lt; <span class="hljs-number">2</span> * SIZE_SZ) || __glibc_unlikely (chunksize_nomask (next) &gt; av-&gt;system_mem)) <br>    malloc_printerr (<span class="hljs-string">&quot;malloc: invalid next size (unsorted)&quot;</span>); <br><span class="hljs-keyword">if</span> (__glibc_unlikely ((prev_size (next) &amp; ~(SIZE_BITS)) != size)) <br>    malloc_printerr (<span class="hljs-string">&quot;malloc: mismatching next-&gt;prev_size (unsorted)&quot;</span>); <br><span class="hljs-keyword">if</span> (__glibc_unlikely (bck-&gt;fd != victim) || __glibc_unlikely (victim-&gt;fd != unsorted_chunks (av))) 		malloc_printerr (<span class="hljs-string">&quot;malloc: unsorted double linked list corrupted&quot;</span>);<br><span class="hljs-keyword">if</span> (__glibc_unlikely (prev_inuse (next))) <br>    malloc_printerr (<span class="hljs-string">&quot;malloc: invalid next-&gt;prev_inuse (unsorted)&quot;</span>); ...... ...... <span class="hljs-comment">/* remove from unsorted list */</span> <span class="hljs-keyword">if</span> (__glibc_unlikely (bck-&gt;fd != victim))<br>    malloc_printerr (<span class="hljs-string">&quot;malloc: corrupted unsorted chunks 3&quot;</span>);<br>	unsorted_chunks (av)-&gt;bk = bck; <br>	bck-&gt;fd = unsorted_chunks (av);<br></code></pre></td></tr></table></figure>
+
+<ul>
 <li><p>对于<code>unsortbin</code>的解链添加了验证链完整性的检查，让 <code>unsortbin attack</code>失效</p>
 <ul>
 <li><p>绕过：</p>
