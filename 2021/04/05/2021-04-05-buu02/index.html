@@ -115,7 +115,7 @@
       },
       search: {
         enable: true,
-        path: '/search.xml'
+        path: '/public/search.xml'
       }
     }
   </script>
@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>April 05, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>1730</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>1776</span>
     </div>
   </div>
 </section>
@@ -225,12 +225,12 @@
 <p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/QQ%E5%9B%BE%E7%89%8720210405214535.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>小插曲，我进入的时候，很惊讶的发现没有flag。。。不知道是管理员忘了，还是说哪个人做了不小心可能删了吧。。</p>
 <h3 id="七、jarvisoj-level2-x64"><a href="#七、jarvisoj-level2-x64" class="headerlink" title="七、jarvisoj_level2_x64"></a>七、jarvisoj_level2_x64</h3><p>只开启了nx，运行一下，貌似也很简单的样子，预测可能跟32位的level2差不多吧，就是变到了64位的环境下，可能为了考验传参</p>
-<p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/image-20210405220229158.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  alt="image-20210405220229158"></p>
+<p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/image-20210405220229158.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210405220229158</span></p>
 <p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/QQ%E5%9B%BE%E7%89%8720210405220316.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>做法跟上一题差不多吧，就不多放图片了，直接exp了：</p>
 <p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/QQ%E5%9B%BE%E7%89%8720210405221357.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <h3 id="八、ciscn-2019-n-5"><a href="#八、ciscn-2019-n-5" class="headerlink" title="八、ciscn_2019_n_5"></a>八、ciscn_2019_n_5</h3><p>好家伙，nx都没开启，可能要直接在栈上执行shellcode了</p>
-<p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/image-20210407194309117.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  alt="image-20210407194309117"></p>
+<p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/image-20210407194309117.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210407194309117</span></p>
 <p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/QQ%E5%9B%BE%E7%89%8720210407194556.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>确实的，有个gets无限输入，很明显可以被利用的溢出点。不过后面带了个name有点奇怪，进入看看汇编是什么情况</p>
 <p><img   class="lazyload" data-original="/2021/04/05/2021-04-05-buu02/QQ%E5%9B%BE%E7%89%8720210407194714.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>

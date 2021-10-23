@@ -116,7 +116,7 @@
       },
       search: {
         enable: true,
-        path: '/search.xml'
+        path: '/public/search.xml'
       }
     }
   </script>
@@ -197,7 +197,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>April 29, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6384</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6396</span>
     </div>
   </div>
 </section>
@@ -209,7 +209,7 @@
 <p><strong>看概念感觉沙箱机制是一种安全隔离技术，但是个人感觉目前做pwn题遇到的沙箱机制用到的是对于一些system call的调用的ban，所以以下介绍的不是对这个沙箱机制的深入了解，而是介绍两种常见的沙箱 seccomp 安全机制和 prctl 。</strong></p>
 <h2 id="seccomp的探索"><a href="#seccomp的探索" class="headerlink" title="seccomp的探索"></a><code>seccomp</code>的探索</h2><h3 id="What-is-seccomp"><a href="#What-is-seccomp" class="headerlink" title="What is seccomp"></a>What is seccomp</h3><p>seccomp (short for secure computing mode) is a computer security facility in the Linux kernel. It was merged into the Linux kernel mainline in kernel version 2.6.12, which was released on March 8, 2005. seccomp allows a process to make a one-way transition into a “secure” state where it cannot make any system calls except exit(), sigreturn(), read() and write() to already-open file descriptors. Should it attempt any other system calls, the kernel will terminate the process with SIGKILL or SIGSYS. In this sense, it does not virtualize the system’s resources but isolates the process from them entirely.</p>
 <h3 id="How-to-use"><a href="#How-to-use" class="headerlink" title="How to use"></a>How to use</h3><p>这里主要介绍几个函数以及利用。</p>
-<p><strong><a target="_blank" rel="noopener" href="https://pig-sudo.github.io/2020/08/03/%E6%B2%99%E7%AE%B1%E6%9C%BA%E5%88%B6%E5%88%9D%E6%8E%A2/1.png"><img   class="lazyload" data-original="https://pig-sudo.github.io/2020/08/03/%E6%B2%99%E7%AE%B1%E6%9C%BA%E5%88%B6%E5%88%9D%E6%8E%A2/1.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  alt="img"></a></strong></p>
+<p><strong><a target="_blank" rel="noopener" href="https://pig-sudo.github.io/2020/08/03/%E6%B2%99%E7%AE%B1%E6%9C%BA%E5%88%B6%E5%88%9D%E6%8E%A2/1.png"><img   class="lazyload" data-original="https://pig-sudo.github.io/2020/08/03/%E6%B2%99%E7%AE%B1%E6%9C%BA%E5%88%B6%E5%88%9D%E6%8E%A2/1.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">img</span></a></strong></p>
 <p><code>ctx</code>是<code>Filter context/handle</code>,其中<code>typedef void *scmp_filter_ctx;</code><br><code>seccomp_init</code>是初始化的过滤状态,这里用的是<code>SCMP_ACT_ALLOW</code>,表示默认允许所有的syscacll.如果初始化状态为<code>SCMP_ACT_KILL</code>,则表示默认不允许所有的syscall （详见下图）</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * seccomp actions</span><br><span class="hljs-comment"> */</span><br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * Kill the process</span><br><span class="hljs-comment"> */</span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> SCMP_ACT_KILL		0x00000000U</span><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * Throw a SIGSYS signal</span><br><span class="hljs-comment"> */</span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> SCMP_ACT_TRAP		0x00030000U</span><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * Return the specified error code</span><br><span class="hljs-comment"> */</span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> SCMP_ACT_ERRNO(x)	(0x00050000U | ((x) &amp; 0x0000ffffU))</span><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * Notify a tracing process with the specified value</span><br><span class="hljs-comment"> */</span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> SCMP_ACT_TRACE(x)	(0x7ff00000U | ((x) &amp; 0x0000ffffU))</span><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * Allow the syscall to be executed after the action has been logged</span><br><span class="hljs-comment"> */</span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> SCMP_ACT_LOG		0x7ffc0000U</span><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * Allow the syscall to be executed</span><br><span class="hljs-comment"> */</span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> SCMP_ACT_ALLOW		0x7fff0000U</span><br></code></pre></td></tr></table></figure>
 
@@ -232,17 +232,17 @@
 <p>第一个参数是指定相应的操作，在手册上有特别多的选项，这里打算介绍两个。</p>
 <h3 id="PR-SET-NO-NEW-PRIVS-用38表示"><a href="#PR-SET-NO-NEW-PRIVS-用38表示" class="headerlink" title="PR_SET_NO_NEW_PRIVS(用38表示)"></a>PR_SET_NO_NEW_PRIVS(用38表示)</h3><p>简单的说就是如果 option 设置为 <code>PR_SET_NO_NEW_PRIVS</code> 的话，第二个参数如果设置为 1 的话，<strong>不能够进行 execve 的系统调用，同时这个选项还会继承给子进程</strong>。</p>
 <p>这样的话常规的调用 system 函数、one_gadget 的用不了了，这里的设置点其实和 <strong>pwnable.tw 上 orw 那道题一样，只能进行几个系统调用：open、write、read</strong>。</p>
-<p><strong><a target="_blank" rel="noopener" href="https://pig-sudo.github.io/2020/08/03/%E6%B2%99%E7%AE%B1%E6%9C%BA%E5%88%B6%E5%88%9D%E6%8E%A2/2.png"><img   class="lazyload" data-original="https://pig-sudo.github.io/2020/08/03/%E6%B2%99%E7%AE%B1%E6%9C%BA%E5%88%B6%E5%88%9D%E6%8E%A2/2.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  alt="img"></a></strong></p>
+<p><strong><a target="_blank" rel="noopener" href="https://pig-sudo.github.io/2020/08/03/%E6%B2%99%E7%AE%B1%E6%9C%BA%E5%88%B6%E5%88%9D%E6%8E%A2/2.png"><img   class="lazyload" data-original="https://pig-sudo.github.io/2020/08/03/%E6%B2%99%E7%AE%B1%E6%9C%BA%E5%88%B6%E5%88%9D%E6%8E%A2/2.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">img</span></a></strong></p>
 <p>从上图可以看出，当prctl的第一个参数设置为38时，第二个参数设置为1时，变会触发上述效果。</p>
 <h3 id="PR-SET-SECCOMP（用22表示）"><a href="#PR-SET-SECCOMP（用22表示）" class="headerlink" title="PR_SET_SECCOMP（用22表示）"></a>PR_SET_SECCOMP（用22表示）</h3><p>第二个参数，可以参见man手册里面的介绍</p>
-<p><strong><a target="_blank" rel="noopener" href="https://pig-sudo.github.io/2020/08/03/%E6%B2%99%E7%AE%B1%E6%9C%BA%E5%88%B6%E5%88%9D%E6%8E%A2/3.png"><img   class="lazyload" data-original="https://pig-sudo.github.io/2020/08/03/%E6%B2%99%E7%AE%B1%E6%9C%BA%E5%88%B6%E5%88%9D%E6%8E%A2/3.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  alt="img"></a></strong></p>
+<p><strong><a target="_blank" rel="noopener" href="https://pig-sudo.github.io/2020/08/03/%E6%B2%99%E7%AE%B1%E6%9C%BA%E5%88%B6%E5%88%9D%E6%8E%A2/3.png"><img   class="lazyload" data-original="https://pig-sudo.github.io/2020/08/03/%E6%B2%99%E7%AE%B1%E6%9C%BA%E5%88%B6%E5%88%9D%E6%8E%A2/3.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">img</span></a></strong></p>
 <p>设置 seccomp ，其实也就是设置沙箱规则，这个 option 有两个子参数：</p>
 <ul>
 <li><p>这里如果设置了 <code>SECCOMP_MODE_STRICT</code> （用1表示）模式的话，系统调用只能使用 read, write,_exit 这三个。</p>
 </li>
 <li><p>如果设置了 <code>SECCOMP_MODE_FILTER</code> （用2表示）的话，系统调用规则就可以被 Berkeley Packet Filter（BPF） 的规则所定义，这玩意就是这里最最重点的东西了。</p>
 <p>首先介绍一下这个BPF是啥吧，度娘上面的解释是：</p>
-<p><strong><a target="_blank" rel="noopener" href="https://pig-sudo.github.io/2020/08/03/%E6%B2%99%E7%AE%B1%E6%9C%BA%E5%88%B6%E5%88%9D%E6%8E%A2/4.png"><img   class="lazyload" data-original="https://pig-sudo.github.io/2020/08/03/%E6%B2%99%E7%AE%B1%E6%9C%BA%E5%88%B6%E5%88%9D%E6%8E%A2/4.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  alt="img"></a></strong></p>
+<p><strong><a target="_blank" rel="noopener" href="https://pig-sudo.github.io/2020/08/03/%E6%B2%99%E7%AE%B1%E6%9C%BA%E5%88%B6%E5%88%9D%E6%8E%A2/4.png"><img   class="lazyload" data-original="https://pig-sudo.github.io/2020/08/03/%E6%B2%99%E7%AE%B1%E6%9C%BA%E5%88%B6%E5%88%9D%E6%8E%A2/4.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">img</span></a></strong></p>
 </li>
 </ul>
 <p>看解释感觉是网络数据包传输过滤的一种规则，但事实上，后面已经被引用为沙箱规则</p>
