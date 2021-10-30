@@ -115,7 +115,7 @@
       },
       search: {
         enable: true,
-        path: '/public/search.xml'
+        path: '/search.xml'
       }
     }
   </script>
@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>July 20, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>11495</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>11544</span>
     </div>
   </div>
 </section>
@@ -236,6 +236,7 @@
 <p>offbynull情形：</p>
 <ul>
 <li>把你输入的堆块的地址加上输入的字符长度的地方置为0（一般来说没我下面的例题那么明显，会进行很多运算以及操作，但是本质还是一样的）</li>
+<li>strcpy没做限制直接复制，如果输满的话会把字符串末尾的’\x00’一起复制过来，导致溢出一个0</li>
 </ul>
 <p>怎么利用呢？因为溢出的是0，所以明显只能把修改preinuse位修改了，所以这边都是申请0xf8大小的堆块，这样的堆块刚好为0x101，溢出的0只会修改preinuse，不会影响大小</p>
 <p>利用方式：</p>
@@ -246,7 +247,7 @@
 <img   class="lazyload" data-original="/2021/07/20/2021-07-26-offbyone&null/image-20210726170351639.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  style="zoom:80%;"><span class="image-caption">image-20210726170351639</span>
 
 <p>此时，C的previnuse位被改成了0，程序会将B看作已经被释放的堆块。然后由于系统是通过prevsize位来定位前一个堆块的位置，在这里，我们将其改成了0x200,也就是说定位到了A堆块。然后先将A free掉放入unsortedbin，这时候再free C，就会触发合并操作。ABC将会被看作一个大小为0x300的堆块放入unsortedbin中。然而实际上，B并没有被free，我们也就通过这样的方式构造了overlap</p>
-<p>在实际运用时，不局限都是0x100的，可以是中间的某个堆块是fast chunk也行，但是第一个在头的必须也得是unsorted chunk大小的堆块，否则触发合并会出问题</p>
+<p>在实际运用时，不局限都是0x100的，可以是中间的某个堆块是fast chunk也行，但是第一个在头的必须得是unsorted chunk大小的堆块，否则触发合并会出问题</p>
 <h2 id="例题-1"><a href="#例题-1" class="headerlink" title="例题"></a>例题</h2><p><img   class="lazyload" data-original="/2021/07/20/2021-07-26-offbyone&null/image-20210726173924395.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210726173924395</span></p>
 <p>看程序的add函数里面，会把输入的长度多一个字节的地方置为0</p>
 <p>这边有些奇怪，不懂为什么，如果只是用四个进行构造，将会报错，但是五个就行，第一个是用来泄露libc基址的，不用理会</p>
@@ -334,7 +335,7 @@
           <ul class="copyright">
   
     <li><strong>本文作者：</strong>ShouCheng</li>
-    <li><strong>本文链接：</strong><a href="http://example.com/2021/07/20/2021-07-26-offbyone&null/index.html" title="http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;07&#x2F;20&#x2F;2021-07-26-offbyone&amp;null&#x2F;index.html">http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;07&#x2F;20&#x2F;2021-07-26-offbyone&amp;null&#x2F;index.html</a></li>
+    <li><strong>本文链接：</strong><a href="http://shoucheng3.github.io/2021/07/20/2021-07-26-offbyone&null/index.html" title="http:&#x2F;&#x2F;shoucheng3.github.io&#x2F;2021&#x2F;07&#x2F;20&#x2F;2021-07-26-offbyone&amp;null&#x2F;index.html">http:&#x2F;&#x2F;shoucheng3.github.io&#x2F;2021&#x2F;07&#x2F;20&#x2F;2021-07-26-offbyone&amp;null&#x2F;index.html</a></li>
     <li><strong>版权声明：</strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" title="BY-NC-SA" target="_blank" rel="noopener">BY-NC-SA</a> 许可协议，转载请注明出处！</li>
   
 </ul>

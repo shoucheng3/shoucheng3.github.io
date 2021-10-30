@@ -115,7 +115,7 @@
       },
       search: {
         enable: true,
-        path: '/public/search.xml'
+        path: '/search.xml'
       }
     }
   </script>
@@ -196,14 +196,16 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>April 18, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>5444</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>5723</span>
     </div>
   </div>
 </section>
     <section class="main">
       <section class="content">
         <h1 id="一些关于堆的小知识点"><a href="#一些关于堆的小知识点" class="headerlink" title="一些关于堆的小知识点"></a>一些关于堆的小知识点</h1><p>（没有顺序，知识点是零散的，都是我自己学到一点，记录下一点）</p>
-<p>1、当small chunk只有一个时，如果被释放了，会被划分到unsorted bin里面，如果只有一个时，该chunk的fd和bk都指向libc中的地址，可以借次泄露libc地址</p>
+<p>1、当small chunk只有一个时，如果被释放了，会被划分到unsorted bin里面，如果只有一个时，该chunk的fd和bk都指向libc中的地址，可以借此泄露libc地址</p>
+<p>如果程序没开PIE，可以试着考虑下泄露got表来获得libc地址</p>
+<p>在高版本利用中可以借着large bin上存留libc地址进行泄露</p>
 <p>2、当先调用了mmap函数时，malloc系列函数申请的chunk的地址是从heap的起始地址开始分配的，又有页（4KB）是内存分配的最小单位，导致heap地址的最低三位总是0x000。因此申请的chunk可以只要覆盖地址最低两位进行修改其fd和bk的值</p>
 <p>3、在利用malloc_hook（__malloc_hook是一个弱类型的函数指针变量，指向void * function(size_t size void * caller)，当调用malloc系列函数时，会判断hook指针是否为空，不为空则调用它）函数时，要使用错位偏移，即为把<strong>hook函数地址-0x23（有时候也可以找找hook地址-0x20+0x5）</strong>。此时，在写上p8(0)*3+p64(one_gadget)即可获取shell（似乎有些不准确，虽然有的确实行的通，但是更全面的应该是检验的size位置是int类型的函数，所以我们应该查看低32位的数，所以不局限-0x20，可能是0x30，0x38等等，在gdb里面调试发现即可）</p>
 <p>4、如果释放两个fast chunk进入fast bin中，如果有UAF漏洞，修改后进的堆块fd指针指向其他的同样大小的fast chunk，那么被指向的堆块会被认为是在fast bin中的，而这时候如果这个chunk的fd上有地址数据，就可以申请到那边去（适用于要借用unsorted chunk上的脏数据，覆盖低字节地址）</p>
@@ -288,6 +290,8 @@
 <li>mem_address 不变，newsize &gt; originsize，<code>先释放原堆块</code>，然后再malloc一个更大的堆块，原堆块内容会被拷贝过去；返回新堆块的地址</li>
 <li>mem_address 不变，newsize &lt;= originsize，如果切割后剩下的堆块大于 2 * chunk_min_size则切割，剩下堆块被free，否则直接返回原堆块</li>
 </ul>
+<p>32、在利用offbynull构造overlap，遇到过多次了：头尾两个要释放的堆块之间不能只间隔一个堆块，至少要两个才行，不然将无法成功利用offbynull</p>
+<p>33、unsorted bin泄露出的main_arena + 96的libc地址和__malloc_hook的地址只相差一个字节的数据，所以如果拥有能在释放堆块修改的数据的权利时，可以修改main_arena + 96后一字节即可，可以避免要打印libc地址</p>
 
       </section>
       <section class="extra">
@@ -295,7 +299,7 @@
           <ul class="copyright">
   
     <li><strong>本文作者：</strong>ShouCheng</li>
-    <li><strong>本文链接：</strong><a href="http://example.com/2021/04/18/2021-04-18-%E5%A0%86%E4%BA%8C%E4%B8%89%E4%BA%8B/index.html" title="http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;04&#x2F;18&#x2F;2021-04-18-%E5%A0%86%E4%BA%8C%E4%B8%89%E4%BA%8B&#x2F;index.html">http:&#x2F;&#x2F;example.com&#x2F;2021&#x2F;04&#x2F;18&#x2F;2021-04-18-%E5%A0%86%E4%BA%8C%E4%B8%89%E4%BA%8B&#x2F;index.html</a></li>
+    <li><strong>本文链接：</strong><a href="http://shoucheng3.github.io/2021/04/18/2021-04-18-%E5%A0%86%E4%BA%8C%E4%B8%89%E4%BA%8B/index.html" title="http:&#x2F;&#x2F;shoucheng3.github.io&#x2F;2021&#x2F;04&#x2F;18&#x2F;2021-04-18-%E5%A0%86%E4%BA%8C%E4%B8%89%E4%BA%8B&#x2F;index.html">http:&#x2F;&#x2F;shoucheng3.github.io&#x2F;2021&#x2F;04&#x2F;18&#x2F;2021-04-18-%E5%A0%86%E4%BA%8C%E4%B8%89%E4%BA%8B&#x2F;index.html</a></li>
     <li><strong>版权声明：</strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" title="BY-NC-SA" target="_blank" rel="noopener">BY-NC-SA</a> 许可协议，转载请注明出处！</li>
   
 </ul>
