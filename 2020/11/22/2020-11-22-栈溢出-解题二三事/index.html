@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>November 22, 2020</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6328</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6228</span>
     </div>
   </div>
 </section>
@@ -281,7 +281,7 @@
 <p><img   class="lazyload" data-original="/2020/11/22/2020-11-22-%E6%A0%88%E6%BA%A2%E5%87%BA-%E8%A7%A3%E9%A2%98%E4%BA%8C%E4%B8%89%E4%BA%8B/QQ%E5%9B%BE%E7%89%8720210510214657.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>24、静态链接题目多半考虑ret2syscall，或者看有没有mprotect函数，修改段的执行权限，注入shellcode</p>
 <p>25、libc中environ存储了栈上环境变量的特性，可以利用这个特效来泄露出栈上的地址，写为这样libc.sym[“environ”]</p>
-<p>26、scanf读取过长的输入时会使用malloc_hook分配chunk，也就是可以借此如果能修改__malloc_hook为one_gadget的话，就能getshell</p>
+<p>26、scanf读取过长的输入时会使用malloc_hook分配chunk，也就是如果能修改__malloc_hook为one_gadget的话，就能getshell</p>
 <p>27、got表劫持：常见劫持put(buf)、free(buf)、atoi(buf)、atol(buf)、strlen(buf)</p>
 <p>28、当scanf的参数不是%s时候，是u，d等数字，输入数字是使用str()即可，不用p64()。</p>
 <p>因为输入数字是就是使用数字输入，如果使用了p64()将会变成字符数字</p>
@@ -314,9 +314,7 @@
 <p>39、当遇到一些题目需要在shellcode前面加上’\x00’才能绕过时，因为’\x00’是会影响到shellcode解析的，所以要让’\x00’凑成有意义的指令却又不能影响到shellcode（底下的机器码在32位和64位中都是一样的）</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs assembly">00 40 00                 add    BYTE PTR [rax+0x0],  al<br>00 41 00                 add    BYTE PTR [rcx+0x0],  al<br>00 42 00                 add    BYTE PTR [rdx+0x0],  al<br>00 43 00                 add    BYTE PTR [rbx+0x0],  al<br>00 45 00                 add    BYTE PTR [rbp+0x0],  al<br>00 46 00                 add    BYTE PTR [rsi+0x0],  al<br>00 47 00                 add    BYTE PTR [rdi+0x0],  al<br></code></pre></td></tr></table></figure>
 
-<p>40、在本地关闭程序中的alarm函数</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> 将程序名为ProgrammName中的alarm替换为isnan</span><br><span class="hljs-meta">&gt;</span><span class="bash"> sed -i s/alarm/isnan/g ./ProgrammName</span><br></code></pre></td></tr></table></figure>
-
+<p>40、</p>
 <p>41、mprotect修改内存权限的第一个参数必须是起始地址，修改的长度必须是页的倍数</p>
 <p>42、<em><em>int snprintf(char</em> dest_str,size_t size,const char</em> format,…);**</p>
 <p>将可变个参数(…)按照format格式化成字符串，然后将其复制到str中。返回值为欲写入的字符串长度</p>

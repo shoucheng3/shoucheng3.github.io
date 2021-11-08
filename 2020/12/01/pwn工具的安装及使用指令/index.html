@@ -197,7 +197,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>December 01, 2020</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>9984</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>10110</span>
     </div>
   </div>
 </section>
@@ -226,6 +226,9 @@
 <p>one_gadget是用来去查找动态链接库里execve(“/bin/sh”, rsp+0x70, environ)函数的地址的</p>
 <p>使用方法：</p>
 <p><img   class="lazyload" data-original="/2020/12/01/pwn%E5%B7%A5%E5%85%B7%E7%9A%84%E5%AE%89%E8%A3%85%E5%8F%8A%E4%BD%BF%E7%94%A8%E6%8C%87%E4%BB%A4/2020101517362410.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
+<p>但是这样只会给出常见的容易满足的one_gadget，通过下面指令可以查询到一些比较难满足的one_gadget</p>
+<figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs ada">one_gadget libc-<span class="hljs-number">2.27</span>.so <span class="hljs-comment">--l 2</span><br>或者 one_gadget libc-<span class="hljs-number">2.27</span>.so <span class="hljs-comment">--level 2</span><br></code></pre></td></tr></table></figure>
+
 <p>来源： <a target="_blank" rel="noopener" href="https://blog.csdn.net/yongbaoii/article/details/109101822">https://blog.csdn.net/yongbaoii/article/details/109101822</a> </p>
 <h2 id="gdb"><a href="#gdb" class="headerlink" title="gdb"></a>gdb</h2><h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>先装，因为这个带有parseheap、以及heapinfo等指令，有的场景下更好用</p>
 <figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs awk">cd ~/<br>git clone https:<span class="hljs-regexp">//gi</span>thub.com<span class="hljs-regexp">/scwuaptx/</span>Pwngdb.git <br>cp ~<span class="hljs-regexp">/Pwngdb/</span>.gdbinit ~/<br></code></pre></td></tr></table></figure>

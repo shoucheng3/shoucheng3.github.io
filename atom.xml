@@ -6,7 +6,7 @@
   <link href="http://shoucheng3.github.io/atom.xml" rel="self"/>
   
   <link href="http://shoucheng3.github.io/"/>
-  <updated>2021-11-03T08:39:22.950Z</updated>
+  <updated>2021-11-08T14:21:40.019Z</updated>
   <id>http://shoucheng3.github.io/</id>
   
   <author>
@@ -15,6 +15,42 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>pwnable.tw</title>
+    <link href="http://shoucheng3.github.io/2021/11/08/2021-11-08-pwnable-tw/"/>
+    <id>http://shoucheng3.github.io/2021/11/08/2021-11-08-pwnable-tw/</id>
+    <published>2021-11-08T14:14:50.000Z</published>
+    <updated>2021-11-08T14:21:40.019Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;某个大佬说过，pwnable.tw的题目rank比较高，要把这里的题目都刷一遍，才算是有基础可以进行漏洞挖掘，学pwn也快一年了，今天开始慢慢地把这里的题目一一进行复现，然后再去学习漏洞挖掘的相关知识，同时这里题目质量高，CTF的帮助应该也很大</summary>
+        
+      
+    
+    
+    
+    
+    <category term="PWN,pwnable.tw" scheme="http://shoucheng3.github.io/tags/PWN-pwnable-tw/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>_IO_FLIE</title>
+    <link href="http://shoucheng3.github.io/2021/11/06/2021-11-06-IO-FLIE/"/>
+    <id>http://shoucheng3.github.io/2021/11/06/2021-11-06-IO-FLIE/</id>
+    <published>2021-11-06T11:04:05.000Z</published>
+    <updated>2021-11-06T11:04:05.813Z</updated>
+    
+    
+    
+    
+    
+  </entry>
   
   <entry>
     <title>2021柏鹭杯</title>
@@ -300,7 +336,7 @@
     <link href="http://shoucheng3.github.io/2021/09/05/2021-09-05-buu08/"/>
     <id>http://shoucheng3.github.io/2021/09/05/2021-09-05-buu08/</id>
     <published>2021-09-05T07:59:06.000Z</published>
-    <updated>2021-10-30T10:26:11.804Z</updated>
+    <updated>2021-11-06T08:34:57.868Z</updated>
     
     
       
@@ -433,52 +469,6 @@
     
     
     <category term="heap" scheme="http://shoucheng3.github.io/tags/heap/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>bin链情况集合</title>
-    <link href="http://shoucheng3.github.io/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E5%90%88%E9%9B%86/"/>
-    <id>http://shoucheng3.github.io/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E5%90%88%E9%9B%86/</id>
-    <published>2021-07-16T12:17:24.000Z</published>
-    <updated>2021-10-13T08:01:21.155Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;p&gt;&lt;img src=&quot;/2021/07/16/2021-07-23-bin%E9%93%BE%E6%83%85%E5%86%B5%E5%90%88%E9%9B%86/image-20210720154252123-1627363406388.png&quot;&gt;&lt;span</summary>
-        
-      
-    
-    
-    
-    
-    <category term="heap" scheme="http://shoucheng3.github.io/tags/heap/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>buu06</title>
-    <link href="http://shoucheng3.github.io/2021/06/05/2021-06-14-buu06/"/>
-    <id>http://shoucheng3.github.io/2021/06/05/2021-06-14-buu06/</id>
-    <published>2021-06-05T03:33:26.000Z</published>
-    <updated>2021-10-13T08:01:21.077Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h3 id=&quot;bjdctf-2020-router&quot;&gt;&lt;a href=&quot;#bjdctf-2020-router&quot; class=&quot;headerlink&quot;</summary>
-        
-      
-    
-    
-    
-    
-    <category term="buu" scheme="http://shoucheng3.github.io/tags/buu/"/>
     
   </entry>
   
