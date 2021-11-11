@@ -30,7 +30,39 @@
   <entry>
     <title>_IO_FLIE</title>
     <url>/2021/11/06/2021-11-06-IO-FLIE/</url>
-    <content><![CDATA[]]></content>
+    <content><![CDATA[<h1 id="利用环境"><a href="#利用环境" class="headerlink" title="利用环境"></a>利用环境</h1><p>介绍的函数都是glibc-2.23及以下适用，后面的内容才会介绍高版本的利用，但是也是在这个基础上对新加入的检查的对抗与绕过</p>
+<h1 id="IO-FILE"><a href="#IO-FILE" class="headerlink" title="_IO_FILE"></a>_IO_FILE</h1><h2 id="主要函数介绍"><a href="#主要函数介绍" class="headerlink" title="主要函数介绍"></a>主要函数介绍</h2><p><strong>FILE *fopen(const char *filename, const char *mode)</strong></p>
+<p>使用给定的模式 <strong>mode</strong> 打开 <strong>filename</strong> 所指向的文件，返回一个文件指针，该指针指向存储在堆上的FILE结构体。如果打开失败则返回NULL</p>
+<p><strong>size_t fwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream)</strong></p>
+<p>把 <strong>ptr</strong> 所指向的数组中的数据写入到给定流 <strong>stream</strong> 中，返回实际写入的数据块数目</p>
+<p><strong>size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream)</strong></p>
+<p> 从给定流 <strong>stream</strong> 读取数据到 <strong>ptr</strong> 所指向的数组中，返回成功读取的对象个数，若出现错误或到达文件末尾，则可能小于count</p>
+<p><strong>int fclose(FILE *stream)</strong></p>
+<p>关闭文件流，并且释放相应文件指针指向的缓冲区（堆块）</p>
+<h2 id="主要结构体介绍"><a href="#主要结构体介绍" class="headerlink" title="主要结构体介绍"></a>主要结构体介绍</h2><p>当使用fopen打开一个文件，会在堆上分配一块内存用来存储FILE结构体（数据结构是_IO_FILE_plus），FILE结构体有两个成员<code>_IO_FILE</code>以及<code>_IO_jump_t</code>，这两个成员也是结构体。如下源码：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> _<span class="hljs-title">IO_FILE_plus</span></span><br><span class="hljs-class">&#123;</span><br>    _IO_FILE    file;<br>    _IO_jump_t   *vtable;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>_IO_FILE存储着一些文件相关的指针信息，该结构体的大小：64位下为0xd8； 32位下为0x94。源码如下：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> _<span class="hljs-title">IO_FILE</span> &#123;</span><br>  <span class="hljs-keyword">int</span> _flags;       <span class="hljs-comment">/* High-order word is _IO_MAGIC; rest is flags. */</span><br>  <span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> _IO_file_flags _flags</span><br>    <br>  <span class="hljs-comment">/* The following pointers correspond to the C++ streambuf protocol. */</span><br>  <span class="hljs-comment">/* Note:  Tk uses the _IO_read_ptr and _IO_read_end fields directly. */</span><br>  <span class="hljs-keyword">char</span>* _IO_read_ptr;   <span class="hljs-comment">/* Current read pointer */</span><br>  <span class="hljs-keyword">char</span>* _IO_read_end;   <span class="hljs-comment">/* End of get area. */</span><br>  <span class="hljs-keyword">char</span>* _IO_read_base;  <span class="hljs-comment">/* Start of putback+get area. */</span><br>  <span class="hljs-keyword">char</span>* _IO_write_base; <span class="hljs-comment">/* Start of put area. */</span><br>  <span class="hljs-keyword">char</span>* _IO_write_ptr;  <span class="hljs-comment">/* Current put pointer. */</span><br>  <span class="hljs-keyword">char</span>* _IO_write_end;  <span class="hljs-comment">/* End of put area. */</span><br>  <span class="hljs-keyword">char</span>* _IO_buf_base;   <span class="hljs-comment">/* Start of reserve area. */</span><br>  <span class="hljs-keyword">char</span>* _IO_buf_end;    <span class="hljs-comment">/* End of reserve area. */</span><br>  <span class="hljs-comment">/* The following fields are used to support backing up and undo. */</span><br>  <span class="hljs-keyword">char</span> *_IO_save_base; <span class="hljs-comment">/* Pointer to start of non-current get area. */</span><br>  <span class="hljs-keyword">char</span> *_IO_backup_base;  <span class="hljs-comment">/* Pointer to first valid character of backup area */</span><br>  <span class="hljs-keyword">char</span> *_IO_save_end; <span class="hljs-comment">/* Pointer to end of non-current get area. */</span><br> <br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> _<span class="hljs-title">IO_marker</span> *_<span class="hljs-title">markers</span>;</span><br> <br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> _<span class="hljs-title">IO_FILE</span> *_<span class="hljs-title">chain</span>;</span><br> <br>  <span class="hljs-keyword">int</span> _fileno;<br><span class="hljs-meta">#<span class="hljs-meta-keyword">if</span> 0</span><br>  <span class="hljs-keyword">int</span> _blksize;<br><span class="hljs-meta">#<span class="hljs-meta-keyword">else</span></span><br>  <span class="hljs-keyword">int</span> _flags2;<br><span class="hljs-meta">#<span class="hljs-meta-keyword">endif</span></span><br>  _IO_off_t _old_offset; <span class="hljs-comment">/* This used to be _offset but it&#x27;s too small.  */</span><br> <br><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> __HAVE_COLUMN <span class="hljs-comment">/* temporary */</span></span><br>  <span class="hljs-comment">/* 1+column number of pbase(); 0 is unknown. */</span><br>  <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">short</span> _cur_column;<br>  <span class="hljs-keyword">signed</span> <span class="hljs-keyword">char</span> _vtable_offset;<br>  <span class="hljs-keyword">char</span> _shortbuf[<span class="hljs-number">1</span>];<br> <br><span class="hljs-comment">/*  char* _save_gptr;  char* _save_egptr; */</span><br> <br>_IO_lock_t *_lock;<br><span class="hljs-meta">#<span class="hljs-meta-keyword">ifdef</span> _IO_USE_OLD_IO_FILE</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>所有的文件都共享一个虚函数表，_IO_jump_t  *vtable则指向这个虚函数表（保存各种操作函数的指针）</p>
+<p><img src="/2021/11/06/2021-11-06-IO-FLIE/t0164042469a91160ed.png"><span class="image-caption">http://p4.qhimg.com/t01b40ad4596d99e588.png</span></p>
+<p><img src="/2021/11/06/2021-11-06-IO-FLIE/image-20211111215424904.png"><span class="image-caption">image-20211111215424904</span></p>
+<p>而在调用fclose关闭一个文件时，最终会调用到vtable中存储的函数指针。如果我们能够将vtable中的指针替换为我们自己想要跳转到的地址就可以劫持程序流程</p>
+<h2 id="利用"><a href="#利用" class="headerlink" title="利用"></a>利用</h2><h3 id="劫持文件流"><a href="#劫持文件流" class="headerlink" title="劫持文件流"></a>劫持文件流</h3><h4 id="方式一、劫持vtable"><a href="#方式一、劫持vtable" class="headerlink" title="方式一、劫持vtable"></a>方式一、劫持vtable</h4><p>覆盖vtable指针指向可控内存，将__finish(off=2*SIZE_T)构造为要执行的地址。然后调用fclose</p>
+<h4 id="方式二、伪造vtable"><a href="#方式二、伪造vtable" class="headerlink" title="方式二、伪造vtable"></a>方式二、伪造vtable</h4><p>无法直接修改vtable指针时，但是可以修改返回的文件指针fd。这时候就要伪造整个FILE结构体通过检查，再在伪造的FILE结构里面修改vtable指针以及__finish(off=2*SIZE_T)。将文件指针指向这个伪造的FILE结构体，最后调用fclose</p>
+<h3 id="利用stdout泄露libc"><a href="#利用stdout泄露libc" class="headerlink" title="利用stdout泄露libc"></a>利用stdout泄露libc</h3><p>参考文章：</p>
+<p><a href="https://www.jianshu.com/p/2e00afb01606">https://www.jianshu.com/p/2e00afb01606</a></p>
+<p><a href="https://blog.csdn.net/A951860555/article/details/116425824">https://blog.csdn.net/A951860555/article/details/116425824</a></p>
+<p><a href="https://www.cnblogs.com/elvirangel/p/7843842.html">https://www.cnblogs.com/elvirangel/p/7843842.html</a></p>
+<p><a href="https://blog.csdn.net/w12315q/article/details/84328447">https://blog.csdn.net/w12315q/article/details/84328447</a></p>
+<p><a href="https://www.anquanke.com/post/id/177910">https://www.anquanke.com/post/id/177910</a></p>
+<p><a href="https://www.anquanke.com/post/id/177958">https://www.anquanke.com/post/id/177958</a></p>
+<p><a href="https://www.anquanke.com/post/id/84987">https://www.anquanke.com/post/id/84987</a></p>
+]]></content>
+      <tags>
+        <tag>PWN、_IO_FILE</tag>
+      </tags>
   </entry>
   <entry>
     <title>2021柏鹭杯</title>
@@ -3821,6 +3853,8 @@
 <p>15、system的参数不一定是要/bin/sh才可以，只有sh也是可以的。而且sh可以从fflush()这个函数中获取，直接查找ida或者ROPgadget –binary 文件名 –string ‘sh’查询（不一定都能成功）</p>
 <p>有时候system参数会出现截断问题，写成<code>;sh\x00</code>，<code>||sh</code>，<code>&amp;&amp;sh</code></p>
 <p>16、当远程docker过滤空格和cat时，将无法使用cat flag获取到flag，此时我们可以用<strong>more&lt;flag或者base64&lt;flag</strong>获取flag，其中的&lt;可以代替空格的功能，第一个<strong>more&lt;flag</strong> 与cat一样都是输出文件内容，而base64是把flag的内容转换成base64编码</p>
+<figure class="highlight apache"><table><tr><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">tacMATHJAX</span>-SSR-<span class="hljs-number">09</span>flag<br></code></pre></td></tr></table></figure>
+
 <p>&lt;、&lt;&gt;可以代替空格</p>
 <p>17、64位的文件有时候不一定会存在rbp的调用，不存在leave指令，这时候我们只需要去关注rsp的位置即可，因为ret指令代表着pop rip，把栈顶的内容弹出给rip，所以锁定rsp的位置，就可以劫持rip</p>
 <p>18、有时候在我们输入时，无法通过recvuntil去卡到输入的点，可以使用sleep()函数，让线程休眠，让对面的程序跑到我们要到点，再进行输入，方可利用成功（个人猜测）</p>

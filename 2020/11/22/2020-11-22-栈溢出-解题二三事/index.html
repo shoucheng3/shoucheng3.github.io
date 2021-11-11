@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>November 22, 2020</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6228</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6252</span>
     </div>
   </div>
 </section>
@@ -252,6 +252,8 @@
 <p>15、system的参数不一定是要/bin/sh才可以，只有sh也是可以的。而且sh可以从fflush()这个函数中获取，直接查找ida或者ROPgadget –binary 文件名 –string ‘sh’查询（不一定都能成功）</p>
 <p>有时候system参数会出现截断问题，写成<code>;sh\x00</code>，<code>||sh</code>，<code>&amp;&amp;sh</code></p>
 <p>16、当远程docker过滤空格和cat时，将无法使用cat flag获取到flag，此时我们可以用<strong>more&lt;flag或者base64&lt;flag</strong>获取flag，其中的&lt;可以代替空格的功能，第一个<strong>more&lt;flag</strong> 与cat一样都是输出文件内容，而base64是把flag的内容转换成base64编码</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">tacMATHJAX</span>-SSR-<span class="hljs-number">09</span>flag<br></code></pre></td></tr></table></figure>
+
 <p>&lt;、&lt;&gt;可以代替空格</p>
 <p>17、64位的文件有时候不一定会存在rbp的调用，不存在leave指令，这时候我们只需要去关注rsp的位置即可，因为ret指令代表着pop rip，把栈顶的内容弹出给rip，所以锁定rsp的位置，就可以劫持rip</p>
 <p>18、有时候在我们输入时，无法通过recvuntil去卡到输入的点，可以使用sleep()函数，让线程休眠，让对面的程序跑到我们要到点，再进行输入，方可利用成功（个人猜测）</p>
