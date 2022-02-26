@@ -197,7 +197,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>November 15, 2020</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>10939</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>11082</span>
     </div>
   </div>
 </section>
@@ -266,7 +266,7 @@
 </tr>
 <tr>
 <td>p8() p16()   p32()   p64()</td>
-<td>把括号内数据打包成8位/6位/32位/64位的二进制数</td>
+<td>把括号内数据打包成8位/16位/32位/64位的二进制数</td>
 </tr>
 <tr>
 <td>u8() u16()  u32()   u64()</td>
@@ -503,9 +503,11 @@
 <p>28、*<em>long int strtol(const char <em>nptr,char **endptr,int base)</em></em></p>
 <p>功能：strtol函数会将参数nptr字符串根据参数base来转换成长整型数，参数base范围从2至36</p>
 <p>参数base代表采用的进制方式，如base值为10则采用10进制，若base值为16则采用16进制等。当base值为0时则是采用10进制做转换，但遇到如’0x’前置字符则会使用16进制做转换、遇到’0’前置字符而不是’0x’的时候会使用8进制做转换。</p>
-<p>29、python2中的input()函数存在漏洞，会执行获得的输入，所以如果脚本存在引入os库输入<code>os.system(&#39;/bin/sh&#39;)</code>即可getshell，如没有引入os库，输入该内容<code>__import__(&#39;os&#39;).system(&#39;/bin/sh&#39;)s</code> 也可getshell</p>
+<p>29、python2中的input()函数存在漏洞，会执行获得的输入，所以如果脚本存在引入os库输入<code>os.system(&#39;/bin/sh&#39;)</code>即可getshell，如没有引入os库，输入该内容<code>__import__(&#39;os&#39;).system(&#39;/bin/sh&#39;)</code> 也可getshell</p>
 <p>30、</p>
 <p><img   class="lazyload" data-original="/2020/11/15/2020-11-15-%E5%88%9D%E5%85%A5PWN/image-20211007195137781.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20211007195137781</span></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">import</span> binascii<br>context(arch=<span class="hljs-string">&#x27;amd64&#x27;</span>, os=<span class="hljs-string">&#x27;linux&#x27;</span>)<br><span class="hljs-built_in">print</span>(binascii.b2a_hex(asm(<span class="hljs-string">&#x27;jmp $+0x9e&#x27;</span>)))<br></code></pre></td></tr></table></figure>
+
 <p>可用该方法得到汇编的机器码</p>
 
       </section>

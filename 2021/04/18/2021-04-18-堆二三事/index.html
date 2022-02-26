@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>April 18, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>5803</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>5945</span>
     </div>
   </div>
 </section>
@@ -220,7 +220,7 @@
 <li>申请大堆块，大于0×400</li>
 <li>修改堆上的Tcache管理结构，把count值改为7（count的值是有规律的，在Tcache里面，第一个字节存放的是0x20大小的堆块个数，每隔一个字节，堆块大小增加0x10，前0x40都是存放个数，后面的内容存放堆块地址），然后再次free一个该大小的chunk，注意防止chunk被top chunk合并</li>
 </ul>
-<p>以上都可以让chunk的fd和bk指针指向libc的某个位置而泄露地址</p>
+<p>以上都可以让chunk的fd和bk指针指向libc中的地址而泄露地址</p>
 <p>8、当修改hook函数为one_gadget发现所有给的execve都不行时，这时需要我们借用__libc_realloc去调整栈的参数，使execve的环境被满足才可以利用成功。__realloc_hook的地址是__malloc_hook-0x8。因为调用realloc会执行许多的push指令，可以把rsp调整到满足环境。要查看push操作，可以把__libc_realloc地址加上n，指向的都是push指令</p>
 <p>操作：把one_gadget写到__realloc_hook地址上，因为在使用malloc函数后面会调用到__relloc_hook；在__malloc_hook地址写上__libc_realloc+n(就会先执行__libc_realloc+n调整，再执行one_gadget)</p>
 <p>注：根据libc版本问题，不一定都是__libc_realloc ，也可以是realloc</p>
@@ -231,7 +231,7 @@
 </ul>
 </li>
 <li>如果没报错那就是2.27~2.28<ul>
-<li>因为有tcahce,2.27的tcache没有任何检查</li>
+<li>因为有tcahce，2.27的tcache没有任何检查</li>
 </ul>
 </li>
 <li>如果报tcache double free那么就是2.29及其以上<ul>
@@ -245,7 +245,9 @@
 <p>prev_inuse：1表示前一个chunk在被用户使用，0表示前一个chunk被释放</p>
 <p>11、如果申请的chunk大小为0x60和0x68返回的是一样大小的chunk，而0x68多出的8个字节是使用了后一个chunk的presize</p>
 <p>12、大小属于fastbinchunk被free的时候，不会改变next chunk的prev_inuse</p>
-<p>13、想要让chunk进入small bins 或者large bins，则前提是释放的chunk大小先达到small bins 或者large bins的大小范围，该chunk先进入到unsorted bin，然后再申请一次堆块，申请的大小要大于之前释放的chunk，那么之前释放的chunk就会进入到small bins 或者large bins（唯一办法）</p>
+<p>13、想要让chunk进入small bins 或者large bins：</p>
+<p>一、释放的chunk大小先达到 small bins 或者 large bins 的大小范围。该chunk先进入到 unsorted bin，然后再申请一次堆块，申请的大小大于之前释放的chunk，那么之前释放的chunk就会进入到small bins 或者large bins</p>
+<p>二、释放的 chunk 大小先达到small bins 或者 large bins 的大小范围。该 chunk 进入到 unsorted bin 中，如果此时 unsorted bin 中存在其他的堆块，那么申请一个堆块（能够让其他堆块满足分配的）剩余的堆块就将会自动进入到相应的 bin 链中</p>
 <p>14、如果从unsortedbin中分配出chunk，是从大chunk的头部开始分配的，分配完申请的大小之后把大chunk剩下的继续留在unsortedbin中</p>
 <p>15、unsortedbin中的chunk重新分配出来时，里面的数据不会被系统清空（如果程序没动的话），所以里面还是存在着libc地址</p>
 <p>16、getshell有个办法是：修改free_hook内容为system地址，然后free一个chunk，chunk内容为”/bin/sh”，就相当于执行了system(“/bin/sh”)，这种方法稳定getshell</p>
@@ -291,7 +293,7 @@
 <li>mem_address 不变，newsize &gt; originsize，<code>先释放原堆块</code>，然后再malloc一个更大的堆块，原堆块内容会被拷贝过去；返回新堆块的地址</li>
 <li>mem_address 不变，newsize &lt;= originsize，如果切割后剩下的堆块大于 2 * chunk_min_size则切割，剩下堆块被free，否则直接返回原堆块</li>
 </ul>
-<p>32、在利用offbynull构造overlap，遇到过多次了：头尾两个要释放的堆块之间不能只间隔一个堆块，至少要两个才行，不然将无法成功利用offbynull</p>
+<p>32、在利用offbynull构造overlap，遇到过多次：头尾两个要释放的堆块之间不能只间隔一个堆块，至少要两个才行，不然将无法成功利用offbynull</p>
 <p>33、unsorted bin泄露出的main_arena + 96的libc地址和__malloc_hook的地址只相差一个字节的数据，所以如果拥有能在释放堆块修改的数据的权利时，可以修改main_arena + 96后一字节即可，可以避免要打印libc地址</p>
 
       </section>

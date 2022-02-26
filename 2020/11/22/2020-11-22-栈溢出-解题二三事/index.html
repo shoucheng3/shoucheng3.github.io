@@ -196,13 +196,13 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>November 22, 2020</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6252</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6568</span>
     </div>
   </div>
 </section>
     <section class="main">
       <section class="content">
-        <p>1、在python中如 \x62，表示一个占一个字节的十六进制数</p>
+        <p>1、在python中如 \x62，表示一个占一个字节的十六进制数，采用utf-8编码。</p>
 <p>2、大多数程序是小端顺序，就是说输入一个数据，如果是分开输入时（比如要一个字节，一个字节的按字节分开进行输入十六进制的数，而他们本身合起来是一个具体的数，那么此时输入进去，就需要把小的值放在前面先写，大的值放后面）；而大端顺序则是大的值写前面，与平常一样的顺序写</p>
 <p>因为小端顺序，就是需要从低地址往高地址填充数据，所以先输入的是会放在低地址的数，后输入的才是高地址的数</p>
 <p>在Linux中LSB文件为小端顺序，MSB为大端顺序，</p>
@@ -240,7 +240,7 @@
 <p>5、遇到不确定的地址时而最后地址的末端是我们需要到的shell的起始地址，可以填入\x90，对应的机器码指令是NOP(No Operation)，让CPU什么都不做，跳转到下一条命令，但是这个应用的前提是该处代码具有可执行性</p>
 <p>6、在一起定义的两个全局变量，在内存的中位置是相邻的。如果一个全局变量被破坏了，不妨先查查其前后相关变量的访问代码，看看是否存在越界访问的可能。</p>
 <p>7、有一个有意思的东西：在有的pwn题目中，我可以很正常的使用recvuntil()或者sendlineafter()去接收字符串，然而有的却不行；有的题目可以不用接收字符串直接输入payload（一开始认为是因为程序是在自己运行，刚好溢出点又在第一次输入的地方，所以可以），然而却碰到有些却要我接收信息才可以进行payload的输入</p>
-<p>回复：最好是进行交互，之前可能是因为环境有些问题</p>
+<p>回复   ：最好是进行交互，之前可能是因为环境有些问题</p>
 <p>8、遇到一个对齐的问题：关于使用system函数进行跳转出现报错的原因</p>
 <p>回复：system获得shell，是要求有栈对齐的</p>
 <p>9、劫持栈帧到.bss段上时，要注意一下是否可能会将.got.plt表覆盖，导致程序无法正常执行</p>
@@ -288,7 +288,7 @@
 <p>28、当scanf的参数不是%s时候，是u，d等数字，输入数字是使用str()即可，不用p64()。</p>
 <p>因为输入数字是就是使用数字输入，如果使用了p64()将会变成字符数字</p>
 <p>29、使用execv(“/bin/sh”,0)getshell需要两个参数,比execve少一个</p>
-<p>另外：2.29之后的libc直接调用system会出问题，但是劫持__free_hook为system没问题</p>
+<p>另外：2.29之后的libc直接调用system可能会出问题，但是劫持__free_hook为system没问题</p>
 <p>30、碰到静态编译的题目时，有两种方法：</p>
 <ul>
 <li><p>使用ROPgadget内置的功能，可以自动生成rop链，调用系统函数getshell，命令：</p>
@@ -299,7 +299,7 @@
 </ul>
 <p>31、格式化字符串漏洞：当要往某个地址上写入地址时，格式为：目标addr + ‘%’ + str(addr - 已写的长度) + “c%a(a是偏移量)$hn” 这边一般使用hn写两个字节，或者hhn写一个字节，这样不容易造成timeout，当然前提是格式化漏洞给的长度够长</p>
 <p>已写长度：printf打印出来的字符长度，地址数值大的写后面（就能直接减去前面已经写的偏移量）</p>
-<p>64位，因为地址必定含有’\x00’，会产生截断，所以往目标地址写入值，要把地址放在最后面，不然打印的字符被截断，n就没办法发生作用</p>
+<p>64位，因为地址必定含有’\x00’，会产生截断，所以往目标地址写入值，要把地址放在最后面，不然打印的字符被截断，n就没办法发生作用                                                                                                                                                                            </p>
 <p>32、对于劫持rip的理解：首先我们传递给rip的是某个地址，其次这个地址指向的是一段有可执行权限的地址，最后这个地址上存在着指令（机器码）rop就是还需要ret来衔接进行不断地更换rip的值</p>
 <p>33、linux中，程序在加载的时候，会依次调用<code>init.array</code>数组中的每一个函数指针；在结束的时候，依次调用<code>fini.array</code>中的每一个函数指针。一般用在当程序出现格式化字符串漏洞，但是至少需要写两次才能完成攻击。</p>
 <ul>
@@ -308,7 +308,7 @@
 </ul>
 <p>获取fini.array地址有两种方式：1、<code>fini_array = elf.sym[&quot;__init_array_end&quot;]</code>   2、使用<code>readelf -s 文件名</code>命令去查找<code>__init_array_end</code>的地址</p>
 <p>34、如果把0x80000000赋值给a，而a = -a，那么a还是等于0x80000000</p>
-<p>35、用libc寻找/bin/sh地址，要这么写binsh = libc_base + next(libc.search(‘/bin/sh’))</p>
+<p>35、用libc寻找字符串/bin/sh地址，写为binsh = libc_base + next(libc.search(‘/bin/sh’))</p>
 <p>36、scanf(buf,buf)，如果是以这样的形式出现输入，因为第一个buf是格式化字符串，scanf使用了我们的输入作为格式化字符串，因此会存在格式化字符串漏洞，计算偏移需要通过gdb调试（必须在相应的版本下调试）</p>
 <p>%n$s（n是偏移，s是输入的形式以字符串，所以我们输入的地方是以偏移点作为指针输入的）</p>
 <p>37、当程序存在close(1)以及close(2)：代表关闭了linux里面的标准输出(1)和标准错误(2)，所以即使已经getshell了，我们是看不到输出的，所以这时候输入<code>exec 1&gt;&amp;0</code>就可以让标准输出的文件描述符重定向为0，而0没被关闭（0，1，2是默认开启的），才能看到输出</p>
@@ -316,7 +316,9 @@
 <p>39、当遇到一些题目需要在shellcode前面加上’\x00’才能绕过时，因为’\x00’是会影响到shellcode解析的，所以要让’\x00’凑成有意义的指令却又不能影响到shellcode（底下的机器码在32位和64位中都是一样的）</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs assembly">00 40 00                 add    BYTE PTR [rax+0x0],  al<br>00 41 00                 add    BYTE PTR [rcx+0x0],  al<br>00 42 00                 add    BYTE PTR [rdx+0x0],  al<br>00 43 00                 add    BYTE PTR [rbx+0x0],  al<br>00 45 00                 add    BYTE PTR [rbp+0x0],  al<br>00 46 00                 add    BYTE PTR [rsi+0x0],  al<br>00 47 00                 add    BYTE PTR [rdi+0x0],  al<br></code></pre></td></tr></table></figure>
 
-<p>40、</p>
+<p>40、栈题的调试一直都不知道怎么才能准确的停止在某个地方，现在终于知道了</p>
+<p><img   class="lazyload" data-original="/2020/11/22/2020-11-22-%E6%A0%88%E6%BA%A2%E5%87%BA-%E8%A7%A3%E9%A2%98%E4%BA%8C%E4%B8%89%E4%BA%8B/pwny1.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">img</span></p>
+<p>在上面的gdb.attach(p)就是运行脚本到此位置时打开gdb调试，然后在gdb框中输入c，就会运行到pause()处，然后我们就可以进行调试。这样就能准确的停在你想要的位置</p>
 <p>41、mprotect修改内存权限的第一个参数必须是起始地址，修改的长度必须是页的倍数</p>
 <p>42、<em><em>int snprintf(char</em> dest_str,size_t size,const char</em> format,…);**</p>
 <p>将可变个参数(…)按照format格式化成字符串，然后将其复制到str中。返回值为欲写入的字符串长度</p>

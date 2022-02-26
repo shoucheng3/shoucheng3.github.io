@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>May 30, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4943</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4944</span>
     </div>
   </div>
 </section>
@@ -210,7 +210,7 @@
 <ul>
 <li><p>*( fd + 0x18 ) = bk</p>
 </li>
-<li><p>*( bk + 0x10 ) = fd</p>
+<li><p>*( bk + 0x10 ) = fd </p>
 </li>
 </ul>
 <h3 id="unlink中的检查"><a href="#unlink中的检查" class="headerlink" title="unlink中的检查"></a>unlink中的检查</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// 由于 P 已经在双向链表中，所以有两个地方记录其大小，所以检查一下其大小是否一致(size检查)</span><br><span class="hljs-keyword">if</span> (__builtin_expect (chunksize(P) != prev_size (next_chunk(P)), <span class="hljs-number">0</span>))      \<br>      malloc_printerr (<span class="hljs-string">&quot;corrupted size vs. prev_size&quot;</span>);               \<br>      <br><span class="hljs-comment">// 检查 fd 和 bk 指针(双向链表完整性检查)</span><br><span class="hljs-keyword">if</span> (__builtin_expect (FD-&gt;bk != P || BK-&gt;fd != P, <span class="hljs-number">0</span>))                      \<br>  malloc_printerr (check_action, <span class="hljs-string">&quot;corrupted double-linked list&quot;</span>, P, AV);  \<br><br>  <span class="hljs-comment">// largebin 中 next_size 双向链表完整性检查 </span><br>              <span class="hljs-keyword">if</span> (__builtin_expect (P-&gt;fd_nextsize-&gt;bk_nextsize != P, <span class="hljs-number">0</span>)              \<br>                || __builtin_expect (P-&gt;bk_nextsize-&gt;fd_nextsize != P, <span class="hljs-number">0</span>))    \<br>              malloc_printerr (check_action,                                      \<br>                               <span class="hljs-string">&quot;corrupted double-linked list (not small)&quot;</span>,P, AV);  \<br></code></pre></td></tr></table></figure>
