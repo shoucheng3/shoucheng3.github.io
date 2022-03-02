@@ -6,7 +6,7 @@
   <link href="http://shoucheng3.github.io/atom.xml" rel="self"/>
   
   <link href="http://shoucheng3.github.io/"/>
-  <updated>2022-02-28T12:46:58.868Z</updated>
+  <updated>2022-03-01T14:27:23.342Z</updated>
   <id>http://shoucheng3.github.io/</id>
   
   <author>
@@ -21,13 +21,21 @@
     <link href="http://shoucheng3.github.io/2022/02/28/2022-02-28-large-bin-attack/"/>
     <id>http://shoucheng3.github.io/2022/02/28/2022-02-28-large-bin-attack/</id>
     <published>2022-02-28T12:46:08.000Z</published>
-    <updated>2022-02-28T12:46:58.868Z</updated>
+    <updated>2022-03-01T14:27:23.342Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;unsorted-bin-attack&quot;&gt;&lt;a href=&quot;#unsorted-bin-attack&quot; class=&quot;headerlink&quot; title=&quot;unsorted bin attack&quot;&gt;&lt;/a&gt;unsorted bin</summary>
+        
+      
     
     
     
     
-    
-    <category term="heap、large bin" scheme="http://shoucheng3.github.io/tags/heap%E3%80%81large-bin/"/>
+    <category term="largebin" scheme="http://shoucheng3.github.io/tags/largebin/"/>
     
   </entry>
   
@@ -384,7 +392,7 @@
     <link href="http://shoucheng3.github.io/2021/09/03/2021-09-03-2021%E7%A5%A5%E4%BA%91%E6%9D%AFPWN/"/>
     <id>http://shoucheng3.github.io/2021/09/03/2021-09-03-2021%E7%A5%A5%E4%BA%91%E6%9D%AFPWN/</id>
     <published>2021-09-03T08:02:55.000Z</published>
-    <updated>2022-02-28T11:48:04.417Z</updated>
+    <updated>2022-02-28T13:08:37.989Z</updated>
     
     
       

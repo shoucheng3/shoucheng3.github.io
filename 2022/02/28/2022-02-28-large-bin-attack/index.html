@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="google" content="notranslate" />
   
-  
+  <meta name="description" content="unsorted bin attack在进入到larg...">
   <meta name="author" content="ShouCheng">
   <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
   <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
@@ -196,13 +196,182 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>February 28, 2022</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>0</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>9076</span>
     </div>
   </div>
 </section>
     <section class="main">
       <section class="content">
-        
+        <h1 id="unsorted-bin-attack"><a href="#unsorted-bin-attack" class="headerlink" title="unsorted bin attack"></a>unsorted bin attack</h1><p>在进入到large bin attack 前，先对已经在高版本失效的unsorted bin attack 进行缅怀一下。</p>
+<p>利用前提是有UAF，修改 unsorted bin 中的FD字段为0，BK字段为target addr - 0x10，然后malloc一个相同大小的chunk，即可在目标地址写入 unsorted bin 的地址，一般用来伪造堆头（制造出0x7f）、修改次数限制、上限信息、配合局部写等，十分好用。</p>
+<p>在 glibc-2.29及以上的版本都已失效，但是本文主角 large bin attack 在高版本的利用中可以成为它的代替品。</p>
+<h1 id="large-bin-attack"><a href="#large-bin-attack" class="headerlink" title="large bin attack"></a>large bin attack</h1><h2 id="large-bin原理"><a href="#large-bin原理" class="headerlink" title="large bin原理"></a>large bin原理</h2><h3 id="size与index"><a href="#size与index" class="headerlink" title="size与index"></a>size与index</h3><p>在源码中，不在small bin 范围内的 chunk 归类到 large bin 里，small bin 的源码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> in_smallbin_range(sz)  \</span><br><span class="hljs-meta">  ((unsigned long) (sz) &lt; (unsigned long) MIN_LARGE_SIZE)</span><br><br><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> NSMALLBINS         64</span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> SMALLBIN_WIDTH    MALLOC_ALIGNMENT  <span class="hljs-comment">//64位中：MALLOC_ALIGNMENT=0x10</span></span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> SMALLBIN_CORRECTION (MALLOC_ALIGNMENT &gt; 2 * SIZE_SZ)</span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> MIN_LARGE_SIZE    ((NSMALLBINS - SMALLBIN_CORRECTION) * SMALLBIN_WIDTH)</span><br></code></pre></td></tr></table></figure>
+
+<p>根据最后一个宏定义可知：在64位的系统里面大于<code>MIN_LARGE_SIZE</code>为<code>64*0x10</code>即<code>0x400</code>的chunk为largebin**</p>
+<p>largebin中不再是一个 index 对应一个大小的size，而是存储等差数列变化的chunk，源码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> largebin_index_64(sz)                                                \</span><br><span class="hljs-meta">  (((((unsigned long) (sz)) &gt;&gt; 6) <span class="hljs-meta-string">&lt;= 48) ?  48 + (((unsigned long) (sz)) &gt;</span>&gt; 6) :\</span><br><span class="hljs-meta">   ((((unsigned long) (sz)) &gt;&gt; 9) <span class="hljs-meta-string">&lt;= 20) ?  91 + (((unsigned long) (sz)) &gt;</span>&gt; 9) :\</span><br><span class="hljs-meta">   ((((unsigned long) (sz)) &gt;&gt; 12) <span class="hljs-meta-string">&lt;= 10) ? 110 + (((unsigned long) (sz)) &gt;</span>&gt; 12) :\</span><br><span class="hljs-meta">   ((((unsigned long) (sz)) &gt;&gt; 15) <span class="hljs-meta-string">&lt;= 4) ? 119 + (((unsigned long) (sz)) &gt;</span>&gt; 15) :\</span><br><span class="hljs-meta">   ((((unsigned long) (sz)) &gt;&gt; 18) <span class="hljs-meta-string">&lt;= 2) ? 124 + (((unsigned long) (sz)) &gt;</span>&gt; 18) :\</span><br><span class="hljs-meta">   126)</span><br></code></pre></td></tr></table></figure>
+
+<p>如果把0x400的chunk代入其中，其对应的index为 48+(0x400&gt;&gt;6)即为64。因为第一次判断是移动6个位，所以每0x40才会增加index的大小。具体index对应的size如下表：</p>
+<table>
+<thead>
+<tr>
+<th align="center">size</th>
+<th align="center">index</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">[0x400 , 0x440)</td>
+<td align="center">64</td>
+</tr>
+<tr>
+<td align="center">[0x440 , 0x480)</td>
+<td align="center">65</td>
+</tr>
+<tr>
+<td align="center">[0x480 , 0x4C0)</td>
+<td align="center">66</td>
+</tr>
+<tr>
+<td align="center">[0x4C0 , 0x500)</td>
+<td align="center">67</td>
+</tr>
+<tr>
+<td align="center">[0x500 , 0x540)</td>
+<td align="center">68</td>
+</tr>
+<tr>
+<td align="center">等差 0x40</td>
+<td align="center">…</td>
+</tr>
+<tr>
+<td align="center">[0xC00 , 0xC40)</td>
+<td align="center">96</td>
+</tr>
+<tr>
+<td align="center">[0xC40 , 0xE00)</td>
+<td align="center">97</td>
+</tr>
+<tr>
+<td align="center">[0xE00 , 0x1000)</td>
+<td align="center">98</td>
+</tr>
+<tr>
+<td align="center">[0x1000 , 0x1200)</td>
+<td align="center">99</td>
+</tr>
+<tr>
+<td align="center">[0x1200 , 0x1400)</td>
+<td align="center">100</td>
+</tr>
+<tr>
+<td align="center">[0x1400 , 0x1600)</td>
+<td align="center">101</td>
+</tr>
+<tr>
+<td align="center">等差 0x200</td>
+<td align="center">…</td>
+</tr>
+<tr>
+<td align="center">[0x2800 , 0x2A00)</td>
+<td align="center">111</td>
+</tr>
+<tr>
+<td align="center">[0x2A00 , 0x3000)</td>
+<td align="center">112</td>
+</tr>
+<tr>
+<td align="center">[0x3000 , 0x4000)</td>
+<td align="center">113</td>
+</tr>
+<tr>
+<td align="center">[0x4000 , 0x5000)</td>
+<td align="center">114</td>
+</tr>
+<tr>
+<td align="center">等差 0x1000</td>
+<td align="center">…</td>
+</tr>
+<tr>
+<td align="center">[0x9000 , 0xA000)</td>
+<td align="center">119</td>
+</tr>
+<tr>
+<td align="center">[0xA000 , 0x10000)</td>
+<td align="center">120</td>
+</tr>
+<tr>
+<td align="center">[0x10000 , 0x18000)</td>
+<td align="center">121</td>
+</tr>
+<tr>
+<td align="center">[0x18000 , 0x20000)</td>
+<td align="center">122</td>
+</tr>
+<tr>
+<td align="center">[0x20000 , 0x28000)</td>
+<td align="center">123</td>
+</tr>
+<tr>
+<td align="center">[0x28000 , 0x40000)</td>
+<td align="center">124</td>
+</tr>
+<tr>
+<td align="center">[0x40000 , 0x80000)</td>
+<td align="center">125</td>
+</tr>
+<tr>
+<td align="center">[0x80000 , …. )</td>
+<td align="center">126</td>
+</tr>
+</tbody></table>
+<h3 id="链表维护方式"><a href="#链表维护方式" class="headerlink" title="链表维护方式"></a>链表维护方式</h3><p>不同大小的large chunk：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span><span class="hljs-meta-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span><span class="hljs-meta-string">&lt;stdlib.h&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">char</span> *gap;<br><br>    <span class="hljs-keyword">char</span> *ptr0=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x440</span><span class="hljs-number">-0x10</span>); <span class="hljs-comment">//A</span><br>    gap=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x10</span>);<br>    <span class="hljs-keyword">char</span> *ptr1=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x450</span><span class="hljs-number">-0x10</span>); <span class="hljs-comment">//B</span><br>    gap=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x10</span>);<br>    <span class="hljs-keyword">char</span> *ptr2=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x460</span><span class="hljs-number">-0x10</span>); <span class="hljs-comment">//C</span><br>    gap=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x10</span>);<br>    <span class="hljs-keyword">char</span> *ptr3=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x470</span><span class="hljs-number">-0x10</span>); <span class="hljs-comment">//D</span><br>    gap=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x10</span>);<br><br><br>    <span class="hljs-built_in">free</span>(ptr2);<br>    <span class="hljs-built_in">free</span>(ptr3);<br>    <span class="hljs-built_in">free</span>(ptr0);<br>    <span class="hljs-built_in">free</span>(ptr1);<br><br>    gap = <span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x480</span>); <span class="hljs-comment">//trigger that sort largebin from unsorted bin to largebins</span><br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p><img   class="lazyload" data-original="/2022/02/28/2022-02-28-large-bin-attack/image-20220301201027678.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20220301201027678</span></p>
+<p><img   class="lazyload" data-original="/2022/02/28/2022-02-28-large-bin-attack/image-20220301201049004.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20220301201049004</span></p>
+<p>可以看见，即是free的顺序是打乱的，但是最终进入到large bin 中，无论是从<code>fd</code>看还是<code>fd_nextsize</code>看，都是从大到小的顺序排序。</p>
+<p>相同大小的large chunk：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span><span class="hljs-meta-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span><span class="hljs-meta-string">&lt;stdlib.h&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">char</span> *gap;<br><br>    <span class="hljs-keyword">char</span> *ptr0=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x440</span><span class="hljs-number">-0x10</span>); <span class="hljs-comment">//A</span><br>    gap=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x10</span>);<br>    <span class="hljs-keyword">char</span> *ptr1=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x440</span><span class="hljs-number">-0x10</span>); <span class="hljs-comment">//B</span><br>    gap=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x10</span>);<br>    <span class="hljs-keyword">char</span> *ptr2=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x440</span><span class="hljs-number">-0x10</span>); <span class="hljs-comment">//C</span><br>    gap=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x10</span>);<br>    <span class="hljs-keyword">char</span> *ptr3=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x440</span><span class="hljs-number">-0x10</span>); <span class="hljs-comment">//D</span><br>    gap=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x10</span>);<br><br><br>    <span class="hljs-built_in">free</span>(ptr2);<br>    <span class="hljs-built_in">free</span>(ptr3);<br>    <span class="hljs-built_in">free</span>(ptr0);<br>    <span class="hljs-built_in">free</span>(ptr1);<br><br>    gap = <span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x480</span>); <span class="hljs-comment">//trigger that sort largebin from unsorted bin to largebins</span><br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img   class="lazyload" data-original="/2022/02/28/2022-02-28-large-bin-attack/image-20220301201438370.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20220301201438370</span></p>
+<p><img   class="lazyload" data-original="/2022/02/28/2022-02-28-large-bin-attack/image-20220301202717282.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20220301202717282</span></p>
+<p>先释放的堆块C为堆头，由于不存在比它大或比它小的堆块，因此它的<code>fd_nextsize</code>和<code>bk_nextsize</code>都是指向自己。其余释放的堆块按释放的顺序，逆序排列在链表中，且它们的<code>fd_nextsize</code>和<code>bk_nextsize</code>均为0，它们通过<code>fd</code>与<code>bk</code>进行链接</p>
+<p>既存在相同大小，又存在不同大小的堆块：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span><span class="hljs-meta-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span><span class="hljs-meta-string">&lt;stdlib.h&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">char</span> *gap;<br><br>    <span class="hljs-keyword">char</span> *ptr0=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x440</span><span class="hljs-number">-0x10</span>); <span class="hljs-comment">//A</span><br>    gap=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x10</span>);<br>    <span class="hljs-keyword">char</span> *ptr1=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x450</span><span class="hljs-number">-0x10</span>); <span class="hljs-comment">//B</span><br>    gap=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x10</span>);<br>    <span class="hljs-keyword">char</span> *ptr2=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x460</span><span class="hljs-number">-0x10</span>); <span class="hljs-comment">//C</span><br>    gap=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x10</span>);<br>    <span class="hljs-keyword">char</span> *ptr3=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x470</span><span class="hljs-number">-0x10</span>); <span class="hljs-comment">//D</span><br>    gap=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x10</span>);<br>    <span class="hljs-keyword">char</span> *ptr4=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x440</span><span class="hljs-number">-0x10</span>); <span class="hljs-comment">//E</span><br>    gap=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x10</span>);<br>    <span class="hljs-keyword">char</span> *ptr5=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x450</span><span class="hljs-number">-0x10</span>); <span class="hljs-comment">//F</span><br>    gap=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x10</span>);<br>    <span class="hljs-keyword">char</span> *ptr6=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x460</span><span class="hljs-number">-0x10</span>); <span class="hljs-comment">//G</span><br>    gap=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x10</span>);<br>    <span class="hljs-keyword">char</span> *ptr7=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x470</span><span class="hljs-number">-0x10</span>); <span class="hljs-comment">//H</span><br>    gap=<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x10</span>);<br><br>    <span class="hljs-built_in">free</span>(ptr2); <span class="hljs-comment">//C</span><br>    <span class="hljs-built_in">free</span>(ptr3); <span class="hljs-comment">//D</span><br>    <span class="hljs-built_in">free</span>(ptr0); <span class="hljs-comment">//A</span><br>    <span class="hljs-built_in">free</span>(ptr1); <span class="hljs-comment">//B</span><br>    <span class="hljs-built_in">free</span>(ptr7); <span class="hljs-comment">//H</span><br>    <span class="hljs-built_in">free</span>(ptr6); <span class="hljs-comment">//G</span><br>    <span class="hljs-built_in">free</span>(ptr5); <span class="hljs-comment">//F</span><br>    <span class="hljs-built_in">free</span>(ptr4); <span class="hljs-comment">//E</span><br>    gap = <span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x480</span>); <span class="hljs-comment">//trigger that sort largebin from unsorted bin to largebins</span><br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p><img   class="lazyload" data-original="/2022/02/28/2022-02-28-large-bin-attack/image-20220301204056436.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20220301204056436</span></p>
+<p><img   class="lazyload" data-original="/2022/02/28/2022-02-28-large-bin-attack/image-20220301210420441.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20220301210420441</span></p>
+<p><img   class="lazyload" data-original="/2022/02/28/2022-02-28-large-bin-attack/image-20220301210435991.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20220301210435991</span></p>
+<p>可以看到不同的size会形成堆头，通过堆头的<code>fd_nextsize</code>与<code>bk_nextsize</code>指向比它小或大的堆头，按照从大到小的顺序，而相同的堆块则会链入到相应的堆头之中。而<code>fd</code>与<code>bk</code>在不同size的堆块间也是指向比它小或大的堆块，也是按照从大到小的顺序，而在相同size的堆块内则是按照先释放的在链表后面的排序，最终指向main_arena的一个地址，把所有large chunk 串起来。</p>
+<p>所以large bin 链表维护：</p>
+<ul>
+<li>堆块从大到小排序。</li>
+<li>对于相同大小的堆块，最先释放的堆块会成为堆头，其<code>fd_nextsize</code>与<code>bk_nextsize</code>会被赋值，其余的堆块释放后都会插入到该堆头结点的下一个结点，通过<code>fd</code>与<code>bk</code>链接，形成了先释放的在链表后面的排序方式，但是后释放的堆块的<code>fd_nextsize</code>与<code>bk_nextsize</code>都为0。 </li>
+<li>不同大小的堆块通过堆头串联，即堆头中<code>fd_nextsize</code>指向比它小的堆块的堆头，<code>bk_nextsize</code>指向比它大的堆块的堆头，从而形成了第一点中的从大到小排序堆块的方式。同时最大的堆块的堆头的<code>bk_nextsize</code>指向最小的堆块的堆头，最小堆块的堆头的<code>fd_nextsize</code>指向最大堆块的堆头，以此形成循环双链表。</li>
+</ul>
+<p>接下来看看源码中如何实现 largebin chunk 从 unsorted bin 中取下来放入到 largebin 的过程：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* place chunk in bin */</span><br><br>          <span class="hljs-keyword">if</span> (in_smallbin_range (size))<br>            &#123;<br>              ...  <span class="hljs-comment">// chunk为smallbin，放入到smallbin中</span><br>            &#125;<br>          <span class="hljs-keyword">else</span><br>            &#123;<br>              victim_index = largebin_index (size);<span class="hljs-comment">//第一步，获取当前要插入的chunk对应的index</span><br>              bck = bin_at (av, victim_index); <span class="hljs-comment">//当前index对应的main_arena,bck-&gt;bk才是最小的chunk</span><br>              fwd = bck-&gt;fd;                   <span class="hljs-comment">//当前index中最大的chunk</span><br><br>              <span class="hljs-comment">/* maintain large bins in sorted order */</span><br>              <span class="hljs-keyword">if</span> (fwd != bck)<br>                &#123; <span class="hljs-comment">// 该chunk对应的largebin index中不为空</span><br>                  <span class="hljs-comment">/* Or with inuse bit to speed comparisons */</span><br>                  size |= PREV_INUSE;<br>                  <span class="hljs-comment">/* if smaller than smallest, bypass loop below */</span><br>                  assert ((bck-&gt;bk-&gt;size &amp; NON_MAIN_ARENA) == <span class="hljs-number">0</span>);<br>                  <span class="hljs-keyword">if</span> ((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (size) &lt; (<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (bck-&gt;bk-&gt;size)) <span class="hljs-comment">//第三步，如果要插入的chunk的size小于当前index中最小chunk的大小，则直接插入到最后面。</span><br>                    &#123;<br>                      fwd = bck;<br>                      bck = bck-&gt;bk;<br><br>                      victim-&gt;fd_nextsize = fwd-&gt;fd;<br>                      victim-&gt;bk_nextsize = fwd-&gt;fd-&gt;bk_nextsize;<br>                      fwd-&gt;fd-&gt;bk_nextsize = victim-&gt;bk_nextsize-&gt;fd_nextsize = victim;<br>                    &#125;<br>                  <span class="hljs-keyword">else</span><br>                    &#123;<br>                      assert ((fwd-&gt;size &amp; NON_MAIN_ARENA) == <span class="hljs-number">0</span>);<br>                      <span class="hljs-keyword">while</span> ((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) size &lt; fwd-&gt;size) <span class="hljs-comment">//第四步，如果插入的chunk不为最小，则通过`fd_nextsize`从大到小遍历chunk，找到小于等于要插入chunk的位置</span><br>                        &#123;<br>                          fwd = fwd-&gt;fd_nextsize;<br>                          assert ((fwd-&gt;size &amp; NON_MAIN_ARENA) == <span class="hljs-number">0</span>);<br>                        &#125;<br><br>                      <span class="hljs-keyword">if</span> ((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) size == (<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) fwd-&gt;size)<br>                        <span class="hljs-comment">/* Always insert in the second position.  */</span><br>                        fwd = fwd-&gt;fd; <span class="hljs-comment">//第五步，如果存在堆头，则插入到堆头的下一个节点</span><br>                      <span class="hljs-keyword">else</span><br>                        &#123; <span class="hljs-comment">//第六步，否则这个chunk将会成为堆头，`bk_nextsize`和`fd_nextsize`将被置位</span><br>                          victim-&gt;fd_nextsize = fwd;<br>                          victim-&gt;bk_nextsize = fwd-&gt;bk_nextsize;<br>                          fwd-&gt;bk_nextsize = victim;<br>                          victim-&gt;bk_nextsize-&gt;fd_nextsize = victim;<br>                        &#125;<br>                      bck = fwd-&gt;bk;<br>                    &#125;<br>                &#125;<br>              <span class="hljs-keyword">else</span>   <span class="hljs-comment">//第二步，chunk对应的largebin index中为空</span><br>                victim-&gt;fd_nextsize = victim-&gt;bk_nextsize = victim;<br>            &#125;<br><br>          mark_bin (av, victim_index);<br>          <span class="hljs-comment">//设置fd与bk，完成插入</span><br>          victim-&gt;bk = bck; <br>          victim-&gt;fd = fwd;<br>          fwd-&gt;bk = victim;<br>          bck-&gt;fd = victim;<br>          ...<br>        &#125;<br></code></pre></td></tr></table></figure>
+
+<p>整个流程可以总结为：</p>
+<ol>
+<li>找到当前要插入的chunk对应的largebin的index，并定位该index中的最小的chunk<code>bck</code>和最大的chunk<code>fwd</code>。</li>
+<li>如果<code>fwd</code>等于<code>bck</code>，表明当前链表为空(因为fd，bk将会链接到main_arena上，所以一旦存在堆块，则必然不相等)，则直接将该chunk插入，并设置该chunk为该大小堆块的堆头，将<code>bk_nextsize</code>和<code>fd_nextsize</code>赋值为它本身。</li>
+<li>如果<code>fwd</code>不等于<code>bck</code>，表明当前链表已经存在chunk，要做的就是找到当前chunk对应的位置将其插入。首先判断其大小是否小于最小chunk的size，<code>(size) &lt; (bck-&gt;bk-&gt;size)</code>，如果小于则说明该chunk为当前链表中最小的chunk，即插入位置在链表末尾，无需遍历链表，直接插入到链表的末尾，且该chunk没有对应的堆头，设置该chunk为相应堆大小堆的堆头，将<code>bk_nextsize</code>指向比它大的堆头，<code>fd_nextsize</code>指向双链表的第一个节点即最大的堆头。</li>
+<li>如果当前chunk的size不是最小的chunk，则从双链表的第一个节点即最大的chunk的堆头开始遍历，通过<code>fd_nextsize</code>进行遍历，由于<code>fd_nextsize</code>指向的是比当前堆头小的堆头，因此可以加快遍历速度。直到找到小于等于要插入的chunk的size。</li>
+<li>如果找到的chunk的size等于要插入chunk的size，则说明当前要插入的chunk的size已经存在堆头，那么只需将该chunk插入到堆头的下一个节点。</li>
+<li>如果找到的chunk的size小于当前要插入chunk的size，则说明当前插入的chunk不存在堆头，因此该chunk会成为堆头插入到该位置，设置<code>fd_nextsize</code>与<code>bk_nextsize</code>。</li>
+</ol>
+<p>largebin attack的方式大致有两种：</p>
+<ul>
+<li>在申请 large bin 的过程中，伪造largebin的<code>bk_nextsize</code>，实现非预期内存申请。</li>
+<li>在 large bin 插入的过程中，伪造largebin的<code>bk_nextsize</code>以及<code>bk</code>，实现任意地址写堆地址。</li>
+</ul>
+<p>来源：</p>
+<p>主要：<a target="_blank" rel="noopener" href="https://ray-cp.github.io/archivers/ptmalloc_argebin_attack">https://ray-cp.github.io/archivers/ptmalloc_argebin_attack</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_23066945/article/details/103070322">https://blog.csdn.net/qq_23066945/article/details/103070322</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/easy_level1/article/details/117445936#t4">https://blog.csdn.net/easy_level1/article/details/117445936#t4</a></p>
+
       </section>
       <section class="extra">
         
@@ -216,7 +385,7 @@
         
         
         
-  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/heap%E3%80%81large-bin/" rel="tag">heap、large bin</a></li></ul> 
+  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/largebin/" rel="tag">largebin</a></li></ul> 
 
         
   <nav class="nav">
@@ -241,7 +410,7 @@
           
   <aside class="toc-wrap">
     <h3 class="toc-title">文章目录：</h3>
-    
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#unsorted-bin-attack"><span class="toc-text">unsorted bin attack</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#large-bin-attack"><span class="toc-text">large bin attack</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#large-bin%E5%8E%9F%E7%90%86"><span class="toc-text">large bin原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#size%E4%B8%8Eindex"><span class="toc-text">size与index</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%93%BE%E8%A1%A8%E7%BB%B4%E6%8A%A4%E6%96%B9%E5%BC%8F"><span class="toc-text">链表维护方式</span></a></li></ol></li></ol></li></ol>
   </aside>
 
         
