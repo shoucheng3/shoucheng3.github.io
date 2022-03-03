@@ -6,7 +6,7 @@
   <link href="http://shoucheng3.github.io/atom.xml" rel="self"/>
   
   <link href="http://shoucheng3.github.io/"/>
-  <updated>2022-03-01T14:27:23.342Z</updated>
+  <updated>2022-03-03T08:57:02.223Z</updated>
   <id>http://shoucheng3.github.io/</id>
   
   <author>
@@ -17,11 +17,35 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>global_max_fast</title>
+    <link href="http://shoucheng3.github.io/2022/03/03/2022-03-03-global-max-fast/"/>
+    <id>http://shoucheng3.github.io/2022/03/03/2022-03-03-global-max-fast/</id>
+    <published>2022-03-03T08:54:05.000Z</published>
+    <updated>2022-03-03T08:57:02.223Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;转载自&lt;a href=&quot;https://xz.aliyun.com/t/5082#toc-8&quot;&gt;https://xz.aliyun.com/t/5082#toc-8&lt;/a&gt;&lt;/p&gt;
+&lt;h1 id=&quot;global-max-fast&quot;&gt;&lt;a</summary>
+        
+      
+    
+    
+    
+    
+    <category term="heap" scheme="http://shoucheng3.github.io/tags/heap/"/>
+    
+  </entry>
+  
+  <entry>
     <title>large bin attack</title>
     <link href="http://shoucheng3.github.io/2022/02/28/2022-02-28-large-bin-attack/"/>
     <id>http://shoucheng3.github.io/2022/02/28/2022-02-28-large-bin-attack/</id>
     <published>2022-02-28T12:46:08.000Z</published>
-    <updated>2022-03-01T14:27:23.342Z</updated>
+    <updated>2022-03-03T13:04:51.819Z</updated>
     
     
       
@@ -416,7 +440,7 @@
     <link href="http://shoucheng3.github.io/2021/08/30/2021-08-30-libc%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/"/>
     <id>http://shoucheng3.github.io/2021/08/30/2021-08-30-libc%E7%89%88%E6%9C%AC%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6/</id>
     <published>2021-08-30T08:28:47.000Z</published>
-    <updated>2022-02-23T08:36:26.804Z</updated>
+    <updated>2022-03-03T12:34:14.244Z</updated>
     
     
       
@@ -455,30 +479,6 @@
     
     
     <category term="buu" scheme="http://shoucheng3.github.io/tags/buu/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>house of系列</title>
-    <link href="http://shoucheng3.github.io/2021/07/27/2021-07-27-house-of%E7%B3%BB%E5%88%97/"/>
-    <id>http://shoucheng3.github.io/2021/07/27/2021-07-27-house-of%E7%B3%BB%E5%88%97/</id>
-    <published>2021-07-27T06:13:59.000Z</published>
-    <updated>2022-02-23T08:27:27.365Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;p&gt; 该系列内容较多，将会在较长时间持续更新&lt;/p&gt;
-&lt;h2 id=&quot;House-of-Roman&quot;&gt;&lt;a href=&quot;#House-of-Roman&quot; class=&quot;headerlink&quot; title=&quot;House of Roman&quot;&gt;&lt;/a&gt;House of</summary>
-        
-      
-    
-    
-    
-    
-    <category term="heap" scheme="http://shoucheng3.github.io/tags/heap/"/>
     
   </entry>
   

@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>April 18, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>5945</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6107</span>
     </div>
   </div>
 </section>
@@ -295,6 +295,11 @@
 </ul>
 <p>32、在利用offbynull构造overlap，遇到过多次：头尾两个要释放的堆块之间不能只间隔一个堆块，至少要两个才行，不然将无法成功利用offbynull</p>
 <p>33、unsorted bin泄露出的main_arena + 96的libc地址和__malloc_hook的地址只相差一个字节的数据，所以如果拥有能在释放堆块修改的数据的权利时，可以修改main_arena + 96后一字节即可，可以避免要打印libc地址</p>
+<p>34、large bin attack 利用：</p>
+<ul>
+<li><strong>TCACHE_MAX_BINS</strong>是tcache bin 链的最大数量，宏定义为<strong>64</strong>，可以修改其值为chunk的地址，那么所有chunk块free之后都会进入tcache</li>
+<li>global_max_fast记录着 fast bin 的偏移，改大之后，可以申请到在其之后的地址内容</li>
+</ul>
 
       </section>
       <section class="extra">

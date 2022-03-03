@@ -197,7 +197,7 @@ House ...">
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>July 27, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6894</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>7099</span>
     </div>
   </div>
 </section>
@@ -251,6 +251,9 @@ House ...">
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">(<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (size) &gt;= (<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (nb + MINSIZE) <span class="hljs-comment">//nb指我们申请的堆块大小</span><br></code></pre></td></tr></table></figure>
 
 <p>所以，设想一下：如果可以篡改 size 为一个很大值，就可以轻松的通过这个验证。一般的做法是把 top chunk 的 size 改为-1，因为在进行比较时会把 size 转换成无符号数，因此 -1 也就是说unsigned long 中最大的数，所以无论如何都可以通过验证。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">//glibc-2.29</span><br><span class="hljs-keyword">if</span> (__glibc_unlikely (size &gt; av-&gt;system_mem))<span class="hljs-comment">//0x21000</span><br>        malloc_printerr (<span class="hljs-string">&quot;malloc(): corrupted top size&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<p>在glibc-2.29时增加了检查，size要小于等于system_mems，所以该方法在glibc-2.29以后失效了</p>
 <h3 id="利用条件"><a href="#利用条件" class="headerlink" title="利用条件"></a>利用条件</h3><p>综合上面的背景，我们可以得出，要想利用House of Force，要有以下条件：</p>
 <ul>
 <li><p>能够以溢出等方式控制到 top chunk 的 size 域</p>
