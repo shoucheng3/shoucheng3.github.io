@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>February 28, 2022</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>31309</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>31390</span>
     </div>
   </div>
 </section>
@@ -449,11 +449,12 @@
 <p>构造手法总结如下：</p>
 <ul>
 <li>ptr1 比 ptr2 大，申请了 ptr1 之后将其 free。</li>
-<li>malloc 一个比 ptr1 大的 chunk，为了让 ptr1 进入 large bin。</li>
+<li>malloc 一个比 ptr1 大的 chunk，让 ptr1 进入 large bin。</li>
 <li>free 掉 ptr2，将 ptr1 的 bk_nextsize 改为 target-0x20 的地址。</li>
 <li>malloc 一个比 ptr2 大的 chunk，让 ptr2 进入 large bin。</li>
 </ul>
 <p>最终，target 上写入 ptr2 的地址。</p>
+<p>至此，从 glibc-2.23到最新的glibc-2.34仍然可以使用的large bin attack 全部学习完毕了，至于如何巧妙地运用这个攻击，就要看实战了。</p>
 <p>来源：</p>
 <p>主要：<a target="_blank" rel="noopener" href="https://ray-cp.github.io/archivers/ptmalloc_argebin_attack">https://ray-cp.github.io/archivers/ptmalloc_argebin_attack</a></p>
 <p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_23066945/article/details/103070322">https://blog.csdn.net/qq_23066945/article/details/103070322</a></p>
