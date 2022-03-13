@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>November 22, 2020</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6568</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6661</span>
     </div>
   </div>
 </section>
@@ -325,6 +325,7 @@
 <p>这个函数有个漏洞，因为返回值是欲写入的字符串长度，也就是说，被复制的字符串很长，又能被加载（比如%s）那返回值就可能很大，如果以这个作为某种输入的值就有产生溢出</p>
 <p>43、程序是通过cs寄存器判断是64位还是32位，cs == 0x23代表32位模式，cs == 0x33代表64位模式，而cs寄存器可以通过<code>retfq</code>汇编指令来修改</p>
 <p>retfq有两步操作：<code>ret以及set cs</code>，所以执行retfq会跳转到rsp同时将cs设置为[rsp+0x8]，我们只需要事先在ret位置写入32位的shellcode就可以执行了，但是这里有一点需要注意的是，retfq跳转过去的时候程序已经切换成了32位模式，所以地址解析也是以32位的规则来的，所以如原先的<code>rsp = 0x7ffe530d01b8</code>会被解析成<code>esp = 0x530d01b8</code></p>
+<p>44、在大多数libc中read与write的symbols只一个字节不同，所以在一类没有泄露函数的栈题目中，可以考虑覆盖read的got表的最后一字节，变成write从而泄露libc</p>
 
       </section>
       <section class="extra">
