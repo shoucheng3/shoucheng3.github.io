@@ -211,7 +211,7 @@
 <p><img   class="lazyload" data-original="/2021/11/08/2021-12-08-pwnable-tw/image-20211109203821716.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20211109203821716</span></p>
 <p><img   class="lazyload" data-original="/2021/11/08/2021-12-08-pwnable-tw/image-20211109203905145.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20211109203905145</span></p>
 <p>程序很简单，开了个沙箱，然后就是输入shellcode，并且帮你执行。沙箱允许执行open、read、write</p>
-<p><img   class="lazyload" data-original="/2021/11/08/2021-12-08-pwnable-tw/image-20211109204349251.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20211109204349251</span></p>
+<p><img   class="lazyload" data-original="/2021/11/08/2021-12-08-pwnable-tw/image-20211109204349251-16472697731021.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20211109204349251</span></p>
 <p><img   class="lazyload" data-original="/2021/11/08/2021-12-08-pwnable-tw/image-20211109204410933.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20211109204410933</span></p>
 <p>写入的地址也是可写可执行的，所以直接写入orw的shellcode执行即可，但是要注意，flag在/home/orw/flag，然后为了四字节对齐，可以写两个0x2f，毕竟两个//这个是没有影响的</p>
 <p><img   class="lazyload" data-original="/2021/11/08/2021-12-08-pwnable-tw/image-20211109205838679.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20211109205838679</span></p>
@@ -256,7 +256,7 @@
 
         
   <nav class="nav">
-    <a href="/2021/11/08/2021-11-08-pwnable-tw/"><i class="iconfont iconleft"></i>pwnable.tw</a>
+    <a href="/2022/02/28/2022-02-28-large-bin-attack/"><i class="iconfont iconleft"></i>large bin attack</a>
     <a href="/2021/11/06/2021-11-06-IO-FLIE/">_IO_FLIE<i class="iconfont iconright"></i></a>
   </nav>
 

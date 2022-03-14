@@ -91,31 +91,10 @@
   
   <entry>
     <title>pwnable.tw</title>
-    <link href="http://shoucheng3.github.io/2021/11/08/2021-11-08-pwnable-tw/"/>
-    <id>http://shoucheng3.github.io/2021/11/08/2021-11-08-pwnable-tw/</id>
-    <published>2021-11-08T14:14:50.000Z</published>
-    <updated>2022-03-13T15:08:58.764Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;p&gt;某个大佬说过，pwnable.tw的题目rank比较高，要把这里的题目都刷一遍，才算是有基础可以进行漏洞挖掘，学pwn也快一年了，今天开始慢慢地把这里的题目一一进行复现，然后再去学习漏洞挖掘的相关知识，同时这里题目质量高，CTF的帮助应该也很大</summary>
-        
-      
-    
-    
-    
-    
-  </entry>
-  
-  <entry>
-    <title>pwnable.tw</title>
     <link href="http://shoucheng3.github.io/2021/11/08/2021-12-08-pwnable-tw/"/>
     <id>http://shoucheng3.github.io/2021/11/08/2021-12-08-pwnable-tw/</id>
     <published>2021-11-08T14:14:50.000Z</published>
-    <updated>2022-03-14T14:53:28.945Z</updated>
+    <updated>2022-03-14T14:56:14.731Z</updated>
     
     
       
@@ -455,6 +434,30 @@
     
     
     <category term="buu" scheme="http://shoucheng3.github.io/tags/buu/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>2021祥云杯PWN</title>
+    <link href="http://shoucheng3.github.io/2021/09/03/2021-09-03-2021%E7%A5%A5%E4%BA%91%E6%9D%AFPWN/"/>
+    <id>http://shoucheng3.github.io/2021/09/03/2021-09-03-2021%E7%A5%A5%E4%BA%91%E6%9D%AFPWN/</id>
+    <published>2021-09-03T08:02:55.000Z</published>
+    <updated>2022-03-14T13:57:36.070Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;以下是我根据大佬的wp一点点复现的，比赛时，太菜了，都没做出来。下面两个链接是大佬的wp&lt;/p&gt;
+&lt;p&gt;&lt;a</summary>
+        
+      
+    
+    
+    
+    
+    <category term="祥云杯PWN" scheme="http://shoucheng3.github.io/tags/%E7%A5%A5%E4%BA%91%E6%9D%AFPWN/"/>
     
   </entry>
   
