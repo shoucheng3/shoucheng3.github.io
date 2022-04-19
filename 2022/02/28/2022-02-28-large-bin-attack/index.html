@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>February 28, 2022</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>31390</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>31389</span>
     </div>
   </div>
 </section>
@@ -204,7 +204,7 @@
       <section class="content">
         <h1 id="unsorted-bin-attack"><a href="#unsorted-bin-attack" class="headerlink" title="unsorted bin attack"></a>unsorted bin attack</h1><p>在进入到large bin attack 前，先对已经在高版本失效的unsorted bin attack 进行缅怀一下。</p>
 <p>利用前提是有UAF，修改 unsorted bin 中的FD字段为0，BK字段为target addr - 0x10，然后malloc一个相同大小的chunk，即可在目标地址写入 unsorted bin 的地址，一般用来伪造堆头（制造出0x7f）、修改次数限制、上限信息、配合局部写等，十分好用。</p>
-<p>在 glibc-2.29及以上的版本都已失效，但是本文主角 large bin attack 在高版本的利用中可以成为它的代替品。</p>
+<p>在 glibc-2.27以上的版本都已失效，但是本文主角 large bin attack 在高版本的利用中可以成为它的代替品。</p>
 <p>下面最先介绍的 large bin attack 只适用于 glibc-2.30 以下的版本</p>
 <h1 id="large-bin-attack"><a href="#large-bin-attack" class="headerlink" title="large bin attack"></a>large bin attack</h1><h2 id="large-bin原理"><a href="#large-bin原理" class="headerlink" title="large bin原理"></a>large bin原理</h2><h3 id="size与index"><a href="#size与index" class="headerlink" title="size与index"></a>size与index</h3><p>在源码中，不在small bin 范围内的 chunk 归类到 large bin 里，small bin 的源码：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> in_smallbin_range(sz)  \</span><br><span class="hljs-meta">  ((unsigned long) (sz) &lt; (unsigned long) MIN_LARGE_SIZE)</span><br><br><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> NSMALLBINS         64</span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> SMALLBIN_WIDTH    MALLOC_ALIGNMENT  <span class="hljs-comment">//64位中：MALLOC_ALIGNMENT=0x10</span></span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> SMALLBIN_CORRECTION (MALLOC_ALIGNMENT &gt; 2 * SIZE_SZ)</span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> MIN_LARGE_SIZE    ((NSMALLBINS - SMALLBIN_CORRECTION) * SMALLBIN_WIDTH)</span><br></code></pre></td></tr></table></figure>

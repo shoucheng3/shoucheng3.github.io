@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>April 18, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6260</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6313</span>
     </div>
   </div>
 </section>
@@ -260,7 +260,7 @@
 </ul>
 <p>20、绕过calloc的清空数据：把堆的is_mmap位置改为1，calloc将不会清空属于mmap的堆块数据</p>
 <p>顺序：释放==&gt;修改堆头==&gt;申请堆块</p>
-<p>并且calloc函数不会分配tcache bin中的堆块，可以利用该函数直接绕过tcache</p>
+<p>并且 calloc 函数不会分配 tcache bin 中的堆块，可以利用该函数直接绕过 tcache</p>
 <p>21、<code>tcache_perthread_struct</code>这个结构体是可以释放的，并且可以将它释放到<code>unsorted bin</code>中去，然后分配这个<code>unsorted bin chunk</code>，可以控制任意地址分配堆内存</p>
 <p>22、当堆题中没有show功能时，要泄露出libc地址，需要借助stdout吐出libc地址</p>
 <p>需要把__libc_stdout上的值修改为<code>p64(0xfbad1800) + p64(0) * 3 + &#39;\x00&#39;</code></p>
@@ -282,10 +282,10 @@
 </ul>
 <p>注：上述只是2.23，2.27的libc版本，但是同2.23，2.27的libc其实还有小版本类型，但是不变的是都在<code>_rtld_global+3840</code>的地址</p>
 <p>26、libc-2.27.so的unlink要先把tcache bin填满才能用，unlink要保证<code>unsorted bin是空的</code>，所以有时候泄露信息用了unsorted bin，要申请回来</p>
-<p>27、当我们申请一个大于top chunk的堆块时，程序会调用mmap进行内存分配，分配下来堆块的地址是libc中的地址</p>
+<p>27、当我们申请一个大于 top chunk 的堆块时，程序会调用 mmap 进行内存分配，分配下来堆块的地址是libc中的地址</p>
 <p>28、libc-2.27堆的orw：利用setcontext+53的指令，把setcontext+53的地址一般写在__free_hook上，而shellcode写在堆上，然后进行释放堆块从而执行orw</p>
-<p>29、当劫持堆块到tcache，释放tcache获得libc地址后， 由于 unsorted bin 的 fd 和 bk 会在 tcache struct 写一些数据，而这些数据会覆盖到 tcache struct 上的 counts，导致取出相应的 size 时发生错误，所以需要修复tcache，将<strong>不必要的数据清为 0，有需要伪造并取出的部分赋值为 1</strong>（因为高版本不允许tcache的count值为-1）</p>
-<p>30、如果把malloc_hook劫持为system也是可以的，后面在调用malloc时传入参数，不传入size大小，而是变为/bin/sh的地址即可</p>
+<p>29、当劫持堆块到 tcache，释放 tcache 获得 libc 地址后， 由于 unsorted bin 的 fd 和 bk 会在 tcache struct 写一些数据，而这些数据会覆盖到 tcache struct 上的 counts，导致取出相应的 size 时发生错误，所以需要修复 tcache，将<strong>不必要的数据清为 0，有需要伪造并取出的部分赋值为 1</strong>（因为glibc-2.31开始，不允许tcache的count小于0）</p>
+<p>30、如果把 malloc_hook 劫持为 system 也是可以的，后面在调用malloc时传入参数，不传入size大小，而是变为 /bin/sh 的地址即可</p>
 <p>31、realloc 函数原型：<code>extern void *realloc(void *mem_address, unsigned int newsize);</code></p>
 <ul>
 <li>mem_address 不变，newsize == 0，相当于释放原来的堆块；</li>
@@ -293,11 +293,11 @@
 <li>mem_address 不变，newsize &gt; originsize，<code>先释放原堆块</code>，然后再malloc一个更大的堆块，原堆块内容会被拷贝过去；返回新堆块的地址</li>
 <li>mem_address 不变，newsize &lt;= originsize，如果切割后剩下的堆块大于 2 * chunk_min_size则切割，剩下堆块被free，否则直接返回原堆块</li>
 </ul>
-<p>32、在利用offbynull构造overlap，遇到过多次：头尾两个要释放的堆块之间不能只间隔一个堆块，至少要两个才行，不然将无法成功利用offbynull</p>
-<p>33、unsorted bin泄露出的main_arena + 96的libc地址和__malloc_hook的地址只相差一个字节的数据，所以如果拥有能在释放堆块修改的数据的权利时，可以修改main_arena + 96后一字节即可，可以避免要打印libc地址</p>
+<p>32、在利用 offbynull 构造 overlap，遇到过多次：头尾两个要释放的堆块之间不能只间隔一个堆块，至少要两个才行，不然将无法成功利用 offbynull</p>
+<p>33、unsorted bin 泄露出的 main_arena + 96 的 libc 地址和 __malloc_hook 的地址只相差一个字节的数据，所以如果拥有能在释放堆块修改的数据的权利时，可以修改 main_arena + 96 后一字节即可，可以避免要打印 libc 地址</p>
 <p>34、large bin attack 利用：</p>
 <ul>
-<li><p><strong>TCACHE_MAX_BINS</strong>是tcache bin 链的最大数量，宏定义为<strong>64</strong>，可以修改其值为chunk的地址，那么所有chunk块free之后都会进入tcache，位置如下图所示。</p>
+<li><p><strong>TCACHE_MAX_BINS</strong> 是 tcache bin 链的最大数量，宏定义为<strong>64</strong>，可以修改其值为 chunk 的地址，那么所有 chunk 块 free 之后都会进入tcache，位置如下图所示。</p>
 <p><img   class="lazyload" data-original="/2021/04/18/2021-04-18-%E5%A0%86%E4%BA%8C%E4%B8%89%E4%BA%8B/image-20220304094405889.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20220304094405889</span></p>
 </li>
 <li><p>global_max_fast记录着 fast bin 的最大 size，改大之后，可以让更大的size也算入 fast bin ，然后可以依据 main_arena 就算的偏移，把堆地址写入到 fast bin 之后的任一地址上，位置如下图所示。</p>
