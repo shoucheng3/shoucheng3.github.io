@@ -197,7 +197,7 @@ House of Ro...">
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>July 27, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>13709</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>13707</span>
     </div>
   </div>
 </section>
@@ -205,7 +205,7 @@ House of Ro...">
       <section class="content">
         <p> 该系列内容较多，将会持续更新</p>
 <h2 id="House-of-Roman"><a href="#House-of-Roman" class="headerlink" title="House of Roman"></a>House of Roman</h2><p>爆破概率太低，不建议使用，了解一下利用思路即可</p>
-<h2 id="House-of-Orange"><a href="#House-of-Orange" class="headerlink" title="House of Orange"></a>House of Orange</h2><p>版本 glibc-2.24及以下。是FSOP的思想，在新版本FSOP的思想仍然重要，只是缺少了 unsorted bin attack 的配合，让 house of orange 停留在了2.24</p>
+<h2 id="House-of-Orange"><a href="#House-of-Orange" class="headerlink" title="House of Orange"></a>House of Orange</h2><p>版本 glibc-2.24及以下。</p>
 <p>先介绍一下一个重点知识：如果在分配堆块时， top chunk 不够分配，那么根据申请的大小，会通过sysmalloc 来分配，如果申请的大小小于mmap的阀值的话，就会扩展top chunk，将old top chunk free掉，如果大于的话，就会通过mmap申请一块新的堆块。所以可以通过把 top chunk size 改小这种方式让 top chunk 进入unsorted bin 中，从而产生 libc 地址。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (av == <span class="hljs-literal">NULL</span><br>    || ((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (nb) &gt;= (<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (mp_.mmap_threshold)<br>        &amp;&amp; (mp_.n_mmaps &lt; mp_.n_mmaps_max)))<span class="hljs-comment">/*这里进行判断，判断分配的大小是否大于mmap分配的阀值，如果大于就是用mmap从新分配一个堆块，否则就会扩展top chunk*/</span><br>  &#123;<br>    <span class="hljs-keyword">char</span> *mm;           <span class="hljs-comment">/* return value from mmap call*/</span><br>  try_mmap:<br>  <br>  .........<br>  ..........<br>    <span class="hljs-keyword">if</span> (old_size != <span class="hljs-number">0</span>)<br>                  &#123;<br>                    <span class="hljs-comment">/*</span><br><span class="hljs-comment">                       Shrink old_top to insert fenceposts, keeping size a</span><br><span class="hljs-comment">                       multiple of MALLOC_ALIGNMENT. We know there is at least</span><br><span class="hljs-comment">                       enough space in old_top to do this.</span><br><span class="hljs-comment">                     */</span><br>                    old_size = (old_size - <span class="hljs-number">4</span> * SIZE_SZ) &amp; ~MALLOC_ALIGN_MASK;<br>                    set_head (old_top, old_size | PREV_INUSE);<br>                    set_head (chunk_at_offset (old_top, old_size),<br>                              (<span class="hljs-number">2</span> * SIZE_SZ) | PREV_INUSE);<br>                    set_head (chunk_at_offset (old_top, old_size + <span class="hljs-number">2</span> * SIZE_SZ),<br>                              (<span class="hljs-number">2</span> * SIZE_SZ) | PREV_INUSE);<br>                    <span class="hljs-comment">/* If possible, release the rest. */</span><br>                    <span class="hljs-keyword">if</span> (old_size &gt;= MINSIZE)<br>                      &#123;<br>                        _int_free (av, old_top, <span class="hljs-number">1</span>);<span class="hljs-comment">/*将old top chunk free掉，加入unsorted bin*/</span><br>                      &#125;<br>                  &#125;<br></code></pre></td></tr></table></figure>
 
@@ -240,6 +240,7 @@ House of Ro...">
 
 <h2 id="House-of-Spirit"><a href="#House-of-Spirit" class="headerlink" title="House of Spirit"></a>House of Spirit</h2><p>技术来源：<a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/85357">https://www.anquanke.com/post/id/85357</a></p>
 <p>House of Spirit（下面称为hos）算是一个组合型漏洞的利用，是变量覆盖和堆管理机制的组合利用，关键在于能够覆盖一个堆指针变量，使其指向可控的区域，只要构造好数据，释放后系统会错误的将该区域作为堆块放到相应的fast bin里面，最后再分配出来的时候，就有可能改写我们目标区域。</p>
+<p>适用范围：到glibc-2.34依然可用</p>
 <h3 id="使用条件"><a href="#使用条件" class="headerlink" title="使用条件"></a>使用条件</h3><p>（1）想要控制的目标区域的前段空间与后段空间都是可控的内存区域</p>
 <p>一般来说想要控制的目标区域多为返回地址或是一个函数指针，正常情况下，该内存区域我们输入的数据是无法控制的，想要利用hos攻击技术来改写该区域，首先需要我们可以控制那片目标区域的前面空间和后面空间，示意图如下</p>
 <p><img   class="lazyload" data-original="/2021/07/27/2021-07-27-house-of%E7%B3%BB%E5%88%97/t01ab6f5c485fc67d66.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">http://p7.qhimg.com/t01c4e1f8669a8b77bd.png</span></p>
@@ -251,6 +252,7 @@ House of Ro...">
 <p>（3）释放堆块，将伪造的堆块释放入fast bin里面。</p>
 <p>（4）申请堆块，将刚刚释放的堆块申请出来，最终使得可以往目标区域中写入数据，实现目的。</p>
 <p>第一步中的伪造堆块的过程，fastbin是一个单链表结构，遵循FIFO的规则，32位系统中fastbin的大小是在16<del>64字节之间，64位是在32</del>128字节之间。释放时会进行一些检查，所以需要对伪堆块中的数据进行构造，使其顺利的释放进到fastbin里面</p>
+<p>注：fake_chunk的堆头标志位只能为0或者1（如0x70，0x71），其他两个标志位是会影响到堆块的释放的。</p>
 <h3 id="例题BUU-lctf2016pwn200"><a href="#例题BUU-lctf2016pwn200" class="headerlink" title="例题BUU-lctf2016pwn200"></a>例题BUU-lctf2016pwn200</h3><p><img   class="lazyload" data-original="/2021/07/27/2021-07-27-house-of%E7%B3%BB%E5%88%97/image-20210905204052044.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210905204052044</span></p>
 <p>常规checksec一下，保护基本没开。</p>
 <p><img   class="lazyload" data-original="/2021/07/27/2021-07-27-house-of%E7%B3%BB%E5%88%97/image-20210905204120841.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210905204120841</span></p>

@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>August 30, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>9176</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>9213</span>
     </div>
   </div>
 </section>
@@ -229,14 +229,15 @@
 
 <p>当一个线程申请0x50大小的chunk时，如果tcache没有，那么就会进入分配区进行处理，如果对应bin中存在0x50的chunk，除了取出并返回之外，ptmalloc会认为这个线程在将来还需要相同的大小的chunk，因此就会把对应bin中0x50的chunk尽可能的放入tcache的链表中去</p>
 <p>这么做会存在一些问题，对于比较典型的 fastbin double free 产生了一个很有趣的影响：</p>
-<p>首先需要先释放7个chunk，填满tcache，然后free(C7) Free(C8) Free(C7)，在fastbin中构造出环</p>
-<p>下一步，为了分配到fastbin，需要先申请7个，让Tcache为空，再次申请时就会使用fastbin中的C7，这一步就也就整个手法的精华。取出C7后，Stash会把fastbin链表中的chunk全部放入Tcache中，而C7又是被我们分配到的堆块，是可控的，这就导致我们不需要伪造size字段，获得了一个真正的任意写。</p>
+<p>首先需要先释放7个chunk，填满tcache，然后Free(C7) Free(C8) Free(C7)，在fastbin中构造出环</p>
+<p>下一步，为了分配到fastbin，需要先申请7个，让Tcache为空，再次申请时就会使用fastbin中的C7，这一步是整个手法的精华。取出C7后，Stash会把fastbin链表中的chunk全部放入Tcache中，而C7又是被我们分配到的堆块，是可控的，这就导致我们不需要伪造size字段，获得了一个真正的任意写。</p>
 <p>二、在<code> libc-2.32.so</code>版本中新加入了一个 key 会对 tcache next 的内容进行异或</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">static</span> __always_inline <span class="hljs-keyword">void</span> </span><br><span class="hljs-function"><span class="hljs-title">tcache_put</span> <span class="hljs-params">(mchunkptr chunk, <span class="hljs-keyword">size_t</span> tc_idx)</span></span><br><span class="hljs-function"></span>&#123;<br>  tcache_entry *e = (tcache_entry *) chunk2mem (chunk);<br>  <span class="hljs-comment">/* Mark this chunk as &quot;in the tcache&quot; so the test in _int_free will</span><br><span class="hljs-comment">     detect a double free.  */</span><br>  e-&gt;key = tcache;<br>  e-&gt;next = PROTECT_PTR (&amp;e-&gt;next, tcache-&gt;entries[tc_idx]); <span class="hljs-comment">//不是直接赋值next</span><br>  tcache-&gt;entries[tc_idx] = e;<br>  ++(tcache-&gt;counts[tc_idx]);<br>&#125;<br><span class="hljs-function"><span class="hljs-keyword">static</span> __always_inline <span class="hljs-keyword">void</span> *</span><br><span class="hljs-function"><span class="hljs-title">tcache_get</span> <span class="hljs-params">(<span class="hljs-keyword">size_t</span> tc_idx)</span></span><br><span class="hljs-function"></span>&#123;<br>  tcache_entry *e = tcache-&gt;entries[tc_idx];<br>  <span class="hljs-keyword">if</span> (__glibc_unlikely (!aligned_OK (e)))<br>    malloc_printerr (<span class="hljs-string">&quot;malloc(): unaligned tcache chunk detected&quot;</span>);<br>  tcache-&gt;entries[tc_idx] = REVEAL_PTR (e-&gt;next);<br>  --(tcache-&gt;counts[tc_idx]);<br>  e-&gt;key = <span class="hljs-literal">NULL</span>;<br>  <span class="hljs-keyword">return</span> (<span class="hljs-keyword">void</span> *) e;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* Safe-Linking:</span><br><span class="hljs-comment">Use randomness from ASLR (mmap_base) to protect single-linked lists</span><br><span class="hljs-comment">of Fast-Bins and TCache.  That is, mask the &quot;next&quot; pointers of the</span><br><span class="hljs-comment">lists&#x27; chunks, and also perform allocation alignment checks on them.</span><br><span class="hljs-comment">This mechanism reduces the risk of pointer hijacking, as was done with</span><br><span class="hljs-comment">Safe-Unlinking in the double-linked lists of Small-Bins.</span><br><span class="hljs-comment">It assumes a minimum page size of 4096 bytes (12 bits).  Systems with</span><br><span class="hljs-comment">larger pages provide less entropy, although the pointer mangling</span><br><span class="hljs-comment">still works.  */</span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> PROTECT_PTR(pos, ptr) \</span><br><span class="hljs-meta">((__typeof (ptr)) ((((size_t) pos) &gt;&gt; 12) ^ ((size_t) ptr)))</span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> REVEAL_PTR(ptr)  PROTECT_PTR (&amp;ptr, ptr)</span><br></code></pre></td></tr></table></figure>
 
-<p>PROTECT_PTR：对 pos 右移了 12 位（去除了末尾的 3 位信息），再异或原来的指针（在这之前 next 储存的堆地址）。</p>
+<p>PROTECT_PTR：对 pos 右移了 12 位（去除了末尾的 3 位十六进制信息），再异或ptr。</p>
+<p>即：被释放堆块fd=(被释放堆块fd所在地址&gt;&gt;12)^被释放堆块的前一个堆块fd所在地址。</p>
 <p>而这里的 <strong>key 就是储存内容的指针（在代码中叫做 pos）</strong>，在放入的时候让内容与这个 <strong>key</strong> 进行异或再储存，在取出的时候让内容与这个 <strong>key</strong> 进行异或再取出。而得益于这个秘钥就是储存内容的指针，所以无需使用其他空间来放置这个 <strong>key</strong> 的内容，只需要保存异或之后的内容，在解密时只需 <strong>PROTECT_PTR (&amp;ptr, ptr)</strong> 这样操作即可。</p>
 <p>需要注意的是，当 tcache 中只有一个元素的时候，也就是在放入这个元素的过程中，<strong>tcache-&gt;entries[tc_idx] == 0</strong>，在这个时候放入元素的时候会异或 0，也就是在 <strong>e-&gt;next 位置存放</strong>的内容正好就是 <strong>key 的信息</strong>，因为 <strong>key 异或 0 还是秘钥</strong>。而且就算之后加入了其他的元素，这个元素始终还是在链表的尾部，所以内容不会发生变化</p>
 <p>绕过：</p>
@@ -258,7 +259,7 @@
 </ul>
 </li>
 </ul>
-<h3 id="Tcache-Stashing-Unlink-Attack"><a href="#Tcache-Stashing-Unlink-Attack" class="headerlink" title="Tcache Stashing Unlink Attack"></a>Tcache Stashing Unlink Attack</h3><p>类unlink手法，高版本一样可用，至少目前我知道的：到libc-2.32是没问题的</p>
+<h3 id="Tcache-Stashing-Unlink-Attack"><a href="#Tcache-Stashing-Unlink-Attack" class="headerlink" title="Tcache Stashing Unlink Attack"></a>Tcache Stashing Unlink Attack</h3><p>类unlink手法，高版本一样可用，至少目前我知道的：到 libc-2.32 是没问题的</p>
 <h4 id="利用条件"><a href="#利用条件" class="headerlink" title="利用条件"></a>利用条件</h4><p>1.<code>smallbin</code>中可以控制大小为size块的bk指针</p>
 <p>2.<code>tcache</code>中大小为size块的个数为6</p>
 <p>3.申请堆块是<code>calloc</code></p>
