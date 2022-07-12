@@ -6,7 +6,7 @@
   <link href="http://shoucheng3.github.io/atom.xml" rel="self"/>
   
   <link href="http://shoucheng3.github.io/"/>
-  <updated>2022-07-07T02:01:56.017Z</updated>
+  <updated>2022-07-10T09:09:52.381Z</updated>
   <id>http://shoucheng3.github.io/</id>
   
   <author>
@@ -17,18 +17,63 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>2022 bluehat</title>
+    <link href="http://shoucheng3.github.io/2022/07/10/2022-07-10-bluehat/"/>
+    <id>http://shoucheng3.github.io/2022/07/10/2022-07-10-bluehat/</id>
+    <published>2022-07-10T07:57:37.000Z</published>
+    <updated>2022-07-10T09:09:52.381Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;初赛&quot;&gt;&lt;a href=&quot;#初赛&quot; class=&quot;headerlink&quot; title=&quot;初赛&quot;&gt;&lt;/a&gt;初赛&lt;/h1&gt;&lt;h2 id=&quot;EscapeShellcode&quot;&gt;&lt;a href=&quot;#EscapeShellcode&quot; class=&quot;headerlink&quot;</summary>
+        
+      
+    
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>pwn.college</title>
+    <link href="http://shoucheng3.github.io/2022/07/07/2022-07-07-pwn-college-1/"/>
+    <id>http://shoucheng3.github.io/2022/07/07/2022-07-07-pwn-college-1/</id>
+    <published>2022-07-07T13:00:25.000Z</published>
+    <updated>2022-07-12T14:30:46.623Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h1&gt;&lt;p&gt;跟着pwn.college把之前因为CTF而略过的基础知识一点点的补回来，同时打好基础，更上一步吧。&lt;/p&gt;
+&lt;h1</summary>
+        
+      
+    
+    
+    
+    
+    <category term="pwn.college" scheme="http://shoucheng3.github.io/tags/pwn-college/"/>
+    
+  </entry>
+  
+  <entry>
     <title>2022ciscn pwn</title>
     <link href="http://shoucheng3.github.io/2022/07/05/2022-07-05-2022ciscn-pwn/"/>
     <id>http://shoucheng3.github.io/2022/07/05/2022-07-05-2022ciscn-pwn/</id>
     <published>2022-07-05T13:25:04.000Z</published>
-    <updated>2022-07-07T02:01:56.017Z</updated>
+    <updated>2022-07-07T13:00:03.737Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h1&gt;&lt;p&gt;今年ciscn线上赛总共三题pwn，一题算是签到，一题2.34的堆做一半没成功，一题LLVM</summary>
+    <summary type="html">&lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h1&gt;&lt;p&gt;今年ciscn总共三题pwn，一题算是签到，一题2.34的堆做一半没成功，一题LLVM</summary>
         
       
     
@@ -427,52 +472,6 @@
     
     
     <category term="强网杯" scheme="http://shoucheng3.github.io/tags/%E5%BC%BA%E7%BD%91%E6%9D%AF/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>2021羊城杯PWN</title>
-    <link href="http://shoucheng3.github.io/2021/09/13/2021-09-13-2021%E7%BE%8A%E5%9F%8E%E6%9D%AFPWN/"/>
-    <id>http://shoucheng3.github.io/2021/09/13/2021-09-13-2021%E7%BE%8A%E5%9F%8E%E6%9D%AFPWN/</id>
-    <published>2021-09-13T08:50:56.000Z</published>
-    <updated>2021-10-13T08:01:24.288Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot;</summary>
-        
-      
-    
-    
-    
-    
-    <category term="羊城杯" scheme="http://shoucheng3.github.io/tags/%E7%BE%8A%E5%9F%8E%E6%9D%AF/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>buu08</title>
-    <link href="http://shoucheng3.github.io/2021/09/05/2021-09-05-buu08/"/>
-    <id>http://shoucheng3.github.io/2021/09/05/2021-09-05-buu08/</id>
-    <published>2021-09-05T07:59:06.000Z</published>
-    <updated>2021-11-06T08:34:57.868Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h2 id=&quot;一、pwnable-simple-login&quot;&gt;&lt;a href=&quot;#一、pwnable-simple-login&quot; class=&quot;headerlink&quot;</summary>
-        
-      
-    
-    
-    
-    
-    <category term="buu" scheme="http://shoucheng3.github.io/tags/buu/"/>
     
   </entry>
   

