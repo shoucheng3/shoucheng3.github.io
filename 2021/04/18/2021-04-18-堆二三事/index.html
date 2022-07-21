@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>April 18, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6304</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6415</span>
     </div>
   </div>
 </section>
@@ -266,10 +266,13 @@
 <p>需要把__libc_stdout上的值修改为<code>p64(0xfbad1800) + p64(0) * 3 + &#39;\x00&#39;</code></p>
 <p>23、当分配unsorted chunk时，如果剩下的块仍然大于0x80，并且还是唯一的，那这个新的unsorted chunkfd，bk指针仍然指向libc地址，并且分配出去的堆块，如果没有对堆块进行清零，那么上面将会存放着之前unsorted chunk的fd、bk指针</p>
 <p>24、libc-2.23.so时的fd，bk指针，指向的是堆块的prev_size位置，libc-2.27.so时的fd，bk指针指向的是堆块的内容（就是存放fd，bk指针的位置）比libc-2.23.so多了0x10</p>
-<p>25、利用exit_hook：劫持<code>_dl_rtld_lock_recursive</code>的值为one_gadget，当调用exit函数时可得到shell</p>
+<p>25、利用<code>exit_hook</code>：劫持<code>_dl_rtld_lock_recursive</code>的值为one_gadget，当调用exit函数时可得到shell</p>
 <p><img   class="lazyload" data-original="/2021/04/18/2021-04-18-%E5%A0%86%E4%BA%8C%E4%B8%89%E4%BA%8B/image-20210903170451297.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210903170451297</span></p>
-<p>在gdb中<code>p _rtld_global</code>可以找到这两个函数，但是要找到这个值所在地址，还需要在_rtld_global中寻找</p>
-<p><img   class="lazyload" data-original="/2021/04/18/2021-04-18-%E5%A0%86%E4%BA%8C%E4%B8%89%E4%BA%8B/image-20210903172330664.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20210903172330664</span></p>
+<p>寻找<code>exit_hook：</code></p>
+<p>​        在gdb中输入<code>p _rtld_global</code>，可以找到这两个被赋予的值。</p>
+<p><img   class="lazyload" data-original="/2021/04/18/2021-04-18-%E5%A0%86%E4%BA%8C%E4%B8%89%E4%BA%8B/image-20220721110209483.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20220721110209483</span></p>
+<p>然后在输入 <code>search &quot;0x7ff75581d150&quot; -t qword</code>即可找到其对应的地址。</p>
+<p><img   class="lazyload" data-original="/2021/04/18/2021-04-18-%E5%A0%86%E4%BA%8C%E4%B8%89%E4%BA%8B/image-20220721110328165.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20220721110328165</span></p>
 <p>libc-2.23.so:</p>
 <ul>
 <li>rtld_lock = libc_base + 0x5F0F48</li>
@@ -290,7 +293,7 @@
 <ul>
 <li>mem_address 不变，newsize == 0，相当于释放原来的堆块；</li>
 <li>mem_address == 0 &amp;&amp; newsize &gt; 0，相当于malloc；</li>
-<li>mem_address 不变，newsize &gt; originsize，<code>先释放原堆块</code>，然后再malloc一个更大的堆块，原堆块内容会被拷贝过去；返回新堆块的地址</li>
+<li>mem_address 不变，newsize &gt; originsize，如果与topchunk相邻则直接扩展到newsize，不相邻则<code>先释放原堆块</code>，然后再malloc一个更大的堆块，原堆块内容会被拷贝过去；返回新堆块的地址</li>
 <li>mem_address 不变，newsize &lt;= originsize，如果切割后剩下的堆块大于 2 * chunk_min_size则切割，剩下堆块被free，否则直接返回原堆块</li>
 </ul>
 <p>32、在利用 offbynull 构造 overlap，遇到过多次：头尾两个要释放的堆块之间不能只间隔一个堆块，至少要两个才行，不然将无法成功利用 offbynull</p>

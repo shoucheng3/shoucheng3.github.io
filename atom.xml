@@ -6,7 +6,7 @@
   <link href="http://shoucheng3.github.io/atom.xml" rel="self"/>
   
   <link href="http://shoucheng3.github.io/"/>
-  <updated>2022-07-19T12:45:39.671Z</updated>
+  <updated>2022-07-19T13:59:36.474Z</updated>
   <id>http://shoucheng3.github.io/</id>
   
   <author>
@@ -15,6 +15,19 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>天问之路</title>
+    <link href="http://shoucheng3.github.io/2022/07/19/2022-07-20-%E5%A4%A9%E9%97%AE%E4%B9%8B%E8%B7%AF%E2%80%94%E2%80%94Fuzz/"/>
+    <id>http://shoucheng3.github.io/2022/07/19/2022-07-20-%E5%A4%A9%E9%97%AE%E4%B9%8B%E8%B7%AF%E2%80%94%E2%80%94Fuzz/</id>
+    <published>2022-07-19T13:59:36.000Z</published>
+    <updated>2022-07-19T13:59:36.474Z</updated>
+    
+    
+    
+    
+    
+  </entry>
   
   <entry>
     <title>2022DSCTF</title>
@@ -42,7 +55,7 @@
     <link href="http://shoucheng3.github.io/2022/07/10/2022-07-10-bluehat/"/>
     <id>http://shoucheng3.github.io/2022/07/10/2022-07-10-bluehat/</id>
     <published>2022-07-10T07:57:37.000Z</published>
-    <updated>2022-07-10T09:09:52.381Z</updated>
+    <updated>2022-07-21T03:34:28.627Z</updated>
     
     
       
@@ -446,29 +459,6 @@
     
     
     <category term="PWN" scheme="http://shoucheng3.github.io/tags/PWN/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>ptmalloc--笔记</title>
-    <link href="http://shoucheng3.github.io/2021/09/17/2021-09-17-ptmalloc-%E7%AC%94%E8%AE%B0/"/>
-    <id>http://shoucheng3.github.io/2021/09/17/2021-09-17-ptmalloc-%E7%AC%94%E8%AE%B0/</id>
-    <published>2021-09-17T13:02:21.000Z</published>
-    <updated>2021-10-13T08:01:24.335Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot;</summary>
-        
-      
-    
-    
-    
-    
-    <category term="ptmalloc" scheme="http://shoucheng3.github.io/tags/ptmalloc/"/>
     
   </entry>
   
