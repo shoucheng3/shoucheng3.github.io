@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>March 03, 2022</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4359</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4358</span>
     </div>
   </div>
 </section>
@@ -218,7 +218,7 @@
 <li>对释放的堆块的size进行基本的检查。</li>
 <li>对释放堆块的下一个堆块的size进行基本的检查。</li>
 <li>获取释放堆块所对应的fastbin链表对应的索引。</li>
-<li>检查是否是double free。`</li>
+<li>检查是否是double free。</li>
 <li>释放进单链表。</li>
 </ol>
 <p>fastbin的单链表管理是比较简单的，与<code>global_max_fast</code>相关且需要注意的代码则是fastbin 所对应的index获取以及index所对应的指针获取的代码，即<code>fastbin_index</code>宏以及<code>fastbin</code>宏，对应代码如下：</p>

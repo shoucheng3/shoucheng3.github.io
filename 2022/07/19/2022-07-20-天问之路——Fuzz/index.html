@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>July 19, 2022</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>2855</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>3695</span>
     </div>
   </div>
 </section>
@@ -206,10 +206,47 @@
 
 <h2 id="数据类型说明"><a href="#数据类型说明" class="headerlink" title="数据类型说明"></a>数据类型说明</h2><figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs angelscript"><span class="hljs-keyword">typedef</span> <span class="hljs-built_in">int</span>8_t   s8;<br><span class="hljs-keyword">typedef</span> <span class="hljs-built_in">int</span>16_t  s16;<br><span class="hljs-keyword">typedef</span> <span class="hljs-built_in">int</span>32_t  s32;<br><span class="hljs-keyword">typedef</span> <span class="hljs-built_in">int</span>64_t  s64;<br><br><span class="hljs-keyword">typedef</span> <span class="hljs-built_in">uint</span>8_t  u8;<br><span class="hljs-keyword">typedef</span> <span class="hljs-built_in">uint</span>16_t u16;<br><span class="hljs-keyword">typedef</span> <span class="hljs-built_in">uint</span>32_t u32;<br><span class="hljs-keyword">typedef</span> <span class="hljs-built_in">uint</span>64_t u64;<br></code></pre></td></tr></table></figure>
 
-<h2 id="afl-fuzz"><a href="#afl-fuzz" class="headerlink" title="afl-fuzz"></a>afl-fuzz</h2><h3 id="初始配置"><a href="#初始配置" class="headerlink" title="初始配置"></a>初始配置</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">while</span> ((opt = getopt(argc, argv, <span class="hljs-string">&quot;+i:o:f:m:b:t:T:dnCB:S:M:x:QV&quot;</span>)) &gt; <span class="hljs-number">0</span>)<br>    	...<br></code></pre></td></tr></table></figure>
+<h2 id="afl-fuzz"><a href="#afl-fuzz" class="headerlink" title="afl-fuzz"></a>afl-fuzz</h2><h3 id="初始配置"><a href="#初始配置" class="headerlink" title="初始配置"></a>初始配置</h3><h4 id="while循环"><a href="#while循环" class="headerlink" title="while循环"></a>while循环</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">while</span> ((opt = getopt(argc, argv, <span class="hljs-string">&quot;+i:o:f:m:b:t:T:dnCB:S:M:x:QV&quot;</span>)) &gt; <span class="hljs-number">0</span>)<br>    	...<br></code></pre></td></tr></table></figure>
 
 <p>刚开始使用<code>getopt</code>函数获取输入的选项参数。</p>
-<h3 id="fuzz执行"><a href="#fuzz执行" class="headerlink" title="fuzz执行"></a>fuzz执行</h3><h3 id="变异策略"><a href="#变异策略" class="headerlink" title="变异策略"></a>变异策略</h3><h4 id="memset-sakura-array"><a href="#memset-sakura-array" class="headerlink" title="memset_sakura_array"></a>memset_sakura_array</h4><p>初始化了两个数组：<code>simplify_lookup</code>和<code>count_class_lookup8</code>。</p>
+<h4 id="setup-signal-handlers"><a href="#setup-signal-handlers" class="headerlink" title="setup_signal_handlers"></a>setup_signal_handlers</h4><p>先了解一下常见的信号：</p>
+<table>
+<thead>
+<tr>
+<th align="center">信号名称</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">SIGALRM</td>
+<td align="left">由alarm函数设置的定时器产生</td>
+</tr>
+<tr>
+<td align="center">SIGHUP</td>
+<td align="left">由一个处于非连接状态的终端发送给控制进程，或者由控制进程在自身结束时发送给每个前台进程</td>
+</tr>
+<tr>
+<td align="center">SIGINT</td>
+<td align="left">一般由从终端敲入的Crtl+C组合键或预先设置好的中断字符产生</td>
+</tr>
+<tr>
+<td align="center">SIGKILL</td>
+<td align="left">shell中使用其来强制终止异常进程</td>
+</tr>
+<tr>
+<td align="center">SIGPIPE</td>
+<td align="left">如果向管道写数据时没有与之对应的读进程，就会产生这个信号</td>
+</tr>
+<tr>
+<td align="center">SIGTERM</td>
+<td align="left">作为一个请求被发送，要求进程结束运行。UNIX关机时用这个信号要求系统服务停止运行。它是kill命令默认发送的信号</td>
+</tr>
+<tr>
+<td align="center">SIGUSR1，SIGUSR2</td>
+<td align="left">进程之间可以用这个信号进行通信，例如让进程报告状态信息等</td>
+</tr>
+</tbody></table>
+<h4 id="check-asan-opts"><a href="#check-asan-opts" class="headerlink" title="check_asan_opts"></a>check_asan_opts</h4><h4 id="fix-up-sync"><a href="#fix-up-sync" class="headerlink" title="fix_up_sync"></a>fix_up_sync</h4><h3 id="fuzz执行"><a href="#fuzz执行" class="headerlink" title="fuzz执行"></a>fuzz执行</h3><h3 id="变异策略"><a href="#变异策略" class="headerlink" title="变异策略"></a>变异策略</h3><h4 id="memset-sakura-array"><a href="#memset-sakura-array" class="headerlink" title="memset_sakura_array"></a>memset_sakura_array</h4><p>初始化了两个数组：<code>simplify_lookup</code>和<code>count_class_lookup8</code>。</p>
 <h2 id="库函数"><a href="#库函数" class="headerlink" title="库函数"></a>库函数</h2><ul>
 <li><p>getenv() </p>
 <ul>
@@ -296,6 +333,30 @@ struct timezone
 </li>
 </ul>
 </li>
+<li><p>sigemptyset()</p>
+<ul>
+<li><code>int sigemptyset(sigset_t *set)</code>该函数的作用是将信号集初始化为空。</li>
+</ul>
+</li>
+<li><p>kill()</p>
+<ul>
+<li><code>int kill(pid_t pid, int sig)</code>kill()可以用来送参数 sig 指定的信号给参数 pid 指定的进程。</li>
+<li>成功时返回0，调用失败返回-1。</li>
+<li>pid 说明：<ul>
+<li>pid&gt;0 将信号传给进程识别码为 pid 的进程。</li>
+<li>pid=0 将信号传给和目前进程相同进程组的所有进程。</li>
+<li>pid=-1 将信号广播传送给系统内所有的进程。</li>
+<li>pid&lt;0 将信号传给进程组识别码为 pid 绝对值的所有进程参数 sig 代表的信号编号。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>alarm()</p>
+<ul>
+<li><code>unsigned int alarm(unsigned int seconds)</code>alarm()函数用来在seconds秒之后安排发送一个SIGALRM信号，如果seconds为0，将取消所有已设置的闹钟请求。</li>
+<li>alarm()函数的返回值是以前设置的闹钟时间的余留秒数，如果失败返回-1。</li>
+</ul>
+</li>
 </ul>
 
       </section>
@@ -315,7 +376,7 @@ struct timezone
 
         
   <nav class="nav">
-    <a></a>
+    <a href="/2022/08/25/2022-08-25-2022%E5%B7%85%E5%B3%B0%E6%9E%81%E5%AE%A2/"><i class="iconfont iconleft"></i>2022巅峰极客</a>
     <a href="/2022/07/19/2022-07-19-DSCTF/">2022DSCTF<i class="iconfont iconright"></i></a>
   </nav>
 

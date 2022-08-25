@@ -6,7 +6,7 @@
   <link href="http://shoucheng3.github.io/atom.xml" rel="self"/>
   
   <link href="http://shoucheng3.github.io/"/>
-  <updated>2022-07-26T14:22:54.251Z</updated>
+  <updated>2022-08-25T06:56:56.204Z</updated>
   <id>http://shoucheng3.github.io/</id>
   
   <author>
@@ -17,11 +17,46 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>house_of_banana</title>
+    <link href="http://shoucheng3.github.io/2022/08/25/2022-08-25-house-of-banana/"/>
+    <id>http://shoucheng3.github.io/2022/08/25/2022-08-25-house-of-banana/</id>
+    <published>2022-08-25T06:00:30.000Z</published>
+    <updated>2022-08-25T06:56:56.204Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;借2022长城杯的一道题学习house_of_banana&lt;/p&gt;
+&lt;h2 id=&quot;原理&quot;&gt;&lt;a href=&quot;#原理&quot;</summary>
+        
+      
+    
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>2022巅峰极客</title>
+    <link href="http://shoucheng3.github.io/2022/08/25/2022-08-25-2022%E5%B7%85%E5%B3%B0%E6%9E%81%E5%AE%A2/"/>
+    <id>http://shoucheng3.github.io/2022/08/25/2022-08-25-2022%E5%B7%85%E5%B3%B0%E6%9E%81%E5%AE%A2/</id>
+    <published>2022-08-25T06:00:16.000Z</published>
+    <updated>2022-08-25T06:00:16.978Z</updated>
+    
+    
+    
+    
+    
+  </entry>
+  
+  <entry>
     <title>天问之路</title>
     <link href="http://shoucheng3.github.io/2022/07/19/2022-07-20-%E5%A4%A9%E9%97%AE%E4%B9%8B%E8%B7%AF%E2%80%94%E2%80%94Fuzz/"/>
     <id>http://shoucheng3.github.io/2022/07/19/2022-07-20-%E5%A4%A9%E9%97%AE%E4%B9%8B%E8%B7%AF%E2%80%94%E2%80%94Fuzz/</id>
     <published>2022-07-19T13:59:36.000Z</published>
-    <updated>2022-07-26T14:22:54.251Z</updated>
+    <updated>2022-07-27T14:11:21.614Z</updated>
     
     
       
@@ -175,7 +210,7 @@
     <link href="http://shoucheng3.github.io/2022/03/03/2022-01-12-global-max-fast/"/>
     <id>http://shoucheng3.github.io/2022/03/03/2022-01-12-global-max-fast/</id>
     <published>2022-03-03T08:54:05.000Z</published>
-    <updated>2022-03-10T08:58:48.981Z</updated>
+    <updated>2022-08-23T08:22:33.189Z</updated>
     
     
       
@@ -245,7 +280,7 @@
     <link href="http://shoucheng3.github.io/2021/11/06/2021-11-06-IO-FLIE/"/>
     <id>http://shoucheng3.github.io/2021/11/06/2021-11-06-IO-FLIE/</id>
     <published>2021-11-06T11:04:05.000Z</published>
-    <updated>2022-05-10T14:42:17.209Z</updated>
+    <updated>2022-08-24T08:37:15.058Z</updated>
     
     
       
@@ -416,52 +451,6 @@
         
     <summary type="html">&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;太菜了，一题没出；又是抱着大佬WP跟着复现~&lt;/p&gt;
 &lt;p&gt;来源：&lt;a</summary>
-        
-      
-    
-    
-    
-    
-    <category term="PWN" scheme="http://shoucheng3.github.io/tags/PWN/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>orw</title>
-    <link href="http://shoucheng3.github.io/2021/09/21/2021-09-21-orw/"/>
-    <id>http://shoucheng3.github.io/2021/09/21/2021-09-21-orw/</id>
-    <published>2021-09-21T09:02:18.000Z</published>
-    <updated>2022-02-23T08:45:53.368Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h2 id=&quot;背景前置&quot;&gt;&lt;a href=&quot;#背景前置&quot; class=&quot;headerlink&quot; title=&quot;背景前置&quot;&gt;&lt;/a&gt;背景前置&lt;/h2&gt;&lt;p&gt;seccomp 是 secure computing 的缩写，其是 Linux kernel</summary>
-        
-      
-    
-    
-    
-    
-    <category term="orw" scheme="http://shoucheng3.github.io/tags/orw/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>2021长城杯PWN</title>
-    <link href="http://shoucheng3.github.io/2021/09/21/2021-09-21-2021%E9%95%BF%E5%9F%8E%E6%9D%AFPWN/"/>
-    <id>http://shoucheng3.github.io/2021/09/21/2021-09-21-2021%E9%95%BF%E5%9F%8E%E6%9D%AFPWN/</id>
-    <published>2021-09-21T04:07:10.000Z</published>
-    <updated>2021-10-13T08:01:24.539Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;这次一共三题pwn，两题其实都是比较常见的堆题，可惜只做出了一题，还有一题堆上的orw在比赛前没能出</summary>
         
       
     

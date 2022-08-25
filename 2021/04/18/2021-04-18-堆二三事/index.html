@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>April 18, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6415</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6601</span>
     </div>
   </div>
 </section>
@@ -284,6 +284,7 @@
 <li>rtld_unlock = libc_base + 0x619F68</li>
 </ul>
 <p>注：上述只是2.23，2.27的libc版本，但是同2.23，2.27的libc其实还有小版本类型，但是不变的是都在<code>_rtld_global+3840</code>的地址</p>
+<p>适用范围 glibc-2.23~glibc-2.34ubuntu3，直到 glibc-2.34ubuntu3.2 地址不可写了，才正式宣告失效。</p>
 <p>26、libc-2.27.so的unlink要先把tcache bin填满才能用，unlink要保证<code>unsorted bin是空的</code>，所以有时候泄露信息用了unsorted bin，要申请回来</p>
 <p>27、当我们申请一个大于 top chunk 的堆块时，程序会调用 mmap 进行内存分配，分配下来堆块的地址是libc中的地址</p>
 <p>28、libc-2.27堆的orw：利用setcontext+53的指令，把setcontext+53的地址一般写在__free_hook上，而shellcode写在堆上，然后进行释放堆块从而执行orw</p>
@@ -307,6 +308,10 @@
 </li>
 </ul>
 <p>​                    <img   class="lazyload" data-original="/2021/04/18/2021-04-18-%E5%A0%86%E4%BA%8C%E4%B8%89%E4%BA%8B/image-20220310192041331.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20220310192041331</span></p>
+<ul>
+<li>FSOP的利用，2.31及以上的主要用法。</li>
+</ul>
+<p>35、小技巧：在使用 one_gadget 时，可以先用 0xcafebabedeadbeef 填充，然后直接 c 就会让程序 down 在调用的位置，可以直接查看寄存器的值。</p>
 
       </section>
       <section class="extra">
