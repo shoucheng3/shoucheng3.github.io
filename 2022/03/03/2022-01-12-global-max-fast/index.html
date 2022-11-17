@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="google" content="notranslate" />
   
-  <meta name="description" content="转载自https://xz.aliyun.com/t/...">
+  <meta name="description" content="文章来源：https://xz.aliyun.com/...">
   <meta name="author" content="ShouCheng">
   <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
   <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
@@ -196,13 +196,13 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>March 03, 2022</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4358</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4469</span>
     </div>
   </div>
 </section>
     <section class="main">
       <section class="content">
-        <p>转载自<a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/5082#toc-8">https://xz.aliyun.com/t/5082#toc-8</a></p>
+        <p>文章来源：<a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/5082#toc-8">https://xz.aliyun.com/t/5082#toc-8</a></p>
 <h1 id="global-max-fast"><a href="#global-max-fast" class="headerlink" title="global_max_fast"></a>global_max_fast</h1><p>此次的源码是基于<code>libc-2.23</code>的，后续的版本加入了<code>tcache</code>，该机制相对来说比较简单与独立，所以还是基于2.23进行相应的分析，在64位系统上进行。<br><code>global_max_fast</code>这个全局变量的作用是用来标志<code>fastbin</code>的大小的阈值，小于这个值的堆块会被认为是fastbin，使用fastbin的相应机制进行管理。看下它的定义：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> set_max_fast(s) \</span><br><span class="hljs-meta">  global_max_fast = (((s) == 0)                           \</span><br><span class="hljs-meta">                     ? SMALLBIN_WIDTH : ((s + SIZE_SZ) &amp; ~MALLOC_ALIGN_MASK))</span><br><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> get_max_fast() global_max_fast</span><br></code></pre></td></tr></table></figure>
 
@@ -221,10 +221,10 @@
 <li>检查是否是double free。</li>
 <li>释放进单链表。</li>
 </ol>
-<p>fastbin的单链表管理是比较简单的，与<code>global_max_fast</code>相关且需要注意的代码则是fastbin 所对应的index获取以及index所对应的指针获取的代码，即<code>fastbin_index</code>宏以及<code>fastbin</code>宏，对应代码如下：</p>
+<p>fastbin的单链表管理是比较简单的，与<code>global_max_fast</code>相关且需要注意的代码则是 fastbin 所对应的 index 获取以及 index所对应的指针获取的代码，即<code>fastbin_index</code>宏以及<code>fastbin</code>宏，对应代码如下：</p>
 <figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-selector-id">#define</span> fastbin_index(sz) \<br>  ((((unsigned int) (sz)) &gt;&gt; (SIZE_SZ == <span class="hljs-number">8</span> ? <span class="hljs-number">4</span> : <span class="hljs-number">3</span>)) - 2)<br><br><span class="hljs-selector-id">#define</span> fastbin(ar_ptr, idx) ((ar_ptr)-&gt;fastbinsY<span class="hljs-selector-attr">[idx]</span>)<br></code></pre></td></tr></table></figure>
 
-<p>可以看到这两个宏仅仅是利用偏移来定位数组的指针，但是arena所对应的<code>malloc_state</code>中fastbins数组相关的定义为：</p>
+<p>可以看到这两个宏仅仅是利用偏移来定位数组的指针，但是 arena 所对应的<code>malloc_state</code>中 fastbins 数组相关的定义为：</p>
 <figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs less"><span class="hljs-selector-tag">mfastbinptr</span> <span class="hljs-selector-tag">fastbinsY</span><span class="hljs-selector-attr">[NFASTBINS]</span><br><br><span class="hljs-selector-id">#define</span> <span class="hljs-selector-tag">NFASTBINS</span>  (fastbin_index (request2size (MAX_FAST_SIZE)) + <span class="hljs-number">1</span>)<br></code></pre></td></tr></table></figure>
 
 <p>到这里问题就比较明显了，如果可以改写<code>global_max_fast</code>为一个较大的值，然后释放一个较大的堆块时，由于fastbins数组空间是有限的，其相对偏移将会往后覆盖，如果释放堆块的size可控，就可实现往fastbins数组（main_arena）后的<code>任意地址</code>写入所释放堆块的地址。</p>
@@ -243,15 +243,15 @@
 <li>stderr</li>
 <li>__free_hook</li>
 </ul>
-<p>复写前面四个就是使用<code>IO_file</code>攻击那一套方法，伪造结构体来实现任意读任意写或者伪造vtable来实现<code>house of orange</code>攻击。</p>
-<p>复写<code>__free_hook</code>的话则需要一次uaf来修改释放进去的fd改成<code>system</code>或者<code>one gadget</code>，再将堆块申请出来，从而实现将<code>__free_hook</code>改写成<code>system</code>或者<code>one gadget</code>。</p>
+<p>复写前面四个就是使用<code>IO_file</code>攻击那一套方法，伪造结构体来实现任意读任意写或者伪造 vtable 来实现<code>house of orange</code>攻击。</p>
+<p>复写<code>__free_hook</code>的话则需要一次uaf来把fd改成<code>system</code>或者<code>one gadget</code>，再将堆块申请出来，从而实现将<code>__free_hook</code>改写成<code>system</code>或者<code>one gadget</code>。因为在 malloc 的时候会把 fastbinsY 的链表头部取出，并且把其 fd 位置的内容作为链表头部写入到 fastbinsY 数组中，而在这个过程中没有对可控堆块的 fd 位置的内容的合法性做检查。</p>
 <h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p><code>global_max_fast</code>的一些相关场景包括：</p>
 <ul>
 <li>可能能够得到libc地址。</li>
 <li>能够控制free堆块的size。</li>
 <li>能往任意地址写但是却无法控制写的内容。</li>
 </ul>
-<p>以此来实现往<code>main_arena</code>后面的任意地址写堆块地址的效果，以实现后续的利用，相关的漏洞利用方式包括<code>unsorted bin attack</code>以及house of orange（IO file）等。</p>
+<p>以此来实现往<code>main_arena</code>后面的任意地址写堆块地址的效果，以实现后续的利用，相关的漏洞利用方式包括<code>unsorted bin attack</code>以及 house of orange（IO file）等。</p>
 
       </section>
       <section class="extra">

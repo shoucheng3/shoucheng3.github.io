@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>July 20, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>11446</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>11436</span>
     </div>
   </div>
 </section>
@@ -267,18 +267,18 @@
 <p>但是伪造 FD 和 BK 需要绕过下面的检测才行 </p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (__builtin_expect (FD-&gt;bk != P || BK-&gt;fd != P, <span class="hljs-number">0</span>))      <br>  malloc_printerr (check_action, <span class="hljs-string">&quot;corrupted double-linked list&quot;</span>, P, AV);<br></code></pre></td></tr></table></figure>
 
-<h2 id="bypass"><a href="#bypass" class="headerlink" title="bypass"></a>bypass</h2><h3 id="no-pie"><a href="#no-pie" class="headerlink" title="no pie"></a>no pie</h3><p>这种情况其实就是之前写过的unlink attack，劫持程序中用于<strong>储存堆块指针的数组</strong>，从而达成任意地址写的目的。详细情况请移步到该篇博客，这里就不再赘述</p>
+<h2 id="bypass"><a href="#bypass" class="headerlink" title="bypass"></a>bypass</h2><h3 id="no-pie"><a href="#no-pie" class="headerlink" title="no pie"></a>no pie</h3><p>这种情况其实就是之前写过的unlink attack，劫持程序中用于<strong>储存堆块指针的数组</strong>，从而达成任意地址写的目。</p>
 <h3 id="拥有堆地址"><a href="#拥有堆地址" class="headerlink" title="拥有堆地址"></a>拥有堆地址</h3><p><img   class="lazyload" data-original="/2021/07/20/2021-07-26-offbyone&null/0ce506d87fdbbe100ec80d1bc6f87725.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">图片</span></p>
 <p>我们可以仿照上面的情况，在一个可以写入内容的堆块比如0x20的位置（ptr）上填入将要unlink的堆块地址，然后在将要unlink的堆块的 fd，bk 指针上写入<code>ptr-0x18</code>，<code>ptr-0x10</code>即可绕过检测，实现unlink</p>
 <h3 id="无法泄露堆地址"><a href="#无法泄露堆地址" class="headerlink" title="无法泄露堆地址"></a>无法泄露堆地址</h3><p>不可泄露堆地址的各种方法归根结底都是通过<strong>部分写入</strong>和<strong>各种堆管理器的性质</strong>来改写出想要指向的堆块地址从而绕过检测</p>
-<h4 id="一、在借用large-chunk上的垃圾数据"><a href="#一、在借用large-chunk上的垃圾数据" class="headerlink" title="一、在借用large chunk上的垃圾数据"></a>一、在借用large chunk上的垃圾数据</h4><p>当只有一个large chunk在 bin 链上时，fd_nextsize 和 bk_nextsize 是存放large chunk本身的堆地址。要利用这两个残余的垃圾的数据，把这两个数据作为我们要构造的 fake chunk 的 fd bk 指针。</p>
+<h4 id="一、在借用large-chunk上的垃圾数据"><a href="#一、在借用large-chunk上的垃圾数据" class="headerlink" title="一、在借用large chunk上的垃圾数据"></a>一、在借用large chunk上的垃圾数据</h4><p>当只有一个 large chunk 在 bin 链上时，fd_nextsize 和 bk_nextsize 是存放large chunk本身的堆地址。要利用这两个残余的垃圾的数据，把这两个数据作为我们要构造的 fake chunk 的 fd bk 指针。</p>
 <p><img   class="lazyload" data-original="/2021/07/20/2021-07-26-offbyone&null/image-20211001161409749.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20211001161409749</span></p>
 <p>首先这是 large chunk 的结构</p>
 <p><img   class="lazyload" data-original="/2021/07/20/2021-07-26-offbyone&null/image-20211001164643331.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p><img   class="lazyload" data-original="/2021/07/20/2021-07-26-offbyone&null/image-20211001161853438.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20211001161853438</span></p>
 <p>这是经过伪造后的 large chunk 以及我们要用得一个可以被控制的 chunk ，首先从0x10开始作为 fake chunk 的堆头开始布置，通过部分写把 fake fd指针改为 chunk 的地址，同时部分写入修改 chunk bk 指针为 fake chunk，从而绕过第一个检查 FD-&gt;bk == p</p>
-<p>接下来就是绕过第二个检查 BK-&gt;fd == p，我们利用fastbin的特性：会在fd指针留下前一块的堆地址，在 large chunk 的 fd 指针位置写入堆地址，然后借着部分写入修改为 fake chunk addr - 0x10。因为再加上本来的 bk_nextsize 就是指向 large chunk ，即可完成第二个检查的绕过。</p>
-<p>tcache的话，在glibc 2.29以上的版本加入的key字段会破坏bk指针的内容，而在这之下的版本应该也很少会用到这么复杂的手法去构造</p>
+<p>接下来就是绕过第二个检查 BK-&gt;fd == p，我们利用 fastbin 的特性：会在 fd 指针留下前一块的堆地址，在 large chunk 的 fd 指针位置写入堆地址，然后借着部分写入修改为 fake chunk addr - 0x10。因为再加上本来的 bk_nextsize 就是指向 large chunk ，即可完成第二个检查的绕过。</p>
+<p>tcache 的话，在glibc 2.29以上的版本加入的 key 字段会破坏 bk 指针的内容，而在这之下的版本应该也很少会用到这么复杂的手法去构造</p>
 <p>修改方法为：然后先释放一个堆块 a，再释放 largebin chunk，这时候再 largebin chunk + 0x10 的位置就会有一个 a 的指针。我们再用部分写入将指针改写成 largebin chunk + 0x10 的地址。</p>
 <h4 id="二、利用-unsorted-bin-和-large-bin-链机制"><a href="#二、利用-unsorted-bin-和-large-bin-链机制" class="headerlink" title="二、利用 unsorted bin 和 large bin 链机制"></a>二、利用 unsorted bin 和 large bin 链机制</h4><p>这部分内容如果利用得当，可以在题目的苛刻的条件下（如会在末尾写入 x00 等…）也可以无需爆破伪造堆块</p>
 <p>以下内容全部复制自大佬博客：</p>

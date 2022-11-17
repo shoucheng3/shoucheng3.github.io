@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>August 25, 2022</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6459</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6641</span>
     </div>
   </div>
 </section>
@@ -211,28 +211,21 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c">ElfW(Addr) *<span class="hljs-built_in">array</span> =<br>  (ElfW(Addr) *) (l-&gt;l_addr<br>    + l-&gt;l_info[DT_FINI_ARRAY]-&gt;d_un.d_ptr);<br><span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">int</span> i = (l-&gt;l_info[DT_FINI_ARRAYSZ]-&gt;d_un.d_val<br>    / <span class="hljs-keyword">sizeof</span> (ElfW(Addr)));<br><span class="hljs-keyword">while</span> (i-- &gt; <span class="hljs-number">0</span>)<br>  ((<span class="hljs-keyword">fini_t</span>) <span class="hljs-built_in">array</span>[i]) ();<br></code></pre></td></tr></table></figure>
 
 <p>DT_FINI_ARRAY宏定义为26，DT_FINI_ARRAYSZ宏定义为28。d_un.d_ptr 则是取 +8 处的指针，d_un.d_val 则是取 +8 处的值。</p>
+<p>在有些情况下，rtld_global_ptr与libc_base的偏移在本地与远程并不是固定的，远程的 ld.so 以及 TLS 等结构的地址与libc地址之间的偏移与本地的会不一样，但是大致处于一个范围内，并且，在同一个系统里，这个差值是固定的，其差值的变化往往在偏移的第1.5BYTE~2.5BYTE的位置，即地址十六进制的第4、5个数，因此我们只需爆破两个十六进制数即可。</p>
 <h3 id="利用"><a href="#利用" class="headerlink" title="利用"></a>利用</h3><p>通过 large bin attack 替换 link_map 链表第三节点的 l_next。</p>
 <p>可以利用下面的命令查看需要修改的地址。</p>
 <p><code>distance &amp;_rtld_global &amp;(_rtld_global._dl_ns._ns_loaded-&gt;l_next-&gt;l_next-&gt;l_next)</code></p>
 <p><img   class="lazyload" data-original="/2022/08/25/2022-08-25-house-of-banana/image-20220825143354716.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20220825143354716</span></p>
 <p>link_map 布局：</p>
 <ul>
-<li><p>*(fake+0x28) = fake</p>
-</li>
-<li><p>*(fake+0x48) = fake + 0x58, </p>
-</li>
-<li><p>*(fake+0x50) = 0x8</p>
-</li>
-<li><p>*(fake+0x58) = shell</p>
-</li>
-<li><p>*(fake+0x110) = fake + 0x40</p>
-</li>
-<li><p>*(fake+0x120) = fake + 0x48</p>
-</li>
-<li><p>(int)*(fake+0x31c) = 0x9</p>
-</li>
-<li><p>fake 是写入到 link_map 链表第四节点的堆块地址</p>
-</li>
+<li>*(fake+0x28) = fake</li>
+<li>*(fake+0x48) = fake + 0x58, </li>
+<li>*(fake+0x50) = 0x8</li>
+<li>*(fake+0x58) = shell</li>
+<li>*(fake+0x110) = fake + 0x40</li>
+<li>*(fake+0x120) = fake + 0x48</li>
+<li>(int)*(fake+0x31c) = 0x9</li>
+<li>fake 是写入到 link_map 链表第四节点的堆块地址</li>
 </ul>
 <h2 id="题目-glibc-master"><a href="#题目-glibc-master" class="headerlink" title="题目 glibc-master"></a>题目 glibc-master</h2><p><img   class="lazyload" data-original="/2022/08/25/2022-08-25-house-of-banana/image-20220825143519008.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20220825143519008</span></p>
 <p>申请函数，只允许申请到0x40f~0x60f的堆块。</p>
@@ -273,7 +266,7 @@
         
         
   <nav class="nav">
-    <a></a>
+    <a href="/2022/09/08/2022-09-08-angr%E4%BD%BF%E7%94%A8/"><i class="iconfont iconleft"></i>angr使用</a>
     <a href="/2022/08/25/2022-08-25-2022%E5%B7%85%E5%B3%B0%E6%9E%81%E5%AE%A2/">2022巅峰极客<i class="iconfont iconright"></i></a>
   </nav>
 

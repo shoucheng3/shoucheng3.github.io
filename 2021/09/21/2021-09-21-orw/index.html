@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>September 21, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6891</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6983</span>
     </div>
   </div>
 </section>
@@ -253,7 +253,7 @@
 <figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">context.arch</span> = <span class="hljs-string">&quot;amd64&quot;</span><br><span class="hljs-attr">frame</span> = SigreturnFrame()<br><span class="hljs-attr">frame.rsp</span> = shellcode_addr<br><span class="hljs-attr">frame.rip</span> = ret_addr<br></code></pre></td></tr></table></figure>
 
 <p>例题查看我之前的比赛复现题目：<code>K1ng_in_h3Ap_II</code>，<code>Whats your name</code></p>
-<h3 id="高版本"><a href="#高版本" class="headerlink" title="高版本"></a>高版本</h3><p>但在 <code>Glibc 2.29</code>之后 <code>setcontext</code>中的gadget变成了以 <code>rdx</code>索引，因此如果我们按照之前思路的话，还要先通过 <code>ROP</code>控制 <code>RDX</code>的值，如下所示：</p>
+<h3 id="高版本"><a href="#高版本" class="headerlink" title="高版本"></a>高版本</h3><p>但在 <code>Glibc 2.29</code>开始之后 <code>setcontext</code>中的gadget变成了以 <code>rdx</code>索引，因此如果我们按照之前思路的话，还要先通过 <code>ROP</code>控制 <code>RDX</code>的值，如下所示：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs assembly">.text:00000000000580DD                 mov     rsp, [rdx+0A0h]<br>.text:00000000000580E4                 mov     rbx, [rdx+80h]<br>.text:00000000000580EB                 mov     rbp, [rdx+78h]<br>.text:00000000000580EF                 mov     r12, [rdx+48h]<br>.text:00000000000580F3                 mov     r13, [rdx+50h]<br>.text:00000000000580F7                 mov     r14, [rdx+58h]<br>.text:00000000000580FB                 mov     r15, [rdx+60h]<br>.text:00000000000580FF                 test    dword ptr fs:48h, 2<br>    ....<br>.text:00000000000581C6                 mov     rcx, [rdx+0A8h]<br>.text:00000000000581CD                 push    rcx<br>.text:00000000000581CE                 mov     rsi, [rdx+70h]<br>.text:00000000000581D2                 mov     rdi, [rdx+68h]<br>.text:00000000000581D6                 mov     rcx, [rdx+98h]<br>.text:00000000000581DD                 mov     r8, [rdx+28h]<br>.text:00000000000581E1                 mov     r9, [rdx+30h]<br>.text:00000000000581E5                 mov     rdx, [rdx+88h]<br>.text:00000000000581EC                 xor     eax, eax<br>.text:00000000000581EE                 retn<br></code></pre></td></tr></table></figure>
 
 <h3 id="gadget1"><a href="#gadget1" class="headerlink" title="gadget1"></a>gadget1</h3><p>这其中用到的 <code>gadget</code>是 <code>getkeyserv_handle+576</code>，其汇编如下</p>
@@ -261,6 +261,11 @@
 
 <p>这个 <code>gadget</code>可以通过 <code>rdi</code> 来控制 <code>rdx</code>， 非常好用，而且从 Glibc2.29到2.32都可用</p>
 <p>控制 <code>rdx</code>之后，我们就可以通过 <code>setcontext</code>来控制其他寄存器了</p>
+<p>可以用下面的命令进行查询</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs vim">ROPgadget --binary libc.<span class="hljs-keyword">so</span>.<span class="hljs-number">6</span> | <span class="hljs-keyword">grep</span> <span class="hljs-string">&quot;mov rdx, qword ptr \[rdi&quot;</span><br></code></pre></td></tr></table></figure>
+
+
+
 <h3 id="gadget2"><a href="#gadget2" class="headerlink" title="gadget2"></a>gadget2</h3><p>通过 gadget控制rbp的值，从而进行栈迁移，将栈劫持到我们可以控制的堆地址上，并执行预先布置的rop链，从而获取flag</p>
 <p>先介绍一下万金油的gadget <code>svcudp_reply+26</code>，汇编如下</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs assembly">mov rbp, qword ptr [rdi + 0x48]; <br>mov rax, qword ptr [rbp + 0x18]; <br>lea r13, [rbp + 0x10]; <br>mov dword ptr [rbp + 0x10], 0; <br>mov rdi, r13; <br>call qword ptr [rax + 0x28];<br></code></pre></td></tr></table></figure>

@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>November 22, 2020</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6784</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>7237</span>
     </div>
   </div>
 </section>
@@ -242,7 +242,7 @@
 <p>7、有一个有意思的东西：在有的pwn题目中，我可以很正常的使用recvuntil()或者sendlineafter()去接收字符串，然而有的却不行；有的题目可以不用接收字符串直接输入payload（一开始认为是因为程序是在自己运行，刚好溢出点又在第一次输入的地方，所以可以），然而却碰到有些却要我接收信息才可以进行payload的输入</p>
 <p>回复   ：最好是进行交互，之前可能是因为环境有些问题</p>
 <p>8、遇到一个对齐的问题：关于使用system函数进行跳转出现报错的原因</p>
-<p>回复：system获得shell，是要求有栈对齐的</p>
+<p>回复：system 获得shell，是要求有栈对齐的</p>
 <p>9、劫持栈帧到 .bss 段上时，要注意一下是否可能会将 .got.plt 表覆盖，导致程序无法正常执行</p>
 <p>10、承接第4点吧，我们避免输入\x00导致程序截断，同时也要注意程序是否自身有着\x00，导致了截断</p>
 <p>11、遇到strcat、strcpy、strcmp、strlen等函数的阻碍时，由于这些函数遇到’\0’将会停止，那么只要将其中的某个变量的第一个字符设为’\0’即可快速简单的绕过这些函数</p>
@@ -308,7 +308,7 @@
 </ul>
 <p>获取fini.array地址有两种方式：1、<code>fini_array = elf.sym[&quot;__init_array_end&quot;]</code>   2、使用<code>readelf -s 文件名</code>命令去查找<code>__init_array_end</code>的地址</p>
 <p>34、如果把0x80000000赋值给a，而a = -a，那么a还是等于0x80000000</p>
-<p>35、用libc寻找字符串/bin/sh地址，写为binsh = libc_base + next(libc.search(‘/bin/sh’))</p>
+<p>35、用libc寻找字符串/bin/sh地址，写为binsh = libc_base + next(libc.search(b’/bin/sh’))</p>
 <p>36、scanf(buf,buf)，如果是以这样的形式出现输入，因为第一个buf是格式化字符串，scanf使用了我们的输入作为格式化字符串，因此会存在格式化字符串漏洞，计算偏移需要通过gdb调试（必须在相应的版本下调试）</p>
 <p>%n$s（n是偏移，s是输入的形式以字符串，所以我们输入的地方是以偏移点作为指针输入的）</p>
 <p>37、当程序存在close(1)以及close(2)：代表关闭了linux里面的标准输出(1)和标准错误(2)，所以即使已经getshell了，我们是看不到输出的，所以这时候输入<code>exec 1&gt;&amp;0</code>就可以让标准输出的文件描述符重定向为0，而0没被关闭（0，1，2是默认开启的），才能看到输出</p>
@@ -324,9 +324,14 @@
 <p>将可变个参数(…)按照format格式化成字符串，然后将其复制到str中。返回值为欲写入的字符串长度</p>
 <p>这个函数有个漏洞，因为返回值是欲写入的字符串长度，也就是说，被复制的字符串很长，又能被加载（比如%s）那返回值就可能很大，如果以这个作为某种输入的值就有产生溢出</p>
 <p>43、程序是通过 cs 寄存器判断是64位还是32位，cs == 0x23代表32位模式，cs == 0x33代表64位模式，而cs寄存器可以通过<code>retfq</code>汇编指令来修改</p>
-<p>retfq有两步操作：<code>ret以及set cs</code>，所以执行retfq会跳转到 rsp 同时将cs设置为[rsp+0x8]，我们只需要事先在ret位置写入32位的shellcode就可以执行了，但是这里有一点需要注意的是，retfq跳转过去的时候程序已经切换成了32位模式，所以地址解析也是以32位的规则来的，所以如原先的<code>rsp = 0x7ffe530d01b8</code>会被解析成<code>esp = 0x530d01b8</code></p>
+<p>retfq有两步操作：<code>ret以及set cs</code>，执行retfq会跳转到 rsp 同时将cs设置为[rsp+0x8]，我们只需要事先在ret位置写入32位的shellcode就可以执行了，但是这里有一点需要注意的是，retfq跳转过去的时候程序已经切换成了32位模式，所以地址解析也是以32位的规则来的，所以如原先的<code>rsp = 0x7ffe530d01b8</code>会被解析成<code>esp = 0x530d01b8</code></p>
 <p>44、在大多数libc中 read 与 write 的 symbols 只一个字节不同，所以在一类没有泄露函数的栈题目中，可以考虑覆盖read的got表的最后一字节，变成write从而泄露libc</p>
 <p>45、如果got表可改，有种思路是可以修改某个函数，让他指向syscall，在有的函数这种偏移仅仅只需要更改最后一字节即可。</p>
+<p>46、在Linux下，有一种线程局部存储（Thread Local Storage）机制，简称TLS。它主要存储着一个线程的一些全局变量，其中包括<code>uintptr_t stack_guard</code>，我们熟知的canary来源于此，因此可以修改<code>uintptr_t stack_guard</code>，来绕过canary。这种方法可以避免有时候打印函数是使用printf，而出现’\x00’字节截断无法泄露canary，但却需要有次任意写才能进行修改。</p>
+<p>输入tls， 可以找到其地址。</p>
+<p><img   class="lazyload" data-original="/2020/11/22/2020-11-22-%E6%A0%88%E6%BA%A2%E5%87%BA-%E8%A7%A3%E9%A2%98%E4%BA%8C%E4%B8%89%E4%BA%8B/image-20220901214930484.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20220901214930484</span></p>
+<p>47、Linux 下存在像<code>gettimeofday</code>（获取当前时间）的系统调用，但又只进行读取数据这种较为安全的操作。因此将其直接映射到用户空间上，像这种 Linux 内核在用户空间映射一个包含一些变量及一些系统调用的实现的内存页被称为<code>vsyscall</code>。而<code>vsyscall</code>可以简单看作是一个<code>ret </code> </p>
+<p>其中一个的固定地址为<code>0xFFFFFFFFFF600000</code>，不受 ASLR 影响，可以稳定调用。</p>
 
       </section>
       <section class="extra">
