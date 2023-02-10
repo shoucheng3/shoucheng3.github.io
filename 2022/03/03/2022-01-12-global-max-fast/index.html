@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>March 03, 2022</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4469</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4523</span>
     </div>
   </div>
 </section>
@@ -234,6 +234,8 @@
 <p>实现任意地址写的方式是：通过地址与fastbin数组的偏移计算出所需<code>free</code>的堆块的size，然后释放相应的堆块，即可实现往该地址写入堆块的地址以进一步利用。</p>
 <p>计算偏移的代码可以如下：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">fastbin_ptr = libc_base + libc.symbols[<span class="hljs-string">&#x27;main_arena&#x27;</span>] + <span class="hljs-number">8</span><br>idx = (target_addr-fastbin_ptr)/<span class="hljs-number">8</span><br>size = idx*<span class="hljs-number">0x10</span> + <span class="hljs-number">0x20</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">size = (target_addr - main_arena - <span class="hljs-number">0x18</span>) * <span class="hljs-number">2</span> + <span class="hljs-number">0x20</span><br></code></pre></td></tr></table></figure>
 
 <p>此时要解决的事情是往哪里写以达到实现利用的目的。可能有很多的地方，理论上来说只要是<code>main_arena</code>结构体后面的是函数指针或是结构体指针的地址都可以，目前很容易能够预想到的是：</p>
 <ul>

@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>November 22, 2020</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>7237</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>7312</span>
     </div>
   </div>
 </section>
@@ -312,7 +312,7 @@
 <p>36、scanf(buf,buf)，如果是以这样的形式出现输入，因为第一个buf是格式化字符串，scanf使用了我们的输入作为格式化字符串，因此会存在格式化字符串漏洞，计算偏移需要通过gdb调试（必须在相应的版本下调试）</p>
 <p>%n$s（n是偏移，s是输入的形式以字符串，所以我们输入的地方是以偏移点作为指针输入的）</p>
 <p>37、当程序存在close(1)以及close(2)：代表关闭了linux里面的标准输出(1)和标准错误(2)，所以即使已经getshell了，我们是看不到输出的，所以这时候输入<code>exec 1&gt;&amp;0</code>就可以让标准输出的文件描述符重定向为0，而0没被关闭（0，1，2是默认开启的），才能看到输出</p>
-<p>38、glibc版本仅限于libc-2.26及以下：当flag保存在栈上、bss等地方时，可以通过修改栈上main函数的argv[0]（文件路径），改为flag的地址，然后stack check fail会打印环境变量的第一个值，即可打印出flag，高版本增加了限制，不会再打印出文件路径</p>
+<p>38、glibc版本仅限于libc-2.26及以下：当flag保存在栈上、bss等地方时，可以通过修改栈上main函数的argv[0]（文件路径），改为flag的地址，然后<code>stack_chk_fail</code>会打印环境变量的第一个值，即可打印出flag，高版本增加了限制，不会再打印出文件路径</p>
 <p>39、当遇到一些题目需要在shellcode前面加上’\x00’才能绕过时，因为’\x00’是会影响到shellcode解析的，所以要让’\x00’凑成有意义的指令却又不能影响到shellcode（底下的机器码在32位和64位中都是一样的）</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs assembly">00 40 00                 add    BYTE PTR [rax+0x0],  al<br>00 41 00                 add    BYTE PTR [rcx+0x0],  al<br>00 42 00                 add    BYTE PTR [rdx+0x0],  al<br>00 43 00                 add    BYTE PTR [rbx+0x0],  al<br>00 45 00                 add    BYTE PTR [rbp+0x0],  al<br>00 46 00                 add    BYTE PTR [rsi+0x0],  al<br>00 47 00                 add    BYTE PTR [rdi+0x0],  al<br></code></pre></td></tr></table></figure>
 
@@ -323,15 +323,16 @@
 <p>42、<em><em>int snprintf(char</em> dest_str, size_t size, const char</em> format,…);**</p>
 <p>将可变个参数(…)按照format格式化成字符串，然后将其复制到str中。返回值为欲写入的字符串长度</p>
 <p>这个函数有个漏洞，因为返回值是欲写入的字符串长度，也就是说，被复制的字符串很长，又能被加载（比如%s）那返回值就可能很大，如果以这个作为某种输入的值就有产生溢出</p>
-<p>43、程序是通过 cs 寄存器判断是64位还是32位，cs == 0x23代表32位模式，cs == 0x33代表64位模式，而cs寄存器可以通过<code>retfq</code>汇编指令来修改</p>
+<p>43、系统是通过 cs 段寄存器来判断程序是64位还是32位，cs == 0x23代表32位模式，cs == 0x33代表64位模式，而cs寄存器可以通过<code>retfq</code>汇编指令来修改</p>
 <p>retfq有两步操作：<code>ret以及set cs</code>，执行retfq会跳转到 rsp 同时将cs设置为[rsp+0x8]，我们只需要事先在ret位置写入32位的shellcode就可以执行了，但是这里有一点需要注意的是，retfq跳转过去的时候程序已经切换成了32位模式，所以地址解析也是以32位的规则来的，所以如原先的<code>rsp = 0x7ffe530d01b8</code>会被解析成<code>esp = 0x530d01b8</code></p>
-<p>44、在大多数libc中 read 与 write 的 symbols 只一个字节不同，所以在一类没有泄露函数的栈题目中，可以考虑覆盖read的got表的最后一字节，变成write从而泄露libc</p>
+<p>44、在大多数libc中 read 与 write 的 symbols 只有一个字节不同，所以在一类没有泄露函数的栈题目中，可以考虑覆盖read的got表的最后一字节，变成write从而泄露libc</p>
 <p>45、如果got表可改，有种思路是可以修改某个函数，让他指向syscall，在有的函数这种偏移仅仅只需要更改最后一字节即可。</p>
-<p>46、在Linux下，有一种线程局部存储（Thread Local Storage）机制，简称TLS。它主要存储着一个线程的一些全局变量，其中包括<code>uintptr_t stack_guard</code>，我们熟知的canary来源于此，因此可以修改<code>uintptr_t stack_guard</code>，来绕过canary。这种方法可以避免有时候打印函数是使用printf，而出现’\x00’字节截断无法泄露canary，但却需要有次任意写才能进行修改。</p>
+<p>46、在Linux下，有一种线程局部存储（Thread Local Storage）机制，简称TLS。它主要存储着一个线程的一些全局变量，其中包括<code>uintptr_t stack_guard</code>，我们熟知的canary来源于此，因此可以修改<code>uintptr_t stack_guard</code>，来绕过canary。这种方法可以避免有时候打印函数使用printf、puts，而出现’\x00’字节截断无法泄露canary，但却需要有次任意写才能进行修改。</p>
 <p>输入tls， 可以找到其地址。</p>
 <p><img   class="lazyload" data-original="/2020/11/22/2020-11-22-%E6%A0%88%E6%BA%A2%E5%87%BA-%E8%A7%A3%E9%A2%98%E4%BA%8C%E4%B8%89%E4%BA%8B/image-20220901214930484.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20220901214930484</span></p>
 <p>47、Linux 下存在像<code>gettimeofday</code>（获取当前时间）的系统调用，但又只进行读取数据这种较为安全的操作。因此将其直接映射到用户空间上，像这种 Linux 内核在用户空间映射一个包含一些变量及一些系统调用的实现的内存页被称为<code>vsyscall</code>。而<code>vsyscall</code>可以简单看作是一个<code>ret </code> </p>
 <p>其中一个的固定地址为<code>0xFFFFFFFFFF600000</code>，不受 ASLR 影响，可以稳定调用。</p>
+<p>48、非预期：有些可以进入到远程环境的内核题目，可以利用 gcc 命令编译 flag 文件，然后会因为报错而输出 flag 文件内容。</p>
 
       </section>
       <section class="extra">

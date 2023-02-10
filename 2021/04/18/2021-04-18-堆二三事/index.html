@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>April 18, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>6601</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>7003</span>
     </div>
   </div>
 </section>
@@ -223,7 +223,7 @@
 <p>以上都可以让chunk的fd和bk指针指向libc中的地址而泄露地址</p>
 <p>8、当修改hook函数为one_gadget发现所有给的execve都不行时，这时需要我们借用__libc_realloc去调整栈的参数，使execve的环境被满足才可以利用成功。__realloc_hook的地址是__malloc_hook-0x8。因为调用realloc会执行许多的push指令，可以把rsp调整到满足环境。要查看push操作，可以把__libc_realloc地址加上n，指向的都是push指令</p>
 <p>操作：把one_gadget写到__realloc_hook地址上，因为在使用malloc函数后面会调用到__relloc_hook；在__malloc_hook地址写上__libc_realloc+n(就会先执行__libc_realloc+n调整，再执行one_gadget)</p>
-<p>注：根据libc版本问题，不一定都是__libc_realloc ，也可以是realloc</p>
+<p>注：根据libc版本问题，不一定都是__libc_realloc ，也可以是 realloc</p>
 <p>9、堆题libc都很重要,题目没给libc，如果存在double free，可以用其测试libc版本</p>
 <ul>
 <li>如果报fastbin double free 那就是2.23~2.26<ul>
@@ -263,7 +263,7 @@
 <p>并且 calloc 函数不会分配 tcache bin 中的堆块，可以利用该函数直接绕过 tcache</p>
 <p>21、<code>tcache_perthread_struct</code>这个结构体是可以释放的，并且可以将它释放到<code>unsorted bin</code>中去，然后分配这个<code>unsorted bin chunk</code>，可以控制任意地址分配堆内存</p>
 <p>22、当堆题中没有show功能时，要泄露出libc地址，需要借助stdout吐出libc地址</p>
-<p>需要把__libc_stdout上的值修改为<code>p64(0xfbad1800) + p64(0) * 3 + &#39;\x00&#39;</code></p>
+<p>需要把 _IO_2_1_stdout 上的值修改为<code>p64(0xfbad1800) + p64(0) * 3 + &#39;\x00&#39;</code></p>
 <p>23、当分配unsorted chunk时，如果剩下的块仍然大于0x80，并且还是唯一的，那这个新的unsorted chunkfd，bk指针仍然指向libc地址，并且分配出去的堆块，如果没有对堆块进行清零，那么上面将会存放着之前unsorted chunk的fd、bk指针</p>
 <p>24、libc-2.23.so时的fd，bk指针，指向的是堆块的prev_size位置，libc-2.27.so时的fd，bk指针指向的是堆块的内容（就是存放fd，bk指针的位置）比libc-2.23.so多了0x10</p>
 <p>25、利用<code>exit_hook</code>：劫持<code>_dl_rtld_lock_recursive</code>的值为one_gadget，当调用exit函数时可得到shell</p>
@@ -301,7 +301,10 @@
 <p>33、unsorted bin 泄露出的 main_arena + 96 的 libc 地址和 __malloc_hook 的地址只相差一个字节的数据，所以如果拥有能在释放堆块修改的数据的权利时，可以修改 main_arena + 96 后一字节即可，可以避免要打印 libc 地址</p>
 <p>34、large bin attack 利用：</p>
 <ul>
-<li><p><strong>TCACHE_MAX_BINS</strong> 是 tcache bin 链的最大数量，宏定义为<strong>64</strong>，可以修改其值为 chunk 的地址，那么所有 chunk 块 free 之后都会进入tcache，位置如下图所示。</p>
+<li><p>修改 TLS 中保存的 tcache 的地址，将其劫持为可控地址，等同于把 tcache bin 申请出来，可以直接进行任意地址分配。但是缺点是 TLS 可能存在第四、五位地址处出现偏差，需要爆破（但是是个定值。）</p>
+<p><img   class="lazyload" data-original="/2021/04/18/2021-04-18-%E5%A0%86%E4%BA%8C%E4%B8%89%E4%BA%8B/image-20230201225501974.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230201225501974</span></p>
+</li>
+<li><p><strong>TCACHE_MAX_BINS</strong> 是 tcache bin 链的最大数量，宏定义为<strong>64</strong>，可以修改其值为 chunk 的地址，那么所有 chunk 块 free 之后都会进入tcache，位置如下图所示。（glibc-2.30后才可以适用）</p>
 <p><img   class="lazyload" data-original="/2021/04/18/2021-04-18-%E5%A0%86%E4%BA%8C%E4%B8%89%E4%BA%8B/image-20220304094405889.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20220304094405889</span></p>
 </li>
 <li><p>global_max_fast记录着 fast bin 的最大 size，改大之后，可以让更大的size也算入 fast bin ，然后可以依据 main_arena 就算的偏移，把堆地址写入到 fast bin 之后的任一地址上，位置如下图所示。</p>
@@ -312,6 +315,15 @@
 <li>FSOP的利用，2.31及以上的主要用法。</li>
 </ul>
 <p>35、小技巧：在使用 one_gadget 时，可以先用 0xcafebabedeadbeef 填充，然后直接 c 就会让程序 down 在调用的位置，可以直接查看寄存器的值。</p>
+<p>36、临时关闭 ASLR 随机化，重启失效。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo sysctl -w kernel.randomize_va_space=0<br></code></pre></td></tr></table></figure>
+
+<p>37、glibc-2.34及以上开始删除 hook 后，寻求以 IO 中的函数调用作为替代品：</p>
+<ol>
+<li>house of kiwi 中劫持 _IO_file_jumps + 0x60 的 __IO_file_sync（高版本的 _IO_file_jumps  可写，但是也存在最新的小版本不可写的情况）</li>
+<li>house of emma</li>
+<li>house of apple</li>
+</ol>
 
       </section>
       <section class="extra">
