@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="google" content="notranslate" />
   
-  <meta name="description" content="pwntools1234apt-get updatea...">
+  <meta name="description" content="pwntools1234git clone https...">
   <meta name="author" content="ShouCheng">
   <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
   <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
@@ -196,16 +196,16 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>December 01, 2020</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>14459</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>16041</span>
     </div>
   </div>
 </section>
     <section class="main">
       <section class="content">
-        <h2 id="pwntools"><a href="#pwntools" class="headerlink" title="pwntools"></a>pwntools</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">apt-get update<br>apt-get install python3 python3-pip python3-dev git libssl-dev libffi-dev build-essential<br>python3 -m pip install --upgrade pip<br>python3 -m pip install --upgrade pwntools<br></code></pre></td></tr></table></figure>
+        <h2 id="pwntools"><a href="#pwntools" class="headerlink" title="pwntools"></a>pwntools</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sh">git <span class="hljs-built_in">clone</span> https://github.com/Gallopsled/pwntools.git<br>sudo apt-get install python3 python3-pip python3-dev git libssl-dev libffi-dev build-essential<br>python3 -m pip install --upgrade pip<br>python3 -m pip install --upgrade pwntools<br></code></pre></td></tr></table></figure>
 
 <h2 id="LibcSearcher"><a href="#LibcSearcher" class="headerlink" title="LibcSearcher"></a>LibcSearcher</h2><p>1、安装</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs linux">git clone https://github.com/lieanu/LibcSearcher.git<br>cd LibcSearcher<br>python setup.py develop<br></code></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sh">git <span class="hljs-built_in">clone</span> https://github.com/lieanu/LibcSearcher.git<br><span class="hljs-built_in">cd</span> LibcSearcher<br>sudo python3 setup.py develop<br></code></pre></td></tr></table></figure>
 
 <p>2、错误：</p>
 <p><img   class="lazyload" data-original="/2020/12/01/pwn%E5%B7%A5%E5%85%B7%E7%9A%84%E5%AE%89%E8%A3%85%E5%8F%8A%E4%BD%BF%E7%94%A8%E6%8C%87%E4%BB%A4/2020101521162965.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
@@ -220,11 +220,11 @@
 
 <p>文件也可以是libc</p>
 <p>附：</p>
-<p>搭配使用one_gadget</p>
+<p>搭配使用 one_gadget</p>
 <p>安装：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs linux">sudo apt -y install ruby<br>sudo gem install one_gadget<br></code></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs linux">sudo apt install -y ruby ruby-dev<br>sudo gem install one_gadget<br></code></pre></td></tr></table></figure>
 
-<p>one_gadget是用来去查找动态链接库里execve(“/bin/sh”, rsp+0x70, environ)函数的地址的</p>
+<p>one_gadget 是用来去查找动态链接库里execve(“/bin/sh”, rsp+0x70, environ)函数的地址的</p>
 <p>使用方法：</p>
 <p><img   class="lazyload" data-original="/2020/12/01/pwn%E5%B7%A5%E5%85%B7%E7%9A%84%E5%AE%89%E8%A3%85%E5%8F%8A%E4%BD%BF%E7%94%A8%E6%8C%87%E4%BB%A4/2020101517362410.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>但是这样只会给出常见的容易满足的one_gadget，通过下面指令可以查询到一些比较难满足的one_gadget</p>
@@ -268,6 +268,8 @@
 <li><p>disas addr 对地址addr处的指令进行反汇编，addr可以是函数名（但是不加* 使用函数名就无法用于参数确认；不加*，断点就不会设置到汇编语言层级的函数开头）</p>
 </li>
 <li><p>b *addr 在addr处下一个断点   b后跟函数名就不用 *</p>
+</li>
+<li><p>rwatch *addr 在addr处下一个硬件断点   </p>
 </li>
 <li><p>enable 激活断点</p>
 </li>
@@ -415,7 +417,7 @@
 <p><strong>glibc-all-in-one</strong></p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">git <span class="hljs-built_in">clone</span> https://github.com/matrix1001/glibc-all-in-one<br></code></pre></td></tr></table></figure>
 
-<h3 id="1-安装glibc-all-in-one"><a href="#1-安装glibc-all-in-one" class="headerlink" title="1. 安装glibc-all-in-one"></a>1. 安装glibc-all-in-one</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> ./update_list             <span class="hljs-comment">#更新最新版本的glibc</span></span><br><span class="hljs-meta">$</span><span class="bash"> cat list                 <span class="hljs-comment">#查看可下载的glibc</span></span><br><span class="hljs-meta">$</span><span class="bash"> ./download 2.23-0ubuntu11.2_amd64        <span class="hljs-comment">#glibc为你想要下载glibc的名字</span></span><br></code></pre></td></tr></table></figure>
+<h3 id="1-安装glibc-all-in-one"><a href="#1-安装glibc-all-in-one" class="headerlink" title="1. 安装glibc-all-in-one"></a>1. 安装glibc-all-in-one</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> python3 update_list             <span class="hljs-comment">#更新最新版本的glibc</span></span><br><span class="hljs-meta">$</span><span class="bash"> cat list                 <span class="hljs-comment">#查看可下载的glibc</span></span><br><span class="hljs-meta">$</span><span class="bash"> ./download 2.23-0ubuntu11.2_amd64        <span class="hljs-comment">#glibc为你想要下载glibc的名字</span></span><br></code></pre></td></tr></table></figure>
 
 <h3 id="2-安装patchelf"><a href="#2-安装patchelf" class="headerlink" title="2. 安装patchelf"></a>2. 安装patchelf</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">./bootstrap.sh<br>./configure<br>make<br>sudo make install<br>make check<br></code></pre></td></tr></table></figure>
 
@@ -428,6 +430,9 @@
 <p>文件路径要注意修改为自己的路径</p>
 <h3 id="4-更改elf文件的ld和libc"><a href="#4-更改elf文件的ld和libc" class="headerlink" title="4.更改elf文件的ld和libc"></a>4.更改elf文件的ld和libc</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> patchelf --set-interpreter /lib64/23_11-linux.so.2 ./chunk_extend_2</span><br><span class="hljs-meta">$</span><span class="bash"> patchelf --replace-needed libc.so.6 /home/pwn/桌面/tools/glibc-all-in_one/libs/2.23-0ubuntu11.2_amd64/libc-2.23.so ./chunk_extend_2</span><br><span class="hljs-meta">#</span><span class="bash">libc.so.6为需要替换的libc路径 第二个参数是需要加载的glibc的目录    chunk_extend_2 是二进制文件名</span><br><span class="hljs-meta">$</span><span class="bash"> ldd ./bin <span class="hljs-comment">#查看elf的ld和libc</span></span><br></code></pre></td></tr></table></figure>
 
+<p>glibc-2.34及以上：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># binary为你想运行的elf文件  第一个参数是ld.so的目录</span><br>patchelf --set-interpreter /home/shoucheng/tools/glibc-all-in-one/libs/2.36-0ubuntu4_amd64/ld-linux-x86-64.so.2 ./binary     <br><br><span class="hljs-comment"># 第一个参数是libc所在目录 binary你想运行的elf文件</span><br>patchelf --set-rpath  /home/shoucheng/tools/glibc-all-in-one/libs/2.36-0ubuntu4_amd64/ ./binary<br></code></pre></td></tr></table></figure>
+
 <h3 id="我自己调试情况："><a href="#我自己调试情况：" class="headerlink" title="我自己调试情况："></a>我自己调试情况：</h3><p><img   class="lazyload" data-original="/2020/12/01/pwn%E5%B7%A5%E5%85%B7%E7%9A%84%E5%AE%89%E8%A3%85%E5%8F%8A%E4%BD%BF%E7%94%A8%E6%8C%87%E4%BB%A4/QQ%E5%9B%BE%E7%89%8720210418121652.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
 <p>首先，这是还未更换的文件的ld和libc</p>
 <p>当输入<code>patchelf --replace-needed libc.so.6 /home/shoucheng/glibc-all-in-one/libs/2.23-0ubuntu11.2_amd64/libc.so.6 1</code>时</p>
@@ -439,7 +444,7 @@
 <h2 id="seccomp-tools-工具"><a href="#seccomp-tools-工具" class="headerlink" title="seccomp-tools 工具"></a>seccomp-tools 工具</h2><p>可以<strong>seccomp-tools</strong>这个工具去查看禁用的系统调用</p>
 <ul>
 <li><p>安装：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> sudo apt install gcc ruby-dev</span><br><span class="hljs-meta">$</span><span class="bash"> sudo gem install seccomp-tools</span><br></code></pre></td></tr></table></figure></li>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo apt install gcc ruby-dev<br>sudo gem install seccomp-tools<br></code></pre></td></tr></table></figure></li>
 <li><p>使用：一般用到dump这个用法，其他详细用法可见上面github。</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">seccomp-tools dump ./xxx<br></code></pre></td></tr></table></figure></li>
 </ul>
@@ -1033,20 +1038,23 @@
 <td><code>JLE o8</code></td>
 </tr>
 </tbody></table>
-<h2 id="zsh以及常用插件"><a href="#zsh以及常用插件" class="headerlink" title="zsh以及常用插件"></a>zsh以及常用插件</h2><h2 id="安装和配置zsh"><a href="#安装和配置zsh" class="headerlink" title="安装和配置zsh"></a>安装和配置zsh</h2><ul>
+<h2 id="zsh以及常用插件"><a href="#zsh以及常用插件" class="headerlink" title="zsh以及常用插件"></a>zsh以及常用插件</h2><h3 id="安装和配置zsh"><a href="#安装和配置zsh" class="headerlink" title="安装和配置zsh"></a>安装和配置zsh</h3><ul>
 <li>安装oh-my-zsh</li>
 </ul>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo apt install git zsh -y<br>sh -c &quot;$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)&quot;<br></code></pre></td></tr></table></figure>
 
 <ul>
-<li><p>更改默认shell为zsh<br><code>[sudo] chsh -s $(which zsh)</code></p>
-</li>
-<li><p>安装常用插件</p>
-</li>
-<li><p>autojump</p>
+<li><p>更改默认shell为zsh</p>
+<p><code>[sudo] chsh -s $(which zsh)</code></p>
 </li>
 </ul>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs sh">sudo apt install python<br><span class="hljs-comment"># ------ linux -----</span><br>git <span class="hljs-built_in">clone</span> https://github.com/joelthelion/autojump.git<br><span class="hljs-built_in">cd</span> autojump<br>./install.py<br>vim ~/.zshrc<br><span class="hljs-comment"># 在文件里找到plugins，添加</span><br>plugins=(autojump)<br><span class="hljs-comment"># 在文件末尾添加</span><br>[[ -s /home/shoucheng/.autojump/etc/profile.d/autojump.sh ]] &amp;&amp; <span class="hljs-built_in">source</span> /home/shoucheng/.autojump/etc/profile.d/autojump.sh<br><span class="hljs-built_in">source</span> ~/.zshrc<br></code></pre></td></tr></table></figure>
+<p>或者</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs sh">sudo apt install zsh -y<br>chsh -s /bin/zsh<br>git <span class="hljs-built_in">clone</span> https://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh<br>git <span class="hljs-built_in">clone</span> https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/plugins/zsh-autosuggestions<br>cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc<br>// 将 ~/.zshrc 中的 plugins=(git) 改为 plugins=(git zsh-autosuggestions)<br>reboot<br>// 如果 ~/.zshrc 的改动未生效，运行<br><span class="hljs-built_in">source</span> ~/.zshrc<br></code></pre></td></tr></table></figure>
+
+<h3 id="安装常用插件"><a href="#安装常用插件" class="headerlink" title="安装常用插件"></a>安装常用插件</h3><ul>
+<li>autojump</li>
+</ul>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs sh">sudo apt install python<br><span class="hljs-comment"># ------ linux -----</span><br>git <span class="hljs-built_in">clone</span> https://github.com/joelthelion/autojump.git<br><span class="hljs-built_in">cd</span> autojump<br>python3 ./install.py<br>vim ~/.zshrc<br><span class="hljs-comment"># 在文件里找到plugins，添加</span><br>plugins=(autojump)<br><span class="hljs-comment"># 在文件末尾添加</span><br>[[ -s /home/shoucheng/.autojump/etc/profile.d/autojump.sh ]] &amp;&amp; <span class="hljs-built_in">source</span> /home/shoucheng/.autojump/etc/profile.d/autojump.sh<br><span class="hljs-built_in">source</span> ~/.zshrc<br></code></pre></td></tr></table></figure>
 
 <ul>
 <li>zsh-autosuggestions</li>
@@ -1058,6 +1066,51 @@
 </ul>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># 安装</span><br>git <span class="hljs-built_in">clone</span> https://github.com/zsh-users/zsh-syntax-highlighting.git <span class="hljs-variable">$&#123;ZSH_CUSTOM:-~/.oh-my-zsh&#125;</span>/plugins/zsh-syntax-highlighting<br>vim ~/.zshrc<br><span class="hljs-comment"># 在文件里找到plugins，添加</span><br>plugins=(<br>  autojump<br>  zsh-autosuggestions<br>  zsh-syntax-highlighting<br>)<br><span class="hljs-built_in">source</span> ~/.zshrc<br></code></pre></td></tr></table></figure>
 
+<h2 id="docker"><a href="#docker" class="headerlink" title="docker"></a>docker</h2><p>首先，安装必要的证书并允许 apt 包管理器使用以下命令通过 HTTPS 使用存储库：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">$ sudo apt install apt-transport-https ca-certificates curl software-properties-common gnupg lsb-release<br></code></pre></td></tr></table></figure>
+
+<p>然后，运行下列命令添加 Docker 的官方 GPG 密钥：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg<br></code></pre></td></tr></table></figure>
+
+<p>添加 Docker 官方库：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="18.031ex" height="2.843ex" style="vertical-align: -0.838ex;" viewbox="0 -863.1 7763.3 1223.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-1-Title">
+<title id="MathJax-SVG-1-Title"> echo "deb [arch=</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E1-MJMATHI-65" d="M39 168Q39 225 58 272T107 350T174 402T244 433T307 442H310Q355 442 388 420T421 355Q421 265 310 237Q261 224 176 223Q139 223 138 221Q138 219 132 186T125 128Q125 81 146 54T209 26T302 45T394 111Q403 121 406 121Q410 121 419 112T429 98T420 82T390 55T344 24T281 -1T205 -11Q126 -11 83 42T39 168ZM373 353Q367 405 305 405Q272 405 244 391T199 357T170 316T154 280T149 261Q149 260 169 260Q282 260 327 284T373 353Z"/>
+<path stroke-width="1" id="E1-MJMATHI-63" d="M34 159Q34 268 120 355T306 442Q362 442 394 418T427 355Q427 326 408 306T360 285Q341 285 330 295T319 325T330 359T352 380T366 386H367Q367 388 361 392T340 400T306 404Q276 404 249 390Q228 381 206 359Q162 315 142 235T121 119Q121 73 147 50Q169 26 205 26H209Q321 26 394 111Q403 121 406 121Q410 121 419 112T429 98T420 83T391 55T346 25T282 0T202 -11Q127 -11 81 37T34 159Z"/>
+<path stroke-width="1" id="E1-MJMATHI-68" d="M137 683Q138 683 209 688T282 694Q294 694 294 685Q294 674 258 534Q220 386 220 383Q220 381 227 388Q288 442 357 442Q411 442 444 415T478 336Q478 285 440 178T402 50Q403 36 407 31T422 26Q450 26 474 56T513 138Q516 149 519 151T535 153Q555 153 555 145Q555 144 551 130Q535 71 500 33Q466 -10 419 -10H414Q367 -10 346 17T325 74Q325 90 361 192T398 345Q398 404 354 404H349Q266 404 205 306L198 293L164 158Q132 28 127 16Q114 -11 83 -11Q69 -11 59 -2T48 16Q48 30 121 320L195 616Q195 629 188 632T149 637H128Q122 643 122 645T124 664Q129 683 137 683Z"/>
+<path stroke-width="1" id="E1-MJMATHI-6F" d="M201 -11Q126 -11 80 38T34 156Q34 221 64 279T146 380Q222 441 301 441Q333 441 341 440Q354 437 367 433T402 417T438 387T464 338T476 268Q476 161 390 75T201 -11ZM121 120Q121 70 147 48T206 26Q250 26 289 58T351 142Q360 163 374 216T388 308Q388 352 370 375Q346 405 306 405Q243 405 195 347Q158 303 140 230T121 120Z"/>
+<path stroke-width="1" id="E1-MJMAIN-22" d="M34 634Q34 659 50 676T93 694Q121 694 144 668T168 579Q168 525 146 476T101 403T73 379Q69 379 60 388T50 401Q50 404 62 417T88 448T116 500T131 572Q131 584 130 584T125 581T112 576T94 573Q69 573 52 590T34 634ZM238 634Q238 659 254 676T297 694Q325 694 348 668T372 579Q372 525 350 476T305 403T277 379Q273 379 264 388T254 401Q254 404 266 417T292 448T320 500T335 572Q335 584 334 584T329 581T316 576T298 573Q273 573 256 590T238 634Z"/>
+<path stroke-width="1" id="E1-MJMATHI-64" d="M366 683Q367 683 438 688T511 694Q523 694 523 686Q523 679 450 384T375 83T374 68Q374 26 402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487H491Q506 153 506 145Q506 140 503 129Q490 79 473 48T445 8T417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157Q33 205 53 255T101 341Q148 398 195 420T280 442Q336 442 364 400Q369 394 369 396Q370 400 396 505T424 616Q424 629 417 632T378 637H357Q351 643 351 645T353 664Q358 683 366 683ZM352 326Q329 405 277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q233 26 290 98L298 109L352 326Z"/>
+<path stroke-width="1" id="E1-MJMATHI-62" d="M73 647Q73 657 77 670T89 683Q90 683 161 688T234 694Q246 694 246 685T212 542Q204 508 195 472T180 418L176 399Q176 396 182 402Q231 442 283 442Q345 442 383 396T422 280Q422 169 343 79T173 -11Q123 -11 82 27T40 150V159Q40 180 48 217T97 414Q147 611 147 623T109 637Q104 637 101 637H96Q86 637 83 637T76 640T73 647ZM336 325V331Q336 405 275 405Q258 405 240 397T207 376T181 352T163 330L157 322L136 236Q114 150 114 114Q114 66 138 42Q154 26 178 26Q211 26 245 58Q270 81 285 114T318 219Q336 291 336 325Z"/>
+<path stroke-width="1" id="E1-MJMAIN-5B" d="M118 -250V750H255V710H158V-210H255V-250H118Z"/>
+<path stroke-width="1" id="E1-MJMATHI-61" d="M33 157Q33 258 109 349T280 441Q331 441 370 392Q386 422 416 422Q429 422 439 414T449 394Q449 381 412 234T374 68Q374 43 381 35T402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487Q506 153 506 144Q506 138 501 117T481 63T449 13Q436 0 417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157ZM351 328Q351 334 346 350T323 385T277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q217 26 254 59T298 110Q300 114 325 217T351 328Z"/>
+<path stroke-width="1" id="E1-MJMATHI-72" d="M21 287Q22 290 23 295T28 317T38 348T53 381T73 411T99 433T132 442Q161 442 183 430T214 408T225 388Q227 382 228 382T236 389Q284 441 347 441H350Q398 441 422 400Q430 381 430 363Q430 333 417 315T391 292T366 288Q346 288 334 299T322 328Q322 376 378 392Q356 405 342 405Q286 405 239 331Q229 315 224 298T190 165Q156 25 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 114 189T154 366Q154 405 128 405Q107 405 92 377T68 316T57 280Q55 278 41 278H27Q21 284 21 287Z"/>
+<path stroke-width="1" id="E1-MJMAIN-3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"/>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E1-MJMATHI-65" x="0" y="0"/>
+ <use xlink:href="#E1-MJMATHI-63" x="466" y="0"/>
+ <use xlink:href="#E1-MJMATHI-68" x="900" y="0"/>
+ <use xlink:href="#E1-MJMATHI-6F" x="1476" y="0"/>
+ <use xlink:href="#E1-MJMAIN-22" x="2239" y="0"/>
+ <use xlink:href="#E1-MJMATHI-64" x="3018" y="0"/>
+ <use xlink:href="#E1-MJMATHI-65" x="3541" y="0"/>
+ <use xlink:href="#E1-MJMATHI-62" x="4008" y="0"/>
+ <use xlink:href="#E1-MJMAIN-5B" x="4437" y="0"/>
+ <use xlink:href="#E1-MJMATHI-61" x="4716" y="0"/>
+ <use xlink:href="#E1-MJMATHI-72" x="5245" y="0"/>
+ <use xlink:href="#E1-MJMATHI-63" x="5697" y="0"/>
+ <use xlink:href="#E1-MJMATHI-68" x="6130" y="0"/>
+ <use xlink:href="#E1-MJMAIN-3D" x="6984" y="0"/>
+</g>
+</svg>(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable<span class="hljs-string">&quot; | sudo tee /etc/apt/sources.list.d/docker.list &gt; /dev/null</span><br></code></pre></td></tr></table></figure>
+
+<p>使用命令更新 Ubuntu 源列表：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">$ sudo apt update<br></code></pre></td></tr></table></figure>
+
+<p>最后，运行下列命令在 Ubuntu 22.04 LTS 服务器中安装最新 Docker CE：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">$ sudo apt install docker-ce docker-ce-cli containerd.io docker-compose-plugin<br></code></pre></td></tr></table></figure>
 
       </section>
       <section class="extra">
@@ -1097,7 +1150,7 @@
           
   <aside class="toc-wrap">
     <h3 class="toc-title">文章目录：</h3>
-    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#pwntools"><span class="toc-text">pwntools</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#LibcSearcher"><span class="toc-text">LibcSearcher</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ROPgadget"><span class="toc-text">ROPgadget</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#gdb"><span class="toc-text">gdb</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85"><span class="toc-text">安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E7%94%A8%E9%80%94"><span class="toc-text">1. 用途</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%B8%B8%E7%94%A8%E6%8C%87%E4%BB%A4%EF%BC%9A"><span class="toc-text">2. 常用指令：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC"><span class="toc-text">基本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%98%BE%E7%A4%BA%E6%95%B0%E6%8D%AE"><span class="toc-text">显示数据</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pwntools-1"><span class="toc-text">pwntools</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-context%E8%AE%BE%E7%BD%AE"><span class="toc-text">1. context设置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Cyclic-Pattern"><span class="toc-text">2. Cyclic Pattern</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#patchelf-amp-amp-glibc-all-in-one"><span class="toc-text">patchelf &amp;&amp; glibc-all-in-one</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%AE%89%E8%A3%85glibc-all-in-one"><span class="toc-text">1. 安装glibc-all-in-one</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%AE%89%E8%A3%85patchelf"><span class="toc-text">2. 安装patchelf</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E7%94%9F%E6%88%90%E6%89%80%E9%9C%80%E7%9A%84%E7%AC%A6%E5%8F%B7%E9%93%BE%E6%8E%A5"><span class="toc-text">3.生成所需的符号链接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%9B%B4%E6%94%B9elf%E6%96%87%E4%BB%B6%E7%9A%84ld%E5%92%8Clibc"><span class="toc-text">4.更改elf文件的ld和libc</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%88%91%E8%87%AA%E5%B7%B1%E8%B0%83%E8%AF%95%E6%83%85%E5%86%B5%EF%BC%9A"><span class="toc-text">我自己调试情况：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#seccomp-tools-%E5%B7%A5%E5%85%B7"><span class="toc-text">seccomp-tools 工具</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#libc-database"><span class="toc-text">libc_database</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#z3"><span class="toc-text">z3</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8"><span class="toc-text">使用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BA%AF%E5%AD%97%E7%AC%A6shellcode"><span class="toc-text">纯字符shellcode</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E8%A7%81%E5%AD%97%E7%AC%A6%E8%83%BD%E7%BB%84%E6%88%90%E7%9A%84%E6%B1%87%E7%BC%96%E4%BB%A3%E7%A0%81"><span class="toc-text">可见字符能组成的汇编代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#msf%E5%86%85%E7%BD%AE%E7%9A%84encoder"><span class="toc-text">msf内置的encoder</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#alpha3"><span class="toc-text">alpha3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AE64"><span class="toc-text">AE64</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E8%A7%81%E5%AD%97%E7%AC%A6%E5%AF%B9%E5%BA%94%E7%9A%84%E6%B1%87%E7%BC%96%E4%BB%A3%E7%A0%81"><span class="toc-text">可见字符对应的汇编代码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#zsh%E4%BB%A5%E5%8F%8A%E5%B8%B8%E7%94%A8%E6%8F%92%E4%BB%B6"><span class="toc-text">zsh以及常用插件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E5%92%8C%E9%85%8D%E7%BD%AEzsh"><span class="toc-text">安装和配置zsh</span></a></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#pwntools"><span class="toc-text">pwntools</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#LibcSearcher"><span class="toc-text">LibcSearcher</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ROPgadget"><span class="toc-text">ROPgadget</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#gdb"><span class="toc-text">gdb</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85"><span class="toc-text">安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E7%94%A8%E9%80%94"><span class="toc-text">1. 用途</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%B8%B8%E7%94%A8%E6%8C%87%E4%BB%A4%EF%BC%9A"><span class="toc-text">2. 常用指令：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC"><span class="toc-text">基本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%98%BE%E7%A4%BA%E6%95%B0%E6%8D%AE"><span class="toc-text">显示数据</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pwntools-1"><span class="toc-text">pwntools</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-context%E8%AE%BE%E7%BD%AE"><span class="toc-text">1. context设置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Cyclic-Pattern"><span class="toc-text">2. Cyclic Pattern</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#patchelf-amp-amp-glibc-all-in-one"><span class="toc-text">patchelf &amp;&amp; glibc-all-in-one</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%AE%89%E8%A3%85glibc-all-in-one"><span class="toc-text">1. 安装glibc-all-in-one</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%AE%89%E8%A3%85patchelf"><span class="toc-text">2. 安装patchelf</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E7%94%9F%E6%88%90%E6%89%80%E9%9C%80%E7%9A%84%E7%AC%A6%E5%8F%B7%E9%93%BE%E6%8E%A5"><span class="toc-text">3.生成所需的符号链接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%9B%B4%E6%94%B9elf%E6%96%87%E4%BB%B6%E7%9A%84ld%E5%92%8Clibc"><span class="toc-text">4.更改elf文件的ld和libc</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%88%91%E8%87%AA%E5%B7%B1%E8%B0%83%E8%AF%95%E6%83%85%E5%86%B5%EF%BC%9A"><span class="toc-text">我自己调试情况：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#seccomp-tools-%E5%B7%A5%E5%85%B7"><span class="toc-text">seccomp-tools 工具</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#libc-database"><span class="toc-text">libc_database</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#z3"><span class="toc-text">z3</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8"><span class="toc-text">使用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BA%AF%E5%AD%97%E7%AC%A6shellcode"><span class="toc-text">纯字符shellcode</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E8%A7%81%E5%AD%97%E7%AC%A6%E8%83%BD%E7%BB%84%E6%88%90%E7%9A%84%E6%B1%87%E7%BC%96%E4%BB%A3%E7%A0%81"><span class="toc-text">可见字符能组成的汇编代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#msf%E5%86%85%E7%BD%AE%E7%9A%84encoder"><span class="toc-text">msf内置的encoder</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#alpha3"><span class="toc-text">alpha3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AE64"><span class="toc-text">AE64</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E8%A7%81%E5%AD%97%E7%AC%A6%E5%AF%B9%E5%BA%94%E7%9A%84%E6%B1%87%E7%BC%96%E4%BB%A3%E7%A0%81"><span class="toc-text">可见字符对应的汇编代码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#zsh%E4%BB%A5%E5%8F%8A%E5%B8%B8%E7%94%A8%E6%8F%92%E4%BB%B6"><span class="toc-text">zsh以及常用插件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E5%92%8C%E9%85%8D%E7%BD%AEzsh"><span class="toc-text">安装和配置zsh</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E5%B8%B8%E7%94%A8%E6%8F%92%E4%BB%B6"><span class="toc-text">安装常用插件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker"><span class="toc-text">docker</span></a></li></ol>
   </aside>
 
         
