@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>July 19, 2022</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>3695</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>33540</span>
     </div>
   </div>
 </section>
@@ -206,8 +206,314 @@
 
 <h2 id="数据类型说明"><a href="#数据类型说明" class="headerlink" title="数据类型说明"></a>数据类型说明</h2><figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs angelscript"><span class="hljs-keyword">typedef</span> <span class="hljs-built_in">int</span>8_t   s8;<br><span class="hljs-keyword">typedef</span> <span class="hljs-built_in">int</span>16_t  s16;<br><span class="hljs-keyword">typedef</span> <span class="hljs-built_in">int</span>32_t  s32;<br><span class="hljs-keyword">typedef</span> <span class="hljs-built_in">int</span>64_t  s64;<br><br><span class="hljs-keyword">typedef</span> <span class="hljs-built_in">uint</span>8_t  u8;<br><span class="hljs-keyword">typedef</span> <span class="hljs-built_in">uint</span>16_t u16;<br><span class="hljs-keyword">typedef</span> <span class="hljs-built_in">uint</span>32_t u32;<br><span class="hljs-keyword">typedef</span> <span class="hljs-built_in">uint</span>64_t u64;<br></code></pre></td></tr></table></figure>
 
-<h2 id="afl-fuzz"><a href="#afl-fuzz" class="headerlink" title="afl-fuzz"></a>afl-fuzz</h2><h3 id="初始配置"><a href="#初始配置" class="headerlink" title="初始配置"></a>初始配置</h3><h4 id="while循环"><a href="#while循环" class="headerlink" title="while循环"></a>while循环</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">while</span> ((opt = getopt(argc, argv, <span class="hljs-string">&quot;+i:o:f:m:b:t:T:dnCB:S:M:x:QV&quot;</span>)) &gt; <span class="hljs-number">0</span>)<br>    	...<br></code></pre></td></tr></table></figure>
+<h2 id="afl-gcc"><a href="#afl-gcc" class="headerlink" title="afl-gcc"></a>afl-gcc</h2><p><code>afl-gcc</code>实质上是对<code>gcc</code>或<code>clang</code>的封装（<code>wrapper</code>），它在编译的命令行参数中加入了一定的参数并调用<code>gcc</code>或<code>clang</code>实现对于关键节点的代码插桩，编译生成汇编代码，从而记录程序执行路径之类的关键信息，对程序的运行情况进行反馈。</p>
+<h3 id="核心函数"><a href="#核心函数" class="headerlink" title="核心函数"></a>核心函数</h3><h4 id="find-as"><a href="#find-as" class="headerlink" title="find_as"></a>find_as</h4><p>查找 afl-as 的具体位置。</p>
+<ul>
+<li>首先尝试从环境变量中获取 AFL_PATH ，如果存在就赋值给 afl_path，然后检查 <code>afl_path</code> 拼接上<code>/as</code>的文件是否可以执行，如果可以执行，那么将该路径赋值给 as_path。</li>
+<li>如果不存在 AFL_PATH 这个环境变量，则检查 argv0，例如（”~/AFL/afl-gcc”）中是否存在 ‘/‘，如果有就找到最后一个 ‘/‘ 所在的位置，并取其前面的字符串作为 dir，然后检查<code>dir</code>拼接上<code>/afl-as</code>的文件是否可以执行，如果可以执行，那么将该路径赋值给 as_path。</li>
+<li>如果上述两种方式都失败，则抛出异常。</li>
+</ul>
+<h4 id="edit-params"><a href="#edit-params" class="headerlink" title="edit_params"></a>edit_params</h4><p>将 <code>argv</code> 拷贝到 <code>u8 **cc_params</code>，然后进行相应的处理。</p>
+<ul>
+<li>首先通过 ck_alloc 来为 cc_params 分配内存，分配的长度为<code>(argc+128)*8</code>。</li>
+<li>然后检查 argv[0] 是否存在 ‘/‘ ，如果不存在就 argv[0] 赋值 给 name，如果存在就找到最后一个 ‘/‘ 所在的位置，将 ‘/‘ 后面的字符串赋值给 name。</li>
+<li>比较 name 和 afl-clang：<ul>
+<li>如果相同，则设置 clang_mode 为 1 ，然后设置环境变量 CLANG_ENV_VAR 为 1。<ul>
+<li>然后比较 name 和 afl-clang++：<ul>
+<li>如果相同，则获取环境变量<code>AFL_CXX</code>的值，如果该值存在，则将 cc_params[0] 设置为该值，如果不存在，就设置为 clang++。</li>
+<li>如果不相同，则获取环境变量<code>AFL_CC</code>的值，如果该值存在，则将 cc_params[0] 设置为该值，如果不存在，就设置为 clang。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>如果不相同，则比较 name 和 afl-g++：<ul>
+<li>如果相同，则获取环境变量<code>AFL_CXX</code>的值，如果该值存在，则将 cc_params[0] 设置为该值，如果不存在，就设置为 g++。</li>
+<li>如果不相同，则比较 name 和 afl-gcj，相同，则获取环境变量<code>AFL_GCJ</code>的值，如果该值存在，则将 cc_params[0] 设置为该值，如果不存在，就设置为 gcj。</li>
+<li>如果不相同，则获取环境变量<code>AFL_CC</code>的值，如果该值存在，则将 cc_params[0] 设置为该值，如果不存在，就设置为 gcc。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>进入 while 循环，遍历从 argv[1] 开始的 argv 参数：<ul>
+<li>如果存在 <code>-B/integrated-as/-pipe</code>，直接跳过。</li>
+<li>如果存在<code>-fsanitize=address</code>或者<code>-fsanitize=memory</code>，设置 asan_set 为 1。用于告诉 gcc 要检查内存访问的错误，比如数组越界之类。</li>
+<li> 如果存在 <code>FORTIFY_SOURCE</code>，设置 fortify_set 为 1。主要用于进行缓冲区溢出问题的检查，检查的常见函数有<code>memcpy, mempcpy, memmove, memset, strcpy, stpcpy, strncpy, strcat, strncat, sprintf, vsprintf, snprintf, gets</code> 等。</li>
+<li>最后对 <code>cc_params</code>进行赋值 <code>cc_params[cc_par_cnt++] = cur</code></li>
+</ul>
+</li>
+<li>然后开始设置其他的 cc_params 参数<ul>
+<li>取之前计算出来的<code>as_path</code>，然后设置<code>-B as_path</code>,<code>-B</code>选项用于设置编译器的搜索路径。</li>
+<li>如果是 clang_mode 为 1，则设置<code>-no-integrated-as</code></li>
+<li>如果存在 AFL_HARDEN 环境变量，则设置<code>-fstack-protector-all</code>，并且如果没有设置 fortify_set，则追加 <code>-D_FORTIFY_SOURCE=2</code></li>
+<li>sanitizer<ul>
+<li>如果 asan_set 在上面被设置为 1，则将环境变量<code>AFL_USE_ASAN</code>赋值为 1。</li>
+<li>如果 asan_set 没有被设置为 1，但存在 AFL_USE_ASAN 环境变量，则设置<code>-U_FORTIFY_SOURCE -fsanitize=address</code></li>
+<li>如果不存在 AFL_USE_ASAN 环境变量，但存在 AFL_USE_MSAN 环境变量，则设置<code>U_FORTIFY_SOURCE -fsanitize=memory</code></li>
+<li>不能同时指定<code>AFL_USE_ASAN</code>或者<code>AFL_USE_MSAN</code>，也不能同时指定 <code>AFL_USE_MSAN</code> 和 <code>AFL_HARDEN</code>，因为这样运行时速度过慢</li>
+</ul>
+</li>
+<li>如果不存在 AFL_DONT_OPTIMIZE 环境变量，则设置<code>-g -O3 -funroll-loops -D__AFL_COMPILER=1 -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION=1</code></li>
+<li>如果存在 AFL_NO_BUILTIN 环境变量，表示允许进行优化，则设置<code>-fno-builtin-strcmp</code>等</li>
+</ul>
+</li>
+<li>最后<code>cc_params[cc_par_cnt] = NULL;</code>终止对 cc_params 的编辑</li>
+</ul>
+<h4 id="main函数"><a href="#main函数" class="headerlink" title="main函数"></a>main函数</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; *(cc_params + i) != <span class="hljs-literal">NULL</span>; i++) &#123;<br>      <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\targ%d: %s\n&quot;</span>, i, cc_params[i]);<br>&#125;<br></code></pre></td></tr></table></figure>
 
+<p>添加一行打印代码，打印出 afl-gcc 编译使用的参数。</p>
+<p><img   class="lazyload" data-original="/2022/07/19/2022-07-20-%E5%A4%A9%E9%97%AE%E4%B9%8B%E8%B7%AF%E2%80%94%E2%80%94Fuzz/image-20230217195528090.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230217195528090</span></p>
+<p>参数如下：</p>
+<p><img   class="lazyload" data-original="/2022/07/19/2022-07-20-%E5%A4%A9%E9%97%AE%E4%B9%8B%E8%B7%AF%E2%80%94%E2%80%94Fuzz/image-20230217195540657.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230217195540657</span></p>
+<h4 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h4><p>总结来说，<code>afl-gcc</code>是对<code>gcc</code>的一层封装，主要是在相应的编译选项中加入<code>-B</code>参数（也加入一些必要的参数和优化的参数），指定特定的编译器搜索路径，最终 <code>gcc</code> 进行编译时，会调用<code>afl-as</code>来进行汇编。</p>
+<h2 id="afl-as"><a href="#afl-as" class="headerlink" title="afl-as"></a>afl-as</h2><h3 id="核心函数-1"><a href="#核心函数-1" class="headerlink" title="核心函数"></a>核心函数</h3><h4 id="edit-params-1"><a href="#edit-params-1" class="headerlink" title="edit_params"></a>edit_params</h4><p>在 gcc 中，<code>.s</code>文件是最后一个参数，因此该函数作用是正常保存其他参数，设置好系统类型，以及对最后一个参数——汇编文件路径进行相应的修改，便于后续对原有的汇编文件进行插桩。</p>
+<ul>
+<li>依次检查是否存在 TMPDIR/TEMP/TMP 等环境变量，存在则将其值赋给 tmp_dir，如果都不存在则把 ‘/tmp’ 赋值给 tmp_dir。</li>
+<li>为 as_pramas 申请大小为 (argc + 32) * 8 的内存空间。</li>
+<li>检查是否存在环境变量 AFL_AS，若存在则将其值赋给 afl_as，否则设置 afl_as 为 ‘as’  </li>
+<li>设置 as_params[argc] 为 0，as_par_cnt 初始值为1</li>
+<li>从 argv[1] 开始遍历到 argv[argc-1]：<ul>
+<li>如果存在字符串 <code>--64</code>， 则设置 use_64bit = 1；如果存在字符串 <code>--32</code> ，则设置 use_64bit = 0。对于<code>__APPLE__</code> ，如果存在 <code>-arch x86_64</code>，设置 use_64bit = 1，并跳过 -q 和 -Q 选项；</li>
+<li><code>as_params[as_par_cnt++] = argv[i];</code> 设置 as_params 的值为 argv 对应的参数值。</li>
+</ul>
+</li>
+<li>开始设置其他的参数<ul>
+<li>对于<code>__APPLE__</code>，如果设置了 use_clang_as 为 1，则设置 <code>-c -x assembler</code>参数。</li>
+<li>将 argv[argc - 1] 赋值给  input_file。<ul>
+<li> 如果 input_file 的首字符为 ‘-‘，是 ‘-version’ 则设置 just_version = 1，modified_file = input_file，然后跳转到 wrap_things_up，说明只是为了显示 version 信息，如果不是 ‘-version’ 则抛出异常。</li>
+<li>如果 input_file 首字符不为 ‘-‘，比较 input_file 与 tmp_dir、’/var/tmp’、’/tmp’ 的前 strlen(tmp_dir)/9/5个字节是否相同，如果不相同，则设置 pass_thru 为 1。</li>
+<li>设置 modified_file 的值为<code>alloc_printf(&quot;%s/.afl-%u-%u.s&quot;, tmp_dir, getpid(),(u32) time(NULL));</code>，即<code>tmp_dir/.afl-pid-time.s</code>格式的字符串。</li>
+<li>设置<code>as_params[as_par_cnt++] = modified_file</code>。</li>
+<li><code>as_params[as_par_cnt] = NULL</code>。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="add-instrumentation"><a href="#add-instrumentation" class="headerlink" title="add_instrumentation"></a>add_instrumentation</h4><p>处理输入文件，生成 modified_file，将 instrumentation 插入所有适当的位置。</p>
+<ul>
+<li><p>如果 input_file 不为空，则尝试以流形式打开，成功则将 FILE* 指针赋值给 inf，失败则抛出异常；如果 input_file 为空，则将 stdin 赋值给 inf。</p>
+</li>
+<li><p>用创建写打开 modified_file 对应的文件，并获取其句柄 outfd，再根据句柄通过 fdopen 函数转换为 FILE* 指针 outf。</p>
+</li>
+<li><p>while 循环通过 fgets 从 inf 中逐行读取内容保存到 line 数组里，每行最多读取的字节数是 MAX_LINE(8192)，这个值包括 ‘\0’，所以实际读取的有内容的字节数是 MAX_LINE - 1 个字节。</p>
+<ul>
+<li><p>对于读入的每一行，先判断插桩的条件是否满足（<code>!pass_thru &amp;&amp; !skip_intel &amp;&amp; !skip_app &amp;&amp; !skip_csect &amp;&amp; instr_ok &amp;&amp; instrument_next &amp;&amp; line[0] == &#39;\t&#39; &amp;&amp; isalpha(line[1]</code>），如果满足则直接往 outf 插入插桩代码（<code>trampoline_fmt_64</code> 或<code>trampoline_fmt_32</code>，根据是<code>32</code>位还是<code>64</code>位），插桩完成后，表明该基本块已经完成插桩，后面的代码无需插桩，将<code>instrument_next</code>置位<code>0</code>，并将插桩计数器<code>ins_lines</code>加一。</p>
+<ul>
+<li><code>pass_thru</code>标志位是在<code>edit_params</code>中设定的。</li>
+<li><code>skip_intel</code>用来标志跳过 intel 汇编语法。</li>
+<li><code>skip_app</code>用来标志跳过<code>ad-hoc __asm__</code>（内联汇编）。</li>
+<li><code>skip_csect</code>则是用来标志<code>off-flavor assembly</code>。</li>
+<li><code>instr_ok</code>用来标志是否需要插桩。</li>
+<li><code>instrument_next</code>用来标志后续的代码是否还需要插桩。</li>
+</ul>
+</li>
+<li><p>把 line 数组里的读取内容写入到 outf 对应的文件里。</p>
+</li>
+<li><p>如果 pass_thru 为 1，直接跳过插桩。</p>
+</li>
+<li><p>如果 line 的值是<code>\t.[text\n|section\t.text|section\t__TEXT,__text|section __TEXT,__text]...</code>其中之一，则设置 instr_ok 为 1，然后开始新的 while 循环，去读取下一行的数据到 line 数组里。</p>
+</li>
+<li><p>如果 line 的值是 <code>\t.[section\t|section |bss\n|data\n]...</code>其中之一，则设置 instr_ok 为 0，然后开始新的 while 循环，去读取下一行的数据到 line 数组里。</p>
+</li>
+<li><p>然后进行设置 skip_csect 、 skip_intel 、skip_app 等标志的值。</p>
+</li>
+<li><p>```c</p>
+<pre><code>^main:      - function entry point (always instrumented)
+^.L0:       - GCC branch label
+^.LBB0_0:   - clang branch label (but only in clang mode)
+^\tjnz foo  - conditional branches
+   /* 对于 main 函数的入口（^main:）需要插桩，因为需要初始化；
+      对于分支条件的标签后面（gcc是^.L0:，clang是^.LBB0_0:）需要插桩，因为它是条件跳转的目标地址；
+      对于跳转指令（^\tjnz foo）后面也需要插桩，因为该指令的后面形成了分支 */
+ ...but not:
+
+   ^# BB#0:    - clang comments
+   ^ # BB#0:   - ditto
+   ^.Ltmp0:    - clang non-branch labels
+   ^.LC0       - GCC non-branch labels
+   ^.LBB0_0:   - ditto (when in GCC mode)
+   ^\tjmp foo  - non-conditional jumps
+/* 而对于注释（^# BB#0:以及^ # BB#0:）不需要插桩；
+   绝对跳转的目标地址（^.Ltmp0:、^.LC0以及^.LBB0_0:）不需要插桩，因为没有形成新的分支或路径；          绝对跳转指令（^\tjmp foo）也无需插桩。*/
+</code></pre>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><code class="hljs swift"><br>  <span class="hljs-operator">-</span> 因此后续代码检测指令是否为绝对跳转指令 jmp `line[<span class="hljs-number">1</span>] <span class="hljs-operator">==</span> &#x27;j&#x27; <span class="hljs-operator">&amp;&amp;</span> line[<span class="hljs-number">2</span>] <span class="hljs-operator">!=</span> &#x27;m&#x27;`，如果不是则在该指令的后面直接插入插桩代码<span class="hljs-operator">。</span>inst_ratio 是我们之前设置的插桩密度，默认值为 <span class="hljs-number">100</span>，如果设置了 asan 之类的就会默认设置成 <span class="hljs-number">33</span> ；并将插桩计数器`ins_lines`加一；然后开始新的 <span class="hljs-keyword">while</span> 循环<span class="hljs-operator">。</span><br><br>  <span class="hljs-operator">-</span> 先检查 line 该行中是否存在`:`，然后检查是否以`.`开始<br><br>    <span class="hljs-operator">-</span> 如果以`.`开始，则表示想对`<span class="hljs-operator">^</span>.<span class="hljs-type">L0</span>:`或者`<span class="hljs-operator">^</span>.<span class="hljs-type">LBB0_0</span>:`这样的 branch label 进行插桩<span class="hljs-operator">。</span>判断依据是 line[<span class="hljs-number">2</span>] 是否为数字，或者在 clang 模式下，line[<span class="hljs-number">1</span>] 开始的三个字节是否为 <span class="hljs-type">LBB</span><span class="hljs-operator">。</span>然后将 instrument_next 置 <span class="hljs-number">1</span><span class="hljs-operator">。</span><br>    <span class="hljs-operator">-</span> 否则代表这是一个 function，插桩`<span class="hljs-operator">^</span><span class="hljs-function"><span class="hljs-keyword">func</span></span>:`function entry point，然后将 instrument_next 置 <span class="hljs-number">1</span><span class="hljs-operator">。</span><br><br>  <span class="hljs-operator">-</span> 如果插桩计数器 ins_lines 不为 <span class="hljs-number">0</span>，则最终依据架构，向 outf 写入插桩的主体功能代码 main_payload_64 或者 main_payload_32<span class="hljs-operator">。</span><br><br>  <span class="hljs-operator">-</span> 最后关闭 inf 和 outf<span class="hljs-operator">。</span><br><br> afl 的插桩过程十分简单，首先只对 .text 进行插桩，然后通过汇编的前导命令来判断是否是一个跳转分支或者一个函数，然后插入  `instrumentation trampoline`<span class="hljs-operator">。</span><br><br>#### main 函数<br><br><span class="hljs-operator">-</span> 读取环境变量 <span class="hljs-type">AFL_INST_RATIO</span> 的值，将其赋值给 inst_ratio_str<span class="hljs-operator">。</span><br><span class="hljs-operator">-</span> 设置 srandom 的随机种子为`rand_seed <span class="hljs-operator">=</span> tv.tv_sec <span class="hljs-operator">^</span> tv.tv_usec <span class="hljs-operator">^</span> getpid();`<br><span class="hljs-operator">-</span> 设置环境变量 <span class="hljs-type">AS_LOOP_ENV_VAR</span> 的值为 <span class="hljs-number">1</span><span class="hljs-operator">。</span><br><span class="hljs-operator">-</span> 读取环境变量 <span class="hljs-type">AFL_USE_ASAN</span> 和 <span class="hljs-type">AFL_USE_MSAN</span> 的值，如果其中有一个为 <span class="hljs-number">1</span>，则设置 sanitizer 为 <span class="hljs-number">1</span>，且将 inst_ratio 除以 <span class="hljs-number">3</span><span class="hljs-operator">。</span><br>  <span class="hljs-operator">-</span> 这是因为 <span class="hljs-type">AFL</span> 无法在插桩的时候识别出 <span class="hljs-type">ASAN</span> specific branches，所以会插入很多无意义的桩，为了降低这种概率，粗暴的将整个插桩的概率都除以<span class="hljs-number">3</span><br><span class="hljs-operator">-</span> edit_params(argc, argv)<br><span class="hljs-operator">-</span> add_instrumentation()<br><span class="hljs-operator">-</span> fork出一个子进程，让子进程来执行 `execvp(as_params[<span class="hljs-number">0</span>], (char <span class="hljs-operator">**</span>) as_params);`<br>  <span class="hljs-operator">-</span> 这是因为 execvp 执行的时候，会用`as_params[<span class="hljs-number">0</span>]`来完全替换掉当前进程空间中的程序，如果不通过子进程来执行实际的 <span class="hljs-keyword">as</span>，那么后续就无法在执行完实际的 <span class="hljs-keyword">as</span> 之后，还能 unlink 掉 modified_file<span class="hljs-operator">。</span><br><span class="hljs-operator">-</span> `waitpid(pid, <span class="hljs-operator">&amp;</span>status, <span class="hljs-number">0</span>)`等待子进程结束<br><span class="hljs-operator">-</span> 读取环境变量<span class="hljs-type">AFL_KEEP_ASSEMBLY的值，如果没有设置这个环境变量，就unlink掉modified_file</span><span class="hljs-operator">。</span><br><br>#### 小结<br><br>`afl<span class="hljs-operator">-</span><span class="hljs-keyword">as</span>`的主要功能是逐行对前面编译生成的汇编代码进行遍历，在恰当的位置插入相应的插桩代码（`trampoline_fmt`）并在最末尾插入相应的功能代码（`main_payload`），最终调用原生的`<span class="hljs-keyword">as</span>`来生成二进制文件，从而实现对二进制文件的插桩<span class="hljs-operator">。</span><br><br>#### instrumentation trampoline 和 main_payload<br><br>`trampoline_fmt_64<span class="hljs-operator">/</span><span class="hljs-number">32</span>`定义在 `afl<span class="hljs-operator">-</span><span class="hljs-keyword">as</span>.h` 头文件中，代码执行功能为保存好寄存器 rdx，rcx，rax(<span class="hljs-number">32</span>位多个 edi) 的值，rcx 取值设为随机数<span class="hljs-type">R</span>(<span class="hljs-type">MAP_SIZE</span>)，以此来区分每个分支点，显然最关键处在于 `__afl_maybe_log`<span class="hljs-operator">。</span><br><br>```c<br><span class="hljs-keyword">static</span> const u8<span class="hljs-operator">*</span> trampoline_fmt_32 <span class="hljs-operator">=</span><br><br>  <span class="hljs-string">&quot;<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;/* --- AFL TRAMPOLINE (32-BIT) --- */<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;.align 4<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;leal -16(%%esp), %%esp<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;movl %%edi,  0(%%esp)<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;movl %%edx,  4(%%esp)<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;movl %%ecx,  8(%%esp)<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;movl %%eax, 12(%%esp)<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;movl $0x%08x, %%ecx<span class="hljs-subst">\n</span>&quot;</span>    <span class="hljs-comment">// 向 ecx 中存入识别代码块的随机桩代码 id</span><br>  <span class="hljs-string">&quot;call __afl_maybe_log<span class="hljs-subst">\n</span>&quot;</span>   <span class="hljs-comment">// 调用 __afl_maybe_log 函数</span><br>  <span class="hljs-string">&quot;movl 12(%%esp), %%eax<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;movl  8(%%esp), %%ecx<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;movl  4(%%esp), %%edx<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;movl  0(%%esp), %%edi<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;leal 16(%%esp), %%esp<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;/* --- END --- */<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;<span class="hljs-subst">\n</span>&quot;</span>;<br><br><span class="hljs-keyword">static</span> const u8<span class="hljs-operator">*</span> trampoline_fmt_64 <span class="hljs-operator">=</span><br><br>  <span class="hljs-string">&quot;<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;/* --- AFL TRAMPOLINE (64-BIT) --- */<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;.align 4<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;leaq -(128+24)(%%rsp), %%rsp<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;movq %%rdx,  0(%%rsp)<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;movq %%rcx,  8(%%rsp)<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;movq %%rax, 16(%%rsp)<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;movq $0x%08x, %%rcx<span class="hljs-subst">\n</span>&quot;</span>  <span class="hljs-comment">// 64 位下使用的寄存器为 rcx</span><br>  <span class="hljs-string">&quot;call __afl_maybe_log<span class="hljs-subst">\n</span>&quot;</span> <span class="hljs-comment">// 调用 __afl_maybe_log 函数</span><br>  <span class="hljs-string">&quot;movq 16(%%rsp), %%rax<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;movq  8(%%rsp), %%rcx<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;movq  0(%%rsp), %%rdx<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;leaq (128+24)(%%rsp), %%rsp<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;/* --- END --- */<span class="hljs-subst">\n</span>&quot;</span><br>  <span class="hljs-string">&quot;<span class="hljs-subst">\n</span>&quot;</span>;<br></code></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+<p>编译之后的桩代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs assembly">.text:00000000004009C0                 lea     rsp, [rsp-98h]<br>.text:00000000004009C8                 mov     [rsp+98h+var_98], rdx<br>.text:00000000004009CC                 mov     [rsp+98h+var_90], rcx<br>.text:00000000004009D1                 mov     [rsp+98h+var_88], rax<br>.text:00000000004009D6                 mov     rcx, 2359h<br>.text:00000000004009DD                 call    __afl_maybe_log<br>.text:00000000004009E2                 mov     rax, [rsp+98h+var_88]<br>.text:00000000004009E7                 mov     rcx, [rsp+98h+var_90]<br>.text:00000000004009EC                 mov     rdx, [rsp+98h+var_98]<br>.text:00000000004009F0                 lea     rsp, [rsp+98h]<br></code></pre></td></tr></table></figure>
+
+<p>从 main_payload_64 中的主要变量：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs assembly">.AFL_VARS:<br><br>  .comm   __afl_area_ptr, 8            # 共享内存地址<br>  .comm   __afl_prev_loc, 8            # 上一个插桩位置（id为之前的R(MAP_SIZE)随机数的值）<br>  .comm   __afl_fork_pid, 4            # 由fork产生的子进程的pid<br>  .comm   __afl_temp, 4                # 缓冲区<br>  .comm   __afl_setup_failure, 1       # 标志位，如果置位则直接退出<br>  .comm    __afl_global_area_ptr, 8, 8 # 全局指针<br></code></pre></td></tr></table></figure>
+
+<h5 id="main-payload-——-afl-maybe-log"><a href="#main-payload-——-afl-maybe-log" class="headerlink" title="main_payload —— __afl_maybe_log"></a>main_payload —— __afl_maybe_log</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs assembly">__afl_maybe_log:   /* 源码删除无关内容后 */<br><br>  lahf<br>  seto  %al<br><br>  /* Check if SHM region is already mapped. */<br><br>  movq  __afl_area_ptr(%rip), %rdx<br>  testq %rdx, %rdx<br>  je    __afl_setup<br></code></pre></td></tr></table></figure>
+
+<p>首先，使用 <code>lahf</code> 指令（加载状态标志位到<code>AH</code>）将EFLAGS寄存器的低八位复制到 <code>AH</code>，被复制的标志位包括：符号标志位（SF）、零标志位（ZF）、辅助进位标志位（AF）、奇偶标志位（PF）和进位标志位（CF），使用该指令可以方便地将标志位副本保存在变量中；</p>
+<p>然后，使用 <code>seto</code> 指令，如果存在溢出，则将 al 设置为 1；</p>
+<p>接下来检查共享内存是否进行了设置，判断 <code>__afl_area_ptr</code> 是否为NULL：</p>
+<ul>
+<li>如果为 NULL，跳转到 <code>__afl_setup</code> 函数进行设置；</li>
+<li>如果不为 NULL，继续进行。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs assembly">__afl_setup:<br><br>        /* Do not retry setup is we had previous failues. */<br>        cmpb $0, __afl_setup_failure(%rip)<br>        jne __afl_return<br><br>        /* Check out if we have a global pointer on file. */<br>        movq __afl_global_area_ptr(%rip), %rdx<br>        testq %rdx, %rdx<br>        je __afl_setup_first<br><br>        movq %rdx, __afl_area_ptr(%rip)<br>        jmp  __afl_store<br></code></pre></td></tr></table></figure>
+
+<p>首先，检查 <code>__afl_setup_failure</code> 是否为0，为 0 直接跳转到 <code>__afl_return</code> 返回；</p>
+<p>然后，检查 <code>__afl_global_area_ptr</code> 文件指针是否为 NULL：</p>
+<ul>
+<li>如果为 NULL，跳转到 <code>__afl_setup_first</code> 进行初始化的工作；</li>
+<li>如果不为 NULL，将 <code>__afl_global_area_ptr</code> 的值赋给 <code>__afl_area_ptr</code>，然后跳转到 <code>__afl_store</code> 。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><code class="hljs assembly">__afl_setup_first:<br><br>  /* Save everything that is not yet saved and that may be touched by<br>     getenv() and several other libcalls we&#x27;ll be relying on. */<br><br>  leaq -352(%rsp), %rsp<br><br>  movq %rax,   0(%rsp)<br>  movq %rcx,   8(%rsp)<br>  movq %rdi,  16(%rsp)<br>  movq %rsi,  32(%rsp)<br>  movq %r8,   40(%rsp)<br>  movq %r9,   48(%rsp)<br>  movq %r10,  56(%rsp)<br>  movq %r11,  64(%rsp)<br><br>  movq %xmm0,  96(%rsp)<br>  movq %xmm1,  112(%rsp)<br>  movq %xmm2,  128(%rsp)<br>  movq %xmm3,  144(%rsp)<br>  movq %xmm4,  160(%rsp)<br>  movq %xmm5,  176(%rsp)<br>  movq %xmm6,  192(%rsp)<br>  movq %xmm7,  208(%rsp)<br>  movq %xmm8,  224(%rsp)<br>  movq %xmm9,  240(%rsp)<br>  movq %xmm10, 256(%rsp)<br>  movq %xmm11, 272(%rsp)<br>  movq %xmm12, 288(%rsp)<br>  movq %xmm13, 304(%rsp)<br>  movq %xmm14, 320(%rsp)<br>  movq %xmm15, 336(%rsp)<br><br>  /* Map SHM, jumping to __afl_setup_abort if something goes wrong. */<br><br>  /* The 64-bit ABI requires 16-byte stack alignment. We&#x27;ll keep the<br>     original stack ptr in the callee-saved r12. */<br><br>  pushq %r12<br>  movq  %rsp, %r12<br>  subq  $16, %rsp<br>  andq  $0xfffffffffffffff0, %rsp<br><br>  leaq .AFL_SHM_ENV(%rip), %rdi<br>call _getenv<br><br>  testq %rax, %rax<br>  je    __afl_setup_abort<br><br>  movq  %rax, %rdi<br>call _atoi<br><br>  xorq %rdx, %rdx   /* shmat flags    */<br>  xorq %rsi, %rsi   /* requested addr */<br>  movq %rax, %rdi   /* SHM ID         */<br>call _shmat<br><br>  cmpq $-1, %rax<br>  je   __afl_setup_abort<br><br>  /* Store the address of the SHM region. */<br><br>  movq %rax, %rdx<br>  movq %rax, __afl_area_ptr(%rip)<br><br>  movq __afl_global_area_ptr@GOTPCREL(%rip), %rdx<br>  movq %rax, (%rdx)<br>  <br>  movq %rax, %rdx<br>  __afl_forkserver:<br></code></pre></td></tr></table></figure>
+
+<p>首先，保存所有寄存器的值，包括 <code>xmm</code> 寄存器组；</p>
+<p>然后，进行栈对齐；</p>
+<p>然后，调用 <code>_getenv</code> 获取环境变量 .AFL_SHM_ENV(“SHM_ENV_VAR”)，该环境变量保存的是共享内存的 ID：</p>
+<ul>
+<li>如果获取失败，跳转到 <code>__afl_setup_abort</code> ；</li>
+<li>如果获取成功，先调用 <code>_atoi</code>把 ID 转为 int 数值，再调用 <code>_shmat</code> ，启用对共享内存的访问，启用失败则跳转到 <code>__afl_setup_abort</code>。</li>
+</ul>
+<p>接下来，将 <code>_shmat</code> 返回的共享内存地址存储在 <code>__afl_area_ptr</code> 和 <code>__afl_global_area_ptr</code> 变量中。</p>
+<p>后面按序执行到 <code>__afl_forkserver</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs assembly">__afl_forkserver:<br><br>     /* Enter the fork server mode to avoid the overhead of execve() calls. We<br>     push rdx (area ptr) twice to keep stack alignment neat. */<br><br>  pushq %rdx<br>  pushq %rdx<br><br>  /* Phone home and tell the parent that we&#x27;re OK. (Note that signals with<br>     no SA_RESTART will mess it up). If this fails, assume that the fd is<br>     closed because we were execve()d from an instrumented binary, or because<br>     the parent doesn&#x27;t want to use the fork server. */<br><br>  movq $4, %rdx               /* length    */<br>  leaq __afl_temp(%rip), %rsi /* data      */<br>  movq $&quot; STRINGIFY((FORKSRV_FD + 1)) &quot;, %rdi       /* file desc */<br>CALL_L64(&quot;write&quot;)<br><br>  cmpq $4, %rax<br>  jne  __afl_fork_resume<br>  <br>  __afl_fork_wait_loop:<br></code></pre></td></tr></table></figure>
+
+<p>这一段实现的主要功能是往 <code>FORKSRV_FD + 1</code> （也就是 198+1）号描述符中（即状态管道）中， 写入<code>__afl_temp</code>上的 4 个字节内容，用来告知 fork server 已经成功启动。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs assembly">__afl_fork_wait_loop:<br><br>  /* Wait for parent by reading from the pipe. Abort if read fails. */<br><br>  movq $4, %rdx               /* length    */<br>  leaq __afl_temp(%rip), %rsi /* data      */<br>  movq $&quot; STRINGIFY(FORKSRV_FD) &quot;, %rdi            /* file desc */<br>CALL_L64(&quot;read&quot;)<br>  cmpq $4, %rax<br>  jne  __afl_die<br><br>  /* Once woken up, create a clone of our process. This is an excellent use<br>     case for syscall(__NR_clone, 0, CLONE_PARENT), but glibc boneheadedly<br>     caches getpid() results and offers no way to update the value, breaking<br>     abort(), raise(), and a bunch of other things :-( */<br><br>CALL_L64(&quot;fork&quot;)<br>  cmpq $0, %rax<br>  jl   __afl_die<br>  je   __afl_fork_resume<br><br>  /* In parent process: write PID to pipe, then wait for child. */<br><br>  movl %eax, __afl_fork_pid(%rip)<br><br>  movq $4, %rdx                   /* length    */<br>  leaq __afl_fork_pid(%rip), %rsi /* data      */<br>  movq $&quot; STRINGIFY((FORKSRV_FD + 1)) &quot;, %rdi             /* file desc */<br>CALL_L64(&quot;write&quot;)<br><br>  movq $0, %rdx                   /* no flags  */<br>  leaq __afl_temp(%rip), %rsi     /* status    */<br>  movq __afl_fork_pid(%rip), %rdi /* PID       */<br>CALL_L64(&quot;waitpid&quot;)<br>  cmpq $0, %rax<br>  jle  __afl_die<br><br>  /* Relay wait status to pipe, then loop back. */<br><br>  movq $4, %rdx               /* length    */<br>  leaq __afl_temp(%rip), %rsi /* data      */<br>  movq $&quot; STRINGIFY((FORKSRV_FD + 1)) &quot;, %rdi         /* file desc */<br>CALL_L64(&quot;write&quot;)<br><br>  jmp  __afl_fork_wait_loop<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>等待fuzzer通过 <code>FORKSRV_FD</code>（ 控制管道）发送过来的命令，读入到 <code>__afl_temp</code> 中：<ul>
+<li>读取失败，跳转到 <code>__afl_die</code> ，结束循环；</li>
+<li>读取成功，继续往下执行；</li>
+</ul>
+</li>
+<li>fork 一个子进程，子进程跳转执行 <code>__afl_fork_resume</code>；</li>
+<li>将子进程的 pid 赋给 <code>__afl_fork_pid</code>，并写到状态管道中通知父进程；</li>
+<li>等待子进程执行完成，写入状态管道告知 fuzzer；</li>
+<li>重新执行下一轮 <code>__afl_fork_wait_loop</code> </li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs assembly">__afl_fork_resume:<br><br>/* In child process: close fds, resume execution. */<br><br>  movq $&quot; STRINGIFY(FORKSRV_FD) &quot;, %rdi<br>CALL_L64(&quot;close&quot;)<br><br>  movq $(&quot; STRINGIFY(FORKSRV_FD) &quot; + 1), %rdi<br>CALL_L64(&quot;close&quot;)<br><br>  popq %rdx<br>  popq %rdx<br><br>  movq %r12, %rsp<br>  popq %r12<br><br>  movq  0(%rsp), %rax<br>  movq  8(%rsp), %rcx<br>  movq 16(%rsp), %rdi<br>  movq 32(%rsp), %rsi<br>  movq 40(%rsp), %r8<br>  movq 48(%rsp), %r9<br>  movq 56(%rsp), %r10<br>  movq 64(%rsp), %r11<br><br>  movq  96(%rsp), %xmm0<br>  movq 112(%rsp), %xmm1<br>  movq 128(%rsp), %xmm2<br>  movq 144(%rsp), %xmm3<br>  movq 160(%rsp), %xmm4<br>  movq 176(%rsp), %xmm5<br>  movq 192(%rsp), %xmm6<br>  movq 208(%rsp), %xmm7<br>  movq 224(%rsp), %xmm8<br>  movq 240(%rsp), %xmm9<br>  movq 256(%rsp), %xmm10<br>  movq 272(%rsp), %xmm11<br>  movq 288(%rsp), %xmm12<br>  movq 304(%rsp), %xmm13<br>  movq 320(%rsp), %xmm14<br>  movq 336(%rsp), %xmm15<br><br>  leaq 352(%rsp), %rsp<br><br>  jmp  __afl_store<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>关闭子进程中的 fd；</li>
+<li>恢复子进程的寄存器状态；</li>
+<li>跳转到 <code>__afl_store</code> 执行。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs assembly">__afl_store:<br><br>  /* Calculate and store hit for the code location specified in rcx. */<br><br>  xorq __afl_prev_loc(%rip), %rcx<br>  xorq %rcx, __afl_prev_loc(%rip)<br>  shrq $1, __afl_prev_loc(%rip)<br><br>  incb (%rdx, %rcx, 1)<br>  <br>_afl_return:<br>  addb $127, %al<br>  sahf<br>  ret<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>rcx 存储的是 R(MAP_SIZE) 随机数，值在 0~((1 &lt;&lt; 16) - 1) 之间，是当前桩的一个 id。</li>
+<li>将 <code>__afl_prev_loc</code> 与 rcx 异或两次，最终把值赋给 <code>__afl_prev_loc</code>。可以看见，当第一个进程执行到这时，<code>__afl_prev_loc</code>为 0，最终会被赋值为当前桩 id 逻辑右移一位的值。</li>
+<li>最后在共享内存（rdx存储的地址指向共享内存）中存储当前插桩位置的地方计数加一。</li>
+</ul>
+<h2 id="afl-clang-fast"><a href="#afl-clang-fast" class="headerlink" title="afl-clang-fast"></a>afl-clang-fast</h2><p>AFL 对于上述通过<code>afl-gcc</code>来插桩这种做法已经属于不建议，并提供了更好的工具 afl-clang-fast，通过 llvm pass 来插桩。</p>
+<h3 id="LLVM"><a href="#LLVM" class="headerlink" title="LLVM"></a>LLVM</h3><p>LLVM 是一个编译器框架，主要为了解决编译时多种多样的前端和后端导致编译环境复杂、苛刻的问题，LLVM IR 是 LLVM 的中间表示，并以库的形式提供一些列接口，以提供诸如操作 IR、生成目标平台代码等等后端的功能。其整体架构如下所示：</p>
+<p><img   class="lazyload" data-original="/2022/07/19/2022-07-20-%E5%A4%A9%E9%97%AE%E4%B9%8B%E8%B7%AF%E2%80%94%E2%80%94Fuzz/image-20230222191158864.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230222191158864</span></p>
+<p>不同的前端和后端使用统一的中间代码，因此，如果需要支持一门新的编程语言，只需要实现一个新的前端；如果需要支持一款新的硬件设备，只需要实现一个新的后端，而优化阶段为通用阶段，依靠的是统一的 LLVM IR ，与新的编程语言和硬件设备无关。</p>
+<p>Clang 是 LLVM 项目的一个子项目，它是 LLVM 架构下的 C/C++/Objective-C 的编译器，是 LLVM 前端的一部分。相较于 GCC，具备编译速度快、占用内存少、模块化设计、诊断信息可读性强、设计清晰简单等优点。</p>
+<p>代码首先由编译器前端 clang 处理后得到中间代码 IR，然后经过各 LLVM Pass 进行优化和转换，最终交给编译器后端生成机器码。（以 Clang 做编译器为例）：</p>
+<p><img   class="lazyload" data-original="/2022/07/19/2022-07-20-%E5%A4%A9%E9%97%AE%E4%B9%8B%E8%B7%AF%E2%80%94%E2%80%94Fuzz/image-20230222191953401.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230222191953401</span></p>
+<p>LLVM Pass 是一些中间过程，用户可以自定义其内容，因此可以遍历、修改 IR 以达到插桩、优化、静态分析等目的。</p>
+<h3 id="clang-wrapper"><a href="#clang-wrapper" class="headerlink" title="clang wrapper"></a>clang wrapper</h3><p>​    <code>afl-clang-fast.c</code>和之前的<code>afl-gcc</code>一样，是 clang 的一层 wrapper；只是定义了一些宏，和传递了一些参数给 clang。</p>
+<h4 id="find-obj"><a href="#find-obj" class="headerlink" title="find_obj"></a>find_obj</h4><p>通过查找<code>afl-llvm-rt.o</code>所在路径，从而确定<code>obj_path</code>的值。</p>
+<ul>
+<li>先检查环境变量<code>AFL_PATH</code>是否存在，如果存在，接着检查 <code>AFL_PATH</code>拼接上 <code>/afl-llvm-rt.o</code>是否可读，如果可读就把该路径赋值给<code>obj_path</code>，然后直接返回。</li>
+<li>如果不存在环境变量<code>AFL_PATH</code> ，则检查 arg0 中是否存在 ‘/‘，存在的则将最后一个 ‘/‘ 位置之前的路径赋值给 dir，例如<code>~/AFL/afl-clang-fast</code>则把 <code>~/AFL</code>赋值给 dir。接着检查 dir 拼接上<code>/afl-llvm-rt.o</code>是否可读，如果可读就把该路径赋值给<code>obj_path</code>，然后直接返回。</li>
+<li>如果都不存在时，因为默认的 AFL 的 MakeFile 在编译的时候，会定义一个名为<code>AFL_PATH</code>的宏，其指向<code>/usr/local/lib/afl</code>，会到这里查看是否存在<code>afl-llvm-rt.o</code>，如果存在设置<code>obj_path</code>并直接返回。</li>
+<li>如果上述三种方式都找不到，则抛出异常。</li>
+</ul>
+<h4 id="edit-params-2"><a href="#edit-params-2" class="headerlink" title="edit_params"></a>edit_params</h4><p>将 argv 的参数拷贝到 cc_params，同时设置一些必要的参数。</p>
+<ul>
+<li><p>获取 argv[0] 的值，判断执行的是<code>afl-clang-fast</code>还是<code>afl-clang-fast++</code></p>
+<ul>
+<li>如果执行的是<code>afl-clang-fast</code>，则读取环境变量<code>AFL_CXX</code>，如果存在，则将其值赋值给<code>cc_params[0]</code>，否则将 clang++ 赋值给<code>cc_params[0]</code>。</li>
+<li>如果执行的是<code>afl-clang-fast++</code>则读取环境变量<code>AFL_CC</code>，如果存在，则将其值赋值给<code>cc_params[0]</code>，否则将 clang 赋值给<code>cc_params[0]</code>。</li>
+</ul>
+</li>
+<li><p>默认情况下，我们通过<code>afl-llvm-pass.so</code>来注入 instrumentation，但是现在也支持<code>trace-pc-guard</code>模式，详情可以参考<a target="_blank" rel="noopener" href="http://clang.llvm.org/docs/SanitizerCoverage.html#tracing-pcs-with-guards">llvm的文档</a></p>
+</li>
+<li><p>然后如果定义了<code>USE_TRACE_PC</code>宏，就将<code>-fsanitize-coverage=trace-pc-guard -mllvm -sanitizer-coverage-block-threshold=0</code>添加到<code>cc_params</code>里。</p>
+</li>
+<li><p>如果没有定义，就依次将<code>-Xclang -load -Xclang obj_path/afl-llvm-pass.so -Qunused-arguments</code>添加到<code>cc_params</code>里。</p>
+</li>
+<li><p>循环依次读取传递给<code>afl-clang-fast</code>的参数，并添加到<code>cc_params</code>里，同时做一些检查和设置：</p>
+<ul>
+<li>如果传入参数里有<code>-m32</code>或者<code>armv7a-linux-androideabi</code>，则设置<code>bit_mode</code>为 32。</li>
+<li>如果传入参数里有<code>-m64</code>，则设置<code>bit_mode</code>为 64</li>
+<li>如果传入参数里有<code>-x</code>，则设置<code>x_set</code>为 1</li>
+<li>如果传入参数里有<code>-fsanitize=address</code>或者<code>-fsanitize=memory</code>，则设置<code>asan_set</code>为 1</li>
+<li>如果传入参数里有<code>-Wl,-z,defs</code>或者<code>-Wl,--no-undefined</code>，直接 continue，不将其添加到<code>cc_params</code>里 。</li>
+</ul>
+</li>
+<li><p>读取环境变量<code>AFL_HARDEN</code>，如果存在，则往<code>cc_params</code>里添加<code>-fstack-protector-all</code>；并且如果 fortify_set 为 0，往<code>cc_params</code>里添加<code>-D_FORTIFY_SOURCE=2</code>。</p>
+</li>
+<li><p>如果参数里没有<code>-fsanitize=address/memory</code>，即 asan_set 是 0，则读取环境变量<code>AFL_USE_ASAN</code>，如果存在就添加<code>-U_FORTIFY_SOURCE -fsanitize=address</code>到<code>cc_params</code>里，环境变量<code>AFL_USE_MSAN</code>则是添加<code>-U_FORTIFY_SOURCE -fsanitize=memory</code>，并且和<code>AFL_HARDEN</code>三者是互相排斥的。</p>
+</li>
+<li><p>如果定义了<code>USE_TRACE_PC</code>宏，检查是否存在环境变量<code>AFL_INST_RATIO</code>，如果存在就抛出异常<code>AFL_INST_RATIO not available at compile time with &#39;trace-pc&#39;.</code>。</p>
+</li>
+<li><p>读取环境变量<code>AFL_DONT_OPTIMIZE</code>，如果不存在则添加<code>-g -O3 -funroll-loops</code>到<code>cc_params</code>里。</p>
+</li>
+<li><p>读取环境变量<code>AFL_NO_BUILTIN</code>，如果存在就添加<code>-fno-builtin-strcmp</code>等。</p>
+</li>
+<li><p>接着，往<code>cc_params</code>添加参数<code>-D__AFL_HAVE_MANUAL_CONTROL=1 -D__AFL_COMPILER=1 -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION=1</code>，以及定义一些宏。</p>
+</li>
+<li><p>如果 x_set 为 1，则添加参数<code>-x none</code>。</p>
+</li>
+<li><p>根据<code>bit_mode</code>的值选择<code>afl-llvm-rt</code>：</p>
+<ul>
+<li>如果为 0，即没有<code>-m32</code>和<code>-m64</code>选项，就向参数里添加<code>obj_path/afl-llvm-rt.o</code></li>
+<li>如果为 32，添加<code>obj_path/afl-llvm-rt-32.o</code></li>
+<li>如果为 64，添加<code>obj_path/afl-llvm-rt-64.o</code></li>
+</ul>
+</li>
+<li><p>最后以 NULL 结尾，停止添加参数。</p>
+</li>
+</ul>
+<h4 id="main"><a href="#main" class="headerlink" title="main"></a>main</h4><ul>
+<li>寻找 obj_path 路径。</li>
+<li>编辑参数 cc_params。</li>
+<li>最后执行设置好的命令参数<code>execvp(cc_params[0], (char**)cc_params);</code>。</li>
+</ul>
+<h3 id="afl-llvm-pass-so-cc"><a href="#afl-llvm-pass-so-cc" class="headerlink" title="afl-llvm-pass.so.cc"></a>afl-llvm-pass.so.cc</h3><p>afl-llvm-pass 里只有一个 Transform pass AFLCoverage，其继承自 ModulePass，所以我们主要分析一下它的<code>runOnModule</code>函数。</p>
+<h4 id="Module"><a href="#Module" class="headerlink" title="Module"></a>Module</h4><p>Module 相当于程序，里面包含所有 Function 和全局变量，而 Function 里包含所有 BasicBlock 和函数参数，BasicBlock 里包含所有 Instruction，Instruction 包含 Opcode 和 Operands。</p>
+<p><img   class="lazyload" data-original="/2022/07/19/2022-07-20-%E5%A4%A9%E9%97%AE%E4%B9%8B%E8%B7%AF%E2%80%94%E2%80%94Fuzz/image-20230303100507191.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230303100507191</span></p>
+<h4 id="注册-pass"><a href="#注册-pass" class="headerlink" title="注册 pass"></a>注册 pass</h4><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">registerAFLPass</span><span class="hljs-params">(<span class="hljs-keyword">const</span> PassManagerBuilder &amp;,</span></span><br><span class="hljs-params"><span class="hljs-function">                            legacy::PassManagerBase &amp;PM)</span> </span>&#123;<br><br>  PM.<span class="hljs-built_in">add</span>(<span class="hljs-keyword">new</span> <span class="hljs-built_in">AFLCoverage</span>());<br><br>&#125;<br><br><br><span class="hljs-function"><span class="hljs-keyword">static</span> RegisterStandardPasses <span class="hljs-title">RegisterAFLPass</span><span class="hljs-params">(</span></span><br><span class="hljs-params"><span class="hljs-function">    PassManagerBuilder::EP_ModuleOptimizerEarly, registerAFLPass)</span></span>;<br><br><span class="hljs-function"><span class="hljs-keyword">static</span> RegisterStandardPasses <span class="hljs-title">RegisterAFLPass0</span><span class="hljs-params">(</span></span><br><span class="hljs-params"><span class="hljs-function">    PassManagerBuilder::EP_EnabledOnOptLevel0, registerAFLPass)</span></span>;<br></code></pre></td></tr></table></figure>
+
+<p>其核心功能为向 PassManager 注册新的 pass，每个 pass 相互独立，通过PM统一注册和调度，更加模块化。不理解的可以参考下面的代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">/// Registers a function for adding a standard set of passes.  This should be</span><br><span class="hljs-comment">/// used by optimizer plugins to allow all front ends to transparently use</span><br><span class="hljs-comment">/// them.  Create a static instance of this class in your plugin, providing a</span><br><span class="hljs-comment">/// private function that the PassManagerBuilder can use to add your passes.</span><br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">RegisterStandardPasses</span> &#123;</span><br>  PassManagerBuilder::GlobalExtensionID ExtensionID;<br><br><span class="hljs-keyword">public</span>:<br>  <span class="hljs-built_in">RegisterStandardPasses</span>(PassManagerBuilder::ExtensionPointTy Ty,<br>                         PassManagerBuilder::ExtensionFn Fn) &#123;<br>    ExtensionID = PassManagerBuilder::<span class="hljs-built_in">addGlobalExtension</span>(Ty, std::<span class="hljs-built_in">move</span>(Fn));<br>  &#125;<br><br>  ~<span class="hljs-built_in">RegisterStandardPasses</span>() &#123;<br>  ...<br>  &#125;<br>&#125;;<br><br>...<br><span class="hljs-comment">/// PassManagerBuilder - This class is used to set up a standard optimization</span><br><span class="hljs-comment">/// sequence for languages like C and C++, allowing some APIs to customize the</span><br><span class="hljs-comment">/// pass sequence in various ways. A simple example of using it would be:</span><br><span class="hljs-comment">///</span><br><span class="hljs-comment">///  PassManagerBuilder Builder;</span><br><span class="hljs-comment">///  Builder.OptLevel = 2;</span><br><span class="hljs-comment">///  Builder.populateFunctionPassManager(FPM);</span><br><span class="hljs-comment">///  Builder.populateModulePassManager(MPM);</span><br><span class="hljs-comment">///</span><br><span class="hljs-comment">/// In addition to setting up the basic passes, PassManagerBuilder allows</span><br><span class="hljs-comment">/// frontends to vend a plugin API, where plugins are allowed to add extensions</span><br><span class="hljs-comment">/// to the default pass manager.  They do this by specifying where in the pass</span><br><span class="hljs-comment">/// pipeline they want to be added, along with a callback function that adds</span><br><span class="hljs-comment">/// the pass(es).  For example, a plugin that wanted to add a loop optimization</span><br><span class="hljs-comment">/// could do something like this:</span><br><span class="hljs-comment">///</span><br><span class="hljs-comment">/// static void addMyLoopPass(const PMBuilder &amp;Builder, PassManagerBase &amp;PM) &#123;</span><br><span class="hljs-comment">///   if (Builder.getOptLevel() &gt; 2 &amp;&amp; Builder.getOptSizeLevel() == 0)</span><br><span class="hljs-comment">///     PM.add(createMyAwesomePass());</span><br><span class="hljs-comment">/// &#125;</span><br><span class="hljs-comment">///   ...</span><br><span class="hljs-comment">///   Builder.addExtension(PassManagerBuilder::EP_LoopOptimizerEnd,</span><br><span class="hljs-comment">///                        addMyLoopPass);</span><br><span class="hljs-comment">///   ...</span><br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PassManagerBuilder</span> &#123;</span><br><span class="hljs-keyword">public</span>:<br>  <span class="hljs-comment">/// Extensions are passed to the builder itself (so they can see how it is</span><br>  <span class="hljs-comment">/// configured) as well as the pass manager to add stuff to.</span><br>  <span class="hljs-keyword">typedef</span> std::function&lt;<span class="hljs-built_in"><span class="hljs-keyword">void</span></span>(<span class="hljs-keyword">const</span> PassManagerBuilder &amp;Builder,<br>                             legacy::PassManagerBase &amp;PM)&gt;<br>      ExtensionFn;<br>  <span class="hljs-keyword">typedef</span> <span class="hljs-keyword">int</span> GlobalExtensionID;<br><br>  <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">ExtensionPointTy</span> &#123;</span><br>    <span class="hljs-comment">/// EP_ModuleOptimizerEarly - This extension point allows adding passes</span><br>    <span class="hljs-comment">/// just before the main module-level optimization passes.</span><br>    EP_ModuleOptimizerEarly,<br>    ...<br>    <span class="hljs-comment">/// EP_EnabledOnOptLevel0 - This extension point allows adding passes that</span><br>    <span class="hljs-comment">/// should not be disabled by O0 optimization level. The passes will be</span><br>    <span class="hljs-comment">/// inserted after the inlining pass.</span><br>    EP_EnabledOnOptLevel0,<br>    ...<br>    &#125;<br>    ...<br>    ...<br>  <span class="hljs-comment">/// Adds an extension that will be used by all PassManagerBuilder instances.</span><br>  <span class="hljs-comment">/// This is intended to be used by plugins, to register a set of</span><br>  <span class="hljs-comment">/// optimisations to run automatically.</span><br>  <span class="hljs-comment">///</span><br>  <span class="hljs-comment">/// \returns A global extension identifier that can be used to remove the</span><br>  <span class="hljs-comment">/// extension.</span><br>  <span class="hljs-function"><span class="hljs-keyword">static</span> GlobalExtensionID <span class="hljs-title">addGlobalExtension</span><span class="hljs-params">(ExtensionPointTy Ty,</span></span><br><span class="hljs-params"><span class="hljs-function">                                              ExtensionFn Fn)</span></span>;<br>    ...<br>  &#125;<br>...<br>...<br><span class="hljs-comment">/// PassManagerBase - An abstract interface to allow code to add passes to</span><br><span class="hljs-comment">/// a pass manager without having to hard-code what kind of pass manager</span><br><span class="hljs-comment">/// it is.</span><br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PassManagerBase</span> &#123;</span><br><span class="hljs-keyword">public</span>:<br>  <span class="hljs-keyword">virtual</span> ~<span class="hljs-built_in">PassManagerBase</span>();<br><br>  <span class="hljs-comment">/// Add a pass to the queue of passes to run.  This passes ownership of</span><br>  <span class="hljs-comment">/// the Pass to the PassManager.  When the PassManager is destroyed, the pass</span><br>  <span class="hljs-comment">/// will be destroyed as well, so there is no need to delete the pass.  This</span><br>  <span class="hljs-comment">/// may even destroy the pass right away if it is found to be redundant. This</span><br>  <span class="hljs-comment">/// implies that all passes MUST be allocated with &#x27;new&#x27;.</span><br>  <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">void</span> <span class="hljs-title">add</span><span class="hljs-params">(Pass *P)</span> </span>= <span class="hljs-number">0</span>;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<h4 id="runOnModule"><a href="#runOnModule" class="headerlink" title="runOnModule"></a>runOnModule</h4><ul>
+<li><p>首先定义了一个继承自 ModulePass 的 AFLCoverage 类。</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">The ModulePass <span class="hljs-keyword">class</span> <span class="hljs-keyword">is</span> the most general <span class="hljs-keyword">of</span> <span class="hljs-keyword">all</span> superclasses that you can use. Deriving <span class="hljs-keyword">from</span> ModulePass indicates that your pass uses the entire program <span class="hljs-keyword">as</span> a unit, referring <span class="hljs-keyword">to</span> <span class="hljs-keyword">function</span> bodies <span class="hljs-keyword">in</span> <span class="hljs-keyword">no</span> predictable <span class="hljs-keyword">order</span>, <span class="hljs-keyword">or</span> adding <span class="hljs-keyword">and</span> removing <span class="hljs-keyword">functions</span>.<br>ModulePass类是所有可使用的超类中最通用的。从ModulePass派生指示您的pass将整个程序作为一个单元，以不可预测的顺序引用函数体，或者添加和删除函数。<br></code></pre></td></tr></table></figure>
+
+<p>因此选择继承不同类型的 Pass 父类就是从不同的粒度对程序进行处理。这里选择继承 ModulePass 就是对整个程序都进行处理。</p>
+</li>
+<li><p>然后在类外，对类中的静态成员变量 ID 进行定义及初始化。该变量是 pass 标识符，即 LLVM 用于唯一标识 pass 。同时，在类外定义 runOnModule() 函数，该函数内容便是实现真正需求的部分。</p>
+</li>
+<li><p>通过 getContext 来获取 LLVMContext，其保存了整个程序里分配的类型和常量信息。</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">This is an important class for using <span class="hljs-keyword">LLVM </span>in a threaded <span class="hljs-built_in">context</span>. It (opaquely) owns <span class="hljs-keyword">and </span>manages the core “global” data of <span class="hljs-keyword">LLVM’s </span>core infrastructure, including the type <span class="hljs-keyword">and </span>constant uniquing tables.<br><span class="hljs-keyword">LLVMContext </span>itself provides no locking guarantees, so you <span class="hljs-keyword">should </span><span class="hljs-keyword">be </span>careful to have one <span class="hljs-built_in">context</span> per thread.<br>这是在线程上下文中使用 <span class="hljs-keyword">LLVM </span>的一个重要类。它(不透明地)拥有和管理<span class="hljs-keyword">LLVM核心基础设施的核心“全局”数据，包括类型和常量唯一表。</span><br><span class="hljs-keyword"></span><span class="hljs-keyword">LLVMContext </span>本身不提供锁定保证，因此您应该小心为每个线程提供一个上下文。<br></code></pre></td></tr></table></figure></li>
+<li><p>通过 LLVMContext 来获取 type 实例 Int8Ty 和 Int32Ty：</p>
+<ul>
+<li>Type 是所有 type 类的一个超类（父类）。<strong>每个 Value 都有一个 Type</strong>，所以这经常被用于寻找指定类型的 Value。Type 不能直接实例化，只能通过其子类实例化。某些基本类型(VoidType、LabelType、FloatType 和 DoubleType)有隐藏的子类。之所以隐藏它们，是因为除了 Type 类提供的功能之外，它们没有提供任何有用的功能，除了将它们与Type 的其他子类区分开来之外。所有其他类型都是 DerivedType 的子类。Types 可以被命名，但这不是必需的。一个给定 Type 在任何时候都只存在一个实例。这允许使用 Type 实例的地址相等来执行 type 相等。也就是说，给定两个 Type* 值，如果指针相同，则 types 相同。</li>
+</ul>
+</li>
+<li><p>读取环境变量 AFL_INST_RATIO，并且将其赋值给变量 inst_ratio_str，如果有值，则将其值赋给 inst_ratio，如果没有值则 inst_ratio 默认值为 100，这个值代表一个插桩概率，如果为 100 则表示每个分支都必定插桩，如果有了变化，就可以决定是否要在这个分支插桩。</p>
+</li>
+<li><p>定义两个全局变量：</p>
+<ul>
+<li><p>AFLMapPtr 是一个用来指向共享内存映射到进程空间的地址；AFLPreLoc 是一个用来表示前一个基本块的编号。</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs reasonml">关于GlobalVariable的构造函数官方介绍如下：<br><span class="hljs-constructor">GlobalVariable(<span class="hljs-params">const</span> Type <span class="hljs-operator">*</span>Ty, <span class="hljs-params">bool</span> <span class="hljs-params">isConstant</span>, LinkageTypes &amp;Linkage, Constant Initializer = 0, <span class="hljs-params">const</span> <span class="hljs-params">std</span>::<span class="hljs-params">string</span> &amp;Name = “”, Module Parent = 0)</span><br></code></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>遍历每个基本块，获取其第一条指令的迭代器，使用获取到的迭代器创建一个 IRBuilder 类的实例，通过该实例就能很方便地创建一些指令，并插在插入点。</p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs livecodeserver">IRBuilder is used <span class="hljs-keyword">as</span> <span class="hljs-keyword">a</span> convenient way <span class="hljs-built_in">to</span> <span class="hljs-built_in">create</span> LLVM instruvtions <span class="hljs-keyword">with</span> <span class="hljs-keyword">a</span> consistent <span class="hljs-keyword">and</span> simplified interface. And <span class="hljs-keyword">then</span> insert them <span class="hljs-keyword">into</span> <span class="hljs-keyword">a</span> basic block.<br>IRBuilder 是一种创建 LLVM 指令的方便方法，具有一致和简化的接口。然后把它们插入一个基本块。<br></code></pre></td></tr></table></figure></li>
+<li><p>取 0~MAP_SIZE 之间的一个值作为当前基本块的编号。</p>
+</li>
+<li><p>```<br>在 LLVM 中，无论是全局变量还是局部变量都是指针类型的，所以需要使用 CreatedLoad() 方法来获取值，CreatedStore() 方法来赋值，Load 和 Store 就是一对访问内存的指令。然后使用 CreateZExt 来完成相应的类型转换。Value 类是其他众多重要类的超类，如 Instruction 和 Function。</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><br><span class="hljs-bullet">-</span> 通过 CreatedLoad() 方法获取上一个基本块的编号并转换成相应类型，Metadata 可以看作是一种调试信息。<br><br><span class="hljs-bullet">-</span> 获取指向共享内存区域的指针。并通过 CreateGEP 方法获取共享内存里指定 index 的指针，而 index 是通过当前基本块的编号和上一个基本块的编号异或计算得到的。<br><br><span class="hljs-bullet">-</span> 用 CreateLoad() 方法将 index 地址处的值取出赋值给 Counter。<br><br><span class="hljs-bullet">-</span> 将 Counter 值加一后，再将值存入 index 地址处。<br><br><span class="hljs-bullet">-</span> 将当前基本块的编号右移一位并赋值给 AFLPreLoc，即更新<span class="hljs-code">`__afl_prev_loc`</span>的值。<br><br></code></pre></td></tr></table></figure>
+<p>之所以要将当前基础块编号右移一位，是因为当基础块跳转A-&gt;A和B-&gt;B，或A-&gt;B和B-&gt;A，它们的编号做异或后的结果是相同的，无法区分，所以其中一个编号要右移一位。</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc"><br><span class="hljs-bullet">- </span>总的来说就是通过遍历每个基本块，向其中插入实现了如下伪代码功能的 instruction ir 来进行插桩：<br><br></code></pre></td></tr></table></figure>
+<p>cur_location = <COMPILE_TIME_RANDOM>;<br>shared_mem[cur_location ^ prev_location]++;<br>prev_location = cur_location &gt;&gt; 1;</COMPILE_TIME_RANDOM></p>
+<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs clean"><br>- 作用：<br><br>  - 当有控制流到达当前基础块时，其共享内存对应位置，用于计数的值就会加一<br>  - 而AFL可以根据该共享内存上的数据来判断控制流的覆盖程度，调整输入样本，使控制流能够覆盖更多的基础块<br><br>### afl-llvm-rt.o.c<br><br><br><br><br><br>## afl-fuzz<br><br>### 初始配置<br><br>#### while循环<br><br>```c<br>while ((opt = getopt(argc, argv, <span class="hljs-string">&quot;+i:o:f:m:b:t:T:dnCB:S:M:x:QV&quot;</span>)) &gt; <span class="hljs-number">0</span>)<br>    	...<br></code></pre></td></tr></table></figure></li>
+</ul>
 <p>刚开始使用<code>getopt</code>函数获取输入的选项参数。</p>
 <h4 id="setup-signal-handlers"><a href="#setup-signal-handlers" class="headerlink" title="setup_signal_handlers"></a>setup_signal_handlers</h4><p>先了解一下常见的信号：</p>
 <table>
@@ -250,7 +556,12 @@
 <h2 id="库函数"><a href="#库函数" class="headerlink" title="库函数"></a>库函数</h2><ul>
 <li><p>getenv() </p>
 <ul>
-<li><code>char *getenv(const char *name)</code> 搜索 name 所指向的环境字符串，并返回一个以 null 结尾的字符串，该字符串为被请求环境变量的值。如果该环境变量不存在，则返回 NULL。</li>
+<li><code>char *getenv(const char *name)</code> 搜索 name 所指向的环境变量，并返回一个以 null 结尾的字符串，该字符串为被请求的环境变量的值。如果该环境变量不存在，则返回 NULL。</li>
+</ul>
+</li>
+<li><p>setenv()</p>
+<ul>
+<li><code>int setenv(const char *name, const char *value, int overwrite);</code> 先检查 overwrite 是否为 0 ，如果不为 0 ，则将 name 指向的环境变量的值替换为 *value ，如果为 0 ，且 name 指向的环境变量存在，则会忽略 *value</li>
 </ul>
 </li>
 <li><p>access()</p>
@@ -260,7 +571,7 @@
 </li>
 <li><p>gettimeofday()</p>
 <ul>
-<li><p><code>int gettimeofday (struct timeval * tv, struct timezone * tz)</code>gettimeofday()会把目前的时间有tv 所指的结构返回，当地时区的信息则放到tz 所指的结构中。</p>
+<li><p><code>int gettimeofday (struct timeval * tv, struct timezone * tz)</code>gettimeofday()会把目前的时间放到 tv 所指的结构，当地时区的信息则放到 tz 所指的结构中。</p>
 </li>
 <li><pre><code>timeval 结构定义为：
 struct timeval&#123;
@@ -310,7 +621,19 @@ struct timezone
 <li><p>strchr()</p>
 <ul>
 <li> <code>char *strchr(const char *str, int c)</code> 在参数 <strong>str</strong> 所指向的字符串中搜索第一次出现字符 <strong>c</strong>（一个无符号字符）的位置。</li>
-<li>该函数返回在字符串 str 中第一次出现字符 c 的位置，如果未找到该字符则返回 NULL。</li>
+<li> 该函数返回在字符串 str 中第一次出现字符 c 的位置，如果未找到该字符则返回 NULL。</li>
+</ul>
+</li>
+<li><p>strrchr()</p>
+<ul>
+<li> <code>char *strrchr(const char *str, int c)</code> 在参数 <strong>str</strong> 所指向的字符串中搜索最后一次出现字符 <strong>c</strong>（一个无符号字符）的位置。</li>
+<li>该函数返回 str 中最后一次出现字符 c 的位置。如果未找到该值，则函数返回一个空指针。</li>
+</ul>
+</li>
+<li><p>strstr()</p>
+<ul>
+<li><code>char *strstr(const char *haystack, const char *needle)</code>在字符串 <strong>haystack</strong> 中查找第一次出现字符串 <strong>needle</strong> 的位置，不包含终止符 ‘\0’。</li>
+<li>该函数返回在 haystack 中第一次出现 needle 字符串的位置，如果未找到则返回 null。</li>
 </ul>
 </li>
 <li><p>sscanf()</p>
@@ -353,11 +676,85 @@ struct timezone
 </li>
 <li><p>alarm()</p>
 <ul>
-<li><code>unsigned int alarm(unsigned int seconds)</code>alarm()函数用来在seconds秒之后安排发送一个SIGALRM信号，如果seconds为0，将取消所有已设置的闹钟请求。</li>
-<li>alarm()函数的返回值是以前设置的闹钟时间的余留秒数，如果失败返回-1。</li>
+<li><code>unsigned int alarm(unsigned int seconds)</code>alarm() 函数用来在 seconds 秒之后安排发送一个 SIGALRM 信号，如果 seconds 为 0，将取消所有已设置的闹钟请求。</li>
+<li>alarm() 函数的返回值是，设置的闹钟时间的余留秒数，如果失败返回 -1。</li>
+</ul>
+</li>
+<li><p>fdopen()</p>
+<ul>
+<li><code>int fdopen(int handle,char* type);</code>将流与文件句柄连接</li>
+<li>返回指向该流的文件指针</li>
+</ul>
+</li>
+<li><p>fgets()</p>
+<ul>
+<li><code>char *fgets(char *str, int n, FILE *stream)</code>从指定的流 stream 读取一行，并把它存储在 <strong>str</strong> 所指向的字符串内。当读取 <strong>(n-1)</strong> 个字符时，或者读取到换行符时，或者到达文件末尾时，它会停止，具体视情况而定。</li>
+<li>如果成功，该函数返回相同的 str 参数；如果到达文件末尾或者没有读取到任何字符，str 的内容保持不变，并返回一个空指针；如果发生错误，返回一个空指针。</li>
+</ul>
+</li>
+<li><p>fputs()</p>
+<ul>
+<li><code>int fputs(const char *str, FILE *stream)</code>把字符串写入到指定的流 stream 中，但不包括空字符。</li>
+<li>该函数返回一个非负值，如果发生错误则返回 EOF。</li>
+</ul>
+</li>
+<li><p>isalpha()</p>
+<ul>
+<li><code>int isalpha(int c);</code>检查所传的字符是否是字母。</li>
+<li>如果 c 是一个字母，则该函数返回非零值，否则返回 0。</li>
+</ul>
+</li>
+<li><p>isdigit()</p>
+<ul>
+<li><code>int isdigit(int c);</code>检查所传的字符是否是十进制数字字符。</li>
+<li>如果 c 是一个数字，则该函数返回非零值，否则返回 0。</li>
+</ul>
+</li>
+<li><p>fork()</p>
+<ul>
+<li><code>pid_t fork(void)</code>会进行系统调用，用于创建一个新进程，称为子进程，它与进程同时运行，此进程称为父进程。在创建新的子进程后，两个进程将执行 fork() 之后的下一条指令。</li>
+<li>返回值： 若成功调用一次则返回两个值，子进程返回 0，父进程返回子进程 ID；否则，出错返回 -1。</li>
+</ul>
+</li>
+<li><p>waitpid()</p>
+<ul>
+<li><code>pid_t waitpid(pid_t pid,int *status,int options);</code>当指定等待的子进程已经停止运行或结束了，则waitpid() 会立即返回；但是如果子进程还没有停止运行或结束，则调用 waitpid() 函数的父进程则会被阻塞，暂停运行。</li>
+<li>waitpid() 函数执行成功，则返回子进程的进程号；如果有错误发生，则返回-1，并且将失败的状态赋值给 status。</li>
+</ul>
+</li>
+<li><p>shmat()</p>
+<ul>
+<li><code>void *shmat(int shmid, const void *shmaddr, int shmflg)</code>用来启动对共享内存的访问，并把共享内存连接到当前进程的地址空间。</li>
+<li>第一个参数，shm_id 是由 shmget() 函数返回的共享内存标识。</li>
+<li>第二个参数，shm_addr 指定共享内存连接到当前进程中的地址位置，通常为空，表示让系统来选择共享内存的地址。</li>
+<li>第三个参数，shm_flg 是一组标志位，通常为 0。</li>
+<li>调用成功时返回一个指向共享内存第一个字节的指针，如果调用失败返回-1.</li>
+</ul>
+</li>
+<li><p>isatty()</p>
+<ul>
+<li><code> int isatty(int handle);</code>检查文件描述符指向的设备类型是普通文件，还是设备文件。</li>
+<li>普通文件返回 0，设备返回 -1。</li>
+<li>常见设备文件：<ul>
+<li>stdin  标准输入设备 键盘</li>
+<li>stdout 标准输出设备 显示器 </li>
+<li>stderr 标准错误设备</li>
+<li>stdaux 辅助设备</li>
+<li>stdprn 打印机</li>
 </ul>
 </li>
 </ul>
+</li>
+<li><p>sscanf()</p>
+<ul>
+<li><code>int sscanf(const char *str, const char *format, ...)</code>从字符串 str 读取输入给 format。</li>
+<li>如果成功，该函数返回成功匹配和赋值的个数。如果到达文件末尾或发生读错误，则返回 EOF。</li>
+</ul>
+</li>
+</ul>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a target="_blank" rel="noopener" href="https://eternalsakura13.com/2020/08/23/afl/#comments">https://eternalsakura13.com/2020/08/23/afl/#comments</a></p>
+<p><a target="_blank" rel="noopener" href="https://paper.seebug.org/1732/#_1">https://paper.seebug.org/1732/#_1</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_38081870/article/details/106600627">https://blog.csdn.net/qq_38081870/article/details/106600627</a></p>
 
       </section>
       <section class="extra">
@@ -397,7 +794,7 @@ struct timezone
           
   <aside class="toc-wrap">
     <h3 class="toc-title">文章目录：</h3>
-    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#AFL"><span class="toc-text">AFL</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E6%95%B0"><span class="toc-text">参数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E8%AF%B4%E6%98%8E"><span class="toc-text">数据类型说明</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#afl-fuzz"><span class="toc-text">afl-fuzz</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9D%E5%A7%8B%E9%85%8D%E7%BD%AE"><span class="toc-text">初始配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fuzz%E6%89%A7%E8%A1%8C"><span class="toc-text">fuzz执行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%98%E5%BC%82%E7%AD%96%E7%95%A5"><span class="toc-text">变异策略</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BA%93%E5%87%BD%E6%95%B0"><span class="toc-text">库函数</span></a></li></ol></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#AFL"><span class="toc-text">AFL</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E6%95%B0"><span class="toc-text">参数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E8%AF%B4%E6%98%8E"><span class="toc-text">数据类型说明</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#afl-gcc"><span class="toc-text">afl-gcc</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E5%87%BD%E6%95%B0"><span class="toc-text">核心函数</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#afl-as"><span class="toc-text">afl-as</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E5%87%BD%E6%95%B0-1"><span class="toc-text">核心函数</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#afl-clang-fast"><span class="toc-text">afl-clang-fast</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#LLVM"><span class="toc-text">LLVM</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#clang-wrapper"><span class="toc-text">clang wrapper</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#afl-llvm-pass-so-cc"><span class="toc-text">afl-llvm-pass.so.cc</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fuzz%E6%89%A7%E8%A1%8C"><span class="toc-text">fuzz执行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%98%E5%BC%82%E7%AD%96%E7%95%A5"><span class="toc-text">变异策略</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BA%93%E5%87%BD%E6%95%B0"><span class="toc-text">库函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-text">参考</span></a></li></ol></li></ol>
   </aside>
 
         

@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>March 18, 2021</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>2810</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>2824</span>
     </div>
   </div>
 </section>
@@ -234,12 +234,12 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">gcc -z relro -o test test.c<br></code></pre></td></tr></table></figure>
 
 <h3 id="五、Fortify"><a href="#五、Fortify" class="headerlink" title="五、Fortify"></a>五、Fortify</h3><p><img   class="lazyload" data-original="/2021/03/18/2021-03-18-%E7%BC%93%E5%86%B2%E5%8C%BA%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6/QQ%E5%9B%BE%E7%89%8720210319191855.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ></p>
-<p>这部分转载自<a target="_blank" rel="noopener" href="http://yunnigu.dropsec.xyz/2016/10/08/checksec%E5%8F%8A%E5%85%B6%E5%8C%85%E5%90%AB%E7%9A%84%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6/">http://yunnigu.dropsec.xyz/2016/10/08/checksec及其包含的保护机制/</a></p>
+<p>这部分转载自<a target="_blank" rel="noopener" href="http://yunnigu.dropsec.xyz/2016/10/08/checksec%E5%8F%8A%E5%85%B6%E5%8C%85%E5%90%AB%E7%9A%84%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6%E3%80%82">http://yunnigu.dropsec.xyz/2016/10/08/checksec及其包含的保护机制。</a></p>
 <p>FORTIFY_SOURCE 机制对格式化字符串有两个限制</p>
-<p> （1）包含%n的格式化字符串不能位于程序内存中的可写地址。</p>
+<p> （1）包含 %n 的格式化字符串不能位于程序内存中的可写地址。</p>
 <p>（2）当使用位置参数时，必须使用范围内的所有参数。</p>
-<p>所以如果要使用%7$x，你必须同时使用1,2,3,4,5和6</p>
-<p>当进入到gdb中进行checksec检查文件会发现多了一个保护措施Fortify，这是一种比较少见的保护措施，是为了防止缓冲区溢出攻击</p>
+<p>所以如果要使用 %7$x，你必须同时使用 1，2，3，4，5 和 6。</p>
+<p>当进入到 gdb 中进行 checksec 检查文件会发现多了一个保护措施 Fortify，这是一种比较少见的保护措施，是为了防止缓冲区溢出攻击</p>
 <p>举个例子可能简单明了一些：<br>一段简单的存在缓冲区溢出的C代码</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">fun</span><span class="hljs-params">(<span class="hljs-keyword">char</span> *s)</span> </span>&#123;<br>        <span class="hljs-keyword">char</span> buf[<span class="hljs-number">0x100</span>];<br>        <span class="hljs-built_in">strcpy</span>(buf, s);<br>        <span class="hljs-comment">/* Don&#x27;t allow gcc to optimise away the buf */</span><br>        <span class="hljs-function"><span class="hljs-keyword">asm</span> <span class="hljs-title">volatile</span><span class="hljs-params">(<span class="hljs-string">&quot;&quot;</span> :: <span class="hljs-string">&quot;m&quot;</span> (buf))</span></span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
@@ -249,7 +249,7 @@
 <p>用包含参数-D_FORTIFY_SOURCE=2编译</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs assembly">08048470 &lt;fun&gt;:<br>  push   %ebp               ; <br>  mov    %esp,%ebp<br><br>  sub    $0x118,%esp        ; <br>  movl   $0x100,0x8(%esp)   ; 把0x100当作目标参数保存<br>  mov    0x8(%ebp),%eax     ; <br>  mov    %eax,0x4(%esp)     ; <br>  lea    -0x108(%ebp),%eax  ; <br>  mov    %eax,(%esp)        ; <br>  call   8048370 &lt;__strcpy_chk@plt&gt;<br><br>  leave                      ; <br>  ret<br></code></pre></td></tr></table></figure>
 
-<p>可以看到gcc生成了一些附加代码，通过对数组大小的判断替换strcpy, memcpy, memset等函数名，达到防止缓冲区溢出的作用。</p>
+<p>可以看到 gcc 生成了一些附加代码，通过对数组大小的判断替换 strcpy，memcpy，memset 等函数名，达到防止缓冲区溢出的作用。</p>
 
       </section>
       <section class="extra">
