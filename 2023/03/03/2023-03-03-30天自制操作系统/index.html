@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="google" content="notranslate" />
   
-  <meta name="description" content="day 1编辑二进制文件，使用的是 winhex，就不...">
+  <meta name="description" content="前言希望通过这本书，建立起对操作系统的整体框架认知。 ...">
   <meta name="author" content="ShouCheng">
   <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
   <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
@@ -196,13 +196,14 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>March 03, 2023</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>426</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>1829</span>
     </div>
   </div>
 </section>
     <section class="main">
       <section class="content">
-        <h3 id="day-1"><a href="#day-1" class="headerlink" title="day 1"></a>day 1</h3><p>编辑二进制文件，使用的是 winhex，就不用作者那个工具了。整体敲下来，也不算很复杂，不过可以偷懒的，直接把作者的整个文件复制即可。但是总得有点参与感是吧，毕竟目前原理不懂，bat 文件也是写好的。</p>
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>希望通过这本书，建立起对操作系统的整体框架认知。   </p>
+<h3 id="day-1"><a href="#day-1" class="headerlink" title="day 1"></a>day 1</h3><p>编辑二进制文件，使用的是 winhex，就不用作者那个工具了。整体敲下来，也不算很复杂，不过可以偷懒的，直接把作者的整个文件复制即可。但是总得有点参与感是吧，毕竟目前原理不懂，bat 文件也是写好的。</p>
 <p><img   class="lazyload" data-original="/2023/03/03/2023-03-03-30%E5%A4%A9%E8%87%AA%E5%88%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20230303213753070.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230303213753070</span></p>
 <p><img   class="lazyload" data-original="/2023/03/03/2023-03-03-30%E5%A4%A9%E8%87%AA%E5%88%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20230303213801924.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230303213801924</span></p>
 <p><img   class="lazyload" data-original="/2023/03/03/2023-03-03-30%E5%A4%A9%E8%87%AA%E5%88%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20230303213719042.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230303213719042</span></p>
@@ -211,7 +212,50 @@
 <p>进而用汇编写。</p>
 <p><img   class="lazyload" data-original="/2023/03/03/2023-03-03-30%E5%A4%A9%E8%87%AA%E5%88%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20230303222541932.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230303222541932</span></p>
 <p>后续的也没什么新的，只是增加了注释。看的时候，感觉增加了不少知识，但是应该不久就会消失吧？hh~</p>
-<h3 id="day-2"><a href="#day-2" class="headerlink" title="day 2"></a>day 2</h3>
+<h3 id="day-2"><a href="#day-2" class="headerlink" title="day 2"></a>day 2</h3><p>今天仍然是没什么内容，那就简单记录下我所不知道或者不清晰的知识吧：</p>
+<ul>
+<li>ORG 指令：告诉汇编器从哪个地址开始载入机器码。</li>
+<li>HLT 指令：让 CPU 进入待机状态，当外部发生变化时（例如 IO 设备操作）才会继续执行程序。</li>
+<li>0x7c00~0x7dff 是一个作为<strong>主引导记录</strong>（书上称为启动区，但是搜索之后这个才是现在的称呼）的扇区（512 字节，因为计算机读取硬盘区域，一次性就会读取 512 字节，主引导区以 0x55AA 结尾），存放启动程序加载器的区域，用于唤醒操作系统。</li>
+</ul>
+<p>然后就是 make 命令，见了挺多回的了（并没有自己写过，但是有依葫芦画瓢修改过），这次做下整理：</p>
+<ul>
+<li><p>make 会默认去寻找名叫<code>Makefile</code>或者<code>makefile</code>的文件，并且只能是这两个名字。</p>
+</li>
+<li><p>xxx : yyy 前者是要构建出的目标文件，后者是构建前者需要的依赖文件。在这句指令的下一行写入的是需要执行的命令，而这条命令的前面需要<strong>四个空格占位</strong>（这很关键，不然会报错的）</p>
+</li>
+<li><p>我们一般也可以指定 以下指令来帮助我们快速删除文件：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-meta"><span class="hljs-meta-keyword">.PHONY</span>: clean</span><br><span class="hljs-section">clean:</span><br>	rm -f xxx<br></code></pre></td></tr></table></figure>
+
+<p>.PHONY 叫做伪目标，这样如果输入<code>make clean</code>，make 不会去寻找是否存在一个名叫 clean 的文件，而是去执行 clean 指令。</p>
+</li>
+<li><p>变量声明引用通过 <code>$()</code>，看代码：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs makefile">OBJ=xxx yyy zzz<br><span class="hljs-section">all: <span class="hljs-variable">$(OBJ)</span></span><br></code></pre></td></tr></table></figure>
+
+<p>$(OBJ) 表示将 OBJ 的值代入到 all 的依赖文件去，这里也是一个小小的技巧：如果我们只是输入 make 指令，会默认去执行生成第一个文件，然后又因为会检查依赖文件是否存在，从而去生成依赖文件。所以这样编写，就可以只需要输入 make，完成一系列的操作。</p>
+</li>
+</ul>
+<h3 id="day-3"><a href="#day-3" class="headerlink" title="day 3"></a>day 3</h3><p>磁头、柱面、扇区：</p>
+<ul>
+<li>一个磁盘（圆形）分为正反面称为磁头。</li>
+<li>一个磁头以按照同心圆的方式一圈圈，由外向内的顺序划分出若干个柱面。</li>
+<li>一个柱面内划分出若干个扇区。</li>
+</ul>
+<p>Makefile 改变内容的语法规则已在 day 2 说明，不再赘述了。</p>
+<p>小小总结一下从书上得来的知识：</p>
+<ol>
+<li>操作系统是设备一通电就能运行的一段程序（不是定义，只是个人理解）</li>
+<li>BIOS 会读取磁盘的第一个扇区作为主引导记录，所以要在这个扇区里写入启动程序加载器。</li>
+<li>启动程序加载器会被从磁盘读取到内存的 0x7c00~7dff 区域，然后在内存中执行，从而再将磁盘后续存储的操作系统读入到内存的中以启动操作系统，之后把操作权限给予操作系统。</li>
+</ol>
+<p>加载操作系统，跟上面的总结理解是一致的。处理十分直接，通过先定位加载的地址，然后使用 jmp 进行跳转。如果使用 winhex   处理的话，直接帮我们区分好了，很方便。</p>
+<p><img   class="lazyload" data-original="/2023/03/03/2023-03-03-30%E5%A4%A9%E8%87%AA%E5%88%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20230304203430507.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230304203430507</span></p>
+<p><img   class="lazyload" data-original="/2023/03/03/2023-03-03-30%E5%A4%A9%E8%87%AA%E5%88%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20230304203533971.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230304203533971</span></p>
+<p><img   class="lazyload" data-original="/2023/03/03/2023-03-03-30%E5%A4%A9%E8%87%AA%E5%88%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20230304203442989.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230304203442989</span></p>
+<p>运行之后，也是如愿的一片漆黑的画面。</p>
+<p><img   class="lazyload" data-original="/2023/03/03/2023-03-03-30%E5%A4%A9%E8%87%AA%E5%88%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20230304203628351.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230304203628351</span></p>
+<p>为了能够使用 C 语言进行编写，后续作者进行了一些处理，内联的具体操作不是很懂，跟熟知的编译流程有些不大一样，很多不认识的中间文件，但是作者也并未细说，就也不细究了，毕竟我的目的只是为了了解整个操作系统的框架，那今天就结束吧。</p>
+<h3 id="day-4"><a href="#day-4" class="headerlink" title="day 4"></a>day 4</h3>
       </section>
       <section class="extra">
         
@@ -248,7 +292,7 @@
           
   <aside class="toc-wrap">
     <h3 class="toc-title">文章目录：</h3>
-    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#day-1"><span class="toc-text">day 1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#day-2"><span class="toc-text">day 2</span></a></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#day-1"><span class="toc-text">day 1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#day-2"><span class="toc-text">day 2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#day-3"><span class="toc-text">day 3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#day-4"><span class="toc-text">day 4</span></a></li></ol>
   </aside>
 
         
