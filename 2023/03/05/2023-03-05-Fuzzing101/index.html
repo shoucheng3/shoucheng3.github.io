@@ -6,12 +6,12 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>小试Linux——笔记 - ShouCheng</title>
+  <title>2023-03-05-Fuzzing101 - ShouCheng</title>
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="google" content="notranslate" />
   
-  <meta name="description" content="我使用VMware虚拟机来安装kali Linux系统...">
+  <meta name="description" content="Fuzzing01 项目地址 ：https://git...">
   <meta name="author" content="ShouCheng">
   <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
   <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
@@ -148,7 +148,7 @@
         <i class="iconfont iconsearch j-navbar-search"></i>
       
     </div>
-    <div class="center">小试Linux——笔记</div>
+    <div class="center">2023-03-05-Fuzzing101</div>
     <div class="right">
       <i class="iconfont iconmenu j-navbar-menu"></i>
     </div>
@@ -192,209 +192,72 @@
     <section class="head">
   <img   class="lazyload" data-original="/images/theme/post-image.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
   <div class="head-mask">
-    <h1 class="head-title">小试Linux——笔记</h1>
+    <h1 class="head-title">2023-03-05-Fuzzing101</h1>
     <div class="head-info">
-      <span class="post-info-item"><i class="iconfont iconcalendar"></i>October 18, 2020</span>
+      <span class="post-info-item"><i class="iconfont iconcalendar"></i>March 05, 2023</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>2180</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>769</span>
     </div>
   </div>
 </section>
     <section class="main">
       <section class="content">
-        <h5 id="我使用VMware虚拟机来安装kali-Linux系统（具体安装教程，可自行搜索，或者是b站上查询）"><a href="#我使用VMware虚拟机来安装kali-Linux系统（具体安装教程，可自行搜索，或者是b站上查询）" class="headerlink" title="我使用VMware虚拟机来安装kali Linux系统（具体安装教程，可自行搜索，或者是b站上查询）"></a>我使用VMware虚拟机来安装kali Linux系统（具体安装教程，可自行搜索，或者是b站上查询）</h5><h4 id="一、快捷键"><a href="#一、快捷键" class="headerlink" title="一、快捷键"></a>一、快捷键</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs Linux">Up(Down) 上（下）一条指令<br>Ctrl + c 终止当前进程<br>Ctrl + z 挂起当前进程，使用“fg”可唤醒<br>Ctrl + d 删除光标处的字符<br>Ctrl + l 清屏<br>Ctrl + a 移动到命令行首<br>Ctrl + e 移动到命令行尾<br>Ctrl + b 按单词后移（向左）<br>Ctrl + f 按单词前移（向右）<br>Ctrl + Shift + c 复制 <br>Ctrl + Shift + v 粘贴<br><br></code></pre></td></tr></table></figure>
-
-<h4 id="二、常见指令"><a href="#二、常见指令" class="headerlink" title="二、常见指令"></a>二、常见指令</h4><table>
-<thead>
-<tr>
-<th>指令</th>
-<th>用途</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>ls</td>
-<td>用来显示目标列表</td>
-</tr>
-<tr>
-<td>cd 文件名</td>
-<td>切换进入到某个文件中（可进入下级目录，也可以据此返回上级目录）</td>
-</tr>
-<tr>
-<td>pwd</td>
-<td>以绝对路径的方式显示用户当前工作目录</td>
-</tr>
-<tr>
-<td>man  command</td>
-<td>查看Linux中的指令帮助、配置文件帮助和编程帮助等信息</td>
-</tr>
-<tr>
-<td>apropos whatever</td>
-<td>在一些特定的包含系统命令的简短描述的数据库文件里查找关键字</td>
-</tr>
-<tr>
-<td>echo  string</td>
-<td>打印一行文本，参数“-e”可激活转义字符</td>
-</tr>
-<tr>
-<td>cat  file</td>
-<td>输出文件的内容</td>
-</tr>
-<tr>
-<td>more/less [file]</td>
-<td>允许用户向前或向后浏览文字档案的内容</td>
-</tr>
-<tr>
-<td>mv [file1] [file2]</td>
-<td>把file1里的内容移动到file2里，<strong>并且覆盖file2原有内容以及删除file1</strong> （所以可以用来更名）</td>
-</tr>
-<tr>
-<td>cp [file1] [file2]</td>
-<td>把file1里的内容复制到file2中，<strong>并且覆盖file2原有的内容</strong></td>
-</tr>
-<tr>
-<td>rm [file]</td>
-<td>删除文件file</td>
-</tr>
-<tr>
-<td>ps</td>
-<td>用于报告当前系统的进程状态</td>
-</tr>
-<tr>
-<td>top</td>
-<td><strong>实时查看</strong>系统的整体运行情况</td>
-</tr>
-<tr>
-<td>kill</td>
-<td>杀死一个进程</td>
-</tr>
-<tr>
-<td>ifconfig</td>
-<td>查看或设置网络设备</td>
-</tr>
-<tr>
-<td>ping 目标地址</td>
-<td>查看网络上的主机是否工作</td>
-</tr>
-<tr>
-<td>netstat</td>
-<td>显示网络连接、路由表和网络端口信息</td>
-</tr>
-<tr>
-<td>nc ip地址 ip端口</td>
-<td>建立 TCP 和 UDP 连接并监听（连接一个IP地址）</td>
-</tr>
-<tr>
-<td>su</td>
-<td>切换当前用户身份到其他用户身份</td>
-</tr>
-<tr>
-<td>touch 文件名</td>
-<td>创建新的<strong>空文件</strong> （如果未进入任何目录下进行创建，新文件夹会在主文件夹里面）</td>
-</tr>
-<tr>
-<td>mkdir 目录名</td>
-<td>创建目录 （目录的位置同上）</td>
-</tr>
-<tr>
-<td>chmod</td>
-<td>变更文件或目录的权限</td>
-</tr>
-<tr>
-<td>chown</td>
-<td>变更某个文件或目录的所有者和所属组</td>
-</tr>
-<tr>
-<td>nano / vim/emacs（vim中q不保存退出，wq保存后退出，i可修改编辑文本，ESC结束某个状态）</td>
-<td>字符终端的文本编辑器</td>
-</tr>
-<tr>
-<td>exit</td>
-<td>退出 shell</td>
-</tr>
-<tr>
-<td>file 文件</td>
-<td>查看文件属性信息</td>
-</tr>
-<tr>
-<td>cd ..</td>
-<td>返回上一级目录</td>
-</tr>
-<tr>
-<td>cd –</td>
-<td>返回到最开始进入shell的目录下</td>
-</tr>
-<tr>
-<td>ldd elf文件</td>
-<td>查看该elf文件的libc和ld</td>
-</tr>
-<tr>
-<td>whoami</td>
-<td>打印用户名</td>
-</tr>
-<tr>
-<td>uname</td>
-<td>打印系统信息</td>
-</tr>
-<tr>
-<td>cat 文件1 &gt;&gt; 文件2</td>
-<td>把文件1内容复制到文件2内容的后面</td>
-</tr>
-<tr>
-<td>/</td>
-<td>根目录</td>
-</tr>
-<tr>
-<td>/*</td>
-<td>根目录下所有文件</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-</tbody></table>
-<p>指令ls -al可查看的信息：（如果为ls -l则显示ls可查看的文件的以下详细资料，或者ls -l 文件名可以只查看该文件的信息）</p>
-<p>1.第一列表示文件的属性：</p>
-<p>【d】，则是目录</p>
-<p>【-】，则是文件</p>
-<p>【l】，则表示为链接文件（link file）</p>
-<p>【b】，则表示为设备文件中可供存储的接口设备</p>
-<p>【c】，则表示为设备文件中的串行端口设备，例如键盘、鼠标。</p>
-<p>#接下来的属性中，3个为一组，且均为“rwx”3个参数组合。其中r表示可读read，w表示可写write，x表示可执行excute。</p>
-<p>第一组为“拥有者的权限（root权限）”，第二组为“同用户组的权限”，第三组为“其他非本用户组的权限”。</p>
-<p>2、第二列表示连接占用的节点（i-node）</p>
-<p>3、第三列表示这个文件或目录的“拥有者”</p>
-<p>4、第四列表示拥有者的用户组</p>
-<p>5、第五列为这个文件的大小</p>
-<p>6、第六列为这个文件的创建日期或者是最近的修改日期</p>
-<p>7、第七列为这个文件的文件名：如果文件名前面有.说明是隐藏文件。如果只输入ls 前面加.的文件不会显示出来。ls -al则会显示出全部文件。</p>
-<h4 id="readelf指令"><a href="#readelf指令" class="headerlink" title="readelf指令"></a>readelf指令</h4><p>1、readelf -h 文件名  查看文件的头部信息</p>
-<p>2、readelf -S 文件名  查看文件符号表</p>
-<h3 id="三、一些常识"><a href="#三、一些常识" class="headerlink" title="三、一些常识"></a>三、一些常识</h3><p>1、在Linux中，shell中执行可执行文件时要写成如**./mycat** 的格式，因为在Linux系统里，系统只会搜索环境变量path中去寻找，加个***./*** 是告诉系统去当前目录下去寻找</p>
-<p>2、chmod 754 文件名，用来给文件权限进行划分，其中r为4，w为2，x为1</p>
-<p>3、一个特殊符号：管道命令符 “|” 功能为：将在管道命令符|左边命令的标准输出作为右边命令的标准输入 </p>
-<p>4、Linux系统中用户的用户名以及密码保存在/etc/shadow中</p>
-<p>5、.bash_history里面存储着指令执行的历史记录，对应权限查看对应权限执行的命令；直接输入<code>history n </code>  也可以查看最近执行的n条命令记录，<code>history -c</code>清空命令记录</p>
-<p>6、grep 的作用是查找相关字符 </p>
-
+        <p>Fuzzing01 项目地址 ：<a target="_blank" rel="noopener" href="https://github.com/antonio-morales/Fuzzing101">https://github.com/antonio-morales/Fuzzing101</a></p>
+<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>通过该项目学习如何使用 fuzz 以及如何在真实环境中使用 fuzz。</p>
+<h3 id="Exercise-2"><a href="#Exercise-2" class="headerlink" title="Exercise 2"></a>Exercise 2</h3><p>由于是跟着 sakura 的课进行学习，而视频是从 Exercise 2 开始的，因此先做这个。</p>
+<p>这是一个第三方库 libexif 的 fuzz，按照以下的六个步骤来完成 Fuzz：</p>
+<ul>
+<li>寻找到一个使用 libexif 库的应用程序。</li>
+<li>创建出 exif 样本的种子语料库。</li>
+<li>使用 AFL 或者 AFL++ 的编译器对 libexif 进行编译。</li>
+<li>使用语料库种子作为输入对使用 exif 库的应用程序进行 Fuzz。</li>
+<li>直到产生出一些 crashes。</li>
+<li>对 crashes 进行分类，看看其是否能构成漏洞，并构建出相应的 PoC。</li>
+</ul>
+<p>接下来就跟着项目一步步开始吧。先拉取 libexif-0.6.14，将其进行构建并安装</p>
+<p><img   class="lazyload" data-original="/2023/03/05/2023-03-05-Fuzzing101/image-20230305165949852.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230305165949852</span></p>
+<p>然后我们注意到接下来的是执行一个 configure文件，是一个 sh 文件，注释标明其是用来创建 Makefile 文件的。使用 <svg xmlns:xlink="http://www.w3.org/1999/xlink" width="7.866ex" height="3.343ex" style="vertical-align: -1.171ex;" viewbox="0 -934.9 3386.7 1439.2" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-1-Title">
+<title id="MathJax-SVG-1-Title">CC 以及 </title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E1-MJMATHI-43" d="M50 252Q50 367 117 473T286 641T490 704Q580 704 633 653Q642 643 648 636T656 626L657 623Q660 623 684 649Q691 655 699 663T715 679T725 690L740 705H746Q760 705 760 698Q760 694 728 561Q692 422 692 421Q690 416 687 415T669 413H653Q647 419 647 422Q647 423 648 429T650 449T651 481Q651 552 619 605T510 659Q484 659 454 652T382 628T299 572T226 479Q194 422 175 346T156 222Q156 108 232 58Q280 24 350 24Q441 24 512 92T606 240Q610 253 612 255T628 257Q648 257 648 248Q648 243 647 239Q618 132 523 55T319 -22Q206 -22 128 53T50 252Z"/>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E1-MJMATHI-43" x="0" y="0"/>
+ <use xlink:href="#E1-MJMATHI-43" x="760" y="0"/>
+<g transform="translate(1521,0)">
+<text font-family="monospace" stroke="none" transform="scale(71.759) matrix(1 0 0 -1 0 0)">以</text>
+</g>
+<g transform="translate(2453,0)">
+<text font-family="monospace" stroke="none" transform="scale(71.759) matrix(1 0 0 -1 0 0)">及</text>
+</g>
+</g>
+</svg>CXX 来指明编译器路径。</p>
+<p><img   class="lazyload" data-original="/2023/03/05/2023-03-05-Fuzzing101/image-20230305170525008.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230305170525008</span></p>
+<p>所以我们可以直接指定 <svg xmlns:xlink="http://www.w3.org/1999/xlink" width="7.866ex" height="3.343ex" style="vertical-align: -1.171ex;" viewbox="0 -934.9 3386.7 1439.2" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-1-Title">
+<title id="MathJax-SVG-1-Title">CC 以及 </title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E1-MJMATHI-43" d="M50 252Q50 367 117 473T286 641T490 704Q580 704 633 653Q642 643 648 636T656 626L657 623Q660 623 684 649Q691 655 699 663T715 679T725 690L740 705H746Q760 705 760 698Q760 694 728 561Q692 422 692 421Q690 416 687 415T669 413H653Q647 419 647 422Q647 423 648 429T650 449T651 481Q651 552 619 605T510 659Q484 659 454 652T382 628T299 572T226 479Q194 422 175 346T156 222Q156 108 232 58Q280 24 350 24Q441 24 512 92T606 240Q610 253 612 255T628 257Q648 257 648 248Q648 243 647 239Q618 132 523 55T319 -22Q206 -22 128 53T50 252Z"/>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E1-MJMATHI-43" x="0" y="0"/>
+ <use xlink:href="#E1-MJMATHI-43" x="760" y="0"/>
+<g transform="translate(1521,0)">
+<text font-family="monospace" stroke="none" transform="scale(71.759) matrix(1 0 0 -1 0 0)">以</text>
+</g>
+<g transform="translate(2453,0)">
+<text font-family="monospace" stroke="none" transform="scale(71.759) matrix(1 0 0 -1 0 0)">及</text>
+</g>
+</g>
+</svg>CXX 指向的路径是 afl-clang-fast 以及 afl-clang-fast++。</p>
+<p><img   class="lazyload" data-original="/2023/03/05/2023-03-05-Fuzzing101/image-20230305173301865.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230305173301865</span></p>
+<h3 id="Exercise-1"><a href="#Exercise-1" class="headerlink" title="Exercise 1"></a>Exercise 1</h3><h3 id="Exercise-3"><a href="#Exercise-3" class="headerlink" title="Exercise 3"></a>Exercise 3</h3><h3 id="Exercise-4"><a href="#Exercise-4" class="headerlink" title="Exercise 4"></a>Exercise 4</h3><h3 id="Exercise-5"><a href="#Exercise-5" class="headerlink" title="Exercise 5"></a>Exercise 5</h3><h3 id="Exercise-6"><a href="#Exercise-6" class="headerlink" title="Exercise 6"></a>Exercise 6</h3><h3 id="Exercise-7"><a href="#Exercise-7" class="headerlink" title="Exercise 7"></a>Exercise 7</h3><h3 id="Exercise-8"><a href="#Exercise-8" class="headerlink" title="Exercise 8"></a>Exercise 8</h3><h3 id="Exercise-9"><a href="#Exercise-9" class="headerlink" title="Exercise 9"></a>Exercise 9</h3><h3 id="Exercise-10"><a href="#Exercise-10" class="headerlink" title="Exercise 10"></a>Exercise 10</h3>
       </section>
       <section class="extra">
         
           <ul class="copyright">
   
     <li><strong>本文作者：</strong>ShouCheng</li>
-    <li><strong>本文链接：</strong><a href="http://shoucheng3.github.io/2020/10/18/2020-10-18-%E5%B0%8F%E8%AF%95Linux%E2%80%94%E2%80%94%E7%AC%94%E8%AE%B0/index.html" title="http:&#x2F;&#x2F;shoucheng3.github.io&#x2F;2020&#x2F;10&#x2F;18&#x2F;2020-10-18-%E5%B0%8F%E8%AF%95Linux%E2%80%94%E2%80%94%E7%AC%94%E8%AE%B0&#x2F;index.html">http:&#x2F;&#x2F;shoucheng3.github.io&#x2F;2020&#x2F;10&#x2F;18&#x2F;2020-10-18-%E5%B0%8F%E8%AF%95Linux%E2%80%94%E2%80%94%E7%AC%94%E8%AE%B0&#x2F;index.html</a></li>
+    <li><strong>本文链接：</strong><a href="http://shoucheng3.github.io/2023/03/05/2023-03-05-Fuzzing101/index.html" title="http:&#x2F;&#x2F;shoucheng3.github.io&#x2F;2023&#x2F;03&#x2F;05&#x2F;2023-03-05-Fuzzing101&#x2F;index.html">http:&#x2F;&#x2F;shoucheng3.github.io&#x2F;2023&#x2F;03&#x2F;05&#x2F;2023-03-05-Fuzzing101&#x2F;index.html</a></li>
     <li><strong>版权声明：</strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" title="BY-NC-SA" target="_blank" rel="noopener">BY-NC-SA</a> 许可协议，转载请注明出处！</li>
   
 </ul>
@@ -403,8 +266,8 @@
         
         
   <nav class="nav">
-    <a href="/2020/10/22/2020-10-22-c%E8%AF%AD%E8%A8%80%E2%80%94%E2%80%94%E2%80%94%E6%9E%84%E9%80%A0%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E5%87%BD%E6%95%B0%E7%AC%94%E8%AE%B0/"><i class="iconfont iconleft"></i>c语言——构造数据类型与函数笔记</a>
-    <a href="/2020/10/17/2020-10-17-%E5%8B%87%E9%97%AF%E6%B1%87%E7%BC%96%E2%80%94%E2%80%94%E7%AC%94%E8%AE%B0/">勇闯汇编——随手记<i class="iconfont iconright"></i></a>
+    <a href="/2023/03/08/2023-03-08-Lab/"><i class="iconfont iconleft"></i>Fudan Lab</a>
+    <a href="/2023/03/03/2023-03-03-30%E5%A4%A9%E8%87%AA%E5%88%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">30天自制操作系统<i class="iconfont iconright"></i></a>
   </nav>
 
       </section>
@@ -424,7 +287,7 @@
           
   <aside class="toc-wrap">
     <h3 class="toc-title">文章目录：</h3>
-    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%B8%80%E4%BA%9B%E5%B8%B8%E8%AF%86"><span class="toc-text">三、一些常识</span></a></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Exercise-2"><span class="toc-text">Exercise 2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Exercise-1"><span class="toc-text">Exercise 1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Exercise-3"><span class="toc-text">Exercise 3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Exercise-4"><span class="toc-text">Exercise 4</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Exercise-5"><span class="toc-text">Exercise 5</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Exercise-6"><span class="toc-text">Exercise 6</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Exercise-7"><span class="toc-text">Exercise 7</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Exercise-8"><span class="toc-text">Exercise 8</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Exercise-9"><span class="toc-text">Exercise 9</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Exercise-10"><span class="toc-text">Exercise 10</span></a></li></ol>
   </aside>
 
         
