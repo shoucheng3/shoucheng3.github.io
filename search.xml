@@ -9,7 +9,7 @@
 <h3 id="Task1"><a href="#Task1" class="headerlink" title="Task1"></a>Task1</h3><h4 id="Step1"><a href="#Step1" class="headerlink" title="Step1"></a>Step1</h4>]]></content>
   </entry>
   <entry>
-    <title>2023-03-05-Fuzzing101</title>
+    <title>Fuzzing101</title>
     <url>/2023/03/05/2023-03-05-Fuzzing101/</url>
     <content><![CDATA[<p>Fuzzing01 项目地址 ：<a href="https://github.com/antonio-morales/Fuzzing101">https://github.com/antonio-morales/Fuzzing101</a></p>
 <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>通过该项目学习如何使用 fuzz 以及如何在真实环境中使用 fuzz。</p>
@@ -126,7 +126,7 @@
 ]]></content>
   </entry>
   <entry>
-    <title>2022-11-17-2022强网拟态</title>
+    <title>2022强网拟态</title>
     <url>/2022/11/17/2022-11-17-2022%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%81/</url>
     <content><![CDATA[<h2 id="bfbf"><a href="#bfbf" class="headerlink" title="bfbf"></a>bfbf</h2><p>可以通过 close(0)，使得打开 flag 文件时，分配到的 fd 为0，从而绕过 5 的限制，读取 flag。</p>
 <p><img src="/2022/11/17/2022-11-17-2022%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%81/image-20221117135727016.png"><span class="image-caption">image-20221117135727016</span></p>
@@ -144,7 +144,7 @@
 ]]></content>
   </entry>
   <entry>
-    <title>2022-11-11-2022祥云杯</title>
+    <title>2022祥云杯</title>
     <url>/2022/11/11/2022-11-11-2022%E7%A5%A5%E4%BA%91%E6%9D%AF/</url>
     <content><![CDATA[<h2 id="leak"><a href="#leak" class="headerlink" title="leak"></a>leak</h2><p>libc版本为2.27， 沙箱开了跟没开差不多。。</p>
 <p><img src="/2022/11/11/2022-11-11-2022%E7%A5%A5%E4%BA%91%E6%9D%AF/image-20221111223338481.png"><span class="image-caption">image-20221111223338481</span></p>
@@ -176,7 +176,7 @@
       </tags>
   </entry>
   <entry>
-    <title>2022-09-19-美团CTF</title>
+    <title>美团CTF</title>
     <url>/2022/09/19/2022-09-19-%E7%BE%8E%E5%9B%A2CTF/</url>
     <content><![CDATA[<h2 id="note"><a href="#note" class="headerlink" title="note"></a>note</h2><p><img src="/2022/09/19/2022-09-19-%E7%BE%8E%E5%9B%A2CTF/image-20220919194924108.png"><span class="image-caption">image-20220919194924108</span></p>
 <p>数组越界，修改该函数内的返回地址进行ROP即可。</p>
