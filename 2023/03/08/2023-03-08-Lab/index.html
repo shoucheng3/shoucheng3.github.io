@@ -11,8 +11,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="google" content="notranslate" />
   
-  <meta name="description" content="参考
-下载完 Android Studio后建议参考这...">
+  <meta name="description" content="前言
+下载完 Android Studio 后建议参考...">
   <meta name="author" content="ShouCheng">
   <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
   <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
@@ -197,16 +197,421 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>March 08, 2023</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>147</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>16412</span>
     </div>
   </div>
 </section>
     <section class="main">
       <section class="content">
-        <h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ul>
-<li>下载完 Android Studio后建议参考这篇文章的前半部分换源，不然的话构建速度有些慢，一开始一直以为是bug。。。并且这篇文章很好地介绍了整个开发的架构，以及其文件的大致作用，十分友好<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_39400113/article/details/116210189">手把手教你写一个安卓app_怎么写app_果果小师弟的博客-CSDN博客</a></li>
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><ul>
+<li>下载完 Android Studio 后建议参考这篇文章的前半部分换源，不然的话构建速度有些慢，一开始一直以为是bug。。。并且这篇文章很好地介绍了整个开发的架构，以及其文件的大致作用，十分友好<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_39400113/article/details/116210189">手把手教你写一个安卓app_怎么写app_果果小师弟的博客-CSDN博客</a></li>
+<li>参考<a target="_blank" rel="noopener" href="https://www.runoob.com/android/android-services.html">菜鸟教程</a>里面有介绍组件的回调函数的作用。</li>
+<li>Handler 参考 <a target="_blank" rel="noopener" href="https://www.jianshu.com/p/f65d79e4e45d">https://www.jianshu.com/p/f65d79e4e45d</a></li>
 </ul>
-<h3 id="Task1"><a href="#Task1" class="headerlink" title="Task1"></a>Task1</h3><h4 id="Step1"><a href="#Step1" class="headerlink" title="Step1"></a>Step1</h4>
+<p>tips：开 VPN 运行远程的 AVD 会很流畅。</p>
+<h3 id="Step-1"><a href="#Step-1" class="headerlink" title="Step 1"></a>Step 1</h3><h4 id="Task-1"><a href="#Task-1" class="headerlink" title="Task 1"></a>Task 1</h4><p>AndroidManifest 文件中进行配置的广播接收者会随系统的启动而一直处于活跃状态，只要接收到感兴趣的广播就会触发（即使程序未运行）所以我们需要把广播写入到 AndroidManifest 里。</p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230310141941697.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230310141941697</span></p>
+<p>Android 8.0 以上使用 startForegroundService() 方法，以下则使用 startService() 方法来启动服务：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.smali.secretchallenge;<br><span class="hljs-keyword">import</span> android.content.BroadcastReceiver;<br><span class="hljs-keyword">import</span> android.content.Context;<br><span class="hljs-keyword">import</span> android.content.Intent;<br><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SecretBootReceiver</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">BroadcastReceiver</span> </span>&#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">onReceive</span><span class="hljs-params">(Context context, Intent intent)</span> </span>&#123;<br>        <span class="hljs-keyword">if</span> (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) &#123;<br>            Intent serviceIntent = <span class="hljs-keyword">new</span> Intent(context, SecretService.class);<br>            context.startService(serviceIntent);<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在获取位置时，需要添加权限声明：</p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230310142205220.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230310142205220</span></p>
+<p>使用 LocationManager 和 LocationListener 获取 GPS，然后通过 Handler 进行循环执行读取 GPS 信息，并且弹窗：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">onStartCommand</span><span class="hljs-params">(Intent intent, <span class="hljs-keyword">int</span> flags, <span class="hljs-keyword">int</span> startId)</span> </span>&#123;<br>    locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);<br>    <span class="hljs-keyword">if</span> (ActivityCompat.checkSelfPermission(<span class="hljs-keyword">this</span>, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED<br>            &amp;&amp; ActivityCompat.checkSelfPermission(<span class="hljs-keyword">this</span>, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) &#123;<br>        <span class="hljs-keyword">return</span> flags;<br>    &#125;<br>    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-keyword">this</span>);<br>    handler = <span class="hljs-keyword">new</span> Handler(Looper.getMainLooper());<br>    runnable = <span class="hljs-keyword">new</span> Runnable() &#123;<br>        <span class="hljs-meta">@Override</span><br>        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;<br>            Location lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);<br>            <span class="hljs-keyword">if</span> (lastLocation != <span class="hljs-keyword">null</span>) &#123;<br>                String message = String.format(<span class="hljs-string">&quot;getAccuracy:%s\ngetLatitude: %s\ngetLongitude: %s&quot;</span>, lastLocation.getAccuracy(), lastLocation.getLatitude(), lastLocation.getLongitude());<br>                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();<br>            &#125;<br>            handler.postDelayed(runnable, <span class="hljs-number">3000</span>);<br>        &#125;<br>    &#125;;<br>    handler.post(runnable);<br>    <span class="hljs-keyword">return</span> flags;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在 Android 4.0 之后需要启动应用，否则开机的时候会收不到开机广播，所以还要手动在终端输入 <code>adb shell am broadcast -a android.intent.action.BOOT_COMPLETED </code>广播消息。</p>
+<p>最终实现效果图：</p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230310141851781.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230310141851781</span></p>
+<h4 id="Task-2"><a href="#Task-2" class="headerlink" title="Task 2"></a>Task 2</h4><p>先制作样式，可以直接可视化制作，十分方便。</p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230310204608575.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230310204608575</span></p>
+<p>在触发 click 动作时，产生一个线程去执行弹窗。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs java">button.setOnClickListener(<span class="hljs-keyword">new</span> View.OnClickListener() &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">onClick</span><span class="hljs-params">(View v)</span> </span>&#123;<br>        String value = editText.getText().toString();<br><br>        <span class="hljs-keyword">new</span> Thread(<span class="hljs-keyword">new</span> Runnable() &#123;<br>            <span class="hljs-meta">@Override</span><br>            <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;<br>                runOnUiThread(<span class="hljs-keyword">new</span> Runnable() &#123;<br>                    <span class="hljs-meta">@Override</span><br>                    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;<br>                        showDialog(value);<br>                    &#125;<br>                &#125;);<br>            &#125;<br>        &#125;).start();<br>    &#125;<br>&#125;);<br></code></pre></td></tr></table></figure>
+
+<p>效果展示：</p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230310204429962.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230310204429962</span></p>
+<h4 id="Task-3"><a href="#Task-3" class="headerlink" title="Task 3"></a>Task 3</h4><p>了解一下 Java 反射的知识，使用 Method 和 Filed 进行操作需要访问的类的方法和成员变量即可完成任务：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java">Class&lt;?&gt; poRELabClass = Class.forName(<span class="hljs-string">&quot;com.pore.mylibrary.PoRELab&quot;</span>);<br>         Field curStrField = poRELabClass.getDeclaredField(<span class="hljs-string">&quot;curStr&quot;</span>);<br>         Method privateMethod = poRELabClass.getDeclaredMethod(<span class="hljs-string">&quot;privateMethod&quot;</span>, String.class, String.class);<br>         curStrField.setAccessible(<span class="hljs-keyword">true</span>);<br>         privateMethod.setAccessible(<span class="hljs-keyword">true</span>);<br>         PoRELab poreLab = <span class="hljs-keyword">new</span> PoRELab();<br>         String curStrValue = (String) curStrField.get(poreLab);<br>         privateMethod.invoke(poreLab, <span class="hljs-string">&quot;hello&quot;</span>, curStrValue);<br></code></pre></td></tr></table></figure>
+
+<p>成果展示：</p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230311115622746.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230311115622746</span></p>
+<h4 id="Task-4"><a href="#Task-4" class="headerlink" title="Task 4"></a>Task 4</h4><p>使用 Android Studio 进行签名，一路往下填写即可。</p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230311142435805.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230311142435805</span></p>
+<h3 id="Step2"><a href="#Step2" class="headerlink" title="Step2"></a>Step2</h3><h4 id="smali2java"><a href="#smali2java" class="headerlink" title="smali2java"></a>smali2java</h4><p>学习完 smali 的语法就可以开始进行手工恢复成 Java 代码了，我想法是在 IDEA 里面写java代码，跟着 smali 的顺序写，比如刚开始的时候，</p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230311213504770.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230311213504770</span></p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230311213609412.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230311213609412</span></p>
+<p>下列的意思是，先将 p0 的值给予 v0，而 p0 是 this.checker（根据标注），所以 v0 现在是 this.checker，然后是 v0 调用 check 方法，并且传入一个参数，因此变为 this.checker.check(str)  再将返回值存入 v0，返回 v0，也就是说返回调用this.checker.check(str) 的返回值，因此可以简化为 return this.checker.check(str)。</p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230311220911056.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230311220911056</span></p>
+<p>搞明白这个，再看上面的那部分代码（前面没看懂），这是个构造函数，负责 CheckBox 的初始化，因此下列代码很清晰的可以变成下面的java代码，所以很显然上面写错了，那边只是声明，并未实例化。</p>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs haxe"><span class="hljs-built_in">this</span>.encoder = <span class="hljs-keyword">new</span> <span class="hljs-type">Encoder</span>();<br><span class="hljs-built_in">this</span>.checker = <span class="hljs-keyword">new</span> <span class="hljs-type">Checker</span>();<br></code></pre></td></tr></table></figure>
+
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230311223459762.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230311223459762</span></p>
+<p><code>array-length v3, p0</code>指的是将 cmd 窗口编译 java 文件传入的参数个数传递个 v3。同时这边的判断根据jadx的转换可以学习到，不能直接顺着意思去转换，应该先考虑不满足条件的情况，即先写等于的情况，这样接下来的就都是属于其执行的内容。</p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230311231221514.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230311231221514</span></p>
+<p>后续就没什么了，还是相对容易的，最终 CheckBox.java 代码如下：</p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230312135200456.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230312135200456</span></p>
+<p>像这种的构造函数初始化只是去给前面的域赋值，其实是可以省略的，直接对前面的域赋初值就行，如</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> String secret = <span class="hljs-string">&quot;key&quot;</span>;<br></code></pre></td></tr></table></figure>
+
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230312135828201.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230312135828201</span></p>
+<p>遇到count方法时，是转换成了这样的代码，但是看起来其实是不对劲的，有些地方不合逻辑，因为这个方法的逻辑应该是统计字符中’1’的个数，然后返回该个数，所以需要我们再给代码优化一下。</p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230312145949836.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230312145949836</span></p>
+<p>优化成这样，就舒服了不少：</p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230312150323229.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230312150323229</span></p>
+<p>这边 jadx 转换的很好，两次的判断结果可以直接与返回值联系起来，因此直接就写成如下代码就行：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">return</span> count == func(count) &amp;&amp; <span class="hljs-keyword">this</span>.checkStr1(str.substring(<span class="hljs-number">0</span>, <span class="hljs-number">10</span>));<br></code></pre></td></tr></table></figure>
+
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230312151948196.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230312151948196</span></p>
+<p>然后最后再转换 checkStr1 这方法（因为他看起来挺复杂的），先扫一眼 jadx 转换结果是一个 for 循环，所以我的思路就跟之前的有些不一致：是先审视过所有的 smali，然后再写一个大致的 java 代码，然后再一一对应的填充。</p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230312153700980.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230312153700980</span></p>
+<p>对应上方的框架，我写的代码如下，但是已经很能表现出来了，显然 v0 是循环次数，count 是 ‘x’ 的个数，当 ‘x’ 有一个和两个时会将此时的循环次数 v0 赋值出去。</p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230312153727348.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230312153727348</span></p>
+<p>优化一下代码为：</p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230312154352387.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230312154523112</span></p>
+<p>接下的就是跟之前的 return 思想一致，就不展示了。</p>
+<p>接下来就是最后一个 smali 文件了，发现貌似没啥好说的，直接展现最终的结果吧</p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230313161648612.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230313161648612</span></p>
+<h4 id="Task1"><a href="#Task1" class="headerlink" title="Task1"></a>Task1</h4><p>转换后代码就很容易了，需要满足以下条件：</p>
+<ul>
+<li>输入字符串的长度在 12~16</li>
+<li>从第 10 开始的字符只能含有一个 ‘1’</li>
+<li>0~9 的字符串中要含有两个 ‘x’</li>
+<li>两个 ‘x’ 的索引值相差 4 </li>
+<li>第 0 个字符是 ‘0’</li>
+<li>第 9 个字符是 ‘9’</li>
+<li>在第 0 和 第一个 ‘x’ 出现的地方要含有 ‘key’</li>
+</ul>
+<p>综上可以输入 <code>0keyx567x9100</code></p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230312215502615.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230312215502615</span></p>
+<p>下面是 转换出的 java 的执行结果。</p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230313152959852.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230313152959852</span></p>
+<h4 id="Task2"><a href="#Task2" class="headerlink" title="Task2"></a>Task2</h4><p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230313155257746.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230313155257746</span></p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230313155244679.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230313155244679</span></p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230313161330955.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230313161330955</span></p>
+<p>我们可以在配置里面添加运行的参数。</p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230313161344219.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230313161344219</span></p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230313161304295.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230313161304295</span></p>
+<h3 id="问题及解决"><a href="#问题及解决" class="headerlink" title="问题及解决"></a>问题及解决</h3><h4 id="问题一"><a href="#问题一" class="headerlink" title="问题一"></a>问题一</h4><p>显示已经安装 HAXM，但是创建安卓虚拟机时却显示未安装。</p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230309151055599.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230309151055599</span></p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230309150838150.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230309150838150</span></p>
+<p>解决：</p>
+<p>找到 Your SDK path\extras\intel\Hardware_Accelerated_Execution_Manager 目录下的 haxm-7.6.5-setup.exe，双击安装他即可。</p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230309153804785.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230309153804785</span></p>
+<p>成功解决问题。</p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230309153901156.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230309153901156</span></p>
+<h4 id="问题二"><a href="#问题二" class="headerlink" title="问题二"></a>问题二</h4><p>不存在 -p 的参数。。也许是版本问题。</p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230309230350062.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230309230350062</span></p>
+<p>删去即可。</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs stylus">adb shell am broadcast -<span class="hljs-selector-tag">a</span> android<span class="hljs-selector-class">.intent</span><span class="hljs-selector-class">.action</span>.BOOT_COMPLETED<br></code></pre></td></tr></table></figure>
+
+<h4 id="问题三"><a href="#问题三" class="headerlink" title="问题三"></a>问题三</h4><p>安装好 Android Studio 一定要先随便创个项目，然后运行一下，看是否能够运行 apk！！！！！！我踩了这个巨坑，因为第一个 task 做就是后台，我一直以为是代码问题，结果去随便创个项目，发现 apk 无法运行在 ADV 上。</p>
+<p>解决：直接删了重下。</p>
+<h4 id="问题四"><a href="#问题四" class="headerlink" title="问题四"></a>问题四</h4><p>我的 Android Studio 必须点击用管理员运行才行，不然会一直问题报错 adb 无法正常运行。</p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230310194655038.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230310194655038</span></p>
+<h4 id="问题五"><a href="#问题五" class="headerlink" title="问题五"></a>问题五</h4><p>运行时报了一个错，显示是索引超出了范围。</p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230313155656757.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230313155656757</span></p>
+<p>去搜了一下，byte 在 java 里的范围是 -128<del>127，不是无符号的，但是这边需要的是无符号的数字，所以能表示 0</del>255 即可。</p>
+<p><img   class="lazyload" data-original="/2023/03/08/2023-03-08-Lab/image-20230313161522660.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230313161522660</span></p>
+<h3 id="知识补充"><a href="#知识补充" class="headerlink" title="知识补充"></a>知识补充</h3><ul>
+<li>adb 命令简单使用：<ul>
+<li><code>adb start-server</code>开启 adb 服务。</li>
+<li><code>adb kill-server</code>关闭 adb 服务。</li>
+<li><code>adb -P &lt;port&gt; start-server</code> 指定 adb server 的网络端口port（默认为5037）启动服务。</li>
+<li><code>adb devices</code> 查看adb 连接设备。</li>
+<li><code>adb shell am broadcast [options] &lt;INTENT&gt;</code> <ul>
+<li>-a <ACTION> 指定 action，如 android.intent.action.VIEW</ACTION></li>
+<li>-c <CATEGORY> 指定 category，如 android.intent.category.APP_CONTACTS</CATEGORY></li>
+<li>-n <COMPONENT> 指定完整 component 名，用于明确指定启动哪个 Activity，如<br>com.example.app/.ExampleActivity</COMPONENT></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>匿名重写：一种简洁代码的写法，直接进行重写方法，然后把返回的对象作为参数进行传递。</li>
+<li>java 反射：指在运行时（runtime）动态地获取一个类的信息并操作它的属性、方法和构造函数等。因此我们也可以借此来访问到 private 的属性和方法。<ul>
+<li><code>java.lang.reflect.Field</code> 用于获取类的属性。</li>
+<li><code>java.lang.reflect.Method</code> 用于获取类的方法。</li>
+<li>访问 private 的属性与方法的流程如下：<ol>
+<li><code>Class&lt;?&gt; x = Class.forName(&quot;class_name&quot;);</code>  class_name 是要获取的类的名字（写全名）。</li>
+<li><code>Field filed = x.getDeclaredField(&quot;class_filed&quot;);</code> or <code>Method method = x.getDeclaredMethod(&quot;class_method&quot;);</code> 实例化想获取的属性或方法。</li>
+<li><code>filed.setAccessible(true);</code> or <code>method.setAccessible(true);</code> 设置允许访问。</li>
+<li><code>class_name y = new class_name();</code> 实例化一个 class_name 的对象 y。</li>
+<li><code>field.get(y);</code> or <code>method.invoke(y);</code> 最终获取属性或调用方法</li>
+<li>对于方法，如果存在参数，则要在 2 步骤中进行说明， 以及在 5 步骤的调用中传入。</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="smali"><a href="#smali" class="headerlink" title="smali"></a>smali</h3><p>smali ：一种介于 apk 和 java 源码之间的一种表示方式。使用 apktool 反编译 apk 后，会在反编译工程目录下生成一个 smali文件夹，一般而言，一个 smali 文件对应着一个类。</p>
+<p>在 smali 代码中，声明语句一般都是以 <code>.</code> 开始。</p>
+<h4 id="基本信息"><a href="#基本信息" class="headerlink" title="基本信息"></a>基本信息</h4><figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs smali"><span class="hljs-keyword">.class</span> &lt;访问权限&gt; [非权限修饰符] &lt;类名&gt;<br><span class="hljs-keyword">.super</span> &lt;父类名&gt;<br><span class="hljs-keyword">.source</span> &lt;源文件名&gt;<br><span class="hljs-keyword">.implements</span> &lt;接口名称&gt;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>&lt;&gt;中的内容表示必不可缺的，[]表示的是可选择的。</li>
+<li>访问权限修饰符即<code>public, protected, private, default</code>。</li>
+<li>而非权限修饰符则指的是<code>final, abstract</code>。</li>
+<li><code>L</code>表示类的完整签名，如<code>.super Ljava/lang/Object;</code> 表明是继承于 java/lang/Object 类。</li>
+<li>经过混淆后，.source 可能为空。</li>
+</ul>
+<h4 id="类型对应"><a href="#类型对应" class="headerlink" title="类型对应"></a>类型对应</h4><figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs smali">B—byte<br>C—char<br>D—double<br>F—float<br>I—int<br>J—long<br>S—short<br>V—void<br>Z—boolean<br>[—array<br>L-对象类型<br>注：如果是int数组表示形式为[I。<br>再比如数组类型String[][]，在smali中表示形式为[[<span class="hljs-class">Ljava/lang/String;</span>。<br></code></pre></td></tr></table></figure>
+
+<h4 id="寄存器"><a href="#寄存器" class="headerlink" title="寄存器"></a>寄存器</h4><p>一个方法所申请的寄存器会分配给函数方法的参数 (parameter) 以及局部变量 (local variable) 。在 smali 中，一般有两种命名规则</p>
+<ul>
+<li>v 命名法</li>
+<li>p 命名法</li>
+</ul>
+<p>假设方法申请了 m+n 个寄存器，其中局部变量占 m 个寄存器，参数占 n 个寄存器，对于不同的命名规则，其相应的命名如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">属性</th>
+<th align="center">v命名法</th>
+<th align="center">p命名法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">局部变量</td>
+<td align="center"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="15.471ex" height="2.009ex" style="vertical-align: -0.671ex;" viewbox="0 -576.1 6660.9 865.1" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-1-Title">
+<title id="MathJax-SVG-1-Title">v_0,v_1,...,v_{m-1}</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E1-MJMATHI-76" d="M173 380Q173 405 154 405Q130 405 104 376T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Q21 294 29 316T53 368T97 419T160 441Q202 441 225 417T249 361Q249 344 246 335Q246 329 231 291T200 202T182 113Q182 86 187 69Q200 26 250 26Q287 26 319 60T369 139T398 222T409 277Q409 300 401 317T383 343T365 361T357 383Q357 405 376 424T417 443Q436 443 451 425T467 367Q467 340 455 284T418 159T347 40T241 -11Q177 -11 139 22Q102 54 102 117Q102 148 110 181T151 298Q173 362 173 380Z"/>
+<path stroke-width="1" id="E1-MJMAIN-30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"/>
+<path stroke-width="1" id="E1-MJMAIN-2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"/>
+<path stroke-width="1" id="E1-MJMAIN-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/>
+<path stroke-width="1" id="E1-MJMAIN-2E" d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60Z"/>
+<path stroke-width="1" id="E1-MJMATHI-6D" d="M21 287Q22 293 24 303T36 341T56 388T88 425T132 442T175 435T205 417T221 395T229 376L231 369Q231 367 232 367L243 378Q303 442 384 442Q401 442 415 440T441 433T460 423T475 411T485 398T493 385T497 373T500 364T502 357L510 367Q573 442 659 442Q713 442 746 415T780 336Q780 285 742 178T704 50Q705 36 709 31T724 26Q752 26 776 56T815 138Q818 149 821 151T837 153Q857 153 857 145Q857 144 853 130Q845 101 831 73T785 17T716 -10Q669 -10 648 17T627 73Q627 92 663 193T700 345Q700 404 656 404H651Q565 404 506 303L499 291L466 157Q433 26 428 16Q415 -11 385 -11Q372 -11 364 -4T353 8T350 18Q350 29 384 161L420 307Q423 322 423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 181Q151 335 151 342Q154 357 154 369Q154 405 129 405Q107 405 92 377T69 316T57 280Q55 278 41 278H27Q21 284 21 287Z"/>
+<path stroke-width="1" id="E1-MJMAIN-2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"/>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E1-MJMATHI-76" x="0" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-30" x="686" y="-213"/>
+ <use xlink:href="#E1-MJMAIN-2C" x="939" y="0"/>
+<g transform="translate(1384,0)">
+ <use xlink:href="#E1-MJMATHI-76" x="0" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-31" x="686" y="-213"/>
+</g>
+ <use xlink:href="#E1-MJMAIN-2C" x="2323" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2E" x="2769" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2E" x="3214" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2E" x="3659" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2C" x="4104" y="0"/>
+<g transform="translate(4549,0)">
+ <use xlink:href="#E1-MJMATHI-76" x="0" y="0"/>
+<g transform="translate(485,-150)">
+ <use transform="scale(0.707)" xlink:href="#E1-MJMATHI-6D" x="0" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-2212" x="878" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-31" x="1657" y="0"/>
+</g>
+</g>
+</g>
+</svg></td>
+<td align="center"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="15.471ex" height="2.009ex" style="vertical-align: -0.671ex;" viewbox="0 -576.1 6660.9 865.1" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-1-Title">
+<title id="MathJax-SVG-1-Title">v_0,v_1,...,v_{m-1}</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E1-MJMATHI-76" d="M173 380Q173 405 154 405Q130 405 104 376T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Q21 294 29 316T53 368T97 419T160 441Q202 441 225 417T249 361Q249 344 246 335Q246 329 231 291T200 202T182 113Q182 86 187 69Q200 26 250 26Q287 26 319 60T369 139T398 222T409 277Q409 300 401 317T383 343T365 361T357 383Q357 405 376 424T417 443Q436 443 451 425T467 367Q467 340 455 284T418 159T347 40T241 -11Q177 -11 139 22Q102 54 102 117Q102 148 110 181T151 298Q173 362 173 380Z"/>
+<path stroke-width="1" id="E1-MJMAIN-30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"/>
+<path stroke-width="1" id="E1-MJMAIN-2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"/>
+<path stroke-width="1" id="E1-MJMAIN-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/>
+<path stroke-width="1" id="E1-MJMAIN-2E" d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60Z"/>
+<path stroke-width="1" id="E1-MJMATHI-6D" d="M21 287Q22 293 24 303T36 341T56 388T88 425T132 442T175 435T205 417T221 395T229 376L231 369Q231 367 232 367L243 378Q303 442 384 442Q401 442 415 440T441 433T460 423T475 411T485 398T493 385T497 373T500 364T502 357L510 367Q573 442 659 442Q713 442 746 415T780 336Q780 285 742 178T704 50Q705 36 709 31T724 26Q752 26 776 56T815 138Q818 149 821 151T837 153Q857 153 857 145Q857 144 853 130Q845 101 831 73T785 17T716 -10Q669 -10 648 17T627 73Q627 92 663 193T700 345Q700 404 656 404H651Q565 404 506 303L499 291L466 157Q433 26 428 16Q415 -11 385 -11Q372 -11 364 -4T353 8T350 18Q350 29 384 161L420 307Q423 322 423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 181Q151 335 151 342Q154 357 154 369Q154 405 129 405Q107 405 92 377T69 316T57 280Q55 278 41 278H27Q21 284 21 287Z"/>
+<path stroke-width="1" id="E1-MJMAIN-2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"/>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E1-MJMATHI-76" x="0" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-30" x="686" y="-213"/>
+ <use xlink:href="#E1-MJMAIN-2C" x="939" y="0"/>
+<g transform="translate(1384,0)">
+ <use xlink:href="#E1-MJMATHI-76" x="0" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-31" x="686" y="-213"/>
+</g>
+ <use xlink:href="#E1-MJMAIN-2C" x="2323" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2E" x="2769" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2E" x="3214" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2E" x="3659" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2C" x="4104" y="0"/>
+<g transform="translate(4549,0)">
+ <use xlink:href="#E1-MJMATHI-76" x="0" y="0"/>
+<g transform="translate(485,-150)">
+ <use transform="scale(0.707)" xlink:href="#E1-MJMATHI-6D" x="0" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-2212" x="878" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-31" x="1657" y="0"/>
+</g>
+</g>
+</g>
+</svg></td>
+</tr>
+<tr>
+<td align="center">函数参数</td>
+<td align="center"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="18.977ex" height="2.009ex" style="vertical-align: -0.671ex;" viewbox="0 -576.1 8170.6 865.1" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-1-Title">
+<title id="MathJax-SVG-1-Title">v_m,v_{m+1},...,v_{m+n}</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E1-MJMATHI-76" d="M173 380Q173 405 154 405Q130 405 104 376T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Q21 294 29 316T53 368T97 419T160 441Q202 441 225 417T249 361Q249 344 246 335Q246 329 231 291T200 202T182 113Q182 86 187 69Q200 26 250 26Q287 26 319 60T369 139T398 222T409 277Q409 300 401 317T383 343T365 361T357 383Q357 405 376 424T417 443Q436 443 451 425T467 367Q467 340 455 284T418 159T347 40T241 -11Q177 -11 139 22Q102 54 102 117Q102 148 110 181T151 298Q173 362 173 380Z"/>
+<path stroke-width="1" id="E1-MJMATHI-6D" d="M21 287Q22 293 24 303T36 341T56 388T88 425T132 442T175 435T205 417T221 395T229 376L231 369Q231 367 232 367L243 378Q303 442 384 442Q401 442 415 440T441 433T460 423T475 411T485 398T493 385T497 373T500 364T502 357L510 367Q573 442 659 442Q713 442 746 415T780 336Q780 285 742 178T704 50Q705 36 709 31T724 26Q752 26 776 56T815 138Q818 149 821 151T837 153Q857 153 857 145Q857 144 853 130Q845 101 831 73T785 17T716 -10Q669 -10 648 17T627 73Q627 92 663 193T700 345Q700 404 656 404H651Q565 404 506 303L499 291L466 157Q433 26 428 16Q415 -11 385 -11Q372 -11 364 -4T353 8T350 18Q350 29 384 161L420 307Q423 322 423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 181Q151 335 151 342Q154 357 154 369Q154 405 129 405Q107 405 92 377T69 316T57 280Q55 278 41 278H27Q21 284 21 287Z"/>
+<path stroke-width="1" id="E1-MJMAIN-2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"/>
+<path stroke-width="1" id="E1-MJMAIN-2B" d="M56 237T56 250T70 270H369V420L370 570Q380 583 389 583Q402 583 409 568V270H707Q722 262 722 250T707 230H409V-68Q401 -82 391 -82H389H387Q375 -82 369 -68V230H70Q56 237 56 250Z"/>
+<path stroke-width="1" id="E1-MJMAIN-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/>
+<path stroke-width="1" id="E1-MJMAIN-2E" d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60Z"/>
+<path stroke-width="1" id="E1-MJMATHI-6E" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"/>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E1-MJMATHI-76" x="0" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMATHI-6D" x="686" y="-213"/>
+ <use xlink:href="#E1-MJMAIN-2C" x="1206" y="0"/>
+<g transform="translate(1651,0)">
+ <use xlink:href="#E1-MJMATHI-76" x="0" y="0"/>
+<g transform="translate(485,-150)">
+ <use transform="scale(0.707)" xlink:href="#E1-MJMATHI-6D" x="0" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-2B" x="878" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-31" x="1657" y="0"/>
+</g>
+</g>
+ <use xlink:href="#E1-MJMAIN-2C" x="3762" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2E" x="4208" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2E" x="4653" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2E" x="5098" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2C" x="5543" y="0"/>
+<g transform="translate(5988,0)">
+ <use xlink:href="#E1-MJMATHI-76" x="0" y="0"/>
+<g transform="translate(485,-150)">
+ <use transform="scale(0.707)" xlink:href="#E1-MJMATHI-6D" x="0" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-2B" x="878" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMATHI-6E" x="1657" y="0"/>
+</g>
+</g>
+</g>
+</svg></td>
+<td align="center"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="15.229ex" height="2.009ex" style="vertical-align: -0.671ex; margin-left: -0.089ex;" viewbox="-38.5 -576.1 6556.8 865.1" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-1-Title">
+<title id="MathJax-SVG-1-Title">p_0,p_1,...,p_{n-1}</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E1-MJMATHI-70" d="M23 287Q24 290 25 295T30 317T40 348T55 381T75 411T101 433T134 442Q209 442 230 378L240 387Q302 442 358 442Q423 442 460 395T497 281Q497 173 421 82T249 -10Q227 -10 210 -4Q199 1 187 11T168 28L161 36Q160 35 139 -51T118 -138Q118 -144 126 -145T163 -148H188Q194 -155 194 -157T191 -175Q188 -187 185 -190T172 -194Q170 -194 161 -194T127 -193T65 -192Q-5 -192 -24 -194H-32Q-39 -187 -39 -183Q-37 -156 -26 -148H-6Q28 -147 33 -136Q36 -130 94 103T155 350Q156 355 156 364Q156 405 131 405Q109 405 94 377T71 316T59 280Q57 278 43 278H29Q23 284 23 287ZM178 102Q200 26 252 26Q282 26 310 49T356 107Q374 141 392 215T411 325V331Q411 405 350 405Q339 405 328 402T306 393T286 380T269 365T254 350T243 336T235 326L232 322Q232 321 229 308T218 264T204 212Q178 106 178 102Z"/>
+<path stroke-width="1" id="E1-MJMAIN-30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"/>
+<path stroke-width="1" id="E1-MJMAIN-2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"/>
+<path stroke-width="1" id="E1-MJMAIN-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/>
+<path stroke-width="1" id="E1-MJMAIN-2E" d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60Z"/>
+<path stroke-width="1" id="E1-MJMATHI-6E" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"/>
+<path stroke-width="1" id="E1-MJMAIN-2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"/>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E1-MJMATHI-70" x="0" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-30" x="712" y="-213"/>
+ <use xlink:href="#E1-MJMAIN-2C" x="957" y="0"/>
+<g transform="translate(1402,0)">
+ <use xlink:href="#E1-MJMATHI-70" x="0" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-31" x="712" y="-213"/>
+</g>
+ <use xlink:href="#E1-MJMAIN-2C" x="2359" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2E" x="2805" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2E" x="3250" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2E" x="3695" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2C" x="4140" y="0"/>
+<g transform="translate(4585,0)">
+ <use xlink:href="#E1-MJMATHI-70" x="0" y="0"/>
+<g transform="translate(503,-150)">
+ <use transform="scale(0.707)" xlink:href="#E1-MJMATHI-6E" x="0" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-2212" x="600" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-31" x="1379" y="0"/>
+</g>
+</g>
+</g>
+</svg></td>
+</tr>
+</tbody></table>
+<p> 一般来说都是 p 命名法，因为其具有较好的可读性，可以方便地让我们知道寄存器属于哪一种类型。</p>
+<p>需要注意的是，在非 static 函数中，p0 表示<code>this</code>，p1 才表示第一个参数。</p>
+<h4 id="类变量声明"><a href="#类变量声明" class="headerlink" title="类变量声明"></a>类变量声明</h4><figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs smali"><span class="hljs-keyword">.field</span> &lt;访问权限&gt; &lt;变量名&gt;:&lt;变量类型&gt;<br>例如：.field<span class="hljs-keyword"> private</span> str1:<span class="hljs-class">Ljava/lang/String;</span><br>等于 <span class="hljs-keyword"> private</span> java.lang.String str1;<br><br>局部变量声明：<br><span class="hljs-keyword">.local</span> &lt;初始值&gt;, &lt;变量名&gt;:&lt;变量类型&gt;<br></code></pre></td></tr></table></figure>
+
+<h4 id="类方法声明"><a href="#类方法声明" class="headerlink" title="类方法声明"></a>类方法声明</h4><figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs smali"><span class="hljs-keyword">.method</span> &lt;访问权限&gt; &lt;方法名&gt;(参数类型)&lt;返回值类型&gt;<br>	[.registers]   // 寄存器个数=field个数+local个数<br>    [.prologue]    // 指定代码开始位置<br>    [.param]       // 指定方法参数<br>    [.line]        // 指定代码在源代码中的行数，混淆后可能不存在<br>    [.locals]      // 使用的局部变量个数<br>    &lt;代码体&gt;<span class="hljs-keyword"></span><br><span class="hljs-keyword">.end method</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="运算"><a href="#运算" class="headerlink" title="运算"></a>运算</h4><table>
+<thead>
+<tr>
+<th>java 代码</th>
+<th>smali 语法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>a += b;</td>
+<td>add-int/2addr v0, v1</td>
+</tr>
+<tr>
+<td>a -= b;</td>
+<td>sub-int/2addr v0, v1</td>
+</tr>
+<tr>
+<td>a *= b;</td>
+<td>mul-int/2addr v0, v1</td>
+</tr>
+<tr>
+<td>a /= b;</td>
+<td>div-int/2addr v0, v1</td>
+</tr>
+<tr>
+<td>a %= b;</td>
+<td>rem-int/2addr v0, v1</td>
+</tr>
+<tr>
+<td>a &amp;= b;</td>
+<td>and-int/2addr v0, v1</td>
+</tr>
+<tr>
+<td>a |= b;</td>
+<td>or-int/2addr v0, v1</td>
+</tr>
+<tr>
+<td>a ^= b;</td>
+<td>xor-int/2addr v0, v1</td>
+</tr>
+<tr>
+<td>a &lt;&lt;= b;</td>
+<td>shl-int/2addr v0, v1</td>
+</tr>
+<tr>
+<td>a &gt;&gt;= b;</td>
+<td>shr-int/2addr v0, v1</td>
+</tr>
+<tr>
+<td>a &gt;&gt;&gt;= b;</td>
+<td>ushr-int/2addr v0, v1</td>
+</tr>
+</tbody></table>
+<p>注意，如果是如 add-int/lit8 vx, vy, lit8 的指令，即是让 vy 加上 lit8，将结果保存到 vx。</p>
+<h4 id="赋值"><a href="#赋值" class="headerlink" title="赋值"></a>赋值</h4><p>常量赋值：</p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs smali">const                   v0, 0x7F030018  	<span class="hljs-comment"># R.layout.activity_challenge   #从R中取出静态值</span><span class="hljs-built_in"></span><br><span class="hljs-built_in">const/4 </span>                v3, 0x2   			<span class="hljs-comment"># 4也可以换成16或者high16，表示取整数值</span><span class="hljs-built_in"></span><br><span class="hljs-built_in">const-string </span>           v2, <span class="hljs-string">&quot;Challenge&quot;</span> 	<span class="hljs-comment"># 取字符串</span><span class="hljs-built_in"></span><br><span class="hljs-built_in">const-class </span>            v2, Context    		<span class="hljs-comment"># 把类对象取出</span><br></code></pre></td></tr></table></figure>
+
+<p>变量间赋值：</p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs smali">move  			vx, vy   		           <span class="hljs-comment"># 将vy的值赋值给vx，也可以是move-object等</span><span class="hljs-built_in"></span><br><span class="hljs-built_in">move-result </span>	vx  					   <span class="hljs-comment"># 将上个方法调用后的结果赋值给vx，也可以是move-result-object</span><span class="hljs-built_in"></span><br><span class="hljs-built_in">return-object </span>	vx 						   <span class="hljs-comment"># 将vx的对象作为函数返回值</span><span class="hljs-built_in"></span><br><span class="hljs-built_in">new-instance </span>   v0, ChallengePagerAdapter  <span class="hljs-comment"># 实例化一个对象存入v0中</span><br></code></pre></td></tr></table></figure>
+
+<p>对象赋值：</p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs smali">动态字段操作：<span class="hljs-built_in"></span><br><span class="hljs-built_in">iput-object </span>            a,(this),b   <span class="hljs-comment"># 将a的值给b，一般用于b的初始化</span><span class="hljs-built_in"></span><br><span class="hljs-built_in">iget-object </span>            a,(this),b   <span class="hljs-comment"># 将b的值给a，一般用于获取b的地址，接着调用它</span><br><br>静态字段操作：<span class="hljs-built_in"></span><br><span class="hljs-built_in">sput</span><br><span class="hljs-built_in"></span>sget<br><br>并且-后面是可以跟其他的类型的如：wide、boolean、byte、char、short<br></code></pre></td></tr></table></figure>
+
+<h4 id="函数操作"><a href="#函数操作" class="headerlink" title="函数操作"></a>函数操作</h4><figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs smali">1.private：invoke-direct<br>2.public|protected：<span class="hljs-built_in"> invoke-virtual</span><br><span class="hljs-built_in"></span>3.static：invoke-static<br>4.parent: <span class="hljs-built_in"> invoke-super</span><br><span class="hljs-built_in"></span>基本调用形式：invoke-xxx &#123;参数&#125;, 类;-&gt;函数(参数原型)<br>第一个参数是类的实例化对象<br>后续的参数则是调用的函数中的传递参数<br></code></pre></td></tr></table></figure>
+
+<h4 id="判断"><a href="#判断" class="headerlink" title="判断"></a>判断</h4><p>都是单词的缩写： eq -&gt; equal，lt -&gt; less than， gt -&gt; grater than， z -&gt; zero </p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs smali">if-eq vA, vB,<span class="hljs-keyword"> :cond_X</span>   	如果vA等于vB则跳转到:cond_X<span class="hljs-built_in"></span><br><span class="hljs-built_in">if-ne </span>vA, vB,<span class="hljs-keyword"> :cond_X</span>   	如果vA不等于vB则跳转到:cond_X<span class="hljs-built_in"></span><br><span class="hljs-built_in">if-lt </span>vA, vB,<span class="hljs-keyword"> :cond_X</span>   	如果vA小于vB则跳转到:cond_X<span class="hljs-built_in"></span><br><span class="hljs-built_in">if-ge </span>vA, vB,<span class="hljs-keyword"> :cond_X</span>   	如果vA大于等于vB则跳转到:cond_X<span class="hljs-built_in"></span><br><span class="hljs-built_in">if-gt </span>vA, vB,<span class="hljs-keyword"> :cond_X</span>   	如果vA大于vB则跳转到:cond_X<span class="hljs-built_in"></span><br><span class="hljs-built_in">if-le </span>vA, vB,<span class="hljs-keyword"> :cond_X</span>   	如果vA小于等于vB则跳转到:cond_X<br><span class="hljs-built_in"></span><br><span class="hljs-built_in">if-eqz </span>vA,<span class="hljs-keyword"> :cond_X</span>      	如果vA等于0则跳转到:cond_X<span class="hljs-built_in"></span><br><span class="hljs-built_in">if-nez </span>vA,<span class="hljs-keyword"> :cond_X</span>      	如果vA不等于0则跳转到:cond_X<span class="hljs-built_in"></span><br><span class="hljs-built_in">if-ltz </span>vA,<span class="hljs-keyword"> :cond_X</span>      	如果vA小于0则跳转到:cond_X<span class="hljs-built_in"></span><br><span class="hljs-built_in">if-gez </span>vA,<span class="hljs-keyword"> :cond_X</span>      	如果vA大于等于0则跳转到:cond_X<span class="hljs-built_in"></span><br><span class="hljs-built_in">if-gtz </span>vA,<span class="hljs-keyword"> :cond_X</span>      	如果vA大于0则跳转到:cond_X<span class="hljs-built_in"></span><br><span class="hljs-built_in">if-lez </span>vA,<span class="hljs-keyword"> :cond_X</span>      	如果vA小于等于0则跳转到:cond_X<br></code></pre></td></tr></table></figure>
+
+<h4 id="循环"><a href="#循环" class="headerlink" title="循环"></a>循环</h4><figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><code class="hljs smali">public void encrypt(String str) &#123;<br>    String ans = <span class="hljs-string">&quot;&quot;</span>;<br>    for (int i = 0 ; i &lt; str.length(); i++)&#123;<br>        ans += str.charAt(i);<br>    &#125;<br>    Log.e(<span class="hljs-string">&quot;ans:&quot;</span>, ans);<br>&#125;<br>&lt;=对应smali=&gt;<br><br><span class="hljs-comment"># public void encrypt(String str) &#123;</span><br><span class="hljs-keyword">.method</span><span class="hljs-keyword"> public</span> encrypt(<span class="hljs-class">Ljava/lang/String;</span>)V <br><span class="hljs-keyword">.locals</span> 4 <br><span class="hljs-keyword">.param</span> p1, <span class="hljs-string">&quot;str&quot;</span>    <span class="hljs-comment"># Ljava/lang/String;</span><br><span class="hljs-keyword">.prologue</span> <br><br><span class="hljs-comment"># String ans = &quot;&quot;;</span><span class="hljs-built_in"></span><br><span class="hljs-built_in">const-string </span>v0, <span class="hljs-string">&quot;&quot;</span> <br><span class="hljs-keyword">.local</span> v0, <span class="hljs-string">&quot;ans&quot;</span>:<span class="hljs-class">Ljava/lang/String;</span> <br><br><span class="hljs-comment"># for (int i  0 ; i &lt; str.length();i++)&#123;</span><br><span class="hljs-comment"># int i=0 =&gt;v1</span><span class="hljs-built_in"></span><br><span class="hljs-built_in">const/4 </span>v1, 0x0<br><span class="hljs-keyword">.local</span> v1, <span class="hljs-string">&quot;i&quot;</span>:I<span class="hljs-keyword"></span><br><span class="hljs-keyword">:goto_0</span>				<span class="hljs-comment"># for_start_place</span><br><br><span class="hljs-comment"># str.length()=&gt;v2</span><span class="hljs-built_in"></span><br><span class="hljs-built_in">invoke-virtual </span>&#123;p1&#125;, <span class="hljs-class">Ljava/lang/String;</span>-&gt;length()I<span class="hljs-built_in"></span><br><span class="hljs-built_in">move-result </span>v2 <br><br><span class="hljs-comment"># i&lt;str.length() </span><span class="hljs-built_in"></span><br><span class="hljs-built_in">if-ge </span>v1, v2,<span class="hljs-keyword"> :cond_0</span> <br><br><span class="hljs-comment"># ans += str.charAt(i); </span><br><span class="hljs-comment"># str.charAt(i) =&gt; v2</span><span class="hljs-built_in"></span><br><span class="hljs-built_in">new-instance </span>v2, <span class="hljs-class">Ljava/lang/StringBuilder;</span> <span class="hljs-built_in"></span><br><span class="hljs-built_in">invoke-direct </span>&#123;v2&#125;, <span class="hljs-class">Ljava/lang/StringBuilder;</span>-&gt;&lt;init&gt;()V<br>invoke-virtual&#123;v2,v0&#125;,<span class="hljs-class">Ljava/lang/StringBuilder;</span>-&gt;append(<span class="hljs-class">Ljava/lang/String;</span>)<span class="hljs-class">Ljava/lang/StringBuilder;</span><span class="hljs-built_in"></span><br><span class="hljs-built_in">move-result-object </span>v2 <br><br><span class="hljs-comment">#str.charAt(i) =&gt; v3</span><span class="hljs-built_in"></span><br><span class="hljs-built_in">invoke-virtual </span>&#123;p1, v1&#125;, <span class="hljs-class">Ljava/lang/String;</span>-&gt;charAt(I)C <span class="hljs-built_in"></span><br><span class="hljs-built_in">move-result </span>v3<br><br><span class="hljs-comment"># ans += v3 =&gt;v0</span><span class="hljs-built_in"></span><br><span class="hljs-built_in">invoke-virtual </span>&#123;v2, v3&#125;, <span class="hljs-class">Ljava/lang/StringBuilder;</span>-&gt;append(C)<span class="hljs-class">Ljava/lang/StringBuilder;</span> <span class="hljs-built_in"></span><br><span class="hljs-built_in">move-result-object </span>v2 <span class="hljs-built_in"></span><br><span class="hljs-built_in">invoke-virtual </span>&#123;v2&#125;, <span class="hljs-class">Ljava/lang/StringBuilder;</span>-&gt;toString()<span class="hljs-class">Ljava/lang/String;</span><span class="hljs-built_in"></span><br><span class="hljs-built_in">move-result-object </span>v0<br><br><span class="hljs-comment"># i++</span><span class="hljs-built_in"></span><br><span class="hljs-built_in">add-int/lit8 </span>v1, v1, 0x1<span class="hljs-built_in"></span><br><span class="hljs-built_in">goto </span>:goto_0<br><br><span class="hljs-comment"># Log.e(&quot;ans:&quot;,ans);</span><span class="hljs-keyword"></span><br><span class="hljs-keyword">:cond_0</span><span class="hljs-built_in"></span><br><span class="hljs-built_in">const-string </span>v2, <span class="hljs-string">&quot;ans:&quot;</span> <span class="hljs-built_in"></span><br><span class="hljs-built_in">invoke-static </span>&#123;v2, v0&#125;, <span class="hljs-class">Landroid/util/Log;</span>-&gt;e(<span class="hljs-class">Ljava/lang/String;</span><span class="hljs-class">Ljava/lang/String;</span>)I<span class="hljs-built_in"></span><br><span class="hljs-built_in">return-void </span><span class="hljs-keyword"></span><br><span class="hljs-keyword">.end method</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="switch-语句"><a href="#switch-语句" class="headerlink" title="switch 语句"></a>switch 语句</h4><figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs smali">public void encrypt(int flag) &#123;<br>        String ans = null;<br>        switch (flag)&#123;<br>            case 0:<br>                ans = <span class="hljs-string">&quot;ans is 0&quot;</span>;<br>                break;<br>            default:<br>                ans = <span class="hljs-string">&quot;noans&quot;</span>;<br>                break;<br>        &#125;<br>        Log.v(<span class="hljs-string">&quot;ans:&quot;</span>,ans);<br>    &#125;<br>&lt;=对应smali=&gt;<br><span class="hljs-comment">#public void encrypt(int flag) &#123;</span><br><span class="hljs-keyword">.method</span><span class="hljs-keyword"> public</span> encrypt(I)V <br><span class="hljs-keyword">    .locals</span> 2<br><span class="hljs-keyword">    .param</span> p1, <span class="hljs-string">&quot;flag&quot;</span>    <span class="hljs-comment"># I</span><br><span class="hljs-keyword">    .prologue</span><br>    <br><span class="hljs-comment">#String ans = null;</span><br>   <span class="hljs-built_in"> const/4 </span>v0, 0x0<br><span class="hljs-keyword">    .local</span> v0, <span class="hljs-string">&quot;ans&quot;</span>:<span class="hljs-class">Ljava/lang/String;</span><br>    <br><span class="hljs-comment">#switch (flag)&#123;</span><br>   <span class="hljs-built_in"> packed-switch </span>p1,<span class="hljs-keyword"> :pswitch_data_0</span>	 <span class="hljs-comment"># pswitch_data_0指定case区域的开头及结尾</span><br>    <br><span class="hljs-comment">#default: ans=&quot;noans&quot;</span><br>   <span class="hljs-built_in"> const-string </span>v0, <span class="hljs-string">&quot;noans&quot;</span><br>    <br><span class="hljs-comment">#Log.v(&quot;ans:&quot;,ans)</span><br>   <span class="hljs-keyword"> :goto_0</span><br>   <span class="hljs-built_in"> const-string </span>v1, <span class="hljs-string">&quot;ans:&quot;</span><br>   <span class="hljs-built_in"> invoke-static </span>&#123;v1, v0&#125;, <span class="hljs-class">Landroid/util/Log;</span>-&gt;v(<span class="hljs-class">Ljava/lang/String;</span><span class="hljs-class">Ljava/lang/String;</span>)I<br>   <span class="hljs-built_in"> return-void</span><br><span class="hljs-built_in"></span>    <br><span class="hljs-comment">#case 0: ans=&quot;ans is 0&quot;</span><br>   <span class="hljs-keyword"> :pswitch_0</span>      <span class="hljs-comment">#pswitch_&lt;case的值&gt;</span><br>   <span class="hljs-built_in"> const-string </span>v0, <span class="hljs-string">&quot;ans is 0&quot;</span><br>   <span class="hljs-built_in"> goto </span>:goto_0  <span class="hljs-comment"># break</span><br>   <span class="hljs-built_in"> nop</span><br><span class="hljs-built_in"></span>   <span class="hljs-keyword"> :pswitch_data_0</span> <span class="hljs-comment">#case区域的结束</span><br><span class="hljs-keyword">    .packed</span>-switch 0x0   <span class="hljs-comment">#定义case的情况</span><br>       <span class="hljs-keyword"> :pswitch_0</span>   <span class="hljs-comment">#case 0</span><span class="hljs-keyword"></span><br><span class="hljs-keyword">    .end packed</span>-switch<span class="hljs-keyword"></span><br><span class="hljs-keyword">.end method</span><br></code></pre></td></tr></table></figure>
+
+<p>其中case定义情况有两种：</p>
+<ul>
+<li>```smali<br>从0开始递增<br>packed-switch p1, :pswitch_data_0<br>…<br>:pswitch_data_0<br>.packed-switch 0x0<pre><code>:pswitch_0
+:pswitch_1 
+</code></pre>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs smali"><br>- ```smali<br>  无规则switch<br> <span class="hljs-built_in"> sparse-switch </span>p1,:sswitch_data_0<br><span class="hljs-keyword">  .</span>..<br>  sswitch_data_0<br><span class="hljs-keyword">  .sparse</span>-switch<br>      0xa -&gt;<span class="hljs-keyword"> :</span> sswitch_0<br>      0xb -&gt;<span class="hljs-keyword"> :</span> sswitch_1 <span class="hljs-comment"># 字符会转化成数组</span><br></code></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="try-catch-语句"><a href="#try-catch-语句" class="headerlink" title="try-catch 语句"></a>try-catch 语句</h4><figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs smali">public void encrypt(int flag) &#123;<br>    String ans = null;<br>    try &#123;<br>        ans = <span class="hljs-string">&quot;ok!&quot;</span>;<br>    &#125; catch (Exception e)&#123;<br>        ans = e.toString();<br>    &#125;<br>    Log.d(<span class="hljs-string">&quot;error&quot;</span>,ans);<br>&#125;<br>&lt;=对应smali=&gt;<br><span class="hljs-comment">#public void encrypt(int flag) &#123;</span><br><span class="hljs-keyword">.method</span><span class="hljs-keyword"> public</span> encrypt(I)V<br><span class="hljs-keyword">    .locals</span> 3<br><span class="hljs-keyword">    .param</span> p1, <span class="hljs-string">&quot;flag&quot;</span>    <span class="hljs-comment"># I</span><br><span class="hljs-keyword">    .prologue</span><br>    <br><span class="hljs-comment">#String ans = null;</span><br>   <span class="hljs-built_in"> const/4 </span>v0, 0x0<br><span class="hljs-keyword">    .line</span> 20<br><span class="hljs-keyword">    .local</span> v0, <span class="hljs-string">&quot;ans&quot;</span>:<span class="hljs-class">Ljava/lang/String;</span><br>    <br><span class="hljs-comment">#try &#123; ans=&quot;ok!&quot;; &#125;</span><br>   <span class="hljs-keyword"> :try_start_0</span>  <span class="hljs-comment"># 第一个try开始，</span><br>   <span class="hljs-built_in"> const-string </span>v0, <span class="hljs-string">&quot;ok!&quot;</span><br>   <span class="hljs-keyword"> :try_end_0</span>   <span class="hljs-comment"># 第一个try结束(主要是可能有多个try)</span><br><span class="hljs-keyword">    .catch</span> <span class="hljs-class">Ljava/lang/Exception;</span> &#123;:try_start_0 ..<span class="hljs-keyword"> :try_end_0</span>&#125;<span class="hljs-keyword"> :catch_0</span><br>    <br><span class="hljs-comment">#Log.d(&quot;error&quot;,ans);</span><br>   <span class="hljs-keyword"> :goto_0</span><br>   <span class="hljs-built_in"> const-string </span>v2, <span class="hljs-string">&quot;error&quot;</span><br>   <span class="hljs-built_in"> invoke-static </span>&#123;v2, v0&#125;, <span class="hljs-class">Landroid/util/Log;</span>-&gt;d(<span class="hljs-class">Ljava/lang/String;</span><span class="hljs-class">Ljava/lang/String;</span>)I<br>   <span class="hljs-built_in"> return-void</span><br><span class="hljs-built_in"></span>    <br><span class="hljs-comment">#catch (Exception e)&#123;ans = e.toString();&#125;</span><br>   <span class="hljs-keyword"> :catch_0</span> <span class="hljs-comment">#第一个catch</span><br>   <span class="hljs-built_in"> move-exception </span>v1<br><span class="hljs-keyword">    .local</span> v1, <span class="hljs-string">&quot;e&quot;</span>:<span class="hljs-class">Ljava/lang/Exception;</span><br>   <span class="hljs-built_in"> invoke-virtual </span>&#123;v1&#125;, <span class="hljs-class">Ljava/lang/Exception;</span>-&gt;toString()<span class="hljs-class">Ljava/lang/String;</span><br>   <span class="hljs-built_in"> move-result-object </span>v0<br>   <span class="hljs-built_in"> goto </span>:goto_0<span class="hljs-keyword"></span><br><span class="hljs-keyword">.end method</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h4><ul>
+<li>array-length vA, vB        获取给定 vB 寄存器中数组的长度并赋给 vA 寄存器，数组长度指的是数组中的元素个数。</li>
+<li>aget-object vx, vy, vz    获取对象引用数组的对象引用值到 vx 中。该数组由 vy 引用并由 vz 索引。</li>
+<li>aput-object vx, vy, vz    将 vx 中的对象引用值放入对象引用数组的元素中。元素由 vz 索引，数组对象由 vy 引用。</li>
+<li>aput vx,vy,vz   将 vx 中的整数值放入整数数组的一个元素中。元素由 vz 索引，数组对象由 vy 引用。</li>
+<li>new-array vx, vy, type_id 生成一个 type_id 类型和 vy 元素大小的新数组，并将对该数组的引用放入 vx。</li>
+</ul>
+<h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><p><a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/85035">https://www.anquanke.com/post/id/85035</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/u012184539/article/details/82720885">https://blog.csdn.net/u012184539/article/details/82720885</a></p>
+<p><a target="_blank" rel="noopener" href="https://ctf-wiki.org/android/basic_operating_mechanism/java_layer/smali/smali/">https://ctf-wiki.org/android/basic_operating_mechanism/java_layer/smali/smali/</a></p>
+
       </section>
       <section class="extra">
         
@@ -243,7 +648,7 @@
           
   <aside class="toc-wrap">
     <h3 class="toc-title">文章目录：</h3>
-    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-text">参考</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Task1"><span class="toc-text">Task1</span></a></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Step-1"><span class="toc-text">Step 1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Step2"><span class="toc-text">Step2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E5%8F%8A%E8%A7%A3%E5%86%B3"><span class="toc-text">问题及解决</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9F%A5%E8%AF%86%E8%A1%A5%E5%85%85"><span class="toc-text">知识补充</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#smali"><span class="toc-text">smali</span></a></li></ol>
   </aside>
 
         
