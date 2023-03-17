@@ -1,7 +1,1872 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Fudan Lab</title>
+    <title>smali语法</title>
+    <url>/2023/03/17/2023-03-17-smali%E8%AF%AD%E6%B3%95/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>突然意识到自己的 smali 语法其实还是有挺多的细节地方是不懂，特此开一篇博客更加详细的记录一下 smali 语法。</p>
+<h3 id="smali"><a href="#smali" class="headerlink" title="smali"></a>smali</h3><p>smali ：一种介于 apk 和 java 源码之间的一种表示方式。使用 apktool 反编译 apk 后，会在反编译工程目录下生成一个 smali文件夹，一般而言，一个 smali 文件对应着一个类。</p>
+<p>在 smali 代码中，声明语句一般都是以 <code>.</code> 开始。</p>
+<h4 id="基本信息"><a href="#基本信息" class="headerlink" title="基本信息"></a>基本信息</h4><figure class="highlight smali"><table><tr><td class="code"><pre><code class="hljs smali"><span class="hljs-keyword">.class</span> &lt;访问权限&gt; [非权限修饰符] &lt;类名&gt;<br><span class="hljs-keyword">.super</span> &lt;父类名&gt;<br><span class="hljs-keyword">.source</span> &lt;源文件名&gt;<br><span class="hljs-keyword">.implements</span> &lt;接口名称&gt;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>&lt;&gt;中的内容表示必不可缺的，[]表示的是可选择的。</li>
+<li>访问权限修饰符即<code>public, protected, private, default</code>。</li>
+<li>而非权限修饰符则指的是<code>final, abstract</code>。</li>
+<li><code>L</code>表示类的完整签名，如<code>.super Ljava/lang/Object;</code> 表明是继承于 java/lang/Object 类。</li>
+<li>经过混淆后，.source 可能为空。</li>
+</ul>
+<h4 id="类型对应"><a href="#类型对应" class="headerlink" title="类型对应"></a>类型对应</h4><p>dalvik 的字节码有两大类类型，原始类型和引用类型。引用类型是对象和数组，其他一切都是原始类型。</p>
+<table>
+<thead>
+<tr>
+<th>smali</th>
+<th>java</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>V</td>
+<td>void - can only be used for return types</td>
+</tr>
+<tr>
+<td>Z</td>
+<td>boolean</td>
+</tr>
+<tr>
+<td>B</td>
+<td>byte (-128~127)</td>
+</tr>
+<tr>
+<td>S</td>
+<td>short</td>
+</tr>
+<tr>
+<td>C</td>
+<td>char</td>
+</tr>
+<tr>
+<td>I</td>
+<td>int</td>
+</tr>
+<tr>
+<td>J</td>
+<td>long (64 bits)</td>
+</tr>
+<tr>
+<td>F</td>
+<td>float</td>
+</tr>
+<tr>
+<td>D</td>
+<td>double (64 bits)</td>
+</tr>
+<tr>
+<td>L</td>
+<td>对象类型</td>
+</tr>
+<tr>
+<td>[</td>
+<td>array</td>
+</tr>
+</tbody></table>
+<p>注：</p>
+<ul>
+<li>如果是int数组表示形式为 [I。</li>
+<li>再比如数组类型 String[][]，在 smali 中表示形式为 [[Ljava/lang/String;</li>
+</ul>
+<h4 id="寄存器"><a href="#寄存器" class="headerlink" title="寄存器"></a>寄存器</h4><p>一个方法所申请的寄存器会分配给函数方法的参数 (parameter) 以及局部变量 (local variable) 。在 smali 中，一般有两种命名规则</p>
+<ul>
+<li>v 命名法</li>
+<li>p 命名法</li>
+</ul>
+<p>假设方法申请了 m+n 个寄存器，其中局部变量占 m 个寄存器，参数占 n 个寄存器，对于不同的命名规则，其相应的命名如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">属性</th>
+<th align="center">v命名法</th>
+<th align="center">p命名法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">局部变量</td>
+<td align="center"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="15.471ex" height="2.009ex" style="vertical-align: -0.671ex;" viewbox="0 -576.1 6660.9 865.1" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-1-Title">
+<title id="MathJax-SVG-1-Title">v_0,v_1,...,v_{m-1}</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E1-MJMATHI-76" d="M173 380Q173 405 154 405Q130 405 104 376T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Q21 294 29 316T53 368T97 419T160 441Q202 441 225 417T249 361Q249 344 246 335Q246 329 231 291T200 202T182 113Q182 86 187 69Q200 26 250 26Q287 26 319 60T369 139T398 222T409 277Q409 300 401 317T383 343T365 361T357 383Q357 405 376 424T417 443Q436 443 451 425T467 367Q467 340 455 284T418 159T347 40T241 -11Q177 -11 139 22Q102 54 102 117Q102 148 110 181T151 298Q173 362 173 380Z"/>
+<path stroke-width="1" id="E1-MJMAIN-30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"/>
+<path stroke-width="1" id="E1-MJMAIN-2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"/>
+<path stroke-width="1" id="E1-MJMAIN-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/>
+<path stroke-width="1" id="E1-MJMAIN-2E" d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60Z"/>
+<path stroke-width="1" id="E1-MJMATHI-6D" d="M21 287Q22 293 24 303T36 341T56 388T88 425T132 442T175 435T205 417T221 395T229 376L231 369Q231 367 232 367L243 378Q303 442 384 442Q401 442 415 440T441 433T460 423T475 411T485 398T493 385T497 373T500 364T502 357L510 367Q573 442 659 442Q713 442 746 415T780 336Q780 285 742 178T704 50Q705 36 709 31T724 26Q752 26 776 56T815 138Q818 149 821 151T837 153Q857 153 857 145Q857 144 853 130Q845 101 831 73T785 17T716 -10Q669 -10 648 17T627 73Q627 92 663 193T700 345Q700 404 656 404H651Q565 404 506 303L499 291L466 157Q433 26 428 16Q415 -11 385 -11Q372 -11 364 -4T353 8T350 18Q350 29 384 161L420 307Q423 322 423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 181Q151 335 151 342Q154 357 154 369Q154 405 129 405Q107 405 92 377T69 316T57 280Q55 278 41 278H27Q21 284 21 287Z"/>
+<path stroke-width="1" id="E1-MJMAIN-2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"/>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E1-MJMATHI-76" x="0" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-30" x="686" y="-213"/>
+ <use xlink:href="#E1-MJMAIN-2C" x="939" y="0"/>
+<g transform="translate(1384,0)">
+ <use xlink:href="#E1-MJMATHI-76" x="0" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-31" x="686" y="-213"/>
+</g>
+ <use xlink:href="#E1-MJMAIN-2C" x="2323" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2E" x="2769" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2E" x="3214" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2E" x="3659" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2C" x="4104" y="0"/>
+<g transform="translate(4549,0)">
+ <use xlink:href="#E1-MJMATHI-76" x="0" y="0"/>
+<g transform="translate(485,-150)">
+ <use transform="scale(0.707)" xlink:href="#E1-MJMATHI-6D" x="0" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-2212" x="878" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-31" x="1657" y="0"/>
+</g>
+</g>
+</g>
+</svg></td>
+<td align="center"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="15.471ex" height="2.009ex" style="vertical-align: -0.671ex;" viewbox="0 -576.1 6660.9 865.1" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-1-Title">
+<title id="MathJax-SVG-1-Title">v_0,v_1,...,v_{m-1}</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E1-MJMATHI-76" d="M173 380Q173 405 154 405Q130 405 104 376T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Q21 294 29 316T53 368T97 419T160 441Q202 441 225 417T249 361Q249 344 246 335Q246 329 231 291T200 202T182 113Q182 86 187 69Q200 26 250 26Q287 26 319 60T369 139T398 222T409 277Q409 300 401 317T383 343T365 361T357 383Q357 405 376 424T417 443Q436 443 451 425T467 367Q467 340 455 284T418 159T347 40T241 -11Q177 -11 139 22Q102 54 102 117Q102 148 110 181T151 298Q173 362 173 380Z"/>
+<path stroke-width="1" id="E1-MJMAIN-30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"/>
+<path stroke-width="1" id="E1-MJMAIN-2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"/>
+<path stroke-width="1" id="E1-MJMAIN-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/>
+<path stroke-width="1" id="E1-MJMAIN-2E" d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60Z"/>
+<path stroke-width="1" id="E1-MJMATHI-6D" d="M21 287Q22 293 24 303T36 341T56 388T88 425T132 442T175 435T205 417T221 395T229 376L231 369Q231 367 232 367L243 378Q303 442 384 442Q401 442 415 440T441 433T460 423T475 411T485 398T493 385T497 373T500 364T502 357L510 367Q573 442 659 442Q713 442 746 415T780 336Q780 285 742 178T704 50Q705 36 709 31T724 26Q752 26 776 56T815 138Q818 149 821 151T837 153Q857 153 857 145Q857 144 853 130Q845 101 831 73T785 17T716 -10Q669 -10 648 17T627 73Q627 92 663 193T700 345Q700 404 656 404H651Q565 404 506 303L499 291L466 157Q433 26 428 16Q415 -11 385 -11Q372 -11 364 -4T353 8T350 18Q350 29 384 161L420 307Q423 322 423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 181Q151 335 151 342Q154 357 154 369Q154 405 129 405Q107 405 92 377T69 316T57 280Q55 278 41 278H27Q21 284 21 287Z"/>
+<path stroke-width="1" id="E1-MJMAIN-2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"/>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E1-MJMATHI-76" x="0" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-30" x="686" y="-213"/>
+ <use xlink:href="#E1-MJMAIN-2C" x="939" y="0"/>
+<g transform="translate(1384,0)">
+ <use xlink:href="#E1-MJMATHI-76" x="0" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-31" x="686" y="-213"/>
+</g>
+ <use xlink:href="#E1-MJMAIN-2C" x="2323" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2E" x="2769" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2E" x="3214" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2E" x="3659" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2C" x="4104" y="0"/>
+<g transform="translate(4549,0)">
+ <use xlink:href="#E1-MJMATHI-76" x="0" y="0"/>
+<g transform="translate(485,-150)">
+ <use transform="scale(0.707)" xlink:href="#E1-MJMATHI-6D" x="0" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-2212" x="878" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-31" x="1657" y="0"/>
+</g>
+</g>
+</g>
+</svg></td>
+</tr>
+<tr>
+<td align="center">函数参数</td>
+<td align="center"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="25.905ex" height="2.509ex" style="vertical-align: -0.671ex;" viewbox="0 -791.3 11153.6 1080.4" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-1-Title">
+<title id="MathJax-SVG-1-Title">v_m,v\_{m+1},...,v\_{m+n}</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E1-MJMATHI-76" d="M173 380Q173 405 154 405Q130 405 104 376T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Q21 294 29 316T53 368T97 419T160 441Q202 441 225 417T249 361Q249 344 246 335Q246 329 231 291T200 202T182 113Q182 86 187 69Q200 26 250 26Q287 26 319 60T369 139T398 222T409 277Q409 300 401 317T383 343T365 361T357 383Q357 405 376 424T417 443Q436 443 451 425T467 367Q467 340 455 284T418 159T347 40T241 -11Q177 -11 139 22Q102 54 102 117Q102 148 110 181T151 298Q173 362 173 380Z"/>
+<path stroke-width="1" id="E1-MJMATHI-6D" d="M21 287Q22 293 24 303T36 341T56 388T88 425T132 442T175 435T205 417T221 395T229 376L231 369Q231 367 232 367L243 378Q303 442 384 442Q401 442 415 440T441 433T460 423T475 411T485 398T493 385T497 373T500 364T502 357L510 367Q573 442 659 442Q713 442 746 415T780 336Q780 285 742 178T704 50Q705 36 709 31T724 26Q752 26 776 56T815 138Q818 149 821 151T837 153Q857 153 857 145Q857 144 853 130Q845 101 831 73T785 17T716 -10Q669 -10 648 17T627 73Q627 92 663 193T700 345Q700 404 656 404H651Q565 404 506 303L499 291L466 157Q433 26 428 16Q415 -11 385 -11Q372 -11 364 -4T353 8T350 18Q350 29 384 161L420 307Q423 322 423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 181Q151 335 151 342Q154 357 154 369Q154 405 129 405Q107 405 92 377T69 316T57 280Q55 278 41 278H27Q21 284 21 287Z"/>
+<path stroke-width="1" id="E1-MJMAIN-2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"/>
+<path stroke-width="1" id="E1-MJMAIN-5F" d="M0 -62V-25H499V-62H0Z"/>
+<path stroke-width="1" id="E1-MJMAIN-2B" d="M56 237T56 250T70 270H369V420L370 570Q380 583 389 583Q402 583 409 568V270H707Q722 262 722 250T707 230H409V-68Q401 -82 391 -82H389H387Q375 -82 369 -68V230H70Q56 237 56 250Z"/>
+<path stroke-width="1" id="E1-MJMAIN-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/>
+<path stroke-width="1" id="E1-MJMAIN-2E" d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60Z"/>
+<path stroke-width="1" id="E1-MJMATHI-6E" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"/>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E1-MJMATHI-76" x="0" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMATHI-6D" x="686" y="-213"/>
+ <use xlink:href="#E1-MJMAIN-2C" x="1206" y="0"/>
+ <use xlink:href="#E1-MJMATHI-76" x="1651" y="0"/>
+ <use xlink:href="#E1-MJMAIN-5F" x="2137" y="0"/>
+<g transform="translate(2637,0)">
+ <use xlink:href="#E1-MJMATHI-6D" x="0" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2B" x="1100" y="0"/>
+ <use xlink:href="#E1-MJMAIN-31" x="2101" y="0"/>
+</g>
+ <use xlink:href="#E1-MJMAIN-2C" x="5239" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2E" x="5684" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2E" x="6130" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2E" x="6575" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2C" x="7020" y="0"/>
+ <use xlink:href="#E1-MJMATHI-76" x="7465" y="0"/>
+ <use xlink:href="#E1-MJMAIN-5F" x="7951" y="0"/>
+<g transform="translate(8451,0)">
+ <use xlink:href="#E1-MJMATHI-6D" x="0" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2B" x="1100" y="0"/>
+ <use xlink:href="#E1-MJMATHI-6E" x="2101" y="0"/>
+</g>
+</g>
+</svg></td>
+<td align="center"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="15.229ex" height="2.009ex" style="vertical-align: -0.671ex; margin-left: -0.089ex;" viewbox="-38.5 -576.1 6556.8 865.1" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-1-Title">
+<title id="MathJax-SVG-1-Title">p_0,p_1,...,p_{n-1}</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E1-MJMATHI-70" d="M23 287Q24 290 25 295T30 317T40 348T55 381T75 411T101 433T134 442Q209 442 230 378L240 387Q302 442 358 442Q423 442 460 395T497 281Q497 173 421 82T249 -10Q227 -10 210 -4Q199 1 187 11T168 28L161 36Q160 35 139 -51T118 -138Q118 -144 126 -145T163 -148H188Q194 -155 194 -157T191 -175Q188 -187 185 -190T172 -194Q170 -194 161 -194T127 -193T65 -192Q-5 -192 -24 -194H-32Q-39 -187 -39 -183Q-37 -156 -26 -148H-6Q28 -147 33 -136Q36 -130 94 103T155 350Q156 355 156 364Q156 405 131 405Q109 405 94 377T71 316T59 280Q57 278 43 278H29Q23 284 23 287ZM178 102Q200 26 252 26Q282 26 310 49T356 107Q374 141 392 215T411 325V331Q411 405 350 405Q339 405 328 402T306 393T286 380T269 365T254 350T243 336T235 326L232 322Q232 321 229 308T218 264T204 212Q178 106 178 102Z"/>
+<path stroke-width="1" id="E1-MJMAIN-30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"/>
+<path stroke-width="1" id="E1-MJMAIN-2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"/>
+<path stroke-width="1" id="E1-MJMAIN-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/>
+<path stroke-width="1" id="E1-MJMAIN-2E" d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60Z"/>
+<path stroke-width="1" id="E1-MJMATHI-6E" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"/>
+<path stroke-width="1" id="E1-MJMAIN-2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"/>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E1-MJMATHI-70" x="0" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-30" x="712" y="-213"/>
+ <use xlink:href="#E1-MJMAIN-2C" x="957" y="0"/>
+<g transform="translate(1402,0)">
+ <use xlink:href="#E1-MJMATHI-70" x="0" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-31" x="712" y="-213"/>
+</g>
+ <use xlink:href="#E1-MJMAIN-2C" x="2359" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2E" x="2805" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2E" x="3250" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2E" x="3695" y="0"/>
+ <use xlink:href="#E1-MJMAIN-2C" x="4140" y="0"/>
+<g transform="translate(4585,0)">
+ <use xlink:href="#E1-MJMATHI-70" x="0" y="0"/>
+<g transform="translate(503,-150)">
+ <use transform="scale(0.707)" xlink:href="#E1-MJMATHI-6E" x="0" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-2212" x="600" y="0"/>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMAIN-31" x="1379" y="0"/>
+</g>
+</g>
+</g>
+</svg></td>
+</tr>
+</tbody></table>
+<p> 一般来说都是 p 命名法，因为其具有较好的可读性，可以方便地让我们知道寄存器属于哪一种类型。</p>
+<p>需要注意的是：</p>
+<ul>
+<li>在非 static 方法中，p0 表示<code>this</code>，p1 表示第一个参数。</li>
+<li>但是在 static 方法中，p0 表示第一个参数。</li>
+</ul>
+<h4 id="类方法声明"><a href="#类方法声明" class="headerlink" title="类方法声明"></a>类方法声明</h4><figure class="highlight oxygene"><table><tr><td class="code"><pre><code class="hljs oxygene">.method &lt;访问权限&gt; &lt;方法名&gt;(参数类型)&lt;返回值类型&gt;<br>	[.registers]   <span class="hljs-comment">// 寄存器个数=field个数+local个数</span><br>    [.prologue]    <span class="hljs-comment">// 指定代码开始位置</span><br>    [.param]       <span class="hljs-comment">// 指定方法参数</span><br>    [.line]        <span class="hljs-comment">// 指定代码在源代码中的行数，混淆后可能不存在</span><br>    [.locals]      <span class="hljs-comment">// 使用的局部变量个数</span><br>    &lt;代码体&gt;<br>.end <span class="hljs-function"><span class="hljs-keyword">method</span></span><br></code></pre></td></tr></table></figure>
+
+<h4 id="smali-指令符"><a href="#smali-指令符" class="headerlink" title="smali 指令符"></a>smali 指令符</h4><p>底下的表是所有的 smali 语法的指令符号以及其的表示的含义及用法事例：</p>
+<table>
+<thead>
+<tr>
+<th>Opcode (hex)</th>
+<th>Opcode name</th>
+<th>Explanation</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>00</td>
+<td>nop</td>
+<td>无操作</td>
+<td>0000 - nop</td>
+</tr>
+<tr>
+<td>01</td>
+<td>move vx, vy</td>
+<td>将 vy 的值移入到 vx（4位，支持 int）</td>
+<td>0110 - move v0, v1 Moves v1 into v0.</td>
+</tr>
+<tr>
+<td>02</td>
+<td>move/from16 vx, vy</td>
+<td>Moves the content of vy into vx. vy may be in the 64k register range while vx is one of the first 256 registers.</td>
+<td>0200 1900 - move/from16 v0, v25 Moves v25 into v0.</td>
+</tr>
+<tr>
+<td>03</td>
+<td>move/16</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>04</td>
+<td>move-wide</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>05</td>
+<td>move-wide/from16 vx, vy</td>
+<td>Moves a long/double value from vy to vx. vy may be in the 64k register range while wx is one of the first 256 registers.</td>
+<td>0516 0000 - move-wide/from16 v22, v0 Moves v0 into v22.</td>
+</tr>
+<tr>
+<td>06</td>
+<td>move-wide/16</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>07</td>
+<td>move-object vx, vy</td>
+<td>Moves the object reference from vy to vx.</td>
+<td>0781 - move-object v1, v8 Moves the object reference in v8 to v1.</td>
+</tr>
+<tr>
+<td>08</td>
+<td>move-object/from16 vx,vy</td>
+<td>Moves the object reference from vy to vx, vy can address 64k registers and vx can address 256 registers.</td>
+<td>0801 1500 - move-object/from16 v1, v21 Move the object reference in v21 to v1.</td>
+</tr>
+<tr>
+<td>09</td>
+<td>move-object/16</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>0A</td>
+<td>move-result vx</td>
+<td>Move the result value of the previous method invocation into vx.</td>
+<td>0A00 - move-result v0 Move the return value of a previous method invocation into v0.</td>
+</tr>
+<tr>
+<td>0B</td>
+<td>move-result-wide vx</td>
+<td>Move the long/double result value of the previous method invocation into vx,vx+1.</td>
+<td>0B02 - move-result-wide v2 Move the long/double result value of the previous method invocation into v2,v3.</td>
+</tr>
+<tr>
+<td>0C</td>
+<td>move-result-object vx</td>
+<td>Move the result object reference of the previous method invocation into vx.</td>
+<td>0C00 - move-result-object v0</td>
+</tr>
+<tr>
+<td>0D</td>
+<td>move-exception vx</td>
+<td>Move the exception object reference thrown during a method invocation into vx.</td>
+<td>0D19 - move-exception v25</td>
+</tr>
+<tr>
+<td>0E</td>
+<td>return-void</td>
+<td>无返回值</td>
+<td>0E00 - return-void</td>
+</tr>
+<tr>
+<td>0F</td>
+<td>return vx</td>
+<td>将 vx 作为返回值返回</td>
+<td>0F00 - return v0 Returns with return value in v0.</td>
+</tr>
+<tr>
+<td>10</td>
+<td>return-wide vx</td>
+<td>Return with double/long result in vx,vx+1.</td>
+<td>1000 - return-wide v0 Returns with a double/long value in v0,v1.</td>
+</tr>
+<tr>
+<td>11</td>
+<td>return-object vx</td>
+<td>返回 vx 代表的实例化对象</td>
+<td>1100 - return-object v0 Returns with object reference value in v0</td>
+</tr>
+<tr>
+<td>12</td>
+<td>const/4 vx, lit4</td>
+<td>将 4 位常量值放入 vx</td>
+<td>1221 - const/4 v1, #int2 Moves literal 2 into v1. The destination register is in the lower 4 bit in the second byte, the literal 2 is in the higher 4 bit.</td>
+</tr>
+<tr>
+<td>13</td>
+<td>const/16 vx, lit16</td>
+<td>将 16 位常量值放入 vx</td>
+<td>1300 0A00 - const/16 v0, #int 10 Puts the literal constant of 10 into v0.</td>
+</tr>
+<tr>
+<td>14</td>
+<td>const vx,  lit32</td>
+<td>将 32 位常量值放入 vx</td>
+<td>1400 4E61 BC00 - const v0, #12345678 // #00BC614E Moves literal 12345678 into v0.</td>
+</tr>
+<tr>
+<td>15</td>
+<td>const/high16 v0, lit16</td>
+<td>Puts the 16 bit constant into the topmost bits of the register. Used to initialize float values.</td>
+<td>1500 2041 - const/high16 v0, #float 10.0 // #41200000 Moves the floating literal of 10.0 into v0. The 16 bit literal in the instruction carries the top 16 bits of the floating point number.</td>
+</tr>
+<tr>
+<td>16</td>
+<td>const-wide/16 vx, lit16</td>
+<td>Puts the integer constant into vx and vx+1 registers, expanding the integer constant into a long constant..</td>
+<td>1600 0A00 - const-wide/16 v0, #long 10 Moves literal 10 into v0 and v1 registers.</td>
+</tr>
+<tr>
+<td>17</td>
+<td>const-wide/32 vx, lit32</td>
+<td>Puts the 32 bit constant into vx and vx+1 registers, expanding the integer constant into a long constant.</td>
+<td>1702 4e61 bc00 - const-wide/32 v2, #long 12345678 // #00bc614e Puts #12345678 into v2 and v3 registers.</td>
+</tr>
+<tr>
+<td>18</td>
+<td>const-wide vx, lit64</td>
+<td>Puts the 64 bit constant into vx and vx+1 registers.</td>
+<td>1802 874b 6b5d 54dc 2b00- const-wide v2, #long 12345678901234567 // #002bdc545d6b4b87 Puts #12345678901234567 into v2 and v3 registers.</td>
+</tr>
+<tr>
+<td>19</td>
+<td>const-wide/high16 vx,lit16</td>
+<td>Puts the 16 bit constant into the highest 16 bit of vx and vx+1 registers. Used to initialize double values.</td>
+<td>1900 2440 - const-wide/high16 v0, #double 10.0 // #402400000 Puts the double constant of 10.0 into v0 register.</td>
+</tr>
+<tr>
+<td>1A</td>
+<td>const-string vx,string_id</td>
+<td>Puts reference to a string constant identified by string_id into vx.</td>
+<td>1A08 0000 - const-string v8, “” // string@0000 Puts reference to string@0000 (entry #0 in the string table) into v8.</td>
+</tr>
+<tr>
+<td>1B</td>
+<td>const-string-jumbo</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>1C</td>
+<td>const-class vx,type_id</td>
+<td>Moves the class object of a class identified by type_id (e.g. Object.class) into vx.</td>
+<td>1C00 0100 - const-class v0, Test3 // type@0001 Moves reference to Test3.class (entry#1 in the type id table) into</td>
+</tr>
+<tr>
+<td>1D</td>
+<td>monitor-enter vx</td>
+<td>Obtains the monitor of the object referenced by vx.</td>
+<td>1D03 - monitor-enter v3 Obtains the monitor of the object referenced by v3.</td>
+</tr>
+<tr>
+<td>1E</td>
+<td>monitor-exit</td>
+<td>Releases the monitor of the object referenced by vx.</td>
+<td>1E03 - monitor-exit v3 Releases the monitor of the object referenced by v3.</td>
+</tr>
+<tr>
+<td>1F</td>
+<td>check-cast vx, type_id</td>
+<td>Checks whether the object reference in vx can be cast to an instance of a class referenced by type_id. Throws ClassCastException if the cast is not possible, continues execution otherwise.</td>
+<td>1F04 0100 - check-cast v4, Test3 // type@0001 Checks whether the object reference in v4 can be cast to type@0001 (entry #1 in the type id table)</td>
+</tr>
+<tr>
+<td>20</td>
+<td>instance-of vx,vy,type_id</td>
+<td>Checks whether vy is instance of a class identified by type_id. Sets vx non-zero if it is, 0 otherwise.</td>
+<td>2040 0100 - instance-of v0, v4, Test3 // type@0001 Checks whether the object reference in v4 is an instance of type@0001 (entry #1 in the type id table). Sets v0 to non-zero if v4 is instance of Test3, 0 otherwise.</td>
+</tr>
+<tr>
+<td>21</td>
+<td>array-length vx,vy</td>
+<td>Calculates the number of elements of the array referenced by vy and puts the length value into vx.</td>
+<td>2111 - array-length v1, v1 Calculates the number of elements of the array referenced by v1 and puts the result into v1.</td>
+</tr>
+<tr>
+<td>22</td>
+<td>new-instance vx,type</td>
+<td>Instantiates an object type and puts the reference of the newly created instance into vx.</td>
+<td>2200 1500 - new-instance v0, java.io.FileInputStream // type@0015 Instantiates type@0015 (entry #15H in the type table) and puts its reference into v0.</td>
+</tr>
+<tr>
+<td>23</td>
+<td>new-array vx,vy,type_id</td>
+<td>Generates a new array of type_id type and vy element size and puts the reference to the array into vx.</td>
+<td>2312 2500 - new-array v2, v1, char[] // type@0025 Generates a new array of type@0025 type and v1 size and puts the reference to the new array into v2.</td>
+</tr>
+<tr>
+<td>24</td>
+<td>filled-new-array {parameters},type_id</td>
+<td>Generates a new array of type_id and fills it with the parameters5. Reference to the newly generated array can be obtained by a move-result-object instruction, immediately following the filled-new-array instruction.</td>
+<td>2420 530D 0000 - filled-new-array {v0,v0},[I // type@0D53 Generates a new array of type@0D53. The array’s size will be 2 and both elements will be filled with the contents of v0 register.</td>
+</tr>
+<tr>
+<td>25</td>
+<td>filled-new-array-range {vx..vy},type_id</td>
+<td>Generates a new array of type_id and fills it with a range of parameters. Reference to the newly generated array can be obtained by a move-result-object instruction, immediately following the filled-new-array instruction.</td>
+<td>2503 0600 1300 - filled-new-array/range {v19..v21}, [B // type@0006 Generates a new array of type@0D53. The array’s size will be 3 and the elements will be filled using the v19,v20 and v21 registers4.</td>
+</tr>
+<tr>
+<td>26</td>
+<td>fill-array-data vx,array_data_offset</td>
+<td>Fills the array referenced by vx with the static data. The location of the static data is the sum of the position of the current instruction and the offset</td>
+<td>2606 2500 0000 - fill-array-data v6, 00e6 // +0025 Fills the array referenced by v0 with the static data at current instruction+25H words location. The offset is expressed as a 32-bit number. The static data is stored in the following format: 0003 // Table type: static array data 0400 // Byte per array element (in this case, 4 byte integers) 0300 0000 // Number of elements in the table 0100 0000 // Element #0: integer 1 0200 0000 // Element #1: integer 2 0300 0000 // Element #2: integer3</td>
+</tr>
+<tr>
+<td>27</td>
+<td>throw vx</td>
+<td>Throws an exception object. The reference of the exception object is in vx.</td>
+<td>2700 - throw v0 Throws an exception. The exception object reference is in v0.</td>
+</tr>
+<tr>
+<td>28</td>
+<td>goto target</td>
+<td>跳转到 target</td>
+<td>28F0 - goto 0005 // -0010 Jumps to current position-16 words (hex 10). 0005 is the label of the target instruction.</td>
+</tr>
+<tr>
+<td>29</td>
+<td>goto/16 target</td>
+<td>Unconditional jump by 16 bit offset2.</td>
+<td>2900 0FFE - goto/16 002f // -01f1 Jumps to the current position-1F1H words. 002F is the label of the target instruction.</td>
+</tr>
+<tr>
+<td>2A</td>
+<td>goto/32 target</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>2B</td>
+<td>packed-switch vx,table</td>
+<td>Implements a switch statement where the case constants are close to each other. The instruction uses an index table. vx indexes into this table to find the offset of the instruction for a particular case. If vx falls out of the index table, the execution continues on the next instruction (default case).</td>
+<td>2B02 0C00 0000 - packed-switch v2, 000c // +000c Execute a packed switch according to the switch argument in v2. The position of the index table is at current instruction+0CH words. The table looks like the following: 0001 // Table type: packed switch table 0300 // number of elements 0000 0000 // element base 0500 0000 0: 00000005 // case 0: +00000005 0700 0000 1: 00000007 // case 1: +00000007 0900 0000 2: 00000009 // case 2: +00000009</td>
+</tr>
+<tr>
+<td>2C</td>
+<td>sparse-switch vx,table</td>
+<td>Implements a switch statement with sparse case table. The instruction uses a lookup table with case constants and offsets for each case constant. If there is no match in the table, execution continues on the next instruction (default case).</td>
+<td>2C02 0c00 0000 - sparse-switch v2, 000c // +000c Execute a sparse switch according to the switch argument in v2. The position of the lookup table is at current instruction+0CH words. The table looks like the following. 0002 // Table type: sparse switch table 0300 // number of elements 9cff ffff // first case: -100 fa00 0000 // second case constant: 250 e803 0000 // third case constant: 1000 0500 0000 // offset for the first case constant: +5 0700 0000 // offset for the second case constant: +7 0900 0000 // offset for the third case constant: +9</td>
+</tr>
+<tr>
+<td>2D</td>
+<td>cmpl-float</td>
+<td>Compares the float values in vy and vz and sets the integer value in vx accordingly3</td>
+<td>2D00 0607 - cmpl-float v0, v6, v7 Compares the float values in v6 and v7 then sets v0 accordingly. NaN bias is less-than, the instruction will return -1 if any of the parameters is NaN.</td>
+</tr>
+<tr>
+<td>2E</td>
+<td>cmpg-float vx, vy, vz</td>
+<td>Compares the float values in vy and vz and sets the integer value in vx accordingly3.</td>
+<td>2E00 0607 - cmpg-float v0, v6, v7 Compares the float values in v6 and v7 then sets v0 accordingly. NaN bias is greater-than, the instruction will return 1 if any of the parameters is NaN.</td>
+</tr>
+<tr>
+<td>2F</td>
+<td>cmpl-double vx,vy,vz</td>
+<td>Compares the double values in vy and vz2 and sets the integer value in vx accordingly3.</td>
+<td>2F19 0608 - cmpl-double v25, v6, v8 Compares the double values in v6,v7 and v8,v9 and sets v25 accordingly. NaN bias is less-than, the instruction will return -1 if any of the parameters is NaN.</td>
+</tr>
+<tr>
+<td>30</td>
+<td>cmpg-double vx, vy, vz</td>
+<td>Compares the double values in vy and vz2 and sets the integer value in vx accordingly3.</td>
+<td>3000 080A - cmpg-double v0, v8, v10 Compares the double values in v8,v9 and v10,v11 then sets v0 accordingly. NaN bias is greater-than, the instruction will return 1 if any of the parameters is NaN.</td>
+</tr>
+<tr>
+<td>31</td>
+<td>cmp-long vx, vy, vz</td>
+<td>Compares the long values in vy and vz and sets the integer value in vx accordingly3.</td>
+<td>3100 0204 - cmp-long v0, v2, v4 Compares the long values in v2 and v4 then sets v0 accordingly.</td>
+</tr>
+<tr>
+<td>32</td>
+<td>if-eq vx, vy, target</td>
+<td>如果 vx==vy 2则跳转到 target，vx 和 vy 是整数值</td>
+<td>32b3 6600 - if-eq v3, v11, 0080 // +0066 Jumps to the current position+66H words if v3==v11. 0080 is the label of the target instruction.</td>
+</tr>
+<tr>
+<td>33</td>
+<td>if-ne vx,vy,target</td>
+<td>如果 vx != vy 则跳转到target，vx 和 vy 是整数值。</td>
+<td>33A3 1000 - if-ne v3, v10, 002c // +0010 Jumps to the current position+10H words if v3!=v10. 002c is the label of the target instruction.</td>
+</tr>
+<tr>
+<td>34</td>
+<td>if-lt vx,vy,target</td>
+<td>如果 vx &lt; vy 则跳转到 target，vx 和 vy 是整数值。</td>
+<td>3432 CBFF - if-lt v2, v3, 0023 // -0035 Jumps to the current position-35H words if v2&lt;v3. 0023 is the label of the target instruction.</td>
+</tr>
+<tr>
+<td>35</td>
+<td>if-ge vx, vy,target</td>
+<td>如果 vx &gt;= vy 则跳转到 target，vx 和 vy 是整数值。</td>
+<td>3510 1B00 - if-ge v0, v1, 002b // +001b Jumps to the current position+1BH words if v0&gt;=v1. 002b is the label of the target instruction.</td>
+</tr>
+<tr>
+<td>36</td>
+<td>if-gt vx,vy,target</td>
+<td>如果 vx &gt; vy 则跳转到 target，vx 和 vy 是整数值。</td>
+<td>3610 1B00 - if-ge v0, v1, 002b // +001b Jumps to the current position+1BH words if v0&gt;v1. 002b is the label of the target instruction.</td>
+</tr>
+<tr>
+<td>37</td>
+<td>if-le vx,vy,target</td>
+<td>如果 vx &lt;= vy 则跳转到 target，vx 和 vy 是整数值。</td>
+<td>3756 0B00 - if-le v6, v5, 0144 // +000b Jumps to the current position+0BH words if v6&lt;=v5. 0144 is the label of the target instruction.</td>
+</tr>
+<tr>
+<td>38</td>
+<td>if-eqz vx,target</td>
+<td>如果 vx == 0 则跳转到 target，vx 是一个整数值。</td>
+<td>3802 1900 - if-eqz v2, 0038 // +0019 Jumps to the current position+19H words if v2==0. 0038 is the label of the target instruction.</td>
+</tr>
+<tr>
+<td>39</td>
+<td>if-nez vx,target</td>
+<td>如果 vx != 0 则跳转到 target，vx 是一个整数值。</td>
+<td>3902 1200 - if-nez v2, 0014 // +0012 Jumps to current position+18 words (hex 12) if v2 is nonzero. 0014 is the label of the target instruction.</td>
+</tr>
+<tr>
+<td>3A</td>
+<td>if-ltz vx,target</td>
+<td>Checks vx and jumps if vx&lt;02.</td>
+<td>3A00 1600 - if-ltz v0, 002d // +0016 Jumps to the current position+16H words if v0&lt;0. 002d is the label of the target instruction.</td>
+</tr>
+<tr>
+<td>3B</td>
+<td>if-gez vx,target</td>
+<td>Checks vx and jumps if vx&gt;=02.</td>
+<td>3B00 1600 - if-gez v0, 002d // +0016 Jumps to the current position+16H words if v0 &gt;=0. 002d is the label of the target instruction.</td>
+</tr>
+<tr>
+<td>3C</td>
+<td>if-gtz vx,target</td>
+<td>Checks vx and jumps if vx&gt;02.</td>
+<td>3C00 1D00 - if-gtz v0, 004a // +001d Jumps to the current position+1DH words if v0&gt;0. 004A is the label of the target instruction.</td>
+</tr>
+<tr>
+<td>3D</td>
+<td>if-lez vx,target</td>
+<td>Checks vx and jumps if vx&lt;=02.</td>
+<td>3D00 1D00 - if-lez v0, 004a // +001d Jumps to the current position+1DH words if v0&lt;=0. 004A is the label of the target instruction.</td>
+</tr>
+<tr>
+<td>3E</td>
+<td>unused_3E</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>3F</td>
+<td>unused_3F</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>40</td>
+<td>unused_40</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>41</td>
+<td>unused_41</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>42</td>
+<td>unused_42</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>43</td>
+<td>unused_43</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>44</td>
+<td>aget vx,vy,vz</td>
+<td>Gets an integer value of an object reference array into vx. The array is referenced by vy and is indexed by vz.</td>
+<td>4407 0306 - aget v7, v3, v6 Gets an integer array element. The array is referenced by v3 and the element is indexed by v6. The element will be put into v7.</td>
+</tr>
+<tr>
+<td>45</td>
+<td>aget-wide vx,vy,vz</td>
+<td>Gets a long/double value of long/double array into vx,vx+1. The array is referenced by vy and is indexed by vz.</td>
+<td>4505 0104 - aget-wide v5, v1, v4 Gets a long/double array element. The array is referenced by v1 and the element is indexed by v4. The element will be put into v5,v6.</td>
+</tr>
+<tr>
+<td>46</td>
+<td>aget-object vx,vy,vz</td>
+<td>Gets an object reference value of an object reference array into vx. The array is referenced by vy and is indexed by vz.</td>
+<td>4602 0200 - aget-object v2, v2, v0 Gets an object reference array element. The array is referenced by v2 and the element is indexed by v0. The element will be put into v2.</td>
+</tr>
+<tr>
+<td>47</td>
+<td>aget-boolean vx,vy,vz</td>
+<td>Gets a boolean value of a boolean array into vx. The array is referenced by vy and is indexed by vz.</td>
+<td>4700 0001 - aget-boolean v0, v0, v1  Gets a boolean array element. The array is referenced by v0 and the element is indexed by v1. The element will be put into v0.</td>
+</tr>
+<tr>
+<td>48</td>
+<td>aget-byte vx,vy,vz</td>
+<td>Gets a byte value of a byte array into vx. The array is referenced by vy and is indexed by vz.</td>
+<td>4800 0001 - aget-byte v0, v0, v1 Gets a byte array element. The array is referenced by v0 and the element is indexed by v1. The element will be put into v0.</td>
+</tr>
+<tr>
+<td>49</td>
+<td>aget-char vx, vy,vz</td>
+<td>Gets a char value of a character array into vx. The element is indexed by vz, the array object is referenced by vy</td>
+<td>4905 0003 - aget-char v5, v0, v3 Gets a character array element. The array is referenced by v0 and the element is indexed by v3. The element will be put into v5.</td>
+</tr>
+<tr>
+<td>4A</td>
+<td>aget-short vx,vy,vz</td>
+<td>Gets a short value of a short array into vx. The element is indexed by vz, the array object is referenced by vy.</td>
+<td>4A00 0001 - aget-short v0, v0, v1 Gets a short array element. The array is referenced by v0 and the element is indexed by v1. The element will be put into v0.</td>
+</tr>
+<tr>
+<td>4B</td>
+<td>aput vx,vy,vz</td>
+<td>Puts the integer value in vx into an element of an integer array. The element is indexed by vz, the array object is referenced by vy.</td>
+<td>4B00 0305 - aput v0, v3, v5 Puts the integer value in v2 into an integer array referenced by v0. The target array element is indexed by v1.</td>
+</tr>
+<tr>
+<td>4C</td>
+<td>aput-wide vx,vy,vz</td>
+<td>Puts the double/long value in vx,vx+1 into a double/long array. The array is referenced by vy, the element is indexed by vz.</td>
+<td>4C05 0104 - aput-wide v5, v1, v4 Puts the double/long value in v5,v6 into a double/long array referenced by v1. The target array element is indexed by v4.</td>
+</tr>
+<tr>
+<td>4D</td>
+<td>aput-object vx,vy,vz</td>
+<td>Puts the object reference value in vx into an element of an object reference array. The element is indexed by vz, the array object is referenced by vy.</td>
+<td>4D02 0100 - aput-object v2, v1, v0 Puts the object reference value in v2 into an object reference array referenced by v0. The target array element is indexed by v1.</td>
+</tr>
+<tr>
+<td>4E</td>
+<td>aput-boolean vx,vy,vz</td>
+<td>Puts the boolean value in vx into an element of a boolean array. The element is indexed by vz, the array object is referenced by vy.</td>
+<td>4E01 0002 - aput-boolean v1, v0, v2 Puts the boolean value in v1 into an object reference array referenced by v0. The target array element is indexed by v2.</td>
+</tr>
+<tr>
+<td>4F</td>
+<td>aput-byte vx,vy,vz</td>
+<td>Puts the byte value in vx into an element of a byte array. The element is indexed by vz, the array object is referenced by vy.</td>
+<td>4F02 0001 - aput-byte v2, v0, v1 Puts the boolean value in v2 into a byte array referenced by v0. The target array element is indexed by v1.</td>
+</tr>
+<tr>
+<td>50</td>
+<td>aput-char vx,vy,vz</td>
+<td>Puts the char value in vx into an element of a character array. The element is indexed by vz, the array object is referenced by vy.</td>
+<td>5003 0001 - aput-char v3, v0, v1 Puts the character value in v3 into a character array referenced by v0. The target array element is indexed by v1.</td>
+</tr>
+<tr>
+<td>51</td>
+<td>aput-short vx,vy,vz</td>
+<td>Puts the short value in vx into an element of a short array. The element is indexed by vz, the array object is referenced by vy.</td>
+<td>5102 0001 - aput-short v2, v0, v1 Puts the short value in v2 into a character array referenced by v0. The target array element is indexed by v1.</td>
+</tr>
+<tr>
+<td>52</td>
+<td>iget vx, vy, field_id</td>
+<td>Reads an instance field into vx. The instance is referenced by vy.</td>
+<td>5210 0300 - iget v0, v1, Test2.i6:I // field@0003 Reads field@0003 into v0 (entry #3 in the field id table). The instance is referenced by v1.</td>
+</tr>
+<tr>
+<td>53</td>
+<td>iget-wide vx,vy,field_id</td>
+<td>Reads an instance field into vx1. The instance is referenced by vy.</td>
+<td>5320 0400 - iget-wide v0, v2, Test2.l0:J // field@0004 Reads field@0004 into v0 and v1 registers (entry #4 in the field id table). The instance is referenced by v2.</td>
+</tr>
+<tr>
+<td>54</td>
+<td>iget-object vx,vy,field_id</td>
+<td>Reads an object reference instance field into vx. The instance is referenced by vy.</td>
+<td>iget-object v1, v2, LineReader.fis:Ljava/io/FileInputStream; // field@0002 Reads field@0002 into v1 (entry #2 in the field id table). The instance is referenced by v2.</td>
+</tr>
+<tr>
+<td>55</td>
+<td>iget-boolean vx,vy,field_id</td>
+<td>Reads a boolean instance field into vx. The instance is referenced by vy.</td>
+<td>55FC 0000 - iget-boolean v12, v15, Test2.b0:Z // field@0000 Reads the boolean field@0000 into v12 register (entry #0 in the field id table). The instance is referenced by v15.</td>
+</tr>
+<tr>
+<td>56</td>
+<td>iget-byte vx,vy,field_id</td>
+<td>Reads a byte instance field into vx. The instance is referenced by vy.</td>
+<td>5632 0100 - iget-byte v2, v3, Test3.bi1:B // field@0001 Reads the char field@0001 into v2 register (entry #1 in the field id table). The instance is referenced by v3.</td>
+</tr>
+<tr>
+<td>57</td>
+<td>iget-char vx,vy,field_id</td>
+<td>Reads a char instance field into vx. The instance is referenced by vy.</td>
+<td>5720 0300 - iget-char v0, v2, Test3.ci1:C // field@0003 Reads the char field@0003 into v0 register (entry #3 in the field id table). The instance is referenced by v2.</td>
+</tr>
+<tr>
+<td>58</td>
+<td>iget-short vx,vy,field_id</td>
+<td>Reads a short instance field into vx. The instance is referenced by vy.</td>
+<td>5830 0800 - iget-short v0, v3, Test3.si1:S // field@0008 Reads the short field@0008 into v0 register (entry #8 in the field id table). The instance is referenced by v3.</td>
+</tr>
+<tr>
+<td>59</td>
+<td>iput vx,vy, field_id</td>
+<td>Puts vx into an instance field. The instance is referenced by vy.</td>
+<td>5920 0200 - iput v0,v2, Test2.i6:I // field@0002 Stores v0 into field@0002 (entry #2 in the field id table). The instance is referenced by v2.</td>
+</tr>
+<tr>
+<td>5A</td>
+<td>iput-wide vx,vy, field_id</td>
+<td>Puts the wide value located in vx and vx+1 registers into an instance field. The instance is referenced by vy.</td>
+<td>5A20 0000 - iput-wide v0,v2, Test2.d0:D // field@0000  Stores the wide value in v0, v1 registers into field@0000 (entry #0 in the field id table). The instance is referenced by v2.</td>
+</tr>
+<tr>
+<td>5B</td>
+<td>iput-object vx,vy,field_id</td>
+<td>Puts the object reference in vx into an instance field. The instance is referenced by vy.</td>
+<td>5B20 0000 - iput-object v0, v2, LineReader.bis:Ljava/io/BufferedInputStream; // field@0000 Stores the object reference in v0 into field@0000 (entry #0 in the field table). The instance is referenced by v2.</td>
+</tr>
+<tr>
+<td>5C</td>
+<td>iput-boolean vx,vy, field_id</td>
+<td>Puts the boolean value located in vx into an instance field. The instance is referenced by vy.</td>
+<td>5C30 0000 - iput-boolean v0, v3, Test2.b0:Z // field@0000 Puts the boolean value in v0 into field@0000 (entry #0 in the field id table). The instance is referenced by v3.</td>
+</tr>
+<tr>
+<td>5D</td>
+<td>iput-byte vx,vy,field_id</td>
+<td>Puts the byte value located in vx into an instance field. The instance is referenced by vy.</td>
+<td>5D20 0100 - iput-byte v0, v2, Test3.bi1:B // field@0001 Puts the boolean value in v0 into field@0001 (entry #1 in the field id table). The instance is referenced by v2.</td>
+</tr>
+<tr>
+<td>5E</td>
+<td>iput-char vx,vy,field_id</td>
+<td>Puts the char value located in vx into an instance field. The instance is referenced by vy.</td>
+<td>5E20 0300 - iput-char v0, v2, Test3.ci1:C // field@0003 Puts the char value in v0 into field@0003 (entry #3 in the field id table). The instance is referenced by v2.</td>
+</tr>
+<tr>
+<td>5F</td>
+<td>iput-short vx,vy,field_id</td>
+<td>Puts the short value located in vx into an instance field. The instance is referenced by vy.</td>
+<td>5F21 0800 - iput-short v1, v2, Test3.si1:S // field@0008 Puts the short value in v1 into field@0008 (entry #8 in the field id table). The instance is referenced by v2.</td>
+</tr>
+<tr>
+<td>60</td>
+<td>sget vx,field_id</td>
+<td>Reads the integer field identified by the field_id into vx.</td>
+<td>6000 0700 - sget v0, Test3.is1:I // field@0007 Reads field@0007 (entry #7 in the field id table) into v0.</td>
+</tr>
+<tr>
+<td>61</td>
+<td>sget-wide vx, field_id</td>
+<td>Reads the static field identified by the field_id into vx and vx+1 registers.</td>
+<td>6100 0500 - sget-wide v0, Test2.l1:J // field@0005 Reads field@0005 (entry #5 in the field id table) into v0 and v1 registers.</td>
+</tr>
+<tr>
+<td>62</td>
+<td>sget-object vx,field_id</td>
+<td>Reads the object reference field identified by the field_id into vx.</td>
+<td>6201 0C00 - sget-object v1, Test3.os1:Ljava/lang/Object; // field@000c Reads field@000c (entry #CH in the field id table) into v1.</td>
+</tr>
+<tr>
+<td>63</td>
+<td>sget-boolean vx,field_id</td>
+<td>Reads the boolean static field identified by the field_id into vx.</td>
+<td>6300 0C00 - sget-boolean v0, Test2.sb:Z // field@000c Reads boolean field@000c (entry #12 in the field id table) into v0.</td>
+</tr>
+<tr>
+<td>64</td>
+<td>sget-byte vx,field_id</td>
+<td>Reads the byte static field identified by the field_id into vx.</td>
+<td>6400 0200 - sget-byte v0, Test3.bs1:B // field@0002 Reads byte field@0002 (entry #2 in the field id table) into v0.</td>
+</tr>
+<tr>
+<td>65</td>
+<td>sget-char vx,field_id</td>
+<td>Reads the char static field identified by the field_id into vx.</td>
+<td>6500 0700 - sget-char v0, Test3.cs1:C // field@0007 Reads byte field@0007 (entry #7 in the field id table) into v0.</td>
+</tr>
+<tr>
+<td>66</td>
+<td>sget-short vx,field_id</td>
+<td>Reads the short static field identified by the field_id into vx.</td>
+<td>6600 0B00 - sget-short v0, Test3.ss1:S // field@000b Reads short field@000b (entry #BH in the field id table) into v0.</td>
+</tr>
+<tr>
+<td>67</td>
+<td>sput vx, field_id</td>
+<td>Puts vx into a static field.</td>
+<td>6700 0100 - sput v0, Test2.i5:I // field@0001 Stores v0 into field@0001 (entry #1 in the field id table).</td>
+</tr>
+<tr>
+<td>68</td>
+<td>sput-wide vx, field_id</td>
+<td>Puts vx and vx+1 into a static field.</td>
+<td>6800 0500 - sput-wide v0, Test2.l1:J // field@0005 Puts the long value in v0 and v1 into the field@0005 static field (entry #5 in the field id table).</td>
+</tr>
+<tr>
+<td>69</td>
+<td>sput-object vx,field_id</td>
+<td>Puts object reference in vx into a static field.</td>
+<td>6900 0c00 - sput-object v0, Test3.os1:Ljava/lang/Object; // field@000c Puts the object reference value in v0 into the field@000c static field (entry #CH in the field id table).</td>
+</tr>
+<tr>
+<td>6A</td>
+<td>sput-boolean vx,field_id</td>
+<td>Puts boolean value in vx into a static field.</td>
+<td>6A00 0300 - sput-boolean v0, Test3.bls1:Z // field@0003 Puts the byte value in v0 into the field@0003 static field (entry #3 in the field id table).</td>
+</tr>
+<tr>
+<td>6B</td>
+<td>sput-byte vx,field_id</td>
+<td>Puts byte value in vx into a static field.</td>
+<td>6B00 0200 - sput-byte v0, Test3.bs1:B // field@0002 Puts the byte value in v0 into the field@0002 static field (entry #2 in the field id table).</td>
+</tr>
+<tr>
+<td>6C</td>
+<td>sput-char vx,field_id</td>
+<td>Puts char value in vx into a static field.</td>
+<td>6C01 0700 - sput-char v1, Test3.cs1:C // field@0007 Puts the char value in v1 into the field@0007 static field (entry #7 in the field id table).</td>
+</tr>
+<tr>
+<td>6D</td>
+<td>sput-short vx,field_id</td>
+<td>Puts short value in vx into a static field.</td>
+<td>6D00 0B00 - sput-short v0, Test3.ss1:S // field@000b Puts the short value in v0 into the field@000b static field (entry #BH in the field id table).</td>
+</tr>
+<tr>
+<td>6E</td>
+<td>invoke-virtual { parameters }, methodtocall</td>
+<td>Invokes a virtual method with parameters.</td>
+<td>6E53 0600 0421 - invoke-virtual { v4, v0, v1, v2, v3}, Test2.method5:(IIII)V // method@0006 Invokes the 6th method in the method table with the following arguments: v4 is the “this” instance, v0, v1, v2, and v3 are the method parameters. The method has 5 arguments (4 MSB bits of the second byte)5.</td>
+</tr>
+<tr>
+<td>6F</td>
+<td>invoke-super {parameter},methodtocall</td>
+<td>Invokes the virtual method of the immediate parent class.</td>
+<td>6F10 A601 0100 invoke-super {v1},java.io.FilterOutputStream.close:()V // method@01a6 Invokes method@01a6 with one parameter, v1.</td>
+</tr>
+<tr>
+<td>70</td>
+<td>invoke-direct { parameters }, methodtocall</td>
+<td>Invokes a method with parameters without the virtual method resolution.</td>
+<td>7010 0800 0100 - invoke-direct {v1}, java.lang.Object.<init>:()V // method@0008 Invokes the 8th method in the method table with just one parameter, v1 is the “this” instance5.</init></td>
+</tr>
+<tr>
+<td>71</td>
+<td>invoke-static {parameters}, methodtocall</td>
+<td>Invokes a static method with parameters.</td>
+<td>7110 3400 0400 - invoke-static {v4}, java.lang.Integer.parseInt:( Ljava/lang/String;)I // method@0034 Invokes method@34 static method. The method is called with one parameter, v45.</td>
+</tr>
+<tr>
+<td>72</td>
+<td>invoke-interface {parameters},methodtocall</td>
+<td>Invokes an interface method.</td>
+<td>7240 2102 3154 invoke-interface {v1, v3, v4, v5}, mwfw.IReceivingProtocolAdapter.receivePackage:( ILjava/lang/String;Ljava/io/InputStream;)Z // method@0221 Invokes method@221 interface method using parameters in v1,v3,v4 and v55.</td>
+</tr>
+<tr>
+<td>73</td>
+<td>unused_73</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>74</td>
+<td>invoke-virtual/range {vx..vy},methodtocall</td>
+<td>Invokes virtual method with a range of registers. The instruction specifies the first register and the number of registers to be passed to the method.</td>
+<td>7403 0600 1300 - invoke-virtual {v19..v21}, Test2.method5:(IIII)V // method@0006 Invokes the 6th method in the method table with the following arguments: v19 is the “this” instance, v20 and v21 are the method parameters.</td>
+</tr>
+<tr>
+<td>75</td>
+<td>invoke-super/range</td>
+<td>Invokes the virtual method of the immediate parent class. The instruction specifies the first register and the number of registers to be passed to the method.</td>
+<td>7501 A601 0100 invoke-super {v1},java.io.FilterOutputStream.close:()V // method@01a6 Invokes method@01a6 with one parameter, v1.</td>
+</tr>
+<tr>
+<td>76</td>
+<td>invoke-direct/range {vx..vy},methodtocall</td>
+<td>Invokes direct method with a range of registers. The instruction specifies the first register and the number of registers to be passed to the method.</td>
+<td>7603 3A00 1300 - invoke-direct/range {v19..21},java.lang.Object.<init>:()V // method@003a Invokes method@3A with 1 parameters (second byte of the instruction=03). The parameter is stored in v19 (5th,6th bytes of the instruction).</init></td>
+</tr>
+<tr>
+<td>77</td>
+<td>invoke-static/range {vx..vy},methodtocall</td>
+<td>Invokes static method with a range of registers. The instruction specifies the first register and the number of registers to be passed to the method.</td>
+<td>7703 3A00 1300 - invoke-static/range {v19..21},java.lang.Integer.parseInt:( Ljava/lang/String;)I // method@0034 Invokes method@3A with 1 parameters (second byte of the instruction=03). The parameter is stored in v19 (5th,6th bytes of the instruction).</td>
+</tr>
+<tr>
+<td>78</td>
+<td>invoke-interface-range</td>
+<td>Invokes an interface method with a range of registers. The instruction specifies the first register and the number of registers to be passed to the method.</td>
+<td>7840 2102 0100 invoke-interface {v1..v4}, mwfw.IReceivingProtocolAdapter.receivePackage:( ILjava/lang/String;Ljava/io/InputStream;)Z // method@0221 Invokes method@221 interface method using parameters in v1..v4.</td>
+</tr>
+<tr>
+<td>79</td>
+<td>unused_79</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>7A</td>
+<td>unused_7A</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>7B</td>
+<td>neg-int vx,vy</td>
+<td>Calculates vx=-vy.</td>
+<td>7B01 - neg-int v1,v0 Calculates -v0 and stores the result in v1.</td>
+</tr>
+<tr>
+<td>7C</td>
+<td>not-int vx,vy</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>7D</td>
+<td>neg-long vx,vy</td>
+<td>Calculates vx,vx+1=-(vy,vy+1)</td>
+<td>7D02 - neg-long v2,v0 Calculates -(v0,v1) and stores the result into (v2,v3)</td>
+</tr>
+<tr>
+<td>7E</td>
+<td>not-long vx,vy</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>7F</td>
+<td>neg-float vx,vy</td>
+<td>Calculates vx=-vy</td>
+<td>7F01 - neg-float v1,v0 Calculates -v0 and stores the result into v1.</td>
+</tr>
+<tr>
+<td>80</td>
+<td>neg-double vx,vy</td>
+<td>Calculates vx,vx+1=-(vy,vy+1)</td>
+<td>8002 - neg-double v2,v0 Calculates -(v0,v1) and stores the result into (v2,v3)</td>
+</tr>
+<tr>
+<td>81</td>
+<td>int-to-long vx, vy</td>
+<td>Converts the integer in vy into a long in vx,vx+1.</td>
+<td>8106 - int-to-long v6, v0 Converts an integer in v0 into a long in v6,v7.</td>
+</tr>
+<tr>
+<td>82</td>
+<td>int-to-float vx, vy</td>
+<td>Converts the integer in vx into a float in vx.</td>
+<td>8206 - int-to-float v6, v0 Converts the integer in v0 into a float in v6.</td>
+</tr>
+<tr>
+<td>83</td>
+<td>int-to-double vx, vy</td>
+<td>Converts the integer in vy into the double in vx,vx+1.</td>
+<td>8306 - int-to-double v6, v0 Converts the integer in v0 into a double in v6,v7</td>
+</tr>
+<tr>
+<td>84</td>
+<td>long-to-int vx,vy</td>
+<td>Converts the long value in vy,vy+1 into an integer in vx.</td>
+<td>8424 - long-to-int v4, v2 Converts the long value in v2,v3 into an integer value in v4.</td>
+</tr>
+<tr>
+<td>85</td>
+<td>long-to-float vx, vy</td>
+<td>Converts the long value in vy,vy+1 into a float in vx.</td>
+<td>8510 - long-to-float v0, v1 Convcerts the long value in v1,v2 into a float value in v0.</td>
+</tr>
+<tr>
+<td>86</td>
+<td>long-to-double vx, vy</td>
+<td>Converts the long value in vy,vy+1 into a double value in vx,vx+1.</td>
+<td>8610 - long-to-double v0, v1 Converts the long value in v1,v2 into a double value in v0,v1.</td>
+</tr>
+<tr>
+<td>87</td>
+<td>float-to-int vx, vy</td>
+<td>Converts the float value in vy into an integer value in vx.</td>
+<td>8730 - float-to-int v0, v3 Converts the float value in v3 into an integer value in v0.</td>
+</tr>
+<tr>
+<td>88</td>
+<td>float-to-long vx,vy</td>
+<td>Converts the float value in vy into a long value in vx.</td>
+<td>8830 - float-to-long v0, v3 Converts the float value in v3 into a long value in v0,v1.</td>
+</tr>
+<tr>
+<td>89</td>
+<td>float-to-double vx, vy</td>
+<td>Converts the float value in vy into a double value in vx,vx+1.</td>
+<td>8930 - float-to-double v0, v3 Converts the float value in v3 into a double value in v0,v1.</td>
+</tr>
+<tr>
+<td>8A</td>
+<td>double-to-int vx, vy</td>
+<td>Converts the double value in vy,vy+1 into an integer value in vx.</td>
+<td>8A40 - double-to-int v0, v4 Converts the double value in v4,v5 into an integer value in v0.</td>
+</tr>
+<tr>
+<td>8B</td>
+<td>double-to-long vx, vy</td>
+<td>Converts the double value in vy,vy+1 into a long value in vx,vx+1.</td>
+<td>8B40 - double-to-long v0, v4 Converts the double value in v4,v5 into a long value in v0,v1.</td>
+</tr>
+<tr>
+<td>8C</td>
+<td>double-to-float vx, vy</td>
+<td>Converts the double value in vy,vy+1 into a float value in vx.</td>
+<td>8C40 - double-to-float v0, v4 Converts the double value in v4,v5 into a float value in v0,v1.</td>
+</tr>
+<tr>
+<td>8D</td>
+<td>int-to-byte vx,vy</td>
+<td>Converts the int value in vy to a byte value and stores it in vx.</td>
+<td>8D00 - int-to-byte v0, v0 Converts the integer in v0 into a byte and puts the byte value into v0.</td>
+</tr>
+<tr>
+<td>8E</td>
+<td>int-to-char vx,vy</td>
+<td>Converts the int value in vy to a char value and stores it in vx.</td>
+<td>8E33 - int-to-char v3, v3 Converts the integer in v3 into a char and puts the char value into v3.</td>
+</tr>
+<tr>
+<td>8F</td>
+<td>int-to-short vx,vy</td>
+<td>Converts the int value in vy to a short value and stores it in vx.</td>
+<td>8F00 - int-to-short v0, v0 Converts the integer in v0 into a short and puts the short value into v3.</td>
+</tr>
+<tr>
+<td>90</td>
+<td>add-int vx,vy,vz</td>
+<td>Calculates vy+vz and puts the result into vx.</td>
+<td>9000 0203 - add-int v0, v2, v3 Adds v3 to v2 and puts the result into v04.</td>
+</tr>
+<tr>
+<td>91</td>
+<td>sub-int vx,vy,vz</td>
+<td>Calculates vy-vz and puts the result into vx.</td>
+<td>9100 0203 - sub-int v0, v2, v3 Subtracts v3 from v2 and puts the result into v0.</td>
+</tr>
+<tr>
+<td>92</td>
+<td>mul-int vx, vy, vz</td>
+<td>Multiplies vz with wy and puts the result int vx.</td>
+<td>9200 0203 - mul-int v0,v2,v3 Multiplies v2 with w3 and puts the result into v0</td>
+</tr>
+<tr>
+<td>93</td>
+<td>div-int vx,vy,vz</td>
+<td>Divides vy with vz and puts the result into vx.</td>
+<td>9303 0001 - div-int v3, v0, v1 Divides v0 with v1 and puts the result into v3.</td>
+</tr>
+<tr>
+<td>94</td>
+<td>rem-int vx,vy,vz</td>
+<td>Calculates vy % vz and puts the result into vx.</td>
+<td>9400 0203 - rem-int v0, v2, v3 Calculates v3 % v2 and puts the result into v0.</td>
+</tr>
+<tr>
+<td>95</td>
+<td>and-int vx, vy, vz</td>
+<td>Calculates vy AND vz and puts the result into vx.</td>
+<td>9503 0001 - and-int v3, v0, v1 Calculates v0 AND v1 and puts the result into v3.</td>
+</tr>
+<tr>
+<td>96</td>
+<td>or-int vx, vy, vz</td>
+<td>Calculates vy OR vz and puts the result into vx.</td>
+<td>9603 0001 - or-int v3, v0, v1 Calculates v0 OR v1 and puts the result into v3.</td>
+</tr>
+<tr>
+<td>97</td>
+<td>xor-int vx, vy, vz</td>
+<td>Calculates vy XOR vz and puts the result into vx.</td>
+<td>9703 0001 - xor-int v3, v0, v1 Calculates v0 XOR v1 and puts the result into v3.</td>
+</tr>
+<tr>
+<td>98</td>
+<td>shl-int vx, vy, vz</td>
+<td>Shift vy left by the positions specified by vz and store the result into vx.</td>
+<td>9802 0001 - shl-int v2, v0, v1 Shift v0 left by the positions specified by v1 and store the result in v2.</td>
+</tr>
+<tr>
+<td>99</td>
+<td>shr-int vx, vy, vz</td>
+<td>Shift vy right by the positions specified by vz and store the result into vx.</td>
+<td>9902 0001 - shr-int v2, v0, v1 Shift v0 right by the positions specified by v1 and store the result in v2.</td>
+</tr>
+<tr>
+<td>9A</td>
+<td>ushr-int vx, vy, vz</td>
+<td>Unsigned shift right (&gt;&gt;&gt;) vy by the positions specified by vz and store the result into vx.</td>
+<td>9A02 0001 - ushr-int v2, v0, v1 Unsigned shift v0 right by the positions specified by v1 and store the result in v2.</td>
+</tr>
+<tr>
+<td>9B</td>
+<td>add-long vx, vy, vz</td>
+<td>Adds vy to vz and puts the result into vx1.</td>
+<td>9B00 0305 - add-long v0, v3, v5 The long value in v3,v4 is added to the value in v5,v6 and the result is stored in v0,v1.</td>
+</tr>
+<tr>
+<td>9C</td>
+<td>sub-long vx,vy,vz</td>
+<td>Calculates vy-vz and puts the result into vx1.</td>
+<td>9C00 0305 - sub-long v0, v3, v5 Subtracts the long value in v5,v6 from the long value in v3,v4 and puts the result into v0,v1.</td>
+</tr>
+<tr>
+<td>9D</td>
+<td>mul-long vx,vy,vz</td>
+<td>Calculates vy*vz and puts the result into vx1.</td>
+<td>9D00 0305 - mul-long v0, v3, v5 Multiplies the long value in v5,v6 with the long value in v3,v4 and puts the result into v0,v1.</td>
+</tr>
+<tr>
+<td>9E</td>
+<td>div-long vx, vy, vz</td>
+<td>Calculates vy/vz and puts the result into vx1.</td>
+<td>9E06 0002 - div-long v6, v0, v2 Divides the long value in v0,v1 with the long value in v2,v3 and pust the result into v6,v7.</td>
+</tr>
+<tr>
+<td>9F</td>
+<td>rem-long vx,vy,vz</td>
+<td>Calculates vy % vz and puts the result into vx1.</td>
+<td>9F06 0002 - rem-long v6, v0, v2 Calculates v0,v1 % v2,v3 and puts the result into v6,v7.</td>
+</tr>
+<tr>
+<td>A0</td>
+<td>and-long vx, vy, vz</td>
+<td>Calculates the vy AND vz and puts the result into vx1.</td>
+<td>A006 0002 - and-long v6, v0, v2 Calculates v0,v1 AND v2,v3 and puts the result into v6,v7.</td>
+</tr>
+<tr>
+<td>A1</td>
+<td>or-long vx, vy, vz</td>
+<td>Calculates the vy OR vz and puts the result into vx1.</td>
+<td>A106 0002 - or-long v6, v0, v2 Calculates v0,v1 OR v2,v3 and puts the result into v6,v7.</td>
+</tr>
+<tr>
+<td>A2</td>
+<td>xor-long vx, vy, vz</td>
+<td>Calculates the vy XOR vz and puts the result into vx1.</td>
+<td>A206 0002 - xor-long v6, v0, v2 Calculates v0,v1 XOR v2,v3 and puts the result into v6,v7.</td>
+</tr>
+<tr>
+<td>A3</td>
+<td>shl-long vx, vy, vz</td>
+<td>Shifts left vy by vz positions and stores the result in vx1.</td>
+<td>A302 0004 - shl-long v2, v0, v4 Shift v0,v1 by postions specified by v4 and puts the result into v2,v3.</td>
+</tr>
+<tr>
+<td>A4</td>
+<td>shr-long vx,vy,vz</td>
+<td>Shifts right vy by vz positions and stores the result in vx1.</td>
+<td>A402 0004 - shr-long v2, v0, v4 Shift v0,v1 by postions specified by v4 and puts the result into v2,v3.</td>
+</tr>
+<tr>
+<td>A5</td>
+<td>ushr-long vx, vy, vz</td>
+<td>Unsigned shifts right vy by vz positions and stores the result in vx1.</td>
+<td>A502 0004 - ushr-long v2, v0, v4 Unsigned shift v0,v1 by postions specified by v4 and puts the result into v2,v3.</td>
+</tr>
+<tr>
+<td>A6</td>
+<td>add-float vx,vy,vz</td>
+<td>Adds vy to vz and puts the result into vx.</td>
+<td>A600 0203 - add-float v0, v2, v3 Adds the floating point numbers in v2 and v3 and puts the result into v0.</td>
+</tr>
+<tr>
+<td>A7</td>
+<td>sub-float vx,vy,vz</td>
+<td>Calculates vy-vz and puts the result into vx.</td>
+<td>A700 0203 - sub-float v0, v2, v3 Calculates v2-v3 and puts the result into v0.</td>
+</tr>
+<tr>
+<td>A8</td>
+<td>mul-float vx, vy, vz</td>
+<td>Multiplies vy with vz and puts the result into vx.</td>
+<td>A803 0001 - mul-float v3, v0, v1 Multiplies v0 with v1 and puts the result into v3.</td>
+</tr>
+<tr>
+<td>A9</td>
+<td>div-float vx, vy, vz</td>
+<td>Calculates vy/vz and puts the result into vx.</td>
+<td>A903 0001 - div-float v3, v0, v1 Divides v0 with v1 and puts the result into v3.</td>
+</tr>
+<tr>
+<td>AA</td>
+<td>rem-float vx,vy,vz</td>
+<td>Calculates vy % vz and puts the result into vx.</td>
+<td>AA03 0001 - rem-float v3, v0, v1 Calculates v0 % v1 and puts the result into v3.</td>
+</tr>
+<tr>
+<td>AB</td>
+<td>add-double vx,vy,vz</td>
+<td>Adds vy to vz and puts the result into vx1.</td>
+<td>AB00 0305 - add-double v0, v3, v5 Adds the double value in v5,v6 registers to the double value in v3,v4 registers and places the result in v0,v1 registers.</td>
+</tr>
+<tr>
+<td>AC</td>
+<td>sub-double vx,vy,vz</td>
+<td>Calculates vy-vz and puts the result into vx1.</td>
+<td>AC00 0305 - sub-double v0, v3, v5 Subtracts the value in v5,v6 from the value in v3,v4 and puts the result into v0,v1.</td>
+</tr>
+<tr>
+<td>AD</td>
+<td>mul-double vx, vy, vz</td>
+<td>Multiplies vy with vz and puts the result into vx1.</td>
+<td>AD06 0002 - mul-double v6, v0, v2 Multiplies the double value in v0,v1 with the double value in v2,v3 and puts the result into v6,v7.</td>
+</tr>
+<tr>
+<td>AE</td>
+<td>div-double vx, vy, vz</td>
+<td>Calculates vy/vz and puts the result into vx1.</td>
+<td>AE06 0002 - div-double v6, v0, v2 Divides the double value in v0,v1 with the double value in v2,v3 and puts the result into v6,v7.</td>
+</tr>
+<tr>
+<td>AF</td>
+<td>rem-double vx,vy,vz</td>
+<td>Calculates vy % vz and puts the result into vx1.</td>
+<td>AF06 0002 - rem-double v6, v0, v2 Calculates v0,v1 % v2,v3 and puts the result into v6,v7.</td>
+</tr>
+<tr>
+<td>B0</td>
+<td>add-int/2addr vx,vy</td>
+<td>Adds vy to vx.</td>
+<td>B010 - add-int/2addr v0,v1 Adds v1 to v0.</td>
+</tr>
+<tr>
+<td>B1</td>
+<td>sub-int/2addr vx,vy</td>
+<td>Calculates vx-vy and puts the result into vx.</td>
+<td>B140 - sub-int/2addr v0, v4 Subtracts v4 from v0 and puts the result into v0.</td>
+</tr>
+<tr>
+<td>B2</td>
+<td>mul-int/2addr vx,vy</td>
+<td>Multiplies vx with vy.</td>
+<td>B210 - mul-int/2addr v0, v1 Multiples v0 with v1 and puts the result into v0.</td>
+</tr>
+<tr>
+<td>B3</td>
+<td>div-int/2addr vx,vy</td>
+<td>Divides vx with vy and puts the result into vx.</td>
+<td>B310 - div-int/2addr v0, v1 Divides v0 with v1 and puts the result into v0.</td>
+</tr>
+<tr>
+<td>B4</td>
+<td>rem-int/2addr vx,vy</td>
+<td>Calculates vx % vy and puts the result into vx</td>
+<td>B410 - rem-int/2addr v0, v1  Calculates v0 % v1 and puts the result into v0.</td>
+</tr>
+<tr>
+<td>B5</td>
+<td>and-int/2addr vx, vy</td>
+<td>Calculates vx AND vy and puts the result into vx.</td>
+<td>B510 - and-int/2addr v0, v1 Calculates v0 AND v1 and puts the result into v0.</td>
+</tr>
+<tr>
+<td>B6</td>
+<td>or-int/2addr vx, vy</td>
+<td>Calculates vx OR vy and puts the result into vx.</td>
+<td>B610 - or-int/2addr v0, v1 Calculates v0 OR v1 and puts the result into v0.</td>
+</tr>
+<tr>
+<td>B7</td>
+<td>xor-int/2addr vx, vy</td>
+<td>Calculates vx XOR vy and puts the result into vx.</td>
+<td>B710 - xor-int/2addr v0, v1 Calculates v0 XOR v1 and puts the result into v0.</td>
+</tr>
+<tr>
+<td>B8</td>
+<td>shl-int/2addr vx, vy</td>
+<td>Shifts vx left by vy positions.</td>
+<td>B810 - shl-int/2addr v0, v1 Shift v0 left by v1 positions.</td>
+</tr>
+<tr>
+<td>B9</td>
+<td>shr-int/2addr vx, vy</td>
+<td>Shifts vx right by vy positions.</td>
+<td>B910 - shr-int/2addr v0, v1 Shift v0 right by v1 positions.</td>
+</tr>
+<tr>
+<td>BA</td>
+<td>ushr-int/2addr vx, vy</td>
+<td>Unsigned shift right (&gt;&gt;&gt;) vx by the positions specified by vy.</td>
+<td>BA10 - ushr-int/2addr v0, v1 Unsigned shift v0 by the positions specified by v1.</td>
+</tr>
+<tr>
+<td>BB</td>
+<td>add-long/2addr vx,vy</td>
+<td>Adds vy to vx1.</td>
+<td>BB20 - add-long/2addr v0, v2 Adds the long value in v2,v3 registers to the long value in v0,v1 registers.</td>
+</tr>
+<tr>
+<td>BC</td>
+<td>sub-long/2addr vx,vy</td>
+<td>Calculates vx-vy and puts the result into vx1.</td>
+<td>BC70 - sub-long/2addr v0, v7 Subtracts the long value in v7,v8 from the long value in v0,v1 and puts the result into v0,v1.</td>
+</tr>
+<tr>
+<td>BD</td>
+<td>mul-long/2addr vx,vy</td>
+<td>Calculates vx*vy and puts the result into vx1.</td>
+<td>BD70 - mul-long/2addr v0, v7 Multiplies the long value in v7,v8 with the long value in v0,v1 and puts the result into v0,v1.</td>
+</tr>
+<tr>
+<td>BE</td>
+<td>div-long/2addr vx, vy</td>
+<td>Calculates vx/vy and puts the result into vx1.</td>
+<td>BE20 - div-long/2addr v0, v2 Divides the long value in v0,v1 with the long value in v2,v3 and puts the result into v0,v1</td>
+</tr>
+<tr>
+<td>BF</td>
+<td>rem-long/2addr vx,vy</td>
+<td>Calculates vx % vy and puts the result into vx1.</td>
+<td>BF20 - rem-long/2addr v0, v2 Calculates v0,v1 % v2,v3 and puts the result into v0,v1</td>
+</tr>
+<tr>
+<td>C0</td>
+<td>and-long/2addr vx, vy</td>
+<td>Calculates vx AND vy and puts the result into vx1.</td>
+<td>C020 - and-long/2addr v0, v2 Calculates v0,v1 OR v2,v3 and puts the result into v0,v1.</td>
+</tr>
+<tr>
+<td>C1</td>
+<td>or-long/2addr vx, vy</td>
+<td>Calculates vx OR vy and puts the result into vx1.</td>
+<td>C120 - or-long/2addr v0, v2 Calculates v0,v1 OR v2,v3 and puts the result into v0,v1.</td>
+</tr>
+<tr>
+<td>C2</td>
+<td>xor-long/2addr vx, vy</td>
+<td>Calculates vx XOR vy and puts the result into vx1.</td>
+<td>C220 - xor-long/2addr v0, v2 Calculates v0,v1 XOR v2,v3 and puts the result into v0,v1.</td>
+</tr>
+<tr>
+<td>C3</td>
+<td>shl-long/2addr vx, vy</td>
+<td>Shifts left the value in vx,vx+1 by the positions specified by vy and stores the result in vx,vx+1.</td>
+<td>C320 - shl-long/2addr v0, v2 Shifts left v0,v1 by the positions specified by v2.</td>
+</tr>
+<tr>
+<td>C4</td>
+<td>shr-long/2addr vx, vy</td>
+<td>Shifts right the value in vx,vx+1 by the positions specified by vy and stores the result in vx,vx+1.</td>
+<td>C420 - shr-long/2addr v0, v2 Shifts right v0,v1 by the positions specified by v2.</td>
+</tr>
+<tr>
+<td>C5</td>
+<td>ushr-long/2addr vx, vy</td>
+<td>Unsigned shifts right the value in vx,vx+1 by the positions specified by vy and stores the result in vx,vx+1.</td>
+<td>C520 - ushr-long/2addr v0, v2 Unsigned shifts right v0,v1 by the positions specified by v2.</td>
+</tr>
+<tr>
+<td>C6</td>
+<td>add-float/2addr vx,vy</td>
+<td>Adds vy to vx.</td>
+<td>C640 - add-float/2addr v0,v4 Adds v4 to v0.</td>
+</tr>
+<tr>
+<td>C7</td>
+<td>sub-float/2addr vx,vy</td>
+<td>Calculates vx-vy and stores the result in vx.</td>
+<td>C740 - sub-float/2addr v0,v4 Adds v4 to v0.</td>
+</tr>
+<tr>
+<td>C8</td>
+<td>mul-float/2addr vx, vy</td>
+<td>Multiplies vx with vy.</td>
+<td>C810 - mul-float/2addr v0, v1 Multiplies v0 with v1.</td>
+</tr>
+<tr>
+<td>C9</td>
+<td>div-float/2addr vx, vy</td>
+<td>Calculates vx/vy and puts the result into vx.</td>
+<td>C910 - div-float/2addr v0, v1 Divides v0 with v1 and puts the result into v0.</td>
+</tr>
+<tr>
+<td>CA</td>
+<td>rem-float/2addr vx,vy</td>
+<td>Calculates vx/vy and puts the result into vx.</td>
+<td>CA10 - rem-float/2addr v0, v1  Calculates v0 % v1 and puts the result into v0.</td>
+</tr>
+<tr>
+<td>CB</td>
+<td>add-double/2addr vx, vy</td>
+<td>Adds vy to vx1.</td>
+<td>CB70 - add-double/2addr v0, v7 Adds v7 to v0.</td>
+</tr>
+<tr>
+<td>CC</td>
+<td>sub-double/2addr vx, vy</td>
+<td>Calculates vx-vy and puts the result into vx1.</td>
+<td>CC70 - sub-double/2addr v0, v7 Subtracts the value in v7,v8 from the value in v0,v1 and puts the result into v0,v1.</td>
+</tr>
+<tr>
+<td>CD</td>
+<td>mul-double/2addr vx, vy</td>
+<td>Multiplies vx with vy1.</td>
+<td>CD20 - mul-double/2addr v0, v2 Multiplies the double value in v0,v1 with the double value in v2,v3 and puts the result into v0,v1.</td>
+</tr>
+<tr>
+<td>CE</td>
+<td>div-double/2addr vx, vy</td>
+<td>Calculates vx/vy and puts the result into vx1.</td>
+<td>CE20 - div-double/2addr v0, v2 Divides the double value in v0,v1 with the double value in v2,v3 and puts the value into v0,v1.</td>
+</tr>
+<tr>
+<td>CF</td>
+<td>rem-double/2addr vx,vy</td>
+<td>Calculates vx % vy and puts the result into vx1.</td>
+<td>CF20 - rem-double/2addr v0, v2  Calculates v0,v1 % v2,v3 and puts the value into v0,v1.</td>
+</tr>
+<tr>
+<td>D0</td>
+<td>add-int/lit16 vx,vy,lit16</td>
+<td>Adds vy to lit16 and stores the result into vx.</td>
+<td>D001 D204 - add-int/lit16 v1, v0, #int 1234 // #04d2 Adds v0 to literal 1234 and stores the result into v1.</td>
+</tr>
+<tr>
+<td>D1</td>
+<td>sub-int/lit16 vx,vy,lit16</td>
+<td>Calculates vy - lit16 and stores the result into vx.</td>
+<td>D101 D204 - sub-int/lit16 v1, v0, #int 1234 // #04d2 Calculates v0 - literal 1234 and stores the result into v1.</td>
+</tr>
+<tr>
+<td>D2</td>
+<td>mul-int/lit16 vx,vy,lit16</td>
+<td>Calculates vy * lit16 and stores the result into vx.</td>
+<td>D201 D204 - mul-int/lit16 v1, v0, #int 1234 // #04d2 Calculates v0 * literal 1234 and stores the result into v1.</td>
+</tr>
+<tr>
+<td>D3</td>
+<td>div-int/lit16 vx,vy,lit16</td>
+<td>Calculates vy / lit16 and stores the result into vx.</td>
+<td>D301 D204 - div-int/lit16 v1, v0, #int 1234 // #04d2 Calculates v0 / literal 1234 and stores the result into v1.</td>
+</tr>
+<tr>
+<td>D4</td>
+<td>rem-int/lit16 vx,vy,lit16</td>
+<td>Calculates vy % lit16 and stores the result into vx.</td>
+<td>D401 D204 - rem-int/lit16 v1, v0, #int 1234 // #04d2 Calculates v0 % literal 1234 and stores the result into v1.</td>
+</tr>
+<tr>
+<td>D5</td>
+<td>and-int/lit16 vx,vy,lit16</td>
+<td>Calculates vy AND lit16 and stores the result into vx.</td>
+<td>D501 D204 - and-int/lit16 v1, v0, #int 1234 // #04d2 Calculates v0 AND literal 1234 and stores the result into v1.</td>
+</tr>
+<tr>
+<td>D6</td>
+<td>or-int/lit16 vx,vy,lit16</td>
+<td>Calculates vy OR lit16 and stores the result into vx.</td>
+<td>D601 D204 - or-int/lit16 v1, v0, #int 1234 // #04d2 Calculates v0 OR literal 1234 and stores the result into v1.</td>
+</tr>
+<tr>
+<td>D7</td>
+<td>xor-int/lit16 vx,vy,lit16</td>
+<td>Calculates vy XOR lit16 and stores the result into vx.</td>
+<td>D701 D204 - xor-int/lit16 v1, v0, #int 1234 // #04d2 Calculates v0 XOR literal 1234 and stores the result into v1.</td>
+</tr>
+<tr>
+<td>D8</td>
+<td>add-int/lit8 vx,vy,lit8</td>
+<td>Adds vy to lit8 and stores the result into vx.</td>
+<td>D800 0201 - add-int/lit8 v0,v2, #int1 Adds literal 1 to v2 and stores the result into v0.</td>
+</tr>
+<tr>
+<td>D9</td>
+<td>sub-int/lit8 vx,vy,lit8</td>
+<td>Calculates vy-lit8 and stores the result into vx.</td>
+<td>D900 0201 - sub-int/lit8 v0,v2, #int1 Calculates v2-1 and stores the result into v0.</td>
+</tr>
+<tr>
+<td>DA</td>
+<td>mul-int/lit-8 vx,vy,lit8</td>
+<td>Multiplies vy with lit8 8-bit literal constant and puts the result into vx.</td>
+<td>DA00 0002 - mul-int/lit8 v0,v0, #int2 Multiplies v0 with literal 2 and puts the result into v0.</td>
+</tr>
+<tr>
+<td>DB</td>
+<td>div-int/lit8 vx,vy,lit8</td>
+<td>Calculates vy/lit8 and stores the result into vx.</td>
+<td>DB00 0203 - mul-int/lit8 v0,v2, #int3 Calculates v2/3 and stores the result into v0.</td>
+</tr>
+<tr>
+<td>DC</td>
+<td>rem-int/lit8 vx,vy,lit8</td>
+<td>Calculates vy % lit8 and stores the result into vx.</td>
+<td>DC00 0203 - rem-int/lit8 v0,v2, #int3 Calculates v2 % 3 and stores the result into v0.</td>
+</tr>
+<tr>
+<td>DD</td>
+<td>and-int/lit8 vx,vy,lit8</td>
+<td>Calculates vy AND lit8 and stores the result into vx.</td>
+<td>DD00 0203 - and-int/lit8 v0,v2, #int3 Calculates v2 AND 3 and stores the result into v0.</td>
+</tr>
+<tr>
+<td>DE</td>
+<td>or-int/lit8 vx, vy, lit8</td>
+<td>Calculates vy OR lit8 and puts the result into vx.</td>
+<td>DE00 0203 - or-int/lit8 v0, v2, #int 3 Calculates v2 OR literal 3 and puts the result into v0.</td>
+</tr>
+<tr>
+<td>DF</td>
+<td>xor-int/lit8 vx, vy, lit8</td>
+<td>Calculates vy XOR lit8 and puts the result into vx.</td>
+<td>DF00 0203   | 0008: xor-int/lit8 v0, v2, #int 3 Calculates v2 XOR literal 3 and puts the result into v0.</td>
+</tr>
+<tr>
+<td>E0</td>
+<td>shl-int/lit8 vx, vy, lit8</td>
+<td>Shift v0 left by the bit positions specified by the literal constant and put the result into vx.</td>
+<td>E001 0001 - shl-int/lit8 v1, v0, #int 1 Shift v0 left by 1 position and put the result into v1.</td>
+</tr>
+<tr>
+<td>E1</td>
+<td>shr-int/lit8 vx, vy, lit8</td>
+<td>Shift v0 right by the bit positions specified by the literal constant and put the result into vx.</td>
+<td>E101 0001 - shr-int/lit8 v1, v0, #int 1 Shift v0 right by 1 position and put the result into v1.</td>
+</tr>
+<tr>
+<td>E2</td>
+<td>ushr-int/lit8 vx, vy, lit8</td>
+<td>Unsigned right shift of v0 (&gt;&gt;&gt;) by the bit positions specified by the literal constant and put the result into vx.</td>
+<td>E201 0001 - ushr-int/lit8 v1, v0, #int 1 Unsigned shift v0 right by 1 position and put the result into v1.</td>
+</tr>
+<tr>
+<td>E3</td>
+<td>unused_E3</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>E4</td>
+<td>unused_E4</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>E5</td>
+<td>unused_E5</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>E6</td>
+<td>unused_E6</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>E7</td>
+<td>unused_E7</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>E8</td>
+<td>unused_E8</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>E9</td>
+<td>unused_E9</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>EA</td>
+<td>unused_EA</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>EB</td>
+<td>unused_EB</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>EC</td>
+<td>unused_EC</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>ED</td>
+<td>unused_ED</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>EE</td>
+<td>execute-inline {parameters},inline ID</td>
+<td>Executes the inline method identified by inline ID6.</td>
+<td>EE20 0300 0100 - execute-inline {v1, v0}, inline #0003 Executes inline method #3 using v1 as “this” and passing one parameter in v0.</td>
+</tr>
+<tr>
+<td>EF</td>
+<td>unused_EF</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>F0</td>
+<td>invoke-direct-empty</td>
+<td>Stands as a placeholder for pruned empty methods like Object.<init>. This acts as nop during normal execution6.</init></td>
+<td>F010 F608 0000 - invoke-direct-empty {v0}, Ljava/lang/Object;.<init>:()V // method@08f6 Replacement for the empty method java/lang/Object;<init>.</init></init></td>
+</tr>
+<tr>
+<td>F1</td>
+<td>unused_F1</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>F2</td>
+<td>iget-quick vx,vy,offset</td>
+<td>Gets the value stored at offset in vy instance’s data area to vx6.</td>
+<td>F221 1000 - iget-quick v1, v2, [obj+0010] Gets the value at offset 0CH of the instance pointed by v2 and stores the object reference in v1.</td>
+</tr>
+<tr>
+<td>F3</td>
+<td>iget-wide-quick vx,vy,offset</td>
+<td>Gets the object reference value stored at offset in vy instance’s data area to vx,vx+16.</td>
+<td>F364 3001 - iget-wide-quick v4, v6, [obj+0130] Gets the value at offset 130H of the instance pointed by v6 and stores the object reference in v4,v5.</td>
+</tr>
+<tr>
+<td>F4</td>
+<td>iget-object-quick vx,vy,offset</td>
+<td>Gets the object reference value stored at offset in vy instance’s data area to vx6.</td>
+<td>F431 0C00 - iget-object-quick v1, v3, [obj+000c] Gets the object reference value at offset 0CH of the instance pointed by v3 and stores the object reference in v1.</td>
+</tr>
+<tr>
+<td>F5</td>
+<td>iput-quick vx,vy,offset</td>
+<td>Puts the value stored in vx to offset in vy instance’s data area6.</td>
+<td>F521 1000 - iput-quick v1, v2, [obj+0010] Puts the object reference value in v1 to offset 10H of the instance pointed by v2.</td>
+</tr>
+<tr>
+<td>F6</td>
+<td>iput-wide-quick vx,vy,offset</td>
+<td>Puts the value stored in vx,vx+1 to offset in vy instance’s data area6.</td>
+<td>F652 7001 - iput-wide-quick v2, v5, [obj+0170] Puts the value in v2,v3 to offset 170H of the instance pointed by v5.</td>
+</tr>
+<tr>
+<td>F7</td>
+<td>iput-object-quick vx,vy,offset</td>
+<td>Puts the object reference value stored in vx to offset in vy instance’s data area to vx6.</td>
+<td>F701 4C00 - iput-object-quick v1, v0, [obj+004c] Puts the object reference value in v1 to offset 0CH of the instance pointed by v3.</td>
+</tr>
+<tr>
+<td>F8</td>
+<td>invoke-virtual-quick {parameters},vtable offset</td>
+<td>Invokes a virtual method using the vtable of the target object6.</td>
+<td>F820 B800 CF00 - invoke-virtual-quick {v15, v12}, vtable #00b8 Invokes a virtual method. The target object instance is pointed by v15 and vtable entry #B8 points to the method to be called. v12 is a parameter to the method call.</td>
+</tr>
+<tr>
+<td>F9</td>
+<td>invoke-virtual-quick/range {parameter range},vtable offset</td>
+<td>Invokes a virtual method using the vtable of the target object6</td>
+<td>F906 1800 0000 - invoke-virtual-quick/range {v0..v5},vtable #0018 Invokes a method using the vtable of the instance pointed by v0. v1..v5 registers are parameters to the method call.</td>
+</tr>
+<tr>
+<td>FA</td>
+<td>invoke-super-quick {parameters},vtable offset</td>
+<td>Invokes a virtual method in the target object’s immediate parent class using the vtable of that parent class6.</td>
+<td>FA40 8100 3254 - invoke-super-quick {v2, v3, v4, v5}, vtable #0081 Invokes a method using the vtable of the immediate parent class of instance pointed by v2. v3, v4 and v5 registers are parameters to the method call.</td>
+</tr>
+<tr>
+<td>FB</td>
+<td>invoke-super-quick/range {register range},vtable offset</td>
+<td>Invokes a virtual method in the target object’s immediate parent class using the vtable of that parent class6.</td>
+<td>F906 1B00 0000 - invoke-super-quick/range {v0..v5}, vtable #001b Invokes a method using the vtable of the immediate parent class of instance pointed by v0. v1..v5 registers are parameters to the method call.</td>
+</tr>
+<tr>
+<td>FC</td>
+<td>unused_FC</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>FD</td>
+<td>unused_FD</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>FE</td>
+<td>unused_FE</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>FF</td>
+<td>unused_FF</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>最后附上循环、switch 以及 try-catch 三大常见的语句的事例。</p>
+<h4 id="循环"><a href="#循环" class="headerlink" title="循环"></a>循环</h4><figure class="highlight smali"><table><tr><td class="code"><pre><code class="hljs smali">public void encrypt(String str) &#123;<br>    String ans = <span class="hljs-string">&quot;&quot;</span>;<br>    for (int i = 0 ; i &lt; str.length(); i++)&#123;<br>        ans += str.charAt(i);<br>    &#125;<br>    Log.e(<span class="hljs-string">&quot;ans:&quot;</span>, ans);<br>&#125;<br>&lt;=对应smali=&gt;<br><br><span class="hljs-comment"># public void encrypt(String str) &#123;</span><br><span class="hljs-keyword">.method</span><span class="hljs-keyword"> public</span> encrypt(<span class="hljs-class">Ljava/lang/String;</span>)V <br><span class="hljs-keyword">.locals</span> 4 <br><span class="hljs-keyword">.param</span> p1, <span class="hljs-string">&quot;str&quot;</span>    <span class="hljs-comment"># Ljava/lang/String;</span><br><span class="hljs-keyword">.prologue</span> <br><br><span class="hljs-comment"># String ans = &quot;&quot;;</span><span class="hljs-built_in"></span><br><span class="hljs-built_in">const-string </span>v0, <span class="hljs-string">&quot;&quot;</span> <br><span class="hljs-keyword">.local</span> v0, <span class="hljs-string">&quot;ans&quot;</span>:<span class="hljs-class">Ljava/lang/String;</span> <br><br><span class="hljs-comment"># for (int i  0 ; i &lt; str.length();i++)&#123;</span><br><span class="hljs-comment"># int i=0 =&gt;v1</span><span class="hljs-built_in"></span><br><span class="hljs-built_in">const/4 </span>v1, 0x0<br><span class="hljs-keyword">.local</span> v1, <span class="hljs-string">&quot;i&quot;</span>:I<span class="hljs-keyword"></span><br><span class="hljs-keyword">:goto_0</span>				<span class="hljs-comment"># for_start_place</span><br><br><span class="hljs-comment"># str.length()=&gt;v2</span><span class="hljs-built_in"></span><br><span class="hljs-built_in">invoke-virtual </span>&#123;p1&#125;, <span class="hljs-class">Ljava/lang/String;</span>-&gt;length()I<span class="hljs-built_in"></span><br><span class="hljs-built_in">move-result </span>v2 <br><br><span class="hljs-comment"># i&lt;str.length() </span><span class="hljs-built_in"></span><br><span class="hljs-built_in">if-ge </span>v1, v2,<span class="hljs-keyword"> :cond_0</span> <br><br><span class="hljs-comment"># ans += str.charAt(i); </span><br><span class="hljs-comment"># str.charAt(i) =&gt; v2</span><span class="hljs-built_in"></span><br><span class="hljs-built_in">new-instance </span>v2, <span class="hljs-class">Ljava/lang/StringBuilder;</span> <span class="hljs-built_in"></span><br><span class="hljs-built_in">invoke-direct </span>&#123;v2&#125;, <span class="hljs-class">Ljava/lang/StringBuilder;</span>-&gt;&lt;init&gt;()V<br>invoke-virtual&#123;v2,v0&#125;,<span class="hljs-class">Ljava/lang/StringBuilder;</span>-&gt;append(<span class="hljs-class">Ljava/lang/String;</span>)<span class="hljs-class">Ljava/lang/StringBuilder;</span><span class="hljs-built_in"></span><br><span class="hljs-built_in">move-result-object </span>v2 <br><br><span class="hljs-comment">#str.charAt(i) =&gt; v3</span><span class="hljs-built_in"></span><br><span class="hljs-built_in">invoke-virtual </span>&#123;p1, v1&#125;, <span class="hljs-class">Ljava/lang/String;</span>-&gt;charAt(I)C <span class="hljs-built_in"></span><br><span class="hljs-built_in">move-result </span>v3<br><br><span class="hljs-comment"># ans += v3 =&gt;v0</span><span class="hljs-built_in"></span><br><span class="hljs-built_in">invoke-virtual </span>&#123;v2, v3&#125;, <span class="hljs-class">Ljava/lang/StringBuilder;</span>-&gt;append(C)<span class="hljs-class">Ljava/lang/StringBuilder;</span> <span class="hljs-built_in"></span><br><span class="hljs-built_in">move-result-object </span>v2 <span class="hljs-built_in"></span><br><span class="hljs-built_in">invoke-virtual </span>&#123;v2&#125;, <span class="hljs-class">Ljava/lang/StringBuilder;</span>-&gt;toString()<span class="hljs-class">Ljava/lang/String;</span><span class="hljs-built_in"></span><br><span class="hljs-built_in">move-result-object </span>v0<br><br><span class="hljs-comment"># i++</span><span class="hljs-built_in"></span><br><span class="hljs-built_in">add-int/lit8 </span>v1, v1, 0x1<span class="hljs-built_in"></span><br><span class="hljs-built_in">goto </span>:goto_0<br><br><span class="hljs-comment"># Log.e(&quot;ans:&quot;,ans);</span><span class="hljs-keyword"></span><br><span class="hljs-keyword">:cond_0</span><span class="hljs-built_in"></span><br><span class="hljs-built_in">const-string </span>v2, <span class="hljs-string">&quot;ans:&quot;</span> <span class="hljs-built_in"></span><br><span class="hljs-built_in">invoke-static </span>&#123;v2, v0&#125;, <span class="hljs-class">Landroid/util/Log;</span>-&gt;e(<span class="hljs-class">Ljava/lang/String;</span><span class="hljs-class">Ljava/lang/String;</span>)I<span class="hljs-built_in"></span><br><span class="hljs-built_in">return-void </span><span class="hljs-keyword"></span><br><span class="hljs-keyword">.end method</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="switch-语句"><a href="#switch-语句" class="headerlink" title="switch 语句"></a>switch 语句</h4><figure class="highlight smali"><table><tr><td class="code"><pre><code class="hljs smali">public void encrypt(int flag) &#123;<br>        String ans = null;<br>        switch (flag)&#123;<br>            case 0:<br>                ans = <span class="hljs-string">&quot;ans is 0&quot;</span>;<br>                break;<br>            default:<br>                ans = <span class="hljs-string">&quot;noans&quot;</span>;<br>                break;<br>        &#125;<br>        Log.v(<span class="hljs-string">&quot;ans:&quot;</span>,ans);<br>    &#125;<br>&lt;=对应smali=&gt;<br><span class="hljs-comment">#public void encrypt(int flag) &#123;</span><br><span class="hljs-keyword">.method</span><span class="hljs-keyword"> public</span> encrypt(I)V <br><span class="hljs-keyword">    .locals</span> 2<br><span class="hljs-keyword">    .param</span> p1, <span class="hljs-string">&quot;flag&quot;</span>    <span class="hljs-comment"># I</span><br><span class="hljs-keyword">    .prologue</span><br>    <br><span class="hljs-comment">#String ans = null;</span><br>   <span class="hljs-built_in"> const/4 </span>v0, 0x0<br><span class="hljs-keyword">    .local</span> v0, <span class="hljs-string">&quot;ans&quot;</span>:<span class="hljs-class">Ljava/lang/String;</span><br>    <br><span class="hljs-comment">#switch (flag)&#123;</span><br>   <span class="hljs-built_in"> packed-switch </span>p1,<span class="hljs-keyword"> :pswitch_data_0</span>	 <span class="hljs-comment"># pswitch_data_0指定case区域的开头及结尾</span><br>    <br><span class="hljs-comment">#default: ans=&quot;noans&quot;</span><br>   <span class="hljs-built_in"> const-string </span>v0, <span class="hljs-string">&quot;noans&quot;</span><br>    <br><span class="hljs-comment">#Log.v(&quot;ans:&quot;,ans)</span><br>   <span class="hljs-keyword"> :goto_0</span><br>   <span class="hljs-built_in"> const-string </span>v1, <span class="hljs-string">&quot;ans:&quot;</span><br>   <span class="hljs-built_in"> invoke-static </span>&#123;v1, v0&#125;, <span class="hljs-class">Landroid/util/Log;</span>-&gt;v(<span class="hljs-class">Ljava/lang/String;</span><span class="hljs-class">Ljava/lang/String;</span>)I<br>   <span class="hljs-built_in"> return-void</span><br><span class="hljs-built_in"></span>    <br><span class="hljs-comment">#case 0: ans=&quot;ans is 0&quot;</span><br>   <span class="hljs-keyword"> :pswitch_0</span>      <span class="hljs-comment">#pswitch_&lt;case的值&gt;</span><br>   <span class="hljs-built_in"> const-string </span>v0, <span class="hljs-string">&quot;ans is 0&quot;</span><br>   <span class="hljs-built_in"> goto </span>:goto_0  <span class="hljs-comment"># break</span><br>   <span class="hljs-built_in"> nop</span><br><span class="hljs-built_in"></span>   <span class="hljs-keyword"> :pswitch_data_0</span> <span class="hljs-comment">#case区域的结束</span><br><span class="hljs-keyword">    .packed</span>-switch 0x0   <span class="hljs-comment">#定义case的情况</span><br>       <span class="hljs-keyword"> :pswitch_0</span>   <span class="hljs-comment">#case 0</span><span class="hljs-keyword"></span><br><span class="hljs-keyword">    .end packed</span>-switch<span class="hljs-keyword"></span><br><span class="hljs-keyword">.end method</span><br></code></pre></td></tr></table></figure>
+
+<p>其中case定义情况有两种：</p>
+<figure class="highlight smali"><table><tr><td class="code"><pre><code class="hljs smali">从0开始递增<span class="hljs-built_in"></span><br><span class="hljs-built_in">packed-switch </span>p1,<span class="hljs-keyword"> :pswitch_data_0</span><br><span class="hljs-keyword">.</span>..<span class="hljs-keyword"></span><br><span class="hljs-keyword">:pswitch_data_0</span><br><span class="hljs-keyword">.packed</span>-switch 0x0<br>   <span class="hljs-keyword"> :pswitch_0</span><br>   <span class="hljs-keyword"> :pswitch_1</span> <br></code></pre></td></tr></table></figure>
+
+<p>或者：</p>
+<figure class="highlight smali"><table><tr><td class="code"><pre><code class="hljs smali">无规则switch<span class="hljs-built_in"></span><br><span class="hljs-built_in">sparse-switch </span>p1,:sswitch_data_0<br><span class="hljs-keyword">.</span>..<br>sswitch_data_0<br><span class="hljs-keyword">.sparse</span>-switch<br>    0xa -&gt;<span class="hljs-keyword"> :</span> sswitch_0<br>    0xb -&gt;<span class="hljs-keyword"> :</span> sswitch_1 <span class="hljs-comment"># 字符会转化成数组</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="try-catch-语句"><a href="#try-catch-语句" class="headerlink" title="try-catch 语句"></a>try-catch 语句</h4><figure class="highlight smali"><table><tr><td class="code"><pre><code class="hljs smali">public void encrypt(int flag) &#123;<br>    String ans = null;<br>    try &#123;<br>        ans = <span class="hljs-string">&quot;ok!&quot;</span>;<br>    &#125; catch (Exception e)&#123;<br>        ans = e.toString();<br>    &#125;<br>    Log.d(<span class="hljs-string">&quot;error&quot;</span>,ans);<br>&#125;<br>&lt;=对应smali=&gt;<br><span class="hljs-comment">#public void encrypt(int flag) &#123;</span><br><span class="hljs-keyword">.method</span><span class="hljs-keyword"> public</span> encrypt(I)V<br><span class="hljs-keyword">    .locals</span> 3<br><span class="hljs-keyword">    .param</span> p1, <span class="hljs-string">&quot;flag&quot;</span>    <span class="hljs-comment"># I</span><br><span class="hljs-keyword">    .prologue</span><br>    <br><span class="hljs-comment">#String ans = null;</span><br>   <span class="hljs-built_in"> const/4 </span>v0, 0x0<br><span class="hljs-keyword">    .line</span> 20<br><span class="hljs-keyword">    .local</span> v0, <span class="hljs-string">&quot;ans&quot;</span>:<span class="hljs-class">Ljava/lang/String;</span><br>    <br><span class="hljs-comment">#try &#123; ans=&quot;ok!&quot;; &#125;</span><br>   <span class="hljs-keyword"> :try_start_0</span>  <span class="hljs-comment"># 第一个try开始，</span><br>   <span class="hljs-built_in"> const-string </span>v0, <span class="hljs-string">&quot;ok!&quot;</span><br>   <span class="hljs-keyword"> :try_end_0</span>   <span class="hljs-comment"># 第一个try结束(主要是可能有多个try)</span><br><span class="hljs-keyword">    .catch</span> <span class="hljs-class">Ljava/lang/Exception;</span> &#123;:try_start_0 ..<span class="hljs-keyword"> :try_end_0</span>&#125;<span class="hljs-keyword"> :catch_0</span><br>    <br><span class="hljs-comment">#Log.d(&quot;error&quot;,ans);</span><br>   <span class="hljs-keyword"> :goto_0</span><br>   <span class="hljs-built_in"> const-string </span>v2, <span class="hljs-string">&quot;error&quot;</span><br>   <span class="hljs-built_in"> invoke-static </span>&#123;v2, v0&#125;, <span class="hljs-class">Landroid/util/Log;</span>-&gt;d(<span class="hljs-class">Ljava/lang/String;</span><span class="hljs-class">Ljava/lang/String;</span>)I<br>   <span class="hljs-built_in"> return-void</span><br><span class="hljs-built_in"></span>    <br><span class="hljs-comment">#catch (Exception e)&#123;ans = e.toString();&#125;</span><br>   <span class="hljs-keyword"> :catch_0</span> <span class="hljs-comment">#第一个catch</span><br>   <span class="hljs-built_in"> move-exception </span>v1<br><span class="hljs-keyword">    .local</span> v1, <span class="hljs-string">&quot;e&quot;</span>:<span class="hljs-class">Ljava/lang/Exception;</span><br>   <span class="hljs-built_in"> invoke-virtual </span>&#123;v1&#125;, <span class="hljs-class">Ljava/lang/Exception;</span>-&gt;toString()<span class="hljs-class">Ljava/lang/String;</span><br>   <span class="hljs-built_in"> move-result-object </span>v0<br>   <span class="hljs-built_in"> goto </span>:goto_0<span class="hljs-keyword"></span><br><span class="hljs-keyword">.end method</span><br></code></pre></td></tr></table></figure>
+
+]]></content>
+  </entry>
+  <entry>
+    <title>Lab-part2</title>
+    <url>/2023/03/15/2023-03-15-Lab-part2/</url>
+    <content><![CDATA[<h3 id="Step-3"><a href="#Step-3" class="headerlink" title="Step 3"></a>Step 3</h3><h4 id="Unpack-Apk"><a href="#Unpack-Apk" class="headerlink" title="Unpack Apk"></a>Unpack Apk</h4><p>把 apktool 和 需要解包的 apk 放在同一目录下，打开 cmd 运行下列命令即可解包 apk。</p>
+<figure class="highlight apache"><table><tr><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">java</span> -jar apktool_<span class="hljs-number">2</span>.<span class="hljs-number">4</span>.<span class="hljs-number">1</span>.jar d Step<span class="hljs-number">3</span>_Task<span class="hljs-number">123</span>_lab.apk<br></code></pre></td></tr></table></figure>
+
+<p><img src="/2023/03/15/2023-03-15-Lab-part2/image-20230315202038753.png"><span class="image-caption">image-20230315202038753</span></p>
+<p>因遇到报错，更正为（因为刚开始以为是版本问题，所以下了个 2.6.1 的）：</p>
+<figure class="highlight apache"><table><tr><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">java</span> -jar apktool_<span class="hljs-number">2</span>.<span class="hljs-number">6</span>.<span class="hljs-number">1</span>.jar -r d Step<span class="hljs-number">3</span>_Task<span class="hljs-number">123</span>_lab.apk<br></code></pre></td></tr></table></figure>
+
+<h4 id="Reverse"><a href="#Reverse" class="headerlink" title="Reverse"></a>Reverse</h4><p>使用 jeb 或者 jadx 直接打开 apk 即可看到反汇编后的 smali 语法，也可以直接看到由 smali 翻译出来的 java 伪代码。</p>
+<h4 id="Repack-Apk"><a href="#Repack-Apk" class="headerlink" title="Repack Apk"></a>Repack Apk</h4><p>把 999999 修改为 1。</p>
+<p><img src="/2023/03/15/2023-03-15-Lab-part2/image-20230315215510774.png"><span class="image-caption">image-20230315215510774</span></p>
+<p><img src="/2023/03/15/2023-03-15-Lab-part2/image-20230315215549175.png"><span class="image-caption">image-20230315215549175</span></p>
+<p>重打包为 apk。</p>
+<p><img src="/2023/03/15/2023-03-15-Lab-part2/image-20230316195127711.png"><span class="image-caption">image-20230316195127711</span></p>
+<h4 id="Sign-Apk"><a href="#Sign-Apk" class="headerlink" title="Sign Apk"></a>Sign Apk</h4><p>git bash 打开，先生成私钥文件：</p>
+<figure class="highlight apache"><table><tr><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">openssl</span> genrsa -<span class="hljs-number">3</span> -out testkey.pem <span class="hljs-number">2048</span><br></code></pre></td></tr></table></figure>
+
+<p>再生成 CA 自签证书，有限期为 10000 天</p>
+<figure class="highlight apache"><table><tr><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">openssl</span> req -new -x<span class="hljs-number">509</span> -key testkey.pem -out testkey.x<span class="hljs-number">509</span>.pem -days <span class="hljs-number">10000</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="/2023/03/15/2023-03-15-Lab-part2/image-20230316195756115.png"><span class="image-caption">image-20230316195756115</span></p>
+<p>使用 pkcs8 标准保存私钥文件信息（未加密版）。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><code class="hljs sh">openssl pkcs8 -<span class="hljs-keyword">in</span> testkey.pem -topk8 -outform DER -out testkey.pk8 -nocrypt<br></code></pre></td></tr></table></figure>
+
+<p>用 apksigner.jar 对 apk 进行签名。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><code class="hljs sh">java -jar apksigner.jar sign --cert testkey.x509.pem --key testkey.pk8 --<span class="hljs-keyword">in</span> Step3_Task123_lab.apk -out lab_signed.apk<br></code></pre></td></tr></table></figure>
+
+<p><img src="/2023/03/15/2023-03-15-Lab-part2/image-20230316200548791.png"><span class="image-caption">image-20230316200548791</span></p>
+<p>安装 apk 后，可以发现次数已经被修改为 1了，</p>
+<p><img src="/2023/03/15/2023-03-15-Lab-part2/image-20230316210037098.png"><span class="image-caption">image-20230316210037098</span></p>
+<p>因此可以很轻易的完成 task1。</p>
+<p><img src="/2023/03/15/2023-03-15-Lab-part2/image-20230316210102989.png"><span class="image-caption">image-20230316210102989</span></p>
+<h3 id="Tasks"><a href="#Tasks" class="headerlink" title="Tasks"></a>Tasks</h3><h4 id="Task-1-Knock-the-door"><a href="#Task-1-Knock-the-door" class="headerlink" title="Task 1 Knock the door"></a>Task 1 Knock the door</h4><p>任务一已经在上面完成。然后这边我有点疑惑的点就是说，怎么触发的点击事件，不是要实现一个 setOnClickListener 的监听器吗？经过一番学习，还有一种实现方法，就是在 activity_main.xml 中，对 button 直接指定其会触发的方法。</p>
+<p><img src="/2023/03/15/2023-03-15-Lab-part2/image-20230317153406710.png"><span class="image-caption">image-20230317153406710</span></p>
+<h4 id="Task-2-Give-me-your-token"><a href="#Task-2-Give-me-your-token" class="headerlink" title="Task 2 Give me your token"></a>Task 2 Give me your token</h4><p>任务二也很简单的，把生成的数据自己跑一遍代码即可。</p>
+<p><img src="/2023/03/15/2023-03-15-Lab-part2/image-20230317155200488.png"><span class="image-caption">image-20230317155200488</span></p>
+<p><img src="/2023/03/15/2023-03-15-Lab-part2/image-20230317155134457.png"><span class="image-caption">image-20230317155134457</span></p>
+<h4 id="Task-3-Call-to-the-NPC"><a href="#Task-3-Call-to-the-NPC" class="headerlink" title="Task 3 Call to the NPC"></a>Task 3 Call to the NPC</h4><p>只需要在最终返回时添加下列的 smali 代码调用 skdaga ，然后输出其结果。</p>
+<figure class="highlight smali"><table><tr><td class="code"><pre><code class="hljs smali">invoke-static &#123;p1&#125;, <span class="hljs-class">Lcom/pore/play4fun/PlayGame;</span>-&gt;skdaga(<span class="hljs-class">Ljava/lang/String;</span>)<span class="hljs-class">Ljava/lang/String;</span><br><span class="hljs-built_in"></span><br><span class="hljs-built_in">move-result-object </span>v0<br></code></pre></td></tr></table></figure>
+
+<p><img src="/2023/03/15/2023-03-15-Lab-part2/image-20230317203250525.png"><span class="image-caption">image-20230317203250525</span></p>
+<p>添加完后用 jadx 反汇编会出现下面的 java 伪代码。</p>
+<p><img src="/2023/03/15/2023-03-15-Lab-part2/image-20230317203218916.png"><span class="image-caption">image-20230317203218916</span></p>
+<h4 id="Task-4-Where-password-flows-to"><a href="#Task-4-Where-password-flows-to" class="headerlink" title="Task 4 Where password flows to"></a>Task 4 Where password flows to</h4><p>先确认 com.android.insecurebank.InsecureBankActivity 是最开始执行的 activity。</p>
+<p><img src="/2023/03/15/2023-03-15-Lab-part2/image-20230317185825970.png"><span class="image-caption">image-20230317185825970</span></p>
+<p>InsecureBankActivity 只实现了一个跳转去 LoginScreen 的功能，所以接下来去看 LoginScreen 的代码。</p>
+<p><img src="/2023/03/15/2023-03-15-Lab-part2/image-20230317190555333.png"><span class="image-caption">image-20230317190555333</span></p>
+<p>确认 password_text 就是我们要追踪的变量。</p>
+<p><img src="/2023/03/15/2023-03-15-Lab-part2/image-20230317190749346.png"><span class="image-caption">image-20230317190749346</span></p>
+<p>LoginScreen 实现了三个按钮的功能，一个是记住账号，一个是可以设置登录地址的 ip 和 port，第三个是我们需要关注的 login 功能如下图，后续会执行 restClient 的 doLogin 方法，或者 Statusode 为 -1 时执行PostLogin，我们先追踪 restClient 的 doLogin。</p>
+<p><img src="/2023/03/15/2023-03-15-Lab-part2/image-20230317192444458.png"><span class="image-caption">image-20230317192444458</span></p>
+<p>doLogin 实现了一个 URL 的拼接，然后转而执行 postHttpContent。</p>
+<p><img src="/2023/03/15/2023-03-15-Lab-part2/image-20230317193036009.png"><span class="image-caption">image-20230317193036009</span></p>
+<p>最终在 postHttpContent 把账号密码通过 post 的方式传入之前设置好的 ip:port</p>
+<p><img src="/2023/03/15/2023-03-15-Lab-part2/image-20230317200453615.png"><span class="image-caption">image-20230317200453615</span></p>
+<h3 id="问题及解决"><a href="#问题及解决" class="headerlink" title="问题及解决"></a>问题及解决</h3><p>重打包时，遇到报错如下，根据是因为 res 资源文件的问题，所以在解包时就加上 -r 参数，选择不解包资源文件即可。 </p>
+<p><img src="/2023/03/15/2023-03-15-Lab-part2/image-20230315224040421.png"><span class="image-caption">image-20230315224040421</span></p>
+<p><img src="/2023/03/15/2023-03-15-Lab-part2/image-20230316194743569.png"><span class="image-caption">image-20230316194743569</span></p>
+]]></content>
+  </entry>
+  <entry>
+    <title>Lab</title>
     <url>/2023/03/08/2023-03-08-Lab/</url>
     <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><ul>
 <li>下载完 Android Studio 后建议参考这篇文章的前半部分换源，不然的话构建速度有些慢，一开始一直以为是bug。。。并且这篇文章很好地介绍了整个开发的架构，以及其文件的大致作用，十分友好<a href="https://blog.csdn.net/qq_39400113/article/details/116210189">手把手教你写一个安卓app_怎么写app_果果小师弟的博客-CSDN博客</a></li>
@@ -316,7 +2181,7 @@
 </tr>
 </tbody></table>
 <p> 一般来说都是 p 命名法，因为其具有较好的可读性，可以方便地让我们知道寄存器属于哪一种类型。</p>
-<p>需要注意的是，在非 static 函数中，p0 表示<code>this</code>，p1 才表示第一个参数。</p>
+<p>需要注意的是，在非 static 方法中，p0 表示<code>this</code>，p1 才表示第一个参数。</p>
 <h4 id="类变量声明"><a href="#类变量声明" class="headerlink" title="类变量声明"></a>类变量声明</h4><figure class="highlight smali"><table><tr><td class="code"><pre><code class="hljs smali"><span class="hljs-keyword">.field</span> &lt;访问权限&gt; &lt;变量名&gt;:&lt;变量类型&gt;<br>例如：.field<span class="hljs-keyword"> private</span> str1:<span class="hljs-class">Ljava/lang/String;</span><br>等于 <span class="hljs-keyword"> private</span> java.lang.String str1;<br><br>局部变量声明：<br><span class="hljs-keyword">.local</span> &lt;初始值&gt;, &lt;变量名&gt;:&lt;变量类型&gt;<br></code></pre></td></tr></table></figure>
 
 <h4 id="类方法声明"><a href="#类方法声明" class="headerlink" title="类方法声明"></a>类方法声明</h4><figure class="highlight smali"><table><tr><td class="code"><pre><code class="hljs smali"><span class="hljs-keyword">.method</span> &lt;访问权限&gt; &lt;方法名&gt;(参数类型)&lt;返回值类型&gt;<br>	[.registers]   // 寄存器个数=field个数+local个数<br>    [.prologue]    // 指定代码开始位置<br>    [.param]       // 指定方法参数<br>    [.line]        // 指定代码在源代码中的行数，混淆后可能不存在<br>    [.locals]      // 使用的局部变量个数<br>    &lt;代码体&gt;<span class="hljs-keyword"></span><br><span class="hljs-keyword">.end method</span><br></code></pre></td></tr></table></figure>

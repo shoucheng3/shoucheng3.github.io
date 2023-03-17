@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Fudan Lab - ShouCheng</title>
+  <title>Lab - ShouCheng</title>
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="google" content="notranslate" />
@@ -149,7 +149,7 @@
         <i class="iconfont iconsearch j-navbar-search"></i>
       
     </div>
-    <div class="center">Fudan Lab</div>
+    <div class="center">Lab</div>
     <div class="right">
       <i class="iconfont iconmenu j-navbar-menu"></i>
     </div>
@@ -193,7 +193,7 @@
     <section class="head">
   <img   class="lazyload" data-original="/images/theme/post-image.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
   <div class="head-mask">
-    <h1 class="head-title">Fudan Lab</h1>
+    <h1 class="head-title">Lab</h1>
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>March 08, 2023</span>
       
@@ -516,7 +516,7 @@
 </tr>
 </tbody></table>
 <p> 一般来说都是 p 命名法，因为其具有较好的可读性，可以方便地让我们知道寄存器属于哪一种类型。</p>
-<p>需要注意的是，在非 static 函数中，p0 表示<code>this</code>，p1 才表示第一个参数。</p>
+<p>需要注意的是，在非 static 方法中，p0 表示<code>this</code>，p1 才表示第一个参数。</p>
 <h4 id="类变量声明"><a href="#类变量声明" class="headerlink" title="类变量声明"></a>类变量声明</h4><figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs smali"><span class="hljs-keyword">.field</span> &lt;访问权限&gt; &lt;变量名&gt;:&lt;变量类型&gt;<br>例如：.field<span class="hljs-keyword"> private</span> str1:<span class="hljs-class">Ljava/lang/String;</span><br>等于 <span class="hljs-keyword"> private</span> java.lang.String str1;<br><br>局部变量声明：<br><span class="hljs-keyword">.local</span> &lt;初始值&gt;, &lt;变量名&gt;:&lt;变量类型&gt;<br></code></pre></td></tr></table></figure>
 
 <h4 id="类方法声明"><a href="#类方法声明" class="headerlink" title="类方法声明"></a>类方法声明</h4><figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs smali"><span class="hljs-keyword">.method</span> &lt;访问权限&gt; &lt;方法名&gt;(参数类型)&lt;返回值类型&gt;<br>	[.registers]   // 寄存器个数=field个数+local个数<br>    [.prologue]    // 指定代码开始位置<br>    [.param]       // 指定方法参数<br>    [.line]        // 指定代码在源代码中的行数，混淆后可能不存在<br>    [.locals]      // 使用的局部变量个数<br>    &lt;代码体&gt;<span class="hljs-keyword"></span><br><span class="hljs-keyword">.end method</span><br></code></pre></td></tr></table></figure>
@@ -627,7 +627,7 @@
         
         
   <nav class="nav">
-    <a></a>
+    <a href="/2023/03/15/2023-03-15-Lab-part2/"><i class="iconfont iconleft"></i>Lab-part2</a>
     <a href="/2023/03/05/2023-03-05-Fuzzing101/">Fuzzing101<i class="iconfont iconright"></i></a>
   </nav>
 

@@ -6,7 +6,7 @@
   <link href="http://shoucheng3.github.io/atom.xml" rel="self"/>
   
   <link href="http://shoucheng3.github.io/"/>
-  <updated>2023-03-13T08:16:56.994Z</updated>
+  <updated>2023-03-17T13:09:06.936Z</updated>
   <id>http://shoucheng3.github.io/</id>
   
   <author>
@@ -17,11 +17,54 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>Fudan Lab</title>
+    <title>smali语法</title>
+    <link href="http://shoucheng3.github.io/2023/03/17/2023-03-17-smali%E8%AF%AD%E6%B3%95/"/>
+    <id>http://shoucheng3.github.io/2023/03/17/2023-03-17-smali%E8%AF%AD%E6%B3%95/</id>
+    <published>2023-03-17T12:39:13.000Z</published>
+    <updated>2023-03-17T13:09:06.936Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h3 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h3&gt;&lt;p&gt;突然意识到自己的 smali 语法其实还是有挺多的细节地方是不懂，特此开一篇博客更加详细的记录一下 smali 语法。&lt;/p&gt;
+&lt;h3</summary>
+        
+      
+    
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>Lab-part2</title>
+    <link href="http://shoucheng3.github.io/2023/03/15/2023-03-15-Lab-part2/"/>
+    <id>http://shoucheng3.github.io/2023/03/15/2023-03-15-Lab-part2/</id>
+    <published>2023-03-15T11:42:50.000Z</published>
+    <updated>2023-03-17T12:33:04.948Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h3 id=&quot;Step-3&quot;&gt;&lt;a href=&quot;#Step-3&quot; class=&quot;headerlink&quot; title=&quot;Step 3&quot;&gt;&lt;/a&gt;Step 3&lt;/h3&gt;&lt;h4 id=&quot;Unpack-Apk&quot;&gt;&lt;a href=&quot;#Unpack-Apk&quot;</summary>
+        
+      
+    
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>Lab</title>
     <link href="http://shoucheng3.github.io/2023/03/08/2023-03-08-Lab/"/>
     <id>http://shoucheng3.github.io/2023/03/08/2023-03-08-Lab/</id>
     <published>2023-03-08T12:04:41.000Z</published>
-    <updated>2023-03-13T08:16:56.994Z</updated>
+    <updated>2023-03-17T13:02:08.058Z</updated>
     
     
       
@@ -411,52 +454,6 @@
     
     
     <category term="largebin" scheme="http://shoucheng3.github.io/tags/largebin/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>pwnable.tw</title>
-    <link href="http://shoucheng3.github.io/2021/11/08/2021-12-08-pwnable-tw/"/>
-    <id>http://shoucheng3.github.io/2021/11/08/2021-12-08-pwnable-tw/</id>
-    <published>2021-11-08T14:14:50.000Z</published>
-    <updated>2022-03-14T14:56:14.731Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;p&gt;某个大佬说过，pwnable.tw的题目rank比较高，要把这里的题目都刷一遍，才算是有基础可以进行漏洞挖掘，学pwn也快一年了，今天开始慢慢地把这里的题目一一进行复现，然后再去学习漏洞挖掘的相关知识，同时这里题目质量高，CTF的帮助应该也很大</summary>
-        
-      
-    
-    
-    
-    
-    <category term="PWN,pwnable.tw" scheme="http://shoucheng3.github.io/tags/PWN-pwnable-tw/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>_IO_FLIE</title>
-    <link href="http://shoucheng3.github.io/2021/11/06/2021-11-06-IO-FLIE/"/>
-    <id>http://shoucheng3.github.io/2021/11/06/2021-11-06-IO-FLIE/</id>
-    <published>2021-11-06T11:04:05.000Z</published>
-    <updated>2023-02-19T10:04:16.915Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h1 id=&quot;利用环境&quot;&gt;&lt;a href=&quot;#利用环境&quot; class=&quot;headerlink&quot;</summary>
-        
-      
-    
-    
-    
-    
-    <category term="PWN、_IO_FILE" scheme="http://shoucheng3.github.io/tags/PWN%E3%80%81-IO-FILE/"/>
     
   </entry>
   
