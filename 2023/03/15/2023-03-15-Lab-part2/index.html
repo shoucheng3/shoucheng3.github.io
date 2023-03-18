@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>March 15, 2023</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>2276</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>2879</span>
     </div>
   </div>
 </section>
@@ -242,7 +242,7 @@
 <figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs smali">invoke-static &#123;p1&#125;, <span class="hljs-class">Lcom/pore/play4fun/PlayGame;</span>-&gt;skdaga(<span class="hljs-class">Ljava/lang/String;</span>)<span class="hljs-class">Ljava/lang/String;</span><br><span class="hljs-built_in"></span><br><span class="hljs-built_in">move-result-object </span>v0<br></code></pre></td></tr></table></figure>
 
 <p><img   class="lazyload" data-original="/2023/03/15/2023-03-15-Lab-part2/image-20230317203250525.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230317203250525</span></p>
-<p>添加完后用 jadx 反汇编会出现下面的 java 伪代码。</p>
+<p>调用运行后会打印出 flag</p>
 <p><img   class="lazyload" data-original="/2023/03/15/2023-03-15-Lab-part2/image-20230317203218916.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230317203218916</span></p>
 <h4 id="Task-4-Where-password-flows-to"><a href="#Task-4-Where-password-flows-to" class="headerlink" title="Task 4 Where password flows to"></a>Task 4 Where password flows to</h4><p>先确认 com.android.insecurebank.InsecureBankActivity 是最开始执行的 activity。</p>
 <p><img   class="lazyload" data-original="/2023/03/15/2023-03-15-Lab-part2/image-20230317185825970.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230317185825970</span></p>
@@ -250,12 +250,23 @@
 <p><img   class="lazyload" data-original="/2023/03/15/2023-03-15-Lab-part2/image-20230317190555333.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230317190555333</span></p>
 <p>确认 password_text 就是我们要追踪的变量。</p>
 <p><img   class="lazyload" data-original="/2023/03/15/2023-03-15-Lab-part2/image-20230317190749346.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230317190749346</span></p>
-<p>LoginScreen 实现了三个按钮的功能，一个是记住账号，一个是可以设置登录地址的 ip 和 port，第三个是我们需要关注的 login 功能如下图，后续会执行 restClient 的 doLogin 方法，或者 Statusode 为 -1 时执行PostLogin，我们先追踪 restClient 的 doLogin。</p>
+<p>LoginScreen 实现了三个按钮的功能，一个是记住账号，一个是可以设置登录地址的 ip 和 port，第三个是我们需要关注的 login 功能如下图，后续会执行 restClient 的 doLogin 方法，或者 Statusode 为 -1 时执行 PostLogin，我们先追踪 restClient 的 doLogin。</p>
 <p><img   class="lazyload" data-original="/2023/03/15/2023-03-15-Lab-part2/image-20230317192444458.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230317192444458</span></p>
 <p>doLogin 实现了一个 URL 的拼接，然后转而执行 postHttpContent。</p>
 <p><img   class="lazyload" data-original="/2023/03/15/2023-03-15-Lab-part2/image-20230317193036009.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230317193036009</span></p>
 <p>最终在 postHttpContent 把账号密码通过 post 的方式传入之前设置好的 ip:port</p>
 <p><img   class="lazyload" data-original="/2023/03/15/2023-03-15-Lab-part2/image-20230317200453615.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230317200453615</span></p>
+<p>这边已经到头了，转回去分析之前的另一条分支： Statusode 为 -1 时执行的 PostLogin，会有两个新的按钮，一个是 rawhistory，这个跟 password 无关，我们关注另一个 transfer_button，会先执行如下代码。</p>
+<p><img   class="lazyload" data-original="/2023/03/15/2023-03-15-Lab-part2/image-20230318151331373.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230318151331373</span></p>
+<p>最终会调用 restClient.dotransfer，此时传入的参数会比之前正常登陆多出三个：fromAccount、toAccount、amount，应该是实现的一个转账功能。</p>
+<p><img   class="lazyload" data-original="/2023/03/15/2023-03-15-Lab-part2/image-20230318151528525.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230318151528525</span></p>
+<p>然后进行跟之前类似的处理：访问的页面变成了 /transfer，然后也是进入的 postHttpContent 进行 post 传参。</p>
+<p><img   class="lazyload" data-original="/2023/03/15/2023-03-15-Lab-part2/image-20230318151654663.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230318151654663</span></p>
+<p>看看其他的功能，先看 fill_data，非常简单，会从 mySharedPreferences 中读取账号密码输入到账号和密码的输入框中，不存在则默认为 Null。</p>
+<p><img   class="lazyload" data-original="/2023/03/15/2023-03-15-Lab-part2/image-20230317212104246.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230317212104246</span></p>
+<p>然后是 Remember Me 的勾选框，跟 fill_data 的功能是相对应，是一个把账号密码保存在 mySharedPreferences 的操作。但是会多一个将密码加一层 base64 的操作。</p>
+<p><img   class="lazyload" data-original="/2023/03/15/2023-03-15-Lab-part2/image-20230317212325932.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230317212325932</span></p>
+<p>其他的部分就没涉及到 password 的操作了。</p>
 <h3 id="问题及解决"><a href="#问题及解决" class="headerlink" title="问题及解决"></a>问题及解决</h3><p>重打包时，遇到报错如下，根据是因为 res 资源文件的问题，所以在解包时就加上 -r 参数，选择不解包资源文件即可。 </p>
 <p><img   class="lazyload" data-original="/2023/03/15/2023-03-15-Lab-part2/image-20230315224040421.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230315224040421</span></p>
 <p><img   class="lazyload" data-original="/2023/03/15/2023-03-15-Lab-part2/image-20230316194743569.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230316194743569</span></p>
