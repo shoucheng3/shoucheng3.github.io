@@ -6,7 +6,7 @@
   <link href="http://shoucheng3.github.io/atom.xml" rel="self"/>
   
   <link href="http://shoucheng3.github.io/"/>
-  <updated>2023-03-17T13:09:06.936Z</updated>
+  <updated>2023-03-29T03:04:16.922Z</updated>
   <id>http://shoucheng3.github.io/</id>
   
   <author>
@@ -15,6 +15,70 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>FlowDroid学习</title>
+    <link href="http://shoucheng3.github.io/2023/03/28/2023-03-28-FlowDroid%E5%AD%A6%E4%B9%A0/"/>
+    <id>http://shoucheng3.github.io/2023/03/28/2023-03-28-FlowDroid%E5%AD%A6%E4%B9%A0/</id>
+    <published>2023-03-28T08:56:53.000Z</published>
+    <updated>2023-03-29T03:04:16.922Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h3 id=&quot;介绍&quot;&gt;&lt;a href=&quot;#介绍&quot; class=&quot;headerlink&quot; title=&quot;介绍&quot;&gt;&lt;/a&gt;介绍&lt;/h3&gt;&lt;p&gt;FlowDroid(github&lt;a</summary>
+        
+      
+    
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>Lab2</title>
+    <link href="http://shoucheng3.github.io/2023/03/24/2023-03-24-Lab2/"/>
+    <id>http://shoucheng3.github.io/2023/03/24/2023-03-24-Lab2/</id>
+    <published>2023-03-24T12:56:43.000Z</published>
+    <updated>2023-03-27T08:24:54.157Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h3 id=&quot;Step1&quot;&gt;&lt;a href=&quot;#Step1&quot; class=&quot;headerlink&quot; title=&quot;Step1&quot;&gt;&lt;/a&gt;Step1&lt;/h3&gt;&lt;p&gt;导入 soot jar 包。&lt;/p&gt;
+&lt;p&gt;&lt;img</summary>
+        
+      
+    
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>soot-And-jimple</title>
+    <link href="http://shoucheng3.github.io/2023/03/24/2023-03-24-soot-And-jimple/"/>
+    <id>http://shoucheng3.github.io/2023/03/24/2023-03-24-soot-And-jimple/</id>
+    <published>2023-03-24T12:31:32.000Z</published>
+    <updated>2023-03-29T03:03:34.306Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h3 id=&quot;参考&quot;&gt;&lt;a href=&quot;#参考&quot; class=&quot;headerlink&quot; title=&quot;参考&quot;&gt;&lt;/a&gt;参考&lt;/h3&gt;&lt;p&gt;soot API：&lt;a</summary>
+        
+      
+    
+    
+    
+    
+  </entry>
   
   <entry>
     <title>smali语法</title>
@@ -86,7 +150,7 @@
     <link href="http://shoucheng3.github.io/2023/03/05/2023-03-05-Fuzzing101/"/>
     <id>http://shoucheng3.github.io/2023/03/05/2023-03-05-Fuzzing101/</id>
     <published>2023-03-05T07:44:53.000Z</published>
-    <updated>2023-03-09T07:01:06.212Z</updated>
+    <updated>2023-03-23T06:29:46.169Z</updated>
     
     
       
@@ -108,7 +172,7 @@
     <link href="http://shoucheng3.github.io/2023/03/03/2023-03-03-30%E5%A4%A9%E8%87%AA%E5%88%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
     <id>http://shoucheng3.github.io/2023/03/03/2023-03-03-30%E5%A4%A9%E8%87%AA%E5%88%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/</id>
     <published>2023-03-03T13:21:02.000Z</published>
-    <updated>2023-03-05T07:17:34.052Z</updated>
+    <updated>2023-03-20T13:09:26.774Z</updated>
     
     
       
@@ -384,76 +448,6 @@
     
     
     
-    
-  </entry>
-  
-  <entry>
-    <title>glibc-2.31版本利用</title>
-    <link href="http://shoucheng3.github.io/2022/03/14/2022-03-14-glibc-2.31%E7%89%88%E6%9C%AC%E5%88%A9%E7%94%A8/"/>
-    <id>http://shoucheng3.github.io/2022/03/14/2022-03-14-glibc-2.31%E7%89%88%E6%9C%AC%E5%88%A9%E7%94%A8/</id>
-    <published>2022-03-14T14:40:23.000Z</published>
-    <updated>2023-01-20T13:41:35.236Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h1 id=&quot;glibc-2-29-2-31&quot;&gt;&lt;a href=&quot;#glibc-2-29-2-31&quot; class=&quot;headerlink&quot; title=&quot;glibc-2.29~2.31&quot;&gt;&lt;/a&gt;glibc-2.29~2.31&lt;/h1&gt;&lt;h2</summary>
-        
-      
-    
-    
-    
-    
-    <category term="glibc" scheme="http://shoucheng3.github.io/tags/glibc/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>global_max_fast</title>
-    <link href="http://shoucheng3.github.io/2022/03/03/2022-01-12-global-max-fast/"/>
-    <id>http://shoucheng3.github.io/2022/03/03/2022-01-12-global-max-fast/</id>
-    <published>2022-03-03T08:54:05.000Z</published>
-    <updated>2023-01-20T15:18:50.591Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;p&gt;文章来源：&lt;a href=&quot;https://xz.aliyun.com/t/5082#toc-8&quot;&gt;https://xz.aliyun.com/t/5082#toc-8&lt;/a&gt;&lt;/p&gt;
-&lt;h1 id=&quot;global-max-fast&quot;&gt;&lt;a</summary>
-        
-      
-    
-    
-    
-    
-    <category term="heap" scheme="http://shoucheng3.github.io/tags/heap/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>large bin attack</title>
-    <link href="http://shoucheng3.github.io/2022/02/28/2022-02-28-large-bin-attack/"/>
-    <id>http://shoucheng3.github.io/2022/02/28/2022-02-28-large-bin-attack/</id>
-    <published>2022-02-28T12:46:08.000Z</published>
-    <updated>2023-01-24T10:27:43.510Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h1 id=&quot;unsorted-bin-attack&quot;&gt;&lt;a href=&quot;#unsorted-bin-attack&quot; class=&quot;headerlink&quot; title=&quot;unsorted bin attack&quot;&gt;&lt;/a&gt;unsorted bin</summary>
-        
-      
-    
-    
-    
-    
-    <category term="largebin" scheme="http://shoucheng3.github.io/tags/largebin/"/>
     
   </entry>
   

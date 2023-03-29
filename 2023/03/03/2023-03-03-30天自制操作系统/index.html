@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>March 03, 2023</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>2111</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>3337</span>
     </div>
   </div>
 </section>
@@ -244,7 +244,7 @@
 <p>Makefile 改变内容的语法规则已在 day 2 说明，不再赘述了。</p>
 <p>小小总结一下从书上得来的知识：</p>
 <ol>
-<li>操作系统是设备一通电就能运行的一段程序（不是定义，只是个人理解）</li>
+<li>操作系统是设备一通电就能运行的一段程序（个人理解）</li>
 <li>BIOS 会读取磁盘的第一个扇区作为主引导记录，所以要在这个扇区里写入启动程序加载器。</li>
 <li>启动程序加载器会被从磁盘读取到内存的 0x7c00~7dff 区域，然后在内存中执行，从而再将磁盘后续存储的操作系统读入到内存的中以启动操作系统，之后把操作权限给予操作系统。</li>
 </ol>
@@ -255,13 +255,32 @@
 <p>运行之后，也是如愿的一片漆黑的画面。</p>
 <p><img   class="lazyload" data-original="/2023/03/03/2023-03-03-30%E5%A4%A9%E8%87%AA%E5%88%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20230304203628351.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230304203628351</span></p>
 <p>为了能够使用 C 语言进行编写，后续作者进行了一些处理，内联的具体操作不是很懂，跟熟知的编译流程有些不大一样，很多不认识的中间文件，但是作者也并未细说，就也不细究了，毕竟我的目的只是为了了解整个操作系统的框架，那今天就结束吧。</p>
-<h3 id="day-4"><a href="#day-4" class="headerlink" title="day 4"></a>day 4</h3><p>虽然书上没办法显示，但是我的博客里是可以看出来的，因为显存换成了白色的颜色，所以呈现了白屏。因为我的能显示，那条纹的就不放上来了，hhh</p>
+<h3 id="day-4"><a href="#day-4" class="headerlink" title="day 4"></a>day 4</h3><p>主要是通过 BIOS 调用了显示器进行显示颜色，并且在汇编中已经指定了哪块内存是显存，之后也只要把需要显示的内容存放进显存，就会被显示出来。</p>
+<p>虽然书上没办法显示，但是我的博客里是可以看出来的，因为显存换成了白色的颜色，所以呈现了白屏。因为我的能显示，那条纹的就不放上来了，hhh</p>
 <p><img   class="lazyload" data-original="/2023/03/03/2023-03-03-30%E5%A4%A9%E8%87%AA%E5%88%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20230305140625214.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230305140625214</span></p>
-<p>今天主要是介绍了一些 C 语言语法，新得的知识应该只有如果想要呈现一个图画，是一个个像素点进行着色，然后再进行一定的排序，而如果要显示出任务栏这样的东西，则是使用深浅变化的颜色体现出层次感，那么接下来把最后的两张图放一下就过了吧~</p>
+<p>今天主要是介绍了一些 C 语言语法，新得的知识应该是：如果想要呈现一个图画，需要一个个像素点进行着色，然后再进行一定的排序，而如果要显示出任务栏这样的东西，则是使用深浅变化的颜色体现出层次感，那么接下来把最后的两张图放一下就过了吧~</p>
 <p><img   class="lazyload" data-original="/2023/03/03/2023-03-03-30%E5%A4%A9%E8%87%AA%E5%88%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20230305151617617.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230305151617617</span></p>
 <p>确实是有了点早期 windows 桌面的既视感。</p>
 <p><img   class="lazyload" data-original="/2023/03/03/2023-03-03-30%E5%A4%A9%E8%87%AA%E5%88%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20230305151700726.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230305151700726</span></p>
-
+<h4 id="day-5"><a href="#day-5" class="headerlink" title="day 5"></a>day 5</h4><p>显示的字符按照最基础的像素点进行排布，例如构成 A 的像素点是需要着色的，而其他的点是无需着色的（显示一个 A，是需要在一个正方形内部进行设计的），做完之后放进显存，即可显示。</p>
+<p><img   class="lazyload" data-original="/2023/03/03/2023-03-03-30%E5%A4%A9%E8%87%AA%E5%88%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20230320154735824.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230320154735824</span></p>
+<p>因此若是要设计出字体，如下图一般进行个性化的摆放设计，这样导入显存时就会呈现出来，当然下图是作者用一种字体，但是其他人是如何将这种形式转换成机器码就看每个人自身了。</p>
+<p><img   class="lazyload" data-original="/2023/03/03/2023-03-03-30%E5%A4%A9%E8%87%AA%E5%88%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20230320161452187.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230320161452187</span></p>
+<p>因为是有工具可以处理上述的字体，将其与其他的目标文件相链接，所以作者可以在 C 语言中通过 extern 访问到。</p>
+<p><img   class="lazyload" data-original="/2023/03/03/2023-03-03-30%E5%A4%A9%E8%87%AA%E5%88%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20230320162150236.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230320162150236</span></p>
+<p><img   class="lazyload" data-original="/2023/03/03/2023-03-03-30%E5%A4%A9%E8%87%AA%E5%88%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20230320162231311.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230320162231311</span></p>
+<p>接下来是将其封装为一个函数，提高复用时的效率问题以及调用了 sprintf 进行打印变量值的处理，就不放图片了，没什么改变的。不过作者还是再三的强调了除了 sprintf 外的 printf 家族都会调用操作系统的功能，可以解读出来，我们通常见到的 stdout、stdin、stderr 都是鉴于操作系统进行定义的。而只有对内存的操作才是最本质的（所有程序运行的根本条件就是存在了内存的概念），可以很容易的对其进行操作。</p>
+<p>制作鼠标这个点，hhh，让人恍然大悟：原来这些东西都是这么来的。看这个循环就很能体会到了，大的东西拆解开的时候，本质都是简单（我随便说说的）：用一些符号去描述出鼠标的形状，然后对其循环遍历，对每个位填充上不同的颜色，鼠标的形状之外（因为是要在一个正方形内去设计）显出背景的底色，看看自己的鼠标，这很合理。</p>
+<p><img   class="lazyload" data-original="/2023/03/03/2023-03-03-30%E5%A4%A9%E8%87%AA%E5%88%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20230320163749665.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230320163749665</span></p>
+<p>跟上面那些符号构成的图案是一致的，只是下面有进行上色。</p>
+<p><img   class="lazyload" data-original="/2023/03/03/2023-03-03-30%E5%A4%A9%E8%87%AA%E5%88%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/image-20230320164629089.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" ><span class="image-caption">image-20230320164629089</span></p>
+<p>最后是让鼠标动起来，可惜今天还没实现，但是有新增的知识：</p>
+<ul>
+<li>首先是分段，32 位系统仍然需要段寄存器指定起始地址，但是段寄存器只有13 位可写，因此用这 13 位去保存 0~8191 的段号，而每个段号对应的段起始地址则存放在某段内存中，这些地址数据（8192 * 8 = 65536 = 64KB）被称作 GDT（global (segment) descriptor table 全局段号记录表）。而存放段起始地址的内存地址以及有效个数则被存放在 GDTR 寄存器中。</li>
+<li>IDT（interrupt descriptor table 中断记录表）记录了 0~255 的中断号码与调用函数的对应关系。中断的是一种十分正常的机制，用于去处理硬件（外部中断）与软件（内部中断）的输入输出处理。</li>
+</ul>
+<p>代码部分则是多了对于 GDT 和 IDT 的初始化，确立好他们在内存的位置</p>
+<h4 id="day-6"><a href="#day-6" class="headerlink" title="day 6"></a>day 6</h4>
       </section>
       <section class="extra">
         
