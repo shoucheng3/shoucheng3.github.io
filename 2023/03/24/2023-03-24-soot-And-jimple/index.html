@@ -196,7 +196,7 @@
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>March 24, 2023</span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>16651</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>16665</span>
     </div>
   </div>
 </section>
@@ -279,7 +279,7 @@
 <li>entryInitialFlow() 初始化第一个语句的入集。</li>
 <li>copy(A source, A dest) 方法接受两个自定义的抽象类型 A 的参数：源和目标。实现将源复制到目标中。</li>
 <li>merge(A in1, A in2, A out) 方法用于在控制流的合并点（例如 if/then/else 语句的末尾）合并流集。接受三个参数，一个来自左分支的出集，一个来自右分支的出集，这将成为合并点之后下一个语句的新合并入集。即将两个 in 集合并为一个 out 集。</li>
-<li>flowThrough(A in, N d, A out) 方法接受三个参数，类型为 A 的入集； 要处理的类型为 N 的节点，通常是一个 Unit；类型为 A的出集。第一个参数始终是流函数的参数（即在正向分析中它是入集，在反向分析中它是出集），第三个参数始终是流函数的结果（即在正向分析中它是出集，在反向分析中它是入集）。</li>
+<li>flowThrough(A in, N d, A out) 方法接受三个参数，类型为 A 的入集； 要处理的类型为 N 的节点，通常是一个 Unit；类型为 A的出集。第一个参数始终是流函数的参数（即在正向分析中它是入集，在反向分析中它是出集），第三个参数始终是流函数的结果（即在正向分析中它是出集，在反向分析中它是入集）。是数据流分析的核心处理方法。</li>
 <li>FlowSet 接口中有一些集合操作的方法以及具体实现的类<ul>
 <li>ArraySparseSet：使用稀疏数组实现集合，支持高效的添加、删除、查找和迭代操作。</li>
 <li>ArrayPackedSet：使用紧凑数组实现集合，可以存储更多的元素，但是由于使用了位运算，因此在操作时需要进行一些额外的计算，因此操作复杂度略高于ArraySparseSet。</li>
